@@ -10,7 +10,7 @@
  */
 class queueShell extends Shell {
 	public $uses = array(
-		'QueuedTask'
+		'Queue.QueuedTask'
 	);
 	/**
 	 * Codecomplete Hint
@@ -42,6 +42,27 @@ class queueShell extends Shell {
 			$this->out(' * ' . $loadedTask);
 		}
 
+	}
+
+	public function add() {
+
+		if (count($this->args) != 1) {
+			$this->out('Please call like this:');
+			$this->out('       cake queue add <taskname>');
+		} else {
+
+			if (in_array($this->args[0], $this->taskNames)) {
+				$this->{$this->args[0]}->add();
+			} elseif (in_array('queue_' . $this->args[0], $this->taskNames)) {
+				$this->{'queue_' . $this->args[0]}->add();
+			} else {
+				$this->out('Error: Task not Found: ' . $this->args[0]);
+				$this->out('Available Tasks:');
+				foreach ($this->taskNames as $loadedTask) {
+					$this->out(' * ' . $loadedTask);
+				}
+			}
+		}
 	}
 
 	public function runworker() {
