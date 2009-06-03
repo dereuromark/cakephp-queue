@@ -1,12 +1,9 @@
 <?php
 
 /**
- * @copyright esolut GmbH 2009
- * @link http://www.esolut.de
- * @author mgr2
+ * @author MGriesbach@gmail.com
  * @package QueuePlugin
  * @subpackage QueuePlugin.Models
- * @version $Id:  $
  */
 class QueuedTask extends AppModel {
 
