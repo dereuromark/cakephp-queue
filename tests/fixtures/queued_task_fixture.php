@@ -1,12 +1,9 @@
 <?php
 
 /**
- * @copyright esolut GmbH 2009
- * @link http://www.esolut.de
- * @author mgr2
- * @package Ordermonitor-tests
- * @subpackage Fixtures
- * @version $Id: country_fixture.php 951 2009-03-19 11:43:24Z mgr2 $
+ * @author MGriesbach@gmail.com
+ * @package QueuePlugin
+ * @subpackage QueuePlugin.Tests.Fixtures
  */
 
 class QueuedTaskFixture extends CakeTestFixture {

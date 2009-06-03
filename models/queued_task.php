@@ -23,6 +23,9 @@ class QueuedTask extends AppModel {
 	 * @return Array Taskdata.
 	 */
 	public function requestJob($capabilities) {
+		foreach ($capabilities as &$cp) {
+			$cp = str_replace('queue_', '', $cp);
+		}
 		$findConf = array(
 			'conditions' => array(
 				'jobtype' => $capabilities,

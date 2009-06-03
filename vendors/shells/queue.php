@@ -34,11 +34,11 @@ class queueShell extends Shell {
 	}
 
 	public function help() {
+		$this->out('CakePHP Queue Plugin:');
 		$this->out('Available Tasks:');
 		foreach ($this->taskNames as $loadedTask) {
 			$this->out(' * ' . $loadedTask);
 		}
-
 	}
 
 	public function add() {
@@ -68,7 +68,8 @@ class queueShell extends Shell {
 			$data = $this->QueuedTask->requestJob($this->tasks);
 			if ($data != false) {
 				$this->out('Running job of type "' . $data['jobtype'] . '"');
-				$return = $this->$data['jobtype']->run(unserialize($data['data']));
+				$taskname = 'queue_' . $data['jobtype'];
+				$return = $this->$taskname->run(unserialize($data['data']));
 				if ($return == true) {
 					$this->QueuedTask->markJobDone($data['id']);
 					$this->out('Job Finished.');
