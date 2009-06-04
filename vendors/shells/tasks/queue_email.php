@@ -10,38 +10,29 @@ App::import('Core', 'Controller');
 App::import('Component', 'Email');
 
 class queueEmailTask extends Shell {
-	public $uses = array(
-		'Queue.QueuedTask'
-	);
 	/**
 	 * List of default variables for EmailComponent
 	 *
 	 * @var array
 	 */
 	public $defaults = array(
-		'to' => null,
-		'subject' => null,
-		'charset' => 'UTF-8',
-		'from' => null,
-		'sendAs' => 'html',
-		'template' => null,
-		'debug' => false,
-		'additionalParams' => '',
+		'to' => null, 
+		'subject' => null, 
+		'charset' => 'UTF-8', 
+		'from' => null, 
+		'sendAs' => 'html', 
+		'template' => null, 
+		'debug' => false, 
+		'additionalParams' => '', 
 		'layout' => 'default'
 	);
-	/**
-	 * Codecomplete Hint
-	 *
-	 * @var QueuedTask
-	 */
-	public $QueuedTask;
 	/**
 	 * Controller class
 	 *
 	 * @var Controller
 	 */
 	public $Controller;
-
+	
 	/**
 	 * EmailComponent
 	 *
@@ -55,11 +46,11 @@ class queueEmailTask extends Shell {
 		$this->out('The Data Array should look something like this:');
 		$this->out(var_export(array(
 			'settings' => array(
-				'to' => 'email@example.com',
-				'subject' => 'Email Subject',
-				'from' => 'system@example.com',
+				'to' => 'email@example.com', 
+				'subject' => 'Email Subject', 
+				'from' => 'system@example.com', 
 				'template' => 'sometemplate'
-			),
+			), 
 			'vars' => array(
 				'text' => 'hello world'
 			)
