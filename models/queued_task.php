@@ -6,12 +6,12 @@
  * @subpackage QueuePlugin.Models
  */
 class QueuedTask extends AppModel {
-
+	
 	public $name = 'QueuedTask';
 
 	public function createJob($jobName, $data) {
 		return ($this->save($this->create(array(
-			'jobtype' => $jobName,
+			'jobtype' => $jobName, 
 			'data' => serialize($data)
 		))));
 	}
@@ -28,13 +28,13 @@ class QueuedTask extends AppModel {
 		}
 		$findConf = array(
 			'conditions' => array(
-				'jobtype' => $capabilities,
-				'completed' => null,
+				'jobtype' => $capabilities, 
+				'completed' => null, 
 				'OR' => array(
-					'fetched' => null,
+					'fetched' => null, 
 					'fetched <' => date('Y-m-d H:m:s', time() - 20)
-				),
-				'failed <= ' => 3
+				), 
+				'failed < ' => 4
 			)
 		);
 		$data = $this->find('first', $findConf);
@@ -74,8 +74,9 @@ class QueuedTask extends AppModel {
 		$data = $this->find('first', $findConf);
 		if (is_array($data)) {
 			$data[$this->name]['failed']++;
+			return (is_array($this->save($data)));
 		}
-		$this->save($data);
+		return false;
 	}
 
 	/**
@@ -106,7 +107,7 @@ class QueuedTask extends AppModel {
 		$findConf = array(
 			'fields' => array(
 				'jobtype'
-			),
+			), 
 			'group' => array(
 				'jobtype'
 			)
@@ -122,7 +123,7 @@ class QueuedTask extends AppModel {
 		$this->deleteAll(array(
 			'completed < ' => date('Y-m-d H:m:s', time() - 2000)
 		));
-
+	
 	}
 
 }
