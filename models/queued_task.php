@@ -61,10 +61,11 @@ class QueuedTask extends AppModel {
 	 * @return bool Success
 	 */
 	public function markJobDone($id) {
-		$this->id = $id;
-		$return = $this->saveField('completed', date('Y-m-d H:i:s'));
-		$this->id = null;
-		return ($return);
+		return ($this->updateAll(array(
+			'completed' => "'" . date('Y-m-d H:i:s') . "'"
+		), array(
+			'id' => $id
+		)));
 	}
 
 	/**

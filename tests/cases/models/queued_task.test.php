@@ -88,44 +88,85 @@ class QueuedTaskTestCase extends CakeTestCase {
 	public function testCreateAndFetch() {
 		//$capabilities is a list of tasks the worker can run.
 		$capabilities = array(
-			'task1',
-			'task2'
+			'task1'
 		);
+		$testData = array(
+			'x1' => 'y1',
+			'x2' => 'y2',
+			'x3' => 'y3',
+			'x4' => 'y4'
+		);
+		// start off empty.
+
+
+		$this->assertEqual(array(), $this->QueuedTask->find('all'));
 		// at first, the queue should contain 0 items.
 		$this->assertEqual(0, $this->QueuedTask->getLength());
 		// there are no jobs, so we cant fetch any.
 		$this->assertFalse($this->QueuedTask->requestJob($capabilities));
-		// now add one job of a type we can run
-		$this->assertTrue($this->QueuedTask->createJob('task1', array(
-			'some' => 'random',
-			'test' => 'data'
-		)));
+		// insert one job.
+		$this->assertTrue($this->QueuedTask->createJob('task1', $testData));
 
-		$expected = array(
-			'id' => '1',
-			'jobtype' => 'task1',
-			'data' => 'a:2:{s:4:"some";s:6:"random";s:4:"test";s:4:"data";}',
-			'completed' => NULL,
-			'failed' => '0'
+		// fetch and check the first job.
+		$data = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEqual(1, $data['id']);
+		$this->assertEqual('task1', $data['jobtype']);
+		$this->assertEqual(0, $data['failed']);
+		$this->assertNull($data['completed']);
+		$this->assertEqual($testData, unserialize($data['data']));
+
+		// after this job has been fetched, it may not be reassigned.
+		$this->assertEqual(array(), $this->QueuedTask->requestJob($capabilities));
+
+		// queue length is still 1 since the first job did not finish.
+		$this->assertEqual(1, $this->QueuedTask->getLength());
+
+		// Now mark Task1 as done
+		$this->assertTrue($this->QueuedTask->markJobDone(1));
+		// Should be 0 again.
+		$this->assertEqual(0, $this->QueuedTask->getLength());
+	}
+
+	/**
+	 * Test the delivery of jobs in sequence, skipping fetched but not completed tasks.
+	 *
+	 */
+	public function testSequence() {
+		//$capabilities is a list of tasks the worker can run.
+		$capabilities = array(
+			'task1'
 		);
-		// check if we can get it back...
-		$data = $this->QueuedTask->requestJob($capabilities);
-		// remove created key since it messes up the compare.
-		unset($data['created'], $data['fetched']);
-		$this->assertEqual($data, $expected);
-		// the job should NOT be reassigned until it times out.
-		$this->assertFalse($this->QueuedTask->requestJob($capabilities));
+		// at first, the queue should contain 0 items.
+		$this->assertEqual(0, $this->QueuedTask->getLength());
+		// create some more jobs
+		foreach (range(0, 9) as $num) {
+			$this->assertTrue($this->QueuedTask->createJob('task1', array(
+				'tasknum' => $num
+			)));
+		}
+		// 10 jobs in the queue.
+		$this->assertEqual(10, $this->QueuedTask->getLength());
 
-		// well, let's mark this job as failed and see if it gets requeued.
-		$this->assertTrue($this->QueuedTask->markJobFailed(1));
+		// jobs should be fetched in the original sequence.
+		foreach (range(0, 4) as $num) {
+			$job = $this->QueuedTask->requestJob($capabilities);
+			$jobData = unserialize($job['data']);
+			$this->assertEqual($num, $jobData['tasknum']);
+		}
+		// now mark them as done
+		foreach (range(0, 4) as $num) {
+			$this->assertTrue($this->QueuedTask->markJobDone($num + 1));
+			$this->assertEqual(9 - $num, $this->QueuedTask->getLength());
+		}
 
-		// lets update the expectations
-		$expected['failed'] = 1;
-		$data = $this->QueuedTask->requestJob($capabilities);
-		// remove created key since it messes up the compare.
-		unset($data['created'], $data['fetched']);
-		$this->assertEqual($data, $expected);
-
+		// jobs should be fetched in the original sequence.
+		foreach (range(5, 9) as $num) {
+			$job = $this->QueuedTask->requestJob($capabilities);
+			$jobData = unserialize($job['data']);
+			$this->assertEqual($num, $jobData['tasknum']);
+			$this->assertTrue($this->QueuedTask->markJobDone($job['id']));
+			$this->assertEqual(9 - $num, $this->QueuedTask->getLength());
+		}
 	}
 }
 ?>
