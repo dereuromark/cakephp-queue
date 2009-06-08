@@ -1,0 +1,30 @@
+--------------------------------
+CakePHP Queue Plugin
+--------------------------------
+
+Installation:
+--------------------------------
+* Copy the files in this directory into <yourapp>/plugins/queue.
+* Run the following command in the cake console to create the tables:
+		cake schema run create -path plugins\queue\config\sql -name queue
+
+Usage:
+--------------------------------
+  cake queue help
+          -> Display Help message
+  cake queue add <taskname>
+          -> Try to call the cli add() function on a task
+          -> tasks may or may not provide this functionality.
+  cake queue runworker
+          -> run a queue worker, which will look for a pending task it can execute.
+          -> the worker will always try to find jobs matching its installed Tasks
+Notes:
+	<taskname> may either be the complete classname (eg. queue_example)
+	or the shorthand without the leading "queue_" (eg. example)
+        
+Use 'cake queue help' to get a list of installed/available tasks.
+
+Custom tasks should be placed in <yourapp>/vendors/shells/tasks.
+Tasks should be named 'queue_something.php' and implement a "queueSomethingTask", keeping Cakephp Naming conventions intact.
+
+A detailed Example task can be found in /vendors/shells/tasks/queue_example.php inside this folder.
