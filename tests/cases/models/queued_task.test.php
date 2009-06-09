@@ -3,6 +3,8 @@
  * @author MGriesbach@gmail.com
  * @package QueuePlugin
  * @subpackage QueuePlugin.Tests.Models
+ * @license http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @link http://github.com/MSeven/cakephp_queue
  */
 
 App::import('Model', 'Queue.QueuedTask');

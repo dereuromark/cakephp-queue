@@ -4,6 +4,8 @@
  * @author MGriesbach@gmail.com
  * @package QueuePlugin
  * @subpackage QueuePlugin.Shells
+ * @license http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @link http://github.com/MSeven/cakephp_queue
  */
 class queueShell extends Shell {
 	public $uses = array(
@@ -22,7 +24,7 @@ class queueShell extends Shell {
 	public function initialize() {
 		App::import('Folder');
 		$this->_loadModels();
-		
+
 		foreach ($this->Dispatch->shellPaths as $path) {
 			$folder = new Folder($path . DS . 'tasks');
 			$this->tasks = array_merge($this->tasks, $folder->find('queue_.*\.php'));
@@ -33,11 +35,12 @@ class queueShell extends Shell {
 		}
 		// default configuration vars.
 		Configure::write('queue', array(
-			'sleeptime' => 10, 
+			'sleeptime' => 10,
 			'gcprop' => 10
 		));
 		//Config can be overwritten via local app config.
 		Configure::load('queue');
+		debug('hello');
 	}
 
 	/**
@@ -75,7 +78,7 @@ class queueShell extends Shell {
 			$this->out('Please call like this:');
 			$this->out('       cake queue add <taskname>');
 		} else {
-			
+
 			if (in_array($this->args[0], $this->taskNames)) {
 				$this->{$this->args[0]}->add();
 			} elseif (in_array('queue_' . $this->args[0], $this->taskNames)) {
@@ -92,7 +95,7 @@ class queueShell extends Shell {
 
 	/**
 	 * Run a QueueWorker loop.
-	 * Runs a Queue Worker process which will try to find unassigned jobs in the queue 
+	 * Runs a Queue Worker process which will try to find unassigned jobs in the queue
 	 * which it may run and try to fetch and execute them.
 	 */
 	public function runworker() {
@@ -114,7 +117,7 @@ class queueShell extends Shell {
 				$this->out('nothing to do, sleeping.');
 				sleep(Configure::read('queue.sleeptime'));
 			}
-			
+
 			if (rand(0, 100) > (100 - Configure::read('queue.gcprop'))) {
 				$this->out('Performing Old job cleanup.');
 				$this->QueuedTask->cleanOldJobs();

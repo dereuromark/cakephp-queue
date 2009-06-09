@@ -4,6 +4,8 @@
  * @author MGriesbach@gmail.com
  * @package QueuePlugin
  * @subpackage QueuePlugin.Models
+ * @license http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @link http://github.com/MSeven/cakephp_queue
  */
 class queueSchema extends CakeSchema {
 	var $name = 'queue';

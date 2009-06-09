@@ -4,6 +4,8 @@
  * @author MGriesbach@gmail.com
  * @package QueuePlugin
  * @subpackage QueuePlugin.Tasks
+ * @license http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @link http://github.com/MSeven/cakephp_queue
  * @see http://bakery.cakephp.org/articles/view/emailcomponent-in-a-cake-shell
  */
 App::import('Core', 'Controller');
@@ -16,14 +18,14 @@ class queueEmailTask extends Shell {
 	 * @var array
 	 */
 	public $defaults = array(
-		'to' => null, 
-		'subject' => null, 
-		'charset' => 'UTF-8', 
-		'from' => null, 
-		'sendAs' => 'html', 
-		'template' => null, 
-		'debug' => false, 
-		'additionalParams' => '', 
+		'to' => null,
+		'subject' => null,
+		'charset' => 'UTF-8',
+		'from' => null,
+		'sendAs' => 'html',
+		'template' => null,
+		'debug' => false,
+		'additionalParams' => '',
 		'layout' => 'default'
 	);
 	/**
@@ -32,7 +34,7 @@ class queueEmailTask extends Shell {
 	 * @var Controller
 	 */
 	public $Controller;
-	
+
 	/**
 	 * EmailComponent
 	 *
@@ -46,11 +48,11 @@ class queueEmailTask extends Shell {
 		$this->out('The Data Array should look something like this:');
 		$this->out(var_export(array(
 			'settings' => array(
-				'to' => 'email@example.com', 
-				'subject' => 'Email Subject', 
-				'from' => 'system@example.com', 
+				'to' => 'email@example.com',
+				'subject' => 'Email Subject',
+				'from' => 'system@example.com',
 				'template' => 'sometemplate'
-			), 
+			),
 			'vars' => array(
 				'text' => 'hello world'
 			)
