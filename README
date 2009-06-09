@@ -2,6 +2,25 @@
 CakePHP Queue Plugin
 --------------------------------
 
+Background:
+--------------------------------
+This is a very simple and minimalistic jobQueue (or deferred-task) system for CakePHP.
+
+Overall functionality is inspired by systems like Gearman, Beanstalk or dropr, but without any illusion to compete with these more advanced systems.
+
+The Plugin is an attempt to provide a basic, simple to use method to enable deferred job execution, without the hassle of setting up or running an extra queue deamon, while integrating nicely into CakePHP and also simplifying the creation of worker scripts.
+
+Why use deferred execution?
+deferred execution makes sense (especially in PHP) when your page want's to execute tasks, which are not directly related to rendering the current page.
+For instance, in a BBS-type system, a new users post might require the creation of multiple personalized email messages, notifying other users of the new content.
+Creating and sending these emails is completely irrelevant to the currently active user, and should not increase page response time.
+Another example would be downloading, extractiond and/or analyzing an external file per request of the user.
+The regular solution to these problems would be to create specialized cronjobs which use specific database states to determine which action should be done.
+
+The Queue Plugin provides a simple method to create and run such non-user-interaction-critical tasks.
+
+While you can run multiple workers, and can (to some extend) spread these workers to different machines via a shared database, you should seriously consider using a more advanced system for high volume/high number of workers systems.
+
 Installation:
 --------------------------------
 * Copy the files in this directory into <yourapp>/plugins/queue.
