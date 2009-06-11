@@ -77,7 +77,7 @@ class queueShell extends Shell {
 	 *
 	 */
 	public function add() {
-		if (count($this->args) != 1) {
+		if (count($this->args) < 1) {
 			$this->out('Please call like this:');
 			$this->out('       cake queue add <taskname>');
 		} else {
