@@ -32,20 +32,25 @@ class QueuedTask extends AppModel {
 	 * @return Array Taskdata.
 	 */
 	public function requestJob($capabilities) {
-		foreach ($capabilities as &$cp) {
-			$cp = str_replace('queue_', '', $cp);
-		}
+
 		$findConf = array(
 			'conditions' => array(
-				'jobtype' => $capabilities,
 				'completed' => null,
-				'OR' => array(
-					'fetched' => null,
-					'fetched <' => date('Y-m-d H:i:s', time() - 20)
-				),
-				'failed < ' => 4
+				'OR' => array()
 			)
 		);
+		// generate the task specific conditions.
+		foreach ($capabilities as $task) {
+			$findConf['conditions']['OR'][] = array(
+				'jobtype' => str_replace('queue_', '', $task['name']),
+				'OR' => array(
+					'fetched <' => date('Y-m-d H:i:s', time() - $task['timeout']),
+					'fetched' => null
+				),
+				'failed <' => ($task['retries'] + 1)
+			);
+		}
+
 		$data = $this->find('first', $findConf);
 		if (is_array($data)) {
 			$this->id = $data[$this->name]['id'];

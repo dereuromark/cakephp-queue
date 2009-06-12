@@ -28,6 +28,9 @@ class queueEmailTask extends Shell {
 		'additionalParams' => '',
 		'layout' => 'default'
 	);
+
+	public $timeout = 120;
+	public $retries = 0;
 	/**
 	 * Controller class
 	 *

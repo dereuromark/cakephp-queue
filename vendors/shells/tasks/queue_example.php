@@ -30,6 +30,19 @@ class queueExampleTask extends Shell {
 	public $QueuedTask;
 
 	/**
+	 * Timeout für run, after which the Task is reassigned to a new worker.
+	 *
+	 * @var integer
+	 */
+	public $timeout = 10;
+	/**
+	 * Number of times a failed instance of this task should be restarted before giving up.
+	 *
+	 * @var integer
+	 */
+	public $retries = 0;
+
+	/**
 	 * Example add functionality.
 	 * Will create one example job in the queue, which later will be executed using run();
 	 */

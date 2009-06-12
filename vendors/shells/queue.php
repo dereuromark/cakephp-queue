@@ -18,6 +18,8 @@ class queueShell extends Shell {
 	 */
 	public $QueuedTask;
 
+	private $taskConf;
+
 	/**
 	 * Overwrite shell initialize to dynamically load all Queue Related Tasks.
 	 */
@@ -36,11 +38,12 @@ class queueShell extends Shell {
 		// default configuration vars.
 		Configure::write('queue', array(
 			'sleeptime' => 10,
-			'gcprop' => 10
+			'gcprop' => 10,
+			'defaultworkertimeout' => 120,
+			'defaultworkerretries' => 4
 		));
 		//Config can be overwritten via local app config.
 		Configure::load('queue');
-		debug('hello');
 	}
 
 	/**
@@ -101,7 +104,7 @@ class queueShell extends Shell {
 	public function runworker() {
 		while (true) {
 			$this->out('Looking for Job....');
-			$data = $this->QueuedTask->requestJob($this->tasks);
+			$data = $this->QueuedTask->requestJob($this->getTaskConf());
 			if ($data != false) {
 				$this->out('Running Job of type "' . $data['jobtype'] . '"');
 				$taskname = 'queue_' . strtolower($data['jobtype']);
@@ -124,6 +127,26 @@ class queueShell extends Shell {
 			}
 			$this->hr();
 		}
+	}
+
+	private function getTaskConf() {
+		if (!is_array($this->taskConf)) {
+			$this->taskConf = array();
+			foreach ($this->tasks as $task) {
+				$this->taskConf[$task]['name'] = $task;
+				if (property_exists($this->{$task}, 'timeout')) {
+					$this->taskConf[$task]['timeout'] = $this->{$task}->timeout;
+				} else {
+					$this->taskConf[$task]['timeout'] = Configure::read('queue.defaultworkertimeout');
+				}
+				if (property_exists($this->{$task}, 'retries')) {
+					$this->taskConf[$task]['retries'] = $this->{$task}->retries;
+				} else {
+					$this->taskConf[$task]['retries'] = Configure::read('queue.defaultworkerretries');
+				}
+			}
+		}
+		return $this->taskConf;
 	}
 }
 ?>
