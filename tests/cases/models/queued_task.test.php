@@ -51,7 +51,7 @@ class QueuedTaskTestCase extends CakeTestCase {
 	/**
 	 * Test the basic create and length evaluation functions.
 	 */
-	public function xtestCreateAndCount() {
+	public function testCreateAndCount() {
 		// at first, the queue should contain 0 items.
 		$this->assertEqual(0, $this->QueuedTask->getLength());
 
@@ -90,7 +90,11 @@ class QueuedTaskTestCase extends CakeTestCase {
 	public function testCreateAndFetch() {
 		//$capabilities is a list of tasks the worker can run.
 		$capabilities = array(
-			'task1'
+			'task1' => array(
+				'name' => 'task1',
+				'timeout' => 100,
+				'retries' => 2
+			)
 		);
 		$testData = array(
 			'x1' => 'y1',
@@ -136,7 +140,11 @@ class QueuedTaskTestCase extends CakeTestCase {
 	public function testSequence() {
 		//$capabilities is a list of tasks the worker can run.
 		$capabilities = array(
-			'task1'
+			'task1' => array(
+				'name' => 'task1',
+				'timeout' => 100,
+				'retries' => 2
+			)
 		);
 		// at first, the queue should contain 0 items.
 		$this->assertEqual(0, $this->QueuedTask->getLength());
