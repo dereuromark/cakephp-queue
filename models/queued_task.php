@@ -18,11 +18,16 @@ class QueuedTask extends AppModel {
 	 * @param array $data any array
 	 * @return bool success
 	 */
-	public function createJob($jobName, $data) {
-		return ($this->save($this->create(array(
+	public function createJob($jobName, $data, $notBefore = null) {
+
+		$data = array(
 			'jobtype' => $jobName,
 			'data' => serialize($data)
-		))));
+		);
+		if ($notBefore != null) {
+			$data['notbefore'] = date('Y-m-d H:i:s', strtotime($notBefore));
+		}
+		return ($this->save($this->create($data)));
 	}
 
 	/**
@@ -43,9 +48,19 @@ class QueuedTask extends AppModel {
 		foreach ($capabilities as $task) {
 			$findConf['conditions']['OR'][] = array(
 				'jobtype' => str_replace('queue_', '', $task['name']),
-				'OR' => array(
-					'fetched <' => date('Y-m-d H:i:s', time() - $task['timeout']),
-					'fetched' => null
+				'AND' => array(
+					array(
+						'OR' => array(
+							'notbefore <' => date('Y-m-d H:i:s'),
+							'notbefore' => null
+						)
+					),
+					array(
+						'OR' => array(
+							'fetched <' => date('Y-m-d H:i:s', time() - $task['timeout']),
+							'fetched' => null
+						)
+					)
 				),
 				'failed <' => ($task['retries'] + 1)
 			);

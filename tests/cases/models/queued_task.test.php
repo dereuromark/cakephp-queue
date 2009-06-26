@@ -44,7 +44,7 @@ class QueuedTaskTestCase extends CakeTestCase {
 	/**
 	 * Basic Instance test
 	 */
-	public function testCountryInstance() {
+	public function testQueueInstance() {
 		$this->assertTrue(is_a($this->QueuedTask, 'TestQueuedTask'));
 	}
 
@@ -177,6 +177,17 @@ class QueuedTaskTestCase extends CakeTestCase {
 			$this->assertTrue($this->QueuedTask->markJobDone($job['id']));
 			$this->assertEqual(9 - $num, $this->QueuedTask->getLength());
 		}
+	}
+
+	public function testNotBefore() {
+		$this->assertTrue($this->QueuedTask->createJob('task1', null, '+ 1 Min'));
+		$this->assertTrue($this->QueuedTask->createJob('task1', null, '+ 1 Day'));
+		$this->assertTrue($this->QueuedTask->createJob('task1', null, '2009-07-01 12:00:00'));
+		$data = $this->QueuedTask->find('all');
+		$this->assertEqual($data[0]['TestQueuedTask']['notbefore'], date('Y-m-d H:i:s', strtotime('+ 1 Min')));
+		$this->assertEqual($data[1]['TestQueuedTask']['notbefore'], date('Y-m-d H:i:s', strtotime('+ 1 Day')));
+		$this->assertEqual($data[2]['TestQueuedTask']['notbefore'], '2009-07-01 12:00:00');
+
 	}
 }
 ?>
