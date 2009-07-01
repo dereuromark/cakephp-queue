@@ -26,9 +26,33 @@ Installation:
 * Copy the files in this directory into <yourapp>/plugins/queue.
 * Run the following command in the cake console to create the tables:
 		cake schema run create -path plugins\queue\config\sql -name queue
+		
+Configuration:
+--------------------------------
+The plugin allows some simple runtime configuration. 
+You may create a file called "queue.php" inside your 'APP/config' folder (NOT the plugins config folder) to set the following values:
+
+#seconds to sleep() when no executable job is found
+$config['queue']['sleeptime'] = 10;
+
+#Propability in percent of a old job cleanup happening
+$config['queue']['gcprop'] = 10;
+
+#Default timeout after which a job is requeued if the worker doesn't report back
+$config['queue']['defaultworkertimeout'] = 120;
+
+#Default number of retries if a job fails or times out.
+$config['queue']['defaultworkerretries'] = 4;
+
+#Seconds of runnig time after which the worker will terminate (0 = unlimited)
+$config['queue']['workermaxruntime'] = 0;
+
+The values above are the default settings which apply, when no configuration is found.
 
 Usage:
 --------------------------------
+Run the following using the cakephp shell:
+
   cake queue help
           -> Display Help message
   cake queue add <taskname>
