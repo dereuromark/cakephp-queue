@@ -17,7 +17,7 @@ class queueShell extends Shell {
 	 * @var QueuedTask
 	 */
 	public $QueuedTask;
-	
+
 	private $taskConf;
 
 	/**
@@ -26,7 +26,7 @@ class queueShell extends Shell {
 	public function initialize() {
 		App::import('Folder');
 		$this->_loadModels();
-		
+
 		foreach ($this->Dispatch->shellPaths as $path) {
 			$folder = new Folder($path . DS . 'tasks');
 			$this->tasks = array_merge($this->tasks, $folder->find('queue_.*\.php'));
@@ -35,17 +35,22 @@ class queueShell extends Shell {
 		foreach ($this->tasks as &$task) {
 			$task = basename($task, '.php');
 		}
-		
+
 		//Config can be overwritten via local app config.
 		Configure::load('queue');
+
+		$conf = Configure::read('queue');
+		if (!is_array($conf)) {
+			$conf = array();
+		}
 		//merge with default configuration vars.
 		Configure::write('queue', array_merge(array(
-			'sleeptime' => 10, 
-			'gcprop' => 10, 
-			'defaultworkertimeout' => 120, 
-			'defaultworkerretries' => 4, 
+			'sleeptime' => 10,
+			'gcprop' => 10,
+			'defaultworkertimeout' => 120,
+			'defaultworkerretries' => 4,
 			'workermaxruntime' => 0
-		), configure::read('queue')));
+		), $conf));
 	}
 
 	/**
@@ -83,7 +88,7 @@ class queueShell extends Shell {
 			$this->out('Please call like this:');
 			$this->out('       cake queue add <taskname>');
 		} else {
-			
+
 			if (in_array($this->args[0], $this->taskNames)) {
 				$this->{$this->args[0]}->add();
 			} elseif (in_array('queue_' . $this->args[0], $this->taskNames)) {
@@ -124,11 +129,11 @@ class queueShell extends Shell {
 				$this->out('nothing to do, sleeping.');
 				sleep(Configure::read('queue.sleeptime'));
 			}
-			
-			// check if we are close to the maximum runtime and end processing if so.
+
+			// check if we are over the maximum runtime and end processing if so.
 			if (Configure::read('queue.workermaxruntime') != 0 && (time() - $starttime) >= Configure::read('queue.workermaxruntime')) {
 				$exit = true;
-				$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds, terminating.');
+				$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('queue.workermaxruntime') . '), terminating.');
 			}
 			if ($exit || rand(0, 100) > (100 - Configure::read('queue.gcprop'))) {
 				$this->out('Performing Old job cleanup.');
