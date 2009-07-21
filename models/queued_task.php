@@ -42,6 +42,21 @@ class QueuedTask extends AppModel {
 			'conditions' => array(
 				'completed' => null,
 				'OR' => array()
+			),
+			'fields' => array(
+				'id',
+				'jobtype',
+				'data',
+				'created',
+				'notbefore',
+				'fetched',
+				'completed',
+				'failed',
+				'timediff(NOW(),notbefore) AS age'
+			),
+			'order' => array(
+				'age DESC',
+				'id ASC'
 			)
 		);
 		// generate the task specific conditions.

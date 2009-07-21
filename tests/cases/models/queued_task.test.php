@@ -179,6 +179,10 @@ class QueuedTaskTestCase extends CakeTestCase {
 		}
 	}
 
+	/**
+	 * Test creating Jobs to run close to a specified time, and strtotime parsing.
+	 * @return null
+	 */
 	public function testNotBefore() {
 		$this->assertTrue($this->QueuedTask->createJob('task1', null, '+ 1 Min'));
 		$this->assertTrue($this->QueuedTask->createJob('task1', null, '+ 1 Day'));
@@ -187,7 +191,62 @@ class QueuedTaskTestCase extends CakeTestCase {
 		$this->assertEqual($data[0]['TestQueuedTask']['notbefore'], date('Y-m-d H:i:s', strtotime('+ 1 Min')));
 		$this->assertEqual($data[1]['TestQueuedTask']['notbefore'], date('Y-m-d H:i:s', strtotime('+ 1 Day')));
 		$this->assertEqual($data[2]['TestQueuedTask']['notbefore'], '2009-07-01 12:00:00');
+	}
 
+	/**
+	 * Test Job reordering depending on 'notBefore' field.
+	 * Jobs with an expired notbefore field should be executed before any other job without specific timing info.
+	 * @return null
+	 */
+	public function testNotBeforeOrder() {
+		$capabilities = array(
+			'task1' => array(
+				'name' => 'task1',
+				'timeout' => 100,
+				'retries' => 2
+			),
+			'dummytask' => array(
+				'name' => 'dummytask',
+				'timeout' => 100,
+				'retries' => 2
+			)
+		);
+		$this->assertTrue($this->QueuedTask->createJob('dummytask', null));
+		$this->assertTrue($this->QueuedTask->createJob('dummytask', null));
+		// create a task with it's execution target some seconds in the past, so it should jump to the top of the list.
+		$this->assertTrue($this->QueuedTask->createJob('task1', 'three', '- 3 Seconds'));
+		$this->assertTrue($this->QueuedTask->createJob('task1', 'two', '- 4 Seconds'));
+		$this->assertTrue($this->QueuedTask->createJob('task1', 'one', '- 5 Seconds'));
+
+		// when usin requestJob, the jobs we just created should be delivered in this order, NOT the order in which they where created.
+		$expected = array(
+			array(
+				'name' => 'task1',
+				'data' => 'one'
+			),
+			array(
+				'name' => 'task1',
+				'data' => 'two'
+			),
+			array(
+				'name' => 'task1',
+				'data' => 'three'
+			),
+			array(
+				'name' => 'dummytask',
+				'data' => ''
+			),
+			array(
+				'name' => 'dummytask',
+				'data' => ''
+			)
+		);
+
+		foreach ($expected as $item) {
+			$tmp = $this->QueuedTask->requestJob($capabilities);
+			$this->assertEqual($item['name'], $tmp['jobtype']);
+			$this->assertEqual($item['data'], unserialize($tmp['data']));
+		}
 	}
 }
 ?>
