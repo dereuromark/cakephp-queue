@@ -158,6 +158,9 @@ class queueShell extends Shell {
 				} else {
 					$this->taskConf[$task]['retries'] = Configure::read('queue.defaultworkerretries');
 				}
+				if (property_exists($this->{$task}, 'rate')) {
+					$this->taskConf[$task]['rate'] = $this->{$task}->rate;
+				}
 			}
 		}
 		return $this->taskConf;

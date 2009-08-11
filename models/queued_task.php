@@ -11,6 +11,8 @@ class QueuedTask extends AppModel {
 
 	public $name = 'QueuedTask';
 
+	public $rateHistory = array();
+
 	/**
 	 * Add a new Job to the Queue
 	 *
@@ -61,7 +63,8 @@ class QueuedTask extends AppModel {
 		);
 		// generate the task specific conditions.
 		foreach ($capabilities as $task) {
-			$findConf['conditions']['OR'][] = array(
+
+			$tmp = array(
 				'jobtype' => str_replace('queue_', '', $task['name']),
 				'AND' => array(
 					array(
@@ -79,13 +82,18 @@ class QueuedTask extends AppModel {
 				),
 				'failed <' => ($task['retries'] + 1)
 			);
+			if (array_key_exists('rate', $task) && array_key_exists($tmp['jobtype'], $this->rateHistory)) {
+				$tmp['NOW() >='] = date('Y-m-d H:i:s', $this->rateHistory[$tmp['jobtype']] + $task['rate']);
+			}
+			$findConf['conditions']['OR'][] = $tmp;
 		}
-
 		$data = $this->find('first', $findConf);
 		if (is_array($data)) {
 			$this->id = $data[$this->name]['id'];
 			$this->saveField('fetched', date('Y-m-d H:i:s'));
 			$this->id = null;
+			//save last fetch by type for Rate Limiting.
+			$this->rateHistory[$data[$this->name]['jobtype']] = time();
 			return $data[$this->name];
 		}
 		return FALSE;

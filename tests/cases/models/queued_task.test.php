@@ -248,5 +248,82 @@ class QueuedTaskTestCase extends CakeTestCase {
 			$this->assertEqual($item['data'], unserialize($tmp['data']));
 		}
 	}
+
+	/**
+	 * Job Rate limiting.
+	 * Do not execute jobs of a certain type more often than once every X seconds.
+	 */
+	public function testRateLimit() {
+		$capabilities = array(
+			'task1' => array(
+				'name' => 'task1',
+				'timeout' => 100,
+				'retries' => 2,
+				'rate' => 1
+			),
+			'dummytask' => array(
+				'name' => 'dummytask',
+				'timeout' => 100,
+				'retries' => 2
+			)
+		);
+
+		// clear out the rate history
+		$this->QueuedTask->rateHistory = array();
+
+		$this->assertTrue($this->QueuedTask->createJob('task1', '1'));
+		$this->assertTrue($this->QueuedTask->createJob('task1', '2'));
+		$this->assertTrue($this->QueuedTask->createJob('task1', '3'));
+		$this->assertTrue($this->QueuedTask->createJob('dummytask', null));
+		$this->assertTrue($this->QueuedTask->createJob('dummytask', null));
+		$this->assertTrue($this->QueuedTask->createJob('dummytask', null));
+		$this->assertTrue($this->QueuedTask->createJob('dummytask', null));
+
+		//At first we get task1-1.
+		$tmp = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEqual($tmp['jobtype'], 'task1');
+		$this->assertEqual(unserialize($tmp['data']), '1');
+
+		//The rate limit should now skip over task1-2 and fetch a dummytask.
+		$tmp = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEqual($tmp['jobtype'], 'dummytask');
+		$this->assertEqual(unserialize($tmp['data']), null);
+
+		//and again.
+		$tmp = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEqual($tmp['jobtype'], 'dummytask');
+		$this->assertEqual(unserialize($tmp['data']), null);
+
+		//Then some time passes
+		sleep(1);
+
+		//Now we should get task1-2
+		$tmp = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEqual($tmp['jobtype'], 'task1');
+		$this->assertEqual(unserialize($tmp['data']), '2');
+
+		//and again rate limit to dummytask.
+		$tmp = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEqual($tmp['jobtype'], 'dummytask');
+		$this->assertEqual(unserialize($tmp['data']), null);
+
+		//Then some more time passes
+		sleep(1);
+
+		//Now we should get task1-3
+		$tmp = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEqual($tmp['jobtype'], 'task1');
+		$this->assertEqual(unserialize($tmp['data']), '3');
+
+		//and again rate limit to dummytask.
+		$tmp = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEqual($tmp['jobtype'], 'dummytask');
+		$this->assertEqual(unserialize($tmp['data']), null);
+
+		//and now the queue is empty
+		$tmp = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEqual($tmp, null);
+
+	}
 }
 ?>
