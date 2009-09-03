@@ -67,7 +67,7 @@ class queueEmailTask extends Shell {
 		$this->Email = & new EmailComponent(null);
 		$this->Email->initialize($this->Controller, $this->defaults);
 		if (array_key_exists('settings', $data)) {
-			$this->Email->_set($this->defaults = array_filter(am($this->defaults, $data['settings'])));
+			$this->Email->_set(array_filter(am($this->defaults, $data['settings'])));
 			if (array_key_exists('vars', $data)) {
 				foreach ($data['vars'] as $name => $var) {
 					$this->Controller->set($name, $var);
