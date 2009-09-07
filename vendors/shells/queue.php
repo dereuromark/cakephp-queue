@@ -69,6 +69,10 @@ class queueShell extends Shell {
 		$this->out('		-> run a queue worker, which will look for a pending task it can execute.');
 		$this->out('		-> the worker will always try to find jobs matching its installed Tasks');
 		$this->out('		-> see "Available Tasks" below.');
+		$this->out('	cake queue stats');
+		$this->out('		-> Display some general Statistics.');
+		$this->out('	cake queue clean');
+		$this->out('		-> Manually call cleanup function to delete task data of completed tasks.');
 		$this->out('Notes:');
 		$this->out('	<taskname> may either be the complete classname (eg. queue_example)');
 		$this->out('	or the shorthand without the leading "queue_" (eg. example)');
@@ -140,6 +144,32 @@ class queueShell extends Shell {
 				$this->QueuedTask->cleanOldJobs();
 			}
 			$this->hr();
+		}
+	}
+
+	public function clean() {
+		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - 2000));
+		$this->QueuedTask->cleanOldJobs();
+	}
+
+	public function stats() {
+		$this->out('Jobs currenty in the Queue:');
+
+		$types = $this->QueuedTask->getTypes();
+
+		foreach ($types as $type) {
+			$this->out("      " . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ": " . $this->QueuedTask->getLength($type));
+		}
+		$this->hr();
+		$this->out('Total Jobs                : ' . $this->QueuedTask->getLength());
+		$this->hr();
+		$this->out('Finished Job Statistics:');
+		$data = $this->QueuedTask->getStats();
+		foreach ($data as $item) {
+			$this->out(" " . $item['QueuedTask']['jobtype'] . ": ");
+			$this->out("   Average Job existence  : " . $item[0]['alltime'] . 's');
+			$this->out("   Average Execution delay: " . $item[0]['fetchdelay'] . 's');
+			$this->out("   Average Execution time : " . $item[0]['runtime'] . 's');
 		}
 	}
 

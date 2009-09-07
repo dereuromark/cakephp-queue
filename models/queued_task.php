@@ -168,6 +168,21 @@ class QueuedTask extends AppModel {
 		return $this->find('list', $findConf);
 	}
 
+	public function getStats() {
+		$findConf = array(
+			'fields' => array(
+				'jobtype, AVG(UNIX_TIMESTAMP(completed)-UNIX_TIMESTAMP(created)) AS alltime, AVG(UNIX_TIMESTAMP(completed)-UNIX_TIMESTAMP(fetched)) AS runtime, AVG(UNIX_TIMESTAMP(fetched)-IF(notbefore is null,UNIX_TIMESTAMP(created),UNIX_TIMESTAMP(notbefore))) AS fetchdelay'
+			),
+			'conditions' => array(
+				'completed NOT' => null
+			),
+			'group' => array(
+				'jobtype'
+			)
+		);
+		return $this->find('all', $findConf);
+	}
+
 	/**
 	 * Cleanup/Delete Completed Jobs.
 	 *
