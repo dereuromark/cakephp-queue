@@ -168,10 +168,14 @@ class QueuedTask extends AppModel {
 		return $this->find('list', $findConf);
 	}
 
+	/**
+	 * Return some statistics about finished jobs still in the Database.
+	 * @return array
+	 */
 	public function getStats() {
 		$findConf = array(
 			'fields' => array(
-				'jobtype, AVG(UNIX_TIMESTAMP(completed)-UNIX_TIMESTAMP(created)) AS alltime, AVG(UNIX_TIMESTAMP(completed)-UNIX_TIMESTAMP(fetched)) AS runtime, AVG(UNIX_TIMESTAMP(fetched)-IF(notbefore is null,UNIX_TIMESTAMP(created),UNIX_TIMESTAMP(notbefore))) AS fetchdelay'
+				'jobtype,count(id) as num, AVG(UNIX_TIMESTAMP(completed)-UNIX_TIMESTAMP(created)) AS alltime, AVG(UNIX_TIMESTAMP(completed)-UNIX_TIMESTAMP(fetched)) AS runtime, AVG(UNIX_TIMESTAMP(fetched)-IF(notbefore is null,UNIX_TIMESTAMP(created),UNIX_TIMESTAMP(notbefore))) AS fetchdelay'
 			),
 			'conditions' => array(
 				'completed NOT' => null
@@ -189,7 +193,7 @@ class QueuedTask extends AppModel {
 	 */
 	public function cleanOldJobs() {
 		$this->deleteAll(array(
-			'completed < ' => date('Y-m-d H:i:s', time() - 2000)
+			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('queue.cleanuptimeout'))
 		));
 
 	}

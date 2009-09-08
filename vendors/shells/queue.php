@@ -49,7 +49,8 @@ class queueShell extends Shell {
 			'gcprop' => 10,
 			'defaultworkertimeout' => 120,
 			'defaultworkerretries' => 4,
-			'workermaxruntime' => 0
+			'workermaxruntime' => 0,
+			'cleanuptimeout' => 2000
 		), $conf));
 	}
 
@@ -147,11 +148,19 @@ class queueShell extends Shell {
 		}
 	}
 
+	/**
+	 * Manually trigger a Finished job cleanup.
+	 * @return null
+	 */
 	public function clean() {
-		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - 2000));
+		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('queue.cleanuptimeout')));
 		$this->QueuedTask->cleanOldJobs();
 	}
 
+	/**
+	 * Display Some statistics about Finished Jobs.
+	 * @return null
+	 */
 	public function stats() {
 		$this->out('Jobs currenty in the Queue:');
 
@@ -161,18 +170,23 @@ class queueShell extends Shell {
 			$this->out("      " . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ": " . $this->QueuedTask->getLength($type));
 		}
 		$this->hr();
-		$this->out('Total Jobs                : ' . $this->QueuedTask->getLength());
+		$this->out('Total unfinished Jobs      : ' . $this->QueuedTask->getLength());
 		$this->hr();
 		$this->out('Finished Job Statistics:');
 		$data = $this->QueuedTask->getStats();
 		foreach ($data as $item) {
 			$this->out(" " . $item['QueuedTask']['jobtype'] . ": ");
-			$this->out("   Average Job existence  : " . $item[0]['alltime'] . 's');
-			$this->out("   Average Execution delay: " . $item[0]['fetchdelay'] . 's');
-			$this->out("   Average Execution time : " . $item[0]['runtime'] . 's');
+			$this->out("   Finished Jobs in Database: " . $item[0]['num']);
+			$this->out("   Average Job existence    : " . $item[0]['alltime'] . 's');
+			$this->out("   Average Execution delay  : " . $item[0]['fetchdelay'] . 's');
+			$this->out("   Average Execution time   : " . $item[0]['runtime'] . 's');
 		}
 	}
 
+	/**
+	 * Returns a List of available QueueTasks and their individual configurations.
+	 * @return array
+	 */
 	private function getTaskConf() {
 		if (!is_array($this->taskConf)) {
 			$this->taskConf = array();

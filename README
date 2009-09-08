@@ -1,6 +1,7 @@
 --------------------------------
 CakePHP Queue Plugin
 --------------------------------
+http://github.com/MSeven/cakephp_queue
 
 Background:
 --------------------------------
@@ -47,6 +48,9 @@ $config['queue']['defaultworkerretries'] = 4;
 #Seconds of runnig time after which the worker will terminate (0 = unlimited)
 $config['queue']['workermaxruntime'] = 0;
 
+#Seconds after which finished jobs may be cleaned from the jobTable
+$config['queue']['cleanuptimeout'] = 2000;
+
 The values above are the default settings which apply, when no configuration is found.
 
 Usage:
@@ -71,3 +75,6 @@ Custom tasks should be placed in <yourapp>/vendors/shells/tasks.
 Tasks should be named 'queue_something.php' and implement a "queueSomethingTask", keeping Cakephp Naming conventions intact.
 
 A detailed Example task can be found in /vendors/shells/tasks/queue_example.php inside this folder.
+
+Current releases: http://github.com/MSeven/cakephp_queue/downloads
+Documentation: http://wiki.github.com/MSeven/cakephp_queue
