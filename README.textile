@@ -1,0 +1,75 @@
+
+h1. CakePHP Queue Plugin
+
+
+h2. Background:
+
+This is a very simple and minimalistic job Queue (or deferred-task) system for CakePHP.
+
+Overall functionality is inspired by systems like Gearman, Beanstalk or dropr, but without any illusion to compete with these more advanced Systems.
+
+The Plugin is an attempt to provide a basic, simple to use method to enable deferred job execution, without the hassle of setting up or running an extra queue daemon, while integrating nicely into CakePHP and also simplifying the creation of worker scripts.
+
+h3. Why use deferred execution?
+
+deferred execution makes sense (especially in PHP) when your page wants' to execute tasks, which are not directly related to rendering the current page.
+For instance, in a BBS-type system, a new users post might require the creation of multiple personalized email messages, notifying other users of the new content.
+Creating and sending these emails is completely irrelevant to the currently active user, and should not increase page response time.
+Another example would be downloading, extraction and/or analyzing an external file per request of the user.
+The regular solution to these problems would be to create specialized cronjobs which use specific database states to determine which action should be done.
+
+The Queue Plugin provides a simple method to create and run such non-user-interaction-critical tasks.
+
+While you can run multiple workers, and can (to some extend) spread these workers to different machines via a shared database, you should seriously consider using a more advanced system for high volume/high number of workers systems.
+
+h2. Installation:
+
+* Copy the files in this directory into _yourapp_/plugins/queue
+* Run the following command in the cake console to create the tables:
+		@cake schema run create -path plugins\queue\config\sql -name queue@
+		
+h2. Configuration:
+
+The plugin allows some simple runtime configuration. 
+You may create a file called "queue.php" inside your 'APP/config' folder (NOT the plugins config folder) to set the following values:
+
+#seconds to sleep() when no executable job is found
+@$config['queue']['sleeptime'] = 10;@
+
+#Propability in percent of a old job cleanup happening
+@$config['queue']['gcprop'] = 10;@
+
+#Default timeout after which a job is requeued if the worker doesn't report back
+@$config['queue']['defaultworkertimeout'] = 120;@
+
+#Default number of retries if a job fails or times out.
+@$config['queue']['defaultworkerretries'] = 4;@
+
+#Seconds of runnig time after which the worker will terminate (0 = unlimited)
+@$config['queue']['workermaxruntime'] = 0;@
+
+The values above are the default settings which apply, when no configuration is found.
+
+h2. Usage:
+
+Run the following using the cakephp shell:
+
+@cake queue help@
+* Display Help message
+          
+@cake queue add <taskname>@  
+* Try to call the cli add() function on a task
+* tasks may or may not provide this functionality.
+@cake queue runworker@  
+* run a queue worker, which will look for a pending task it can execute.
+* the worker will always try to find jobs matching its installed Tasks
+         
+*Notes:*
+	_<taskname>_ may either be the complete classname (eg. queue_example)	or the shorthand without the leading "queue_" (eg. example)
+        
+Use '@cake queue help@' to get a list of installed/available tasks.
+
+Custom tasks should be placed in _yourapp_/vendors/shells/tasks.
+Tasks should be named 'queue_something.php' and implement a "queueSomethingTask", keeping Cakephp Naming conventions intact.
+
+A detailed Example task can be found in /vendors/shells/tasks/queue_example.php inside this folder.
