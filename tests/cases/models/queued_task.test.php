@@ -323,7 +323,29 @@ class QueuedTaskTestCase extends CakeTestCase {
 		//and now the queue is empty
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEqual($tmp, null);
-
 	}
+
+	public function testRequeueAfterTimeout() {
+		$capabilities = array(
+			'task1' => array(
+				'name' => 'task1',
+				'timeout' => 1,
+				'retries' => 2,
+				'rate' => 0
+			)
+		);
+
+		$this->assertTrue($this->QueuedTask->createJob('task1', '1'));
+		$tmp = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEqual($tmp['jobtype'], 'task1');
+		$this->assertEqual(unserialize($tmp['data']), '1');
+		$this->assertEqual($tmp['failed'], '0');
+		sleep(2);
+		$tmp = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEqual($tmp['jobtype'], 'task1');
+		$this->assertEqual(unserialize($tmp['data']), '1');
+		$this->assertEqual($tmp['failed'], '1');
+	}
+
 }
 ?>
