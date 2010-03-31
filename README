@@ -26,7 +26,12 @@ Installation:
 --------------------------------
 * Copy the files in this directory into <yourapp>/plugins/queue.
 * Run the following command in the cake console to create the tables:
-		cake schema run create -path plugins\queue\config\sql -name queue
+  on Cakephp 1.2:
+		@cake schema run create -path plugins\queue\config\sql -name queue@
+  on Cakephp 1.3
+		@cake schema create -path plugins\queue\config\sql -name queue@
+			
+If you Installed the Queue Plugin in your global plugins directory instead of the app specific one, you will have to modify the -path parameter to point to the correct directory.
 		
 Configuration:
 --------------------------------
