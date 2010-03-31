@@ -39,6 +39,8 @@ class QueuedTask extends AppModel {
 	 * @return Array Taskdata.
 	 */
 	public function requestJob($capabilities) {
+		$idlist = array();
+		$wasFetched = array();
 
 		$findConf = array(
 			'conditions' => array(
@@ -47,23 +49,17 @@ class QueuedTask extends AppModel {
 			),
 			'fields' => array(
 				'id',
-				'jobtype',
-				'data',
-				'created',
-				'notbefore',
 				'fetched',
-				'completed',
-				'failed',
 				'timediff(NOW(),notbefore) AS age'
 			),
 			'order' => array(
 				'age DESC',
 				'id ASC'
-			)
+			),
+			'limit' => 3
 		);
 		// generate the task specific conditions.
 		foreach ($capabilities as $task) {
-
 			$tmp = array(
 				'jobtype' => str_replace('queue_', '', $task['name']),
 				'AND' => array(
@@ -87,14 +83,36 @@ class QueuedTask extends AppModel {
 			}
 			$findConf['conditions']['OR'][] = $tmp;
 		}
-		$data = $this->find('first', $findConf);
-		if (is_array($data)) {
-			$this->id = $data[$this->name]['id'];
-			$this->saveField('fetched', date('Y-m-d H:i:s'));
-			$this->id = null;
-			//save last fetch by type for Rate Limiting.
-			$this->rateHistory[$data[$this->name]['jobtype']] = time();
-			return $data[$this->name];
+		// First, find a list of a few of the oldest unfinished tasks.
+		$data = $this->find('all', $findConf);
+		if (is_array($data) && count($data) > 0) {
+			// generate a list of their ID's
+			foreach ($data as $item) {
+				$idlist[] = $item[$this->name]['id'];
+				if (!empty($item[$this->name]['fetched'])) {
+					$wasFetched[] = $item[$this->name]['id'];
+				}
+			}
+			// Generate a unique Identifier for the current worker thread
+			$key = sha1(microtime());
+			// try to update one of the found tasks with the key of this worker.
+			$this->query('UPDATE ' . $this->table . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE id in(' . implode(',', $idlist) . ') AND (workerkey IS NULL OR 	fetched <= "' . date('Y-m-d H:i:s', time() - $task['timeout']) . '") ORDER BY timediff(NOW(),notbefore) DESC LIMIT 1');
+			// read which one actually got updated, which is the job we are supposed to execute.
+			$data = $this->find('first', array(
+				'conditions' => array(
+					'workerkey' => $key
+				)
+			));
+			if (is_array($data)) {
+				// if the job had an existing fetched timestamp, increment the failure counter
+				if (in_array($data[$this->name]['id'], $wasFetched)) {
+					$data[$this->name]['failed']++;
+					$this->saveField('failed', $data[$this->name]['failed']);
+				}
+				//save last fetch by type for Rate Limiting.
+				$this->rateHistory[$data[$this->name]['jobtype']] = time();
+				return $data[$this->name];
+			}
 		}
 		return FALSE;
 	}

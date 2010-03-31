@@ -54,6 +54,11 @@ class QueuedTaskFixture extends CakeTestFixture {
 			'default' => '0',
 			'length' => 3
 		),
+		'workerkey' => array(
+			'type' => 'string',
+			'null' => true,
+			'length' => 45
+		),
 		'indexes' => array(
 			'PRIMARY' => array(
 				'column' => 'id',
