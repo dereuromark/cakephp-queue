@@ -116,9 +116,13 @@ class queueShell extends Shell {
 	public function runworker() {
 		$exit = false;
 		$starttime = time();
+    $group = null;
+    if (isset($this->params['group']) && !empty($this->params['group'])) {
+      $group = $this->params['group'];
+    }
 		while (!$exit) {
 			$this->out('Looking for Job....');
-			$data = $this->QueuedTask->requestJob($this->getTaskConf());
+			$data = $this->QueuedTask->requestJob($this->getTaskConf(), $group);
 			if ($data != false) {
 				$this->out('Running Job of type "' . $data['jobtype'] . '"');
 				$taskname = 'queue_' . strtolower($data['jobtype']);

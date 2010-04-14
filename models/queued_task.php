@@ -18,13 +18,17 @@ class QueuedTask extends AppModel {
 	 *
 	 * @param string $jobName QueueTask name
 	 * @param array $data any array
+	 * @param string $group Used to group similar QueuedTasks
+	 * @param string $reference any array
 	 * @return bool success
 	 */
-	public function createJob($jobName, $data, $notBefore = null) {
+	public function createJob($jobName, $data, $notBefore = null, $group = null, $reference = null) {
 
 		$data = array(
 			'jobtype' => $jobName,
-			'data' => serialize($data)
+			'data' => serialize($data),
+			'group' => $group,
+			'reference' => $reference,
 		);
 		if ($notBefore != null) {
 			$data['notbefore'] = date('Y-m-d H:i:s', strtotime($notBefore));
@@ -33,12 +37,14 @@ class QueuedTask extends AppModel {
 	}
 
 	/**
-	 * Look for a new job that can be processed with the current abilities.
+	 * Look for a new job that can be processed with the current abilities and
+   * from the specified group (or any if null).
 	 *
 	 * @param array $capabilities Available QueueWorkerTasks.
+   * @param string $group Request a job from this group, (from any group if null)
 	 * @return Array Taskdata.
 	 */
-	public function requestJob($capabilities) {
+	public function requestJob($capabilities, $group = null) {
 		$idlist = array();
 		$wasFetched = array();
 
@@ -58,6 +64,11 @@ class QueuedTask extends AppModel {
 			),
 			'limit' => 3
 		);
+
+    if (!is_null($group)) {
+      $findConf['conditions']['group'] = $group;
+    }
+
 		// generate the task specific conditions.
 		foreach ($capabilities as $task) {
 			$tmp = array(
