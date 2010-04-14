@@ -13,6 +13,10 @@ class QueuedTask extends AppModel {
 
 	public $rateHistory = array();
 
+  public $_findMethods = array(
+    'progress' => true,
+  );
+
 	/**
 	 * Add a new Job to the Queue
 	 *
@@ -228,6 +232,55 @@ class QueuedTask extends AppModel {
 		));
 
 	}
+
+  protected function _findProgress($state, $query = array(), $results = array()) {
+
+    if ($state == 'before') {
+
+      $query['fields'] = array(
+        'QueuedTask.reference',
+        '(CASE WHEN QueuedTask.notbefore > NOW() THEN \'NOT_READY\' WHEN QueuedTask.fetched IS NULL THEN \'NOT_STARTED\' WHEN QueuedTask.fetched < NOW() AND QueuedTask.completed IS NULL AND QueuedTask.failed = 0 THEN \'IN_PROGRESS\' WHEN QueuedTask.fetched < NOW() AND QueuedTask.completed IS NULL AND QueuedTask.failed > 0 THEN \'FAILED\' WHEN QueuedTask.fetched < NOW() AND QueuedTask.completed IS NOT NULL THEN \'COMPLETED\' END) AS status',
+        'QueuedTask.failure_message',
+      );
+
+      if (isset($query['conditions']['since'])) {
+        $since = $query['conditions']['since'];
+        unset($query['conditions']['since']);
+        if (is_numeric($since)) {
+          $since = date('Y-m-d H:i:s', $since);
+        }
+        $query['conditions'][] = array(
+          'OR' => array(
+            'QueuedTask.completed <>' => null,
+            'QueuedTask.failed >' => 0,
+          ),
+          'QueuedTask.modified >' => $since,
+        );
+      }
+      if (isset($query['conditions']['group'])) {
+        $query['conditions'][]['QueuedTask.group'] = $query['conditions']['group'];
+        unset($query['conditions']['group']);
+      }
+
+      return $query;
+
+    } else {
+
+      foreach ($results as $k => $result) {
+        $results[$k] = array(
+          'reference' => $result[$this->alias]['reference'],
+          'status' => $result[0]['status'],
+        );
+        if (!empty($result[$this->alias]['failure_message'])) {
+          $results[$k]['failure_message'] = $result[$this->alias]['failure_message'];
+        }
+      }
+
+      return $results;
+
+    }
+
+  }
 
 }
 ?>
