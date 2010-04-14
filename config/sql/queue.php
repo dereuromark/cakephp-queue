@@ -66,6 +66,11 @@ class queueSchema extends CakeSchema {
 			'default' => '0',
 			'length' => 3
 		),
+		'failure_message' => array(
+			'type' => 'text',
+			'null' => true,
+			'default' => NULL
+		),
 		'workerkey' => array(
 			'type' => 'string',
 			'null' => true,

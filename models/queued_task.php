@@ -145,8 +145,10 @@ class QueuedTask extends AppModel {
 	 * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
 	 *
 	 * @param integer $id
+   * @param string $failureMessage Optional message to append to the
+   *  failure_message field
 	 */
-	public function markJobFailed($id) {
+	public function markJobFailed($id, $failureMessage = null) {
 		$findConf = array(
 			'conditions' => array(
 				'id' => $id
@@ -155,6 +157,7 @@ class QueuedTask extends AppModel {
 		$data = $this->find('first', $findConf);
 		if (is_array($data)) {
 			$data[$this->name]['failed']++;
+      $data[$this->name]['failure_message'] .= date('r') . "\n" . $failureMessage . "\n";
 			return (is_array($this->save($data)));
 		}
 		return false;

@@ -30,7 +30,7 @@ class queueExampleTask extends Shell {
 	public $QueuedTask;
 
 	/**
-	 * Timeout für run, after which the Task is reassigned to a new worker.
+	 * Timeout fï¿½r run, after which the Task is reassigned to a new worker.
 	 *
 	 * @var integer
 	 */
@@ -41,6 +41,12 @@ class queueExampleTask extends Shell {
 	 * @var integer
 	 */
 	public $retries = 0;
+  /**
+   * Stores any failure messages triggered during run()
+   *
+   * @var string
+   */
+  public $failureMessage = '';
 
 	/**
 	 * Example add functionality.
