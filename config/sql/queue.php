@@ -41,12 +41,6 @@ class queueSchema extends CakeSchema {
 			'null' => true,
 			'default' => NULL
 		),
-		'reference' => array(
-			'type' => 'string',
-			'length' => 255,
-			'null' => true,
-			'default' => NULL
-		),
 		'created' => array(
 			'type' => 'datetime',
 			'null' => false
