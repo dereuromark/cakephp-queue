@@ -26,12 +26,13 @@ class QueuedTask extends AppModel {
 	 * @param string $reference any array
 	 * @return bool success
 	 */
-	public function createJob($jobName, $data, $notBefore = null, $group = null) {
+	public function createJob($jobName, $data, $notBefore = null, $group = null, $reference = null) {
 
 		$data = array(
 			'jobtype' => $jobName,
 			'data' => serialize($data),
 			'group' => $group,
+			'reference' => $reference,
 		);
 		if ($notBefore != null) {
 			$data['notbefore'] = date('Y-m-d H:i:s', strtotime($notBefore));
