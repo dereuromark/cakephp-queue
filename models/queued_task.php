@@ -162,7 +162,7 @@ class QueuedTask extends AppModel {
 		$data = $this->find('first', $findConf);
 		if (is_array($data)) {
 			$data[$this->name]['failed']++;
-      $data[$this->name]['failure_message'] .= date('r') . "\n" . $failureMessage . "\n";
+      $data[$this->name]['failure_message'] .= $failureMessage . "\n";
 			return (is_array($this->save($data)));
 		}
 		return false;
