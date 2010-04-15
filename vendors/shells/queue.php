@@ -50,7 +50,8 @@ class queueShell extends Shell {
 			'defaultworkertimeout' => 120,
 			'defaultworkerretries' => 4,
 			'workermaxruntime' => 0,
-			'cleanuptimeout' => 2000
+			'cleanuptimeout' => 2000,
+			'exitwhennothingtodo' => false
 		), $conf));
 	}
 
@@ -138,6 +139,9 @@ class queueShell extends Shell {
 					$this->QueuedTask->markJobFailed($data['id'], $failureMessage);
 					$this->out('Job did not finish, requeued.');
 				}
+			} elseif (Configure::read('queue.exitwhennothingtodo')) {
+				$this->out('nothing to do, exiting.');
+				$exit = true;
 			} else {
 				$this->out('nothing to do, sleeping.');
 				sleep(Configure::read('queue.sleeptime'));
