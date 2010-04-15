@@ -240,22 +240,17 @@ class QueuedTask extends AppModel {
 
       $query['fields'] = array(
         'QueuedTask.reference',
-        '(CASE WHEN QueuedTask.notbefore > NOW() THEN \'NOT_READY\' WHEN QueuedTask.fetched IS NULL THEN \'NOT_STARTED\' WHEN QueuedTask.fetched < NOW() AND QueuedTask.completed IS NULL AND QueuedTask.failed = 0 THEN \'IN_PROGRESS\' WHEN QueuedTask.fetched < NOW() AND QueuedTask.completed IS NULL AND QueuedTask.failed > 0 THEN \'FAILED\' WHEN QueuedTask.fetched < NOW() AND QueuedTask.completed IS NOT NULL THEN \'COMPLETED\' END) AS status',
+        '(CASE WHEN QueuedTask.notbefore > NOW() THEN \'NOT_READY\' WHEN QueuedTask.fetched IS NULL THEN \'NOT_STARTED\' WHEN QueuedTask.fetched IS NOT NULL AND QueuedTask.completed IS NULL AND QueuedTask.failed = 0 THEN \'IN_PROGRESS\' WHEN QueuedTask.fetched IS NOT NULL AND QueuedTask.completed IS NULL AND QueuedTask.failed > 0 THEN \'FAILED\' WHEN QueuedTask.fetched IS NOT NULL AND QueuedTask.completed IS NOT NULL THEN \'COMPLETED\' ELSE \'UNKNOWN\' END) AS status',
         'QueuedTask.failure_message',
       );
 
-      if (isset($query['conditions']['since'])) {
-        $since = $query['conditions']['since'];
-        unset($query['conditions']['since']);
-        if (is_numeric($since)) {
-          $since = date('Y-m-d H:i:s', $since);
-        }
+      if (isset($query['conditions']['exclude'])) {
+        $exclude = $query['conditions']['exclude'];
+        unset($query['conditions']['exclude']);
+        $exclude = trim($exclude, ',');
+        $exclude = explode(',', $exclude);
         $query['conditions'][] = array(
-          'OR' => array(
-            'QueuedTask.completed <>' => null,
-            'QueuedTask.failed >' => 0,
-          ),
-          'QueuedTask.modified >' => $since,
+          'NOT' => array('reference' => $exclude),
         );
       }
       if (isset($query['conditions']['group'])) {
@@ -266,7 +261,7 @@ class QueuedTask extends AppModel {
       return $query;
 
     } else {
-
+      
       foreach ($results as $k => $result) {
         $results[$k] = array(
           'reference' => $result[$this->alias]['reference'],
