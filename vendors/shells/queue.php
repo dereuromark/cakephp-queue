@@ -116,35 +116,40 @@ class queueShell extends Shell {
 	public function runworker() {
 		$exit = false;
 		$starttime = time();
+
 		while (!$exit) {
 			$this->out('Looking for Job....');
 			$data = $this->QueuedTask->requestJob($this->getTaskConf());
-			if ($data != false) {
-				$this->out('Running Job of type "' . $data['jobtype'] . '"');
-				$taskname = 'queue_' . strtolower($data['jobtype']);
-				$return = $this->{$taskname}->run(unserialize($data['data']));
-				if ($return == true) {
-					$this->QueuedTask->markJobDone($data['id']);
-					$this->out('Job Finished.');
-				} else {
-					$this->QueuedTask->markJobFailed($data['id']);
-					$this->out('Job did not finish, requeued.');
-				}
-			} else {
-				$this->out('nothing to do, sleeping.');
-				sleep(Configure::read('queue.sleeptime'));
-			}
-
-			// check if we are over the maximum runtime and end processing if so.
-			if (Configure::read('queue.workermaxruntime') != 0 && (time() - $starttime) >= Configure::read('queue.workermaxruntime')) {
+			if ($this->QueuedTask->exit === true) {
 				$exit = true;
-				$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('queue.workermaxruntime') . '), terminating.');
+			} else {
+				if ($data !== false) {
+					$this->out('Running Job of type "' . $data['jobtype'] . '"');
+					$taskname = 'queue_' . strtolower($data['jobtype']);
+					$return = $this->{$taskname}->run(unserialize($data['data']));
+					if ($return == true) {
+						$this->QueuedTask->markJobDone($data['id']);
+						$this->out('Job Finished.');
+					} else {
+						$this->QueuedTask->markJobFailed($data['id']);
+						$this->out('Job did not finish, requeued.');
+					}
+				} else {
+					$this->out('nothing to do, sleeping.');
+					sleep(Configure::read('queue.sleeptime'));
+				}
+
+				// check if we are over the maximum runtime and end processing if so.
+				if (Configure::read('queue.workermaxruntime') != 0 && (time() - $starttime) >= Configure::read('queue.workermaxruntime')) {
+					$exit = true;
+					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('queue.workermaxruntime') . '), terminating.');
+				}
+				if ($exit || rand(0, 100) > (100 - Configure::read('queue.gcprop'))) {
+					$this->out('Performing Old job cleanup.');
+					$this->QueuedTask->cleanOldJobs();
+				}
+				$this->hr();
 			}
-			if ($exit || rand(0, 100) > (100 - Configure::read('queue.gcprop'))) {
-				$this->out('Performing Old job cleanup.');
-				$this->QueuedTask->cleanOldJobs();
-			}
-			$this->hr();
 		}
 	}
 

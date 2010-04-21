@@ -13,6 +13,8 @@ class QueuedTask extends AppModel {
 
 	public $rateHistory = array();
 
+	public $exit = false;
+
 	/**
 	 * Add a new Job to the Queue
 	 *
@@ -30,6 +32,10 @@ class QueuedTask extends AppModel {
 			$data['notbefore'] = date('Y-m-d H:i:s', strtotime($notBefore));
 		}
 		return ($this->save($this->create($data)));
+	}
+
+	public function onError() {
+		$this->exit = true;
 	}
 
 	/**
