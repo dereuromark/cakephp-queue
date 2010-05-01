@@ -245,9 +245,9 @@ class QueuedTask extends AppModel {
 		if ($state == 'before') {
 			
 			$query['fields'] = array(
-				'QueuedTask.reference',
-				'(CASE WHEN QueuedTask.notbefore > NOW() THEN \'NOT_READY\' WHEN QueuedTask.fetched IS NULL THEN \'NOT_STARTED\' WHEN QueuedTask.fetched IS NOT NULL AND QueuedTask.completed IS NULL AND QueuedTask.failed = 0 THEN \'IN_PROGRESS\' WHEN QueuedTask.fetched IS NOT NULL AND QueuedTask.completed IS NULL AND QueuedTask.failed > 0 THEN \'FAILED\' WHEN QueuedTask.fetched IS NOT NULL AND QueuedTask.completed IS NOT NULL THEN \'COMPLETED\' ELSE \'UNKNOWN\' END) AS status',
-				'QueuedTask.failure_message'
+				$this->alias . '.reference',
+				'(CASE WHEN ' . $this->alias . '.notbefore > NOW() THEN \'NOT_READY\' WHEN ' . $this->alias . '.fetched IS NULL THEN \'NOT_STARTED\' WHEN ' . $this->alias . '.fetched IS NOT NULL AND ' . $this->alias . '.completed IS NULL AND ' . $this->alias . '.failed = 0 THEN \'IN_PROGRESS\' WHEN ' . $this->alias . '.fetched IS NOT NULL AND ' . $this->alias . '.completed IS NULL AND ' . $this->alias . '.failed > 0 THEN \'FAILED\' WHEN ' . $this->alias . '.fetched IS NOT NULL AND ' . $this->alias . '.completed IS NOT NULL THEN \'COMPLETED\' ELSE \'UNKNOWN\' END) AS status',
+				$this->alias . '.failure_message'
 			);
 			
 			if (isset($query['conditions']['exclude'])) {
@@ -262,10 +262,9 @@ class QueuedTask extends AppModel {
 				);
 			}
 			if (isset($query['conditions']['group'])) {
-				$query['conditions'][]['QueuedTask.group'] = $query['conditions']['group'];
+				$query['conditions'][][$this->alias . '.group'] = $query['conditions']['group'];
 				unset($query['conditions']['group']);
 			}
-			
 			return $query;
 		
 		} else {

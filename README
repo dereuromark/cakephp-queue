@@ -56,6 +56,9 @@ $config['queue']['workermaxruntime'] = 0;
 #Seconds after which finished jobs may be cleaned from the jobTable
 $config['queue']['cleanuptimeout'] = 2000;
 
+#Should a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running)
+$config['queue']['exitwhennothingtodo] = false
+
 The values above are the default settings which apply, when no configuration is found.
 
 Usage:

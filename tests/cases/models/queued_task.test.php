@@ -347,5 +347,61 @@ class QueuedTaskTestCase extends CakeTestCase {
 		$this->assertEqual($tmp['failed'], '1');
 	}
 
+	public function testRequestGroup() {
+		$capabilities = array(
+			'task1' => array(
+				'name' => 'task1',
+				'timeout' => 1,
+				'retries' => 2,
+				'rate' => 0
+			)
+		);
+		
+		// create an ungrouped task
+		$this->assertTrue($this->QueuedTask->createJob('task1', 1));
+		//create a Grouped Task
+		$this->assertTrue($this->QueuedTask->createJob('task1', 2, null, 'testgroup'));
+		
+		// Fetching without group should completely ignore the Group field.
+		$tmp = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEqual($tmp['jobtype'], 'task1');
+		$this->assertEqual(unserialize($tmp['data']), 1);
+		$tmp = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEqual($tmp['jobtype'], 'task1');
+		$this->assertEqual(unserialize($tmp['data']), 2);
+		
+		// well, lets tra that Again, while limiting by Group
+		// create an ungrouped task
+		$this->assertTrue($this->QueuedTask->createJob('task1', 3));
+		//create a Grouped Task
+		$this->assertTrue($this->QueuedTask->createJob('task1', 4, null, 'testgroup', 'Job number 4'));
+		$this->assertTrue($this->QueuedTask->createJob('task1', 5, null, null, 'Job number 5'));
+		$this->assertTrue($this->QueuedTask->createJob('task1', 6, null, 'testgroup', 'Job number 6'));
+		
+		// we should only get tasks 4 and 6, in that order, when requesting inside the group
+		$tmp = $this->QueuedTask->requestJob($capabilities, 'testgroup');
+		$this->assertEqual($tmp['jobtype'], 'task1');
+		$this->assertEqual(unserialize($tmp['data']), 4);
+		$tmp = $this->QueuedTask->requestJob($capabilities, 'testgroup');
+		$this->assertEqual($tmp['jobtype'], 'task1');
+		$this->assertEqual(unserialize($tmp['data']), 6);
+		
+		// use FindProgress on the testgroup:
+		$progress = $this->QueuedTask->find('progress', array(
+			'conditions' => array(
+				'group' => 'testgroup'
+			)
+		));
+		
+		$this->assertEqual(count($progress), 3);
+		
+		$this->assertNull($progress[0]['reference']);
+		$this->assertEqual($progress[0]['status'], 'IN_PROGRESS');
+		$this->assertEqual($progress[1]['reference'], 'Job number 4');
+		$this->assertEqual($progress[1]['status'], 'IN_PROGRESS');
+		$this->assertEqual($progress[2]['reference'], 'Job number 6');
+		$this->assertEqual($progress[2]['status'], 'IN_PROGRESS');
+	}
+
 }
 ?>
