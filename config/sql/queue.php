@@ -35,6 +35,18 @@ class queueSchema extends CakeSchema {
 			'null' => true,
 			'default' => NULL
 		),
+		'group' => array(
+			'type' => 'string',
+			'length' => 255,
+			'null' => true,
+			'default' => NULL
+		),
+		'reference' => array(
+			'type' => 'string',
+			'length' => 255,
+			'null' => true,
+			'default' => NULL
+		),
 		'created' => array(
 			'type' => 'datetime',
 			'null' => false
@@ -59,6 +71,11 @@ class queueSchema extends CakeSchema {
 			'null' => false,
 			'default' => '0',
 			'length' => 3
+		),
+		'failure_message' => array(
+			'type' => 'text',
+			'null' => true,
+			'default' => NULL
 		),
 		'workerkey' => array(
 			'type' => 'string',

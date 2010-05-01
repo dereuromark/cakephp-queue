@@ -35,6 +35,7 @@ class queueEmailTask extends Shell {
 	 * @var Controller
 	 */
 	public $Controller;
+	
 	/**
 	 * EmailComponent
 	 *
