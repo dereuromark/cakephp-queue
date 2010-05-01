@@ -54,16 +54,16 @@ class QueuedTaskTestCase extends CakeTestCase {
 	public function testCreateAndCount() {
 		// at first, the queue should contain 0 items.
 		$this->assertEqual(0, $this->QueuedTask->getLength());
-
+		
 		// create a job
 		$this->assertTrue($this->QueuedTask->createJob('test1', array(
 			'some' => 'random',
 			'test' => 'data'
 		)));
-
+		
 		// test if queue Length is 1 now.
 		$this->assertEqual(1, $this->QueuedTask->getLength());
-
+		
 		//create some more jobs
 		$this->assertTrue($this->QueuedTask->createJob('test2', array(
 			'some' => 'random',
@@ -77,10 +77,10 @@ class QueuedTaskTestCase extends CakeTestCase {
 			'some' => 'random',
 			'test' => 'data4'
 		)));
-
+		
 		//overall queueLength shpould now be 4
 		$this->assertEqual(4, $this->QueuedTask->getLength());
-
+		
 		// there should be 1 task of type 'test1', one of type 'test3' and 2 of type 'test2'
 		$this->assertEqual(1, $this->QueuedTask->getLength('test1'));
 		$this->assertEqual(2, $this->QueuedTask->getLength('test2'));
@@ -103,7 +103,7 @@ class QueuedTaskTestCase extends CakeTestCase {
 			'x4' => 'y4'
 		);
 		// start off empty.
-
+		
 
 		$this->assertEqual(array(), $this->QueuedTask->find('all'));
 		// at first, the queue should contain 0 items.
@@ -112,7 +112,7 @@ class QueuedTaskTestCase extends CakeTestCase {
 		$this->assertFalse($this->QueuedTask->requestJob($capabilities));
 		// insert one job.
 		$this->assertTrue($this->QueuedTask->createJob('task1', $testData));
-
+		
 		// fetch and check the first job.
 		$data = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEqual(1, $data['id']);
@@ -120,13 +120,13 @@ class QueuedTaskTestCase extends CakeTestCase {
 		$this->assertEqual(0, $data['failed']);
 		$this->assertNull($data['completed']);
 		$this->assertEqual($testData, unserialize($data['data']));
-
+		
 		// after this job has been fetched, it may not be reassigned.
 		$this->assertEqual(array(), $this->QueuedTask->requestJob($capabilities));
-
+		
 		// queue length is still 1 since the first job did not finish.
 		$this->assertEqual(1, $this->QueuedTask->getLength());
-
+		
 		// Now mark Task1 as done
 		$this->assertTrue($this->QueuedTask->markJobDone(1));
 		// Should be 0 again.
@@ -156,7 +156,7 @@ class QueuedTaskTestCase extends CakeTestCase {
 		}
 		// 10 jobs in the queue.
 		$this->assertEqual(10, $this->QueuedTask->getLength());
-
+		
 		// jobs should be fetched in the original sequence.
 		foreach (range(0, 4) as $num) {
 			$job = $this->QueuedTask->requestJob($capabilities);
@@ -168,7 +168,7 @@ class QueuedTaskTestCase extends CakeTestCase {
 			$this->assertTrue($this->QueuedTask->markJobDone($num + 1));
 			$this->assertEqual(9 - $num, $this->QueuedTask->getLength());
 		}
-
+		
 		// jobs should be fetched in the original sequence.
 		foreach (range(5, 9) as $num) {
 			$job = $this->QueuedTask->requestJob($capabilities);
@@ -217,7 +217,7 @@ class QueuedTaskTestCase extends CakeTestCase {
 		$this->assertTrue($this->QueuedTask->createJob('task1', 'three', '- 3 Seconds'));
 		$this->assertTrue($this->QueuedTask->createJob('task1', 'two', '- 4 Seconds'));
 		$this->assertTrue($this->QueuedTask->createJob('task1', 'one', '- 5 Seconds'));
-
+		
 		// when usin requestJob, the jobs we just created should be delivered in this order, NOT the order in which they where created.
 		$expected = array(
 			array(
@@ -241,7 +241,7 @@ class QueuedTaskTestCase extends CakeTestCase {
 				'data' => ''
 			)
 		);
-
+		
 		foreach ($expected as $item) {
 			$tmp = $this->QueuedTask->requestJob($capabilities);
 			$this->assertEqual($item['name'], $tmp['jobtype']);
@@ -267,10 +267,10 @@ class QueuedTaskTestCase extends CakeTestCase {
 				'retries' => 2
 			)
 		);
-
+		
 		// clear out the rate history
 		$this->QueuedTask->rateHistory = array();
-
+		
 		$this->assertTrue($this->QueuedTask->createJob('task1', '1'));
 		$this->assertTrue($this->QueuedTask->createJob('task1', '2'));
 		$this->assertTrue($this->QueuedTask->createJob('task1', '3'));
@@ -278,48 +278,48 @@ class QueuedTaskTestCase extends CakeTestCase {
 		$this->assertTrue($this->QueuedTask->createJob('dummytask', null));
 		$this->assertTrue($this->QueuedTask->createJob('dummytask', null));
 		$this->assertTrue($this->QueuedTask->createJob('dummytask', null));
-
+		
 		//At first we get task1-1.
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEqual($tmp['jobtype'], 'task1');
 		$this->assertEqual(unserialize($tmp['data']), '1');
-
+		
 		//The rate limit should now skip over task1-2 and fetch a dummytask.
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEqual($tmp['jobtype'], 'dummytask');
 		$this->assertEqual(unserialize($tmp['data']), null);
-
+		
 		//and again.
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEqual($tmp['jobtype'], 'dummytask');
 		$this->assertEqual(unserialize($tmp['data']), null);
-
+		
 		//Then some time passes
 		sleep(1);
-
+		
 		//Now we should get task1-2
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEqual($tmp['jobtype'], 'task1');
 		$this->assertEqual(unserialize($tmp['data']), '2');
-
+		
 		//and again rate limit to dummytask.
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEqual($tmp['jobtype'], 'dummytask');
 		$this->assertEqual(unserialize($tmp['data']), null);
-
+		
 		//Then some more time passes
 		sleep(1);
-
+		
 		//Now we should get task1-3
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEqual($tmp['jobtype'], 'task1');
 		$this->assertEqual(unserialize($tmp['data']), '3');
-
+		
 		//and again rate limit to dummytask.
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEqual($tmp['jobtype'], 'dummytask');
 		$this->assertEqual(unserialize($tmp['data']), null);
-
+		
 		//and now the queue is empty
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEqual($tmp, null);
@@ -334,7 +334,7 @@ class QueuedTaskTestCase extends CakeTestCase {
 				'rate' => 0
 			)
 		);
-
+		
 		$this->assertTrue($this->QueuedTask->createJob('task1', '1'));
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEqual($tmp['jobtype'], 'task1');

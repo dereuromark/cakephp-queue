@@ -21,14 +21,14 @@ class queueExampleTask extends Shell {
 	public $uses = array(
 		'Queue.QueuedTask'
 	);
-
+	
 	/**
 	 * ZendStudio Codecomplete Hint
 	 *
 	 * @var QueuedTask
 	 */
 	public $QueuedTask;
-
+	
 	/**
 	 * Timeout für run, after which the Task is reassigned to a new worker.
 	 *

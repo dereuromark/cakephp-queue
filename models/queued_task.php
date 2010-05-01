@@ -8,11 +8,11 @@
  * @link http://github.com/MSeven/cakephp_queue
  */
 class QueuedTask extends AppModel {
-
+	
 	public $name = 'QueuedTask';
-
+	
 	public $rateHistory = array();
-
+	
 	public $exit = false;
 
 	/**
@@ -23,7 +23,7 @@ class QueuedTask extends AppModel {
 	 * @return bool success
 	 */
 	public function createJob($jobName, $data, $notBefore = null) {
-
+		
 		$data = array(
 			'jobtype' => $jobName,
 			'data' => serialize($data)
@@ -47,7 +47,7 @@ class QueuedTask extends AppModel {
 	public function requestJob($capabilities) {
 		$idlist = array();
 		$wasFetched = array();
-
+		
 		$findConf = array(
 			'conditions' => array(
 				'completed' => null,
@@ -219,7 +219,7 @@ class QueuedTask extends AppModel {
 		$this->deleteAll(array(
 			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('queue.cleanuptimeout'))
 		));
-
+	
 	}
 
 }
