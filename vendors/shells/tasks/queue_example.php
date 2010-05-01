@@ -21,14 +21,14 @@ class queueExampleTask extends Shell {
 	public $uses = array(
 		'Queue.QueuedTask'
 	);
-
+	
 	/**
 	 * ZendStudio Codecomplete Hint
 	 *
 	 * @var QueuedTask
 	 */
 	public $QueuedTask;
-
+	
 	/**
 	 * Timeout f�r run, after which the Task is reassigned to a new worker.
 	 *
@@ -41,12 +41,12 @@ class queueExampleTask extends Shell {
 	 * @var integer
 	 */
 	public $retries = 0;
-  /**
-   * Stores any failure messages triggered during run()
-   *
-   * @var string
-   */
-  public $failureMessage = '';
+	/**
+	 * Stores any failure messages triggered during run()
+	 *
+	 * @var string
+	 */
+	public $failureMessage = '';
 
 	/**
 	 * Example add functionality.

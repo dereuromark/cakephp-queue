@@ -28,7 +28,7 @@ class queueEmailTask extends Shell {
 		'additionalParams' => '',
 		'layout' => 'default'
 	);
-
+	
 	public $timeout = 120;
 	public $retries = 0;
 	/**
@@ -37,7 +37,7 @@ class queueEmailTask extends Shell {
 	 * @var Controller
 	 */
 	public $Controller;
-
+	
 	/**
 	 * EmailComponent
 	 *
