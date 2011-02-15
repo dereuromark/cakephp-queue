@@ -115,6 +115,10 @@ class queueShell extends Shell {
 	 * which it may run and try to fetch and execute them.
 	 */
 	public function runworker() {
+		// Enable Garbage Collector (PHP >= 5.3)
+		if (function_exists('gc_enable')) {
+		    gc_enable();
+		}
 		$exit = false;
 		$starttime = time();
 		$group = null;
