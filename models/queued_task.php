@@ -128,7 +128,8 @@ class QueuedTask extends AppModel {
 				// if the job had an existing fetched timestamp, increment the failure counter
 				if (in_array($data[$this->name]['id'], $wasFetched)) {
 					$data[$this->name]['failed']++;
-					$this->saveField('failed', $data[$this->name]['failed']);
+					$data[$this->name]['failure_message'] = 'Restart after timeout';
+					$this->save($data);
 				}
 				//save last fetch by type for Rate Limiting.
 				$this->rateHistory[$data[$this->name]['jobtype']] = time();
@@ -160,18 +161,13 @@ class QueuedTask extends AppModel {
 	 * failure_message field
 	 */
 	public function markJobFailed($id, $failureMessage = null) {
-		$findConf = array(
-			'conditions' => array(
-				'id' => $id
-			)
-		);
-		$data = $this->find('first', $findConf);
-		if (is_array($data)) {
-			$data[$this->name]['failed']++;
-			$data[$this->name]['failure_message'] .= $failureMessage . "\n";
-			return (is_array($this->save($data)));
-		}
-		return false;
+		
+		return ($this->updateAll(array(
+			'failed' => "failed + 1",
+			'failure_message' => $failureMessage
+		), array(
+			'id' => $id
+		)));
 	}
 
 	/**
@@ -241,7 +237,6 @@ class QueuedTask extends AppModel {
 	}
 
 	protected function _findProgress($state, $query = array(), $results = array()) {
-		
 		if ($state == 'before') {
 			
 			$query['fields'] = array(
@@ -249,7 +244,6 @@ class QueuedTask extends AppModel {
 				'(CASE WHEN ' . $this->alias . '.notbefore > NOW() THEN \'NOT_READY\' WHEN ' . $this->alias . '.fetched IS NULL THEN \'NOT_STARTED\' WHEN ' . $this->alias . '.fetched IS NOT NULL AND ' . $this->alias . '.completed IS NULL AND ' . $this->alias . '.failed = 0 THEN \'IN_PROGRESS\' WHEN ' . $this->alias . '.fetched IS NOT NULL AND ' . $this->alias . '.completed IS NULL AND ' . $this->alias . '.failed > 0 THEN \'FAILED\' WHEN ' . $this->alias . '.fetched IS NOT NULL AND ' . $this->alias . '.completed IS NOT NULL THEN \'COMPLETED\' ELSE \'UNKNOWN\' END) AS status',
 				$this->alias . '.failure_message'
 			);
-			
 			if (isset($query['conditions']['exclude'])) {
 				$exclude = $query['conditions']['exclude'];
 				unset($query['conditions']['exclude']);
@@ -266,9 +260,7 @@ class QueuedTask extends AppModel {
 				unset($query['conditions']['group']);
 			}
 			return $query;
-		
 		} else {
-			
 			foreach ($results as $k => $result) {
 				$results[$k] = array(
 					'reference' => $result[$this->alias]['reference'],
@@ -278,12 +270,26 @@ class QueuedTask extends AppModel {
 					$results[$k]['failure_message'] = $result[$this->alias]['failure_message'];
 				}
 			}
-			
 			return $results;
+		}
+	}
+
+	public function clearDoublettes() {
+		$x = $this->query('SELECT max(id) as id FROM `queueman`.`queued_tasks`
+    where completed is null
+    group by data
+    having count(id) > 1');
 		
+		$start = 0;
+		$x = array_keys($x);
+		while ($start <= count($x)) {
+			debug($this->deleteAll(array(
+				'id' => array_slice($x, $start, 10)
+			)));
+			debug(array_slice($x, $start, 10));
+			$start = $start + 100;
 		}
 	
 	}
-
 }
 ?>

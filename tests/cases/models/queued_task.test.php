@@ -345,6 +345,7 @@ class QueuedTaskTestCase extends CakeTestCase {
 		$this->assertEqual($tmp['jobtype'], 'task1');
 		$this->assertEqual(unserialize($tmp['data']), '1');
 		$this->assertEqual($tmp['failed'], '1');
+		$this->assertEqual($tmp['failure_message'], 'Restart after timeout');
 	}
 
 	public function testRequestGroup() {
