@@ -7,7 +7,7 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-class QueuedTask extends AppModel {
+class QueuedTask extends QueueAppModel {
 	
 	public $name = 'QueuedTask';
 	
@@ -292,4 +292,3 @@ class QueuedTask extends AppModel {
 	
 	}
 }
-?>

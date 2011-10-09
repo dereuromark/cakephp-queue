@@ -77,4 +77,3 @@ class queueEmailTask extends Shell {
 		return false;
 	}
 }
-?>

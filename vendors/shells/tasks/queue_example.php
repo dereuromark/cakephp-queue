@@ -93,4 +93,3 @@ class queueExampleTask extends Shell {
 		return true;
 	}
 }
-?>

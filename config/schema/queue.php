@@ -3,15 +3,21 @@
 /**
  * @author MGriesbach@gmail.com
  * @package QueuePlugin
- * @subpackage QueuePlugin.Tests.Fixtures
+ * @subpackage QueuePlugin.Models
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
+class queueSchema extends CakeSchema {
+	var $name = 'queue';
 
-class QueuedTaskFixture extends CakeTestFixture {
-	public $name = 'QueuedTask';
-	public $table = 'queued_tasks';
-	public $fields = array(
+	function before($event = array()) {
+		return true;
+	}
+
+	function after($event = array()) {
+	}
+	
+	public $queued_tasks = array(
 		'id' => array(
 			'type' => 'integer',
 			'null' => false,
@@ -83,6 +89,5 @@ class QueuedTaskFixture extends CakeTestFixture {
 			)
 		)
 	);
-	public $records = array();
-
 }
+

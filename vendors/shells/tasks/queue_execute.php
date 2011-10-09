@@ -94,4 +94,3 @@ class queueExecuteTask extends Shell {
 		return (!$status);
 	}
 }
-?>

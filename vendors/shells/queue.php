@@ -230,4 +230,3 @@ class queueShell extends Shell {
 		return $this->taskConf;
 	}
 }
-?>
