@@ -1,5 +1,6 @@
 <?php
 App::uses('Folder', 'Utility');
+App::uses('AppShell', 'Console/Command');
 
 /**
  * @author MGriesbach@gmail.com
@@ -9,9 +10,11 @@ App::uses('Folder', 'Utility');
  * @link http://github.com/MSeven/cakephp_queue
  */
 class QueueShell extends AppShell {
+	
 	public $uses = array(
 		'Queue.QueuedTask'
 	);
+	
 	/**
 	 * Codecomplete Hint
 	 *
@@ -47,9 +50,7 @@ class QueueShell extends AppShell {
 				}
 				$this->tasks = array_merge($this->tasks, $res);
 			}
-			
 		}
-		
 		//$pluginPaths = App::path('Console/Command/Task', 'Queue');
 		//die(returns($this->tasks));
 		
@@ -67,6 +68,7 @@ class QueueShell extends AppShell {
 			'cleanuptimeout' => 2000,
 			'exitwhennothingtodo' => false,
 			'log' => false,
+			'notify' => 'tmp' # set to false to disable (tmp = file in TMP dir)
 		), $conf));
 		
 	}
@@ -74,7 +76,7 @@ class QueueShell extends AppShell {
 	/**
 	 * Output some basic usage Info.
 	 */
-	public function help() {
+	public function main() {
 		$this->out('CakePHP Queue Plugin:');
 		$this->hr();
 		$this->out('Usage:');
@@ -148,6 +150,8 @@ class QueueShell extends AppShell {
 		}		
 		while (!$exit) {
 			$this->_log('runworker');
+			$this->_notify();
+			
 			$this->out('Looking for Job....');
 			$data = $this->QueuedTask->requestJob($this->_getTaskConf(), $group);
 			if ($this->QueuedTask->exit === true) {
@@ -155,7 +159,8 @@ class QueueShell extends AppShell {
 			} else {
 				if ($data !== false) {
 					$this->out('Running Job of type "' . $data['jobtype'] . '"');
-					$taskname = 'Queue' . strtolower($data['jobtype']);
+					$taskname = 'Queue' . $data['jobtype'];
+					
 					$return = $this->{$taskname}->run(unserialize($data['data']));
 					if ($return) {
 						$this->QueuedTask->markJobDone($data['id']);
@@ -227,16 +232,65 @@ class QueueShell extends AppShell {
 	
 	/**
 	 * set up tables
+	 * @see readme
 	 */
 	public function install() {
-		
+		$this->out('Run `cake Schema create -p Queue`');
 	}
 	
 	/**
 	 * remove table and kill workers
 	 */
 	public function uninstall() {
+		$this->out('Remove all workers and then delete the two tables.');
+	}
+	
+	public function getOptionParser() {
+		$subcommandParser = array(
+			'options' => array(
+				/*
+				'dry-run'=> array(
+					'short' => 'd',
+					'help' => __d('cake_console', 'Dry run the update, no jobs will actually be added.'),
+					'boolean' => true
+				),
+				'log'=> array(
+					'short' => 'l',
+					'help' => __d('cake_console', 'Log all ouput to file log.txt in TMP dir'),
+					'boolean' => true
+				),
+				*/
+			)
+		);
+		$subcommandParserFull = $subcommandParser;
+		$subcommandParserFull['options']['group'] = array(
+			'short' => 'g',
+			'help' => __d('cake_console', 'Group'),
+			'default' => ''
+		);
 		
+		return parent::getOptionParser()
+			->description(__d('cake_console', "..."))
+			->addSubcommand('clean', array(
+				'help' => __d('cake_console', 'Remove old jobs (cleanup)'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('add', array(
+				'help' => __d('cake_console', 'Add Job'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('install', array(
+				'help' => __d('cake_console', 'Install info'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('uninstall', array(
+				'help' => __d('cake_console', 'Uninstall info'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('runworker', array(
+				'help' => __d('cake_console', 'Run Worker'),
+				'parser' => $subcommandParserFull
+			));
 	}
 	
 	
@@ -256,6 +310,19 @@ class QueueShell extends AppShell {
 		}
 	}
 	
+	/**
+	 * timestamped notification
+	 * 2012-01-24 ms
+	 */
+	protected function _notify() {
+		# log?
+		if (Configure::read('queue.notify')) {
+			$folder = TMP;
+			$file = $folder . 'queue_notification'.'.txt';
+			touch($file);
+			//file_put_contents($file, date(FORMAT_DB_DATETIME));
+		}
+	}	
 
 	/**
 	 * Returns a List of available QueueTasks and their individual configurations.
@@ -265,19 +332,22 @@ class QueueShell extends AppShell {
 		if (!is_array($this->taskConf)) {
 			$this->taskConf = array();
 			foreach ($this->tasks as $task) {
-				$this->taskConf[$task]['name'] = $task;
-				if (property_exists($this->{$task}, 'timeout')) {
-					$this->taskConf[$task]['timeout'] = $this->{$task}->timeout;
+				list($pluginName, $taskName) = pluginSplit($task);
+				
+				$this->taskConf[$taskName]['name'] = $taskName;
+				$this->taskConf[$taskName]['plugin'] = $pluginName;
+				if (property_exists($this->{$taskName}, 'timeout')) {
+					$this->taskConf[$taskName]['timeout'] = $this->{$taskName}->timeout;
 				} else {
-					$this->taskConf[$task]['timeout'] = Configure::read('queue.defaultworkertimeout');
+					$this->taskConf[$taskName]['timeout'] = Configure::read('queue.defaultworkertimeout');
 				}
-				if (property_exists($this->{$task}, 'retries')) {
-					$this->taskConf[$task]['retries'] = $this->{$task}->retries;
+				if (property_exists($this->{$taskName}, 'retries')) {
+					$this->taskConf[$taskName]['retries'] = $this->{$taskName}->retries;
 				} else {
-					$this->taskConf[$task]['retries'] = Configure::read('queue.defaultworkerretries');
+					$this->taskConf[$taskName]['retries'] = Configure::read('queue.defaultworkerretries');
 				}
-				if (property_exists($this->{$task}, 'rate')) {
-					$this->taskConf[$task]['rate'] = $this->{$task}->rate;
+				if (property_exists($this->{$taskName}, 'rate')) {
+					$this->taskConf[$taskName]['rate'] = $this->{$taskName}->rate;
 				}
 			}
 		}

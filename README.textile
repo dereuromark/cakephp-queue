@@ -1,6 +1,13 @@
 
 h1. CakePHP Queue Plugin
 
+*********************************
+modified by Mark Scherer (dereuromark)
+- cake2.x support
+- some minor fixes
+- added crontasks (as a different approach on specific problems)
+- possible Tools Plugin dependencies
+*********************************
 
 h2. Background:
 
@@ -24,19 +31,15 @@ While you can run multiple workers, and can (to some extend) spread these worker
 
 h2. Installation:
 
-* Copy the files in this directory into _yourapp_/plugins/queue
+* Copy the files in this directory into APP/Plugin/Queue
 * Run the following command in the cake console to create the tables:
-on Cakephp 1.2:
-		@cake schema run create -path plugins\queue\config\sql -name queue@
-on Cakephp 1.3
-		@cake schema create -path plugins\queue\config\sql -name queue@
-			
-If you Installed the Queue Plugin in your global plugins directory instead of the app specific one, you will have to modify the -path parameter to point to the correct directory.
-		
+on Cakephp 2.x:
+		@cake Schema create -p Queue@
+	
 h2. Configuration:
 
 The plugin allows some simple runtime configuration. 
-You may create a file called "queue.php" inside your 'APP/config' folder (NOT the plugins config folder) to set the following values:
+You may create a file called "queue.php" inside your 'APP/Config' folder (NOT the plugins config folder) to set the following values:
 
 #seconds to sleep() when no executable job is found
 @$config['queue']['sleeptime'] = 10;@
@@ -62,22 +65,24 @@ h2. Usage:
 
 Run the following using the cakephp shell:
 
-@cake queue help@
+@cake Queue help@
 * Display Help message
           
-@cake queue add <taskname>@  
+@cake Queue add <taskname>@  
 * Try to call the cli add() function on a task
 * tasks may or may not provide this functionality.
-@cake queue runworker@  
+@cake Queue runworker@  
 * run a queue worker, which will look for a pending task it can execute.
 * the worker will always try to find jobs matching its installed Tasks
          
 *Notes:*
 	_<taskname>_ may either be the complete classname (eg. queue_example)	or the shorthand without the leading "queue_" (eg. example)
+
+Also note that in 2.x you can also use CamelCase style, e.g. `cake add SpecialExample` for QueueSpecialExampleTask
         
-Use '@cake queue help@' to get a list of installed/available tasks.
+Use '@cake Queue help@' to get a list of installed/available tasks.
 
-Custom tasks should be placed in _yourapp_/vendors/shells/tasks.
-Tasks should be named 'queue_something.php' and implement a "queueSomethingTask", keeping Cakephp Naming conventions intact.
+Custom tasks should be placed in APP/Console/Command/Task.
+Tasks should be named 'QueueSomething.php' and implement a "QueueSomethingTask", keeping Cakephp Naming conventions intact.
 
-A detailed Example task can be found in /vendors/shells/tasks/queue_example.php inside this folder.
+A detailed Example task can be found in /Console/Command/Task/QueueExample.php inside this folder.

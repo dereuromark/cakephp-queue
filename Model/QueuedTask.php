@@ -1,4 +1,5 @@
 <?php
+App::uses('QueueAppModel', 'Queue.Model');
 
 /**
  * @author MGriesbach@gmail.com
@@ -13,7 +14,7 @@ class QueuedTask extends QueueAppModel {
 	
 	public $exit = false;
 	
-	protected $_findMethods = array(
+	public $findMethods = array(
 		'progress' => true
 	);
 
@@ -29,7 +30,7 @@ class QueuedTask extends QueueAppModel {
 	public function createJob($jobName, $data, $notBefore = null, $group = null, $reference = null) {
 		
 		$data = array(
-			'jobtype' => $jobName,
+			'jobtype' => ucfirst($jobName),
 			'data' => serialize($data),
 			'group' => $group,
 			'reference' => $reference
@@ -80,7 +81,7 @@ class QueuedTask extends QueueAppModel {
 		// generate the task specific conditions.
 		foreach ($capabilities as $task) {
 			$tmp = array(
-				'jobtype' => str_replace('queue_', '', $task['name']),
+				'jobtype' => ucfirst(str_replace('Queue', '', $task['name'])),
 				'AND' => array(
 					array(
 						'OR' => array(
@@ -102,6 +103,7 @@ class QueuedTask extends QueueAppModel {
 			}
 			$findConf['conditions']['OR'][] = $tmp;
 		}
+		
 		// First, find a list of a few of the oldest unfinished tasks.
 		$data = $this->find('all', $findConf);
 		if (!empty($data)) {
@@ -115,7 +117,7 @@ class QueuedTask extends QueueAppModel {
 			// Generate a unique Identifier for the current worker thread
 			$key = sha1(microtime());
 			// try to update one of the found tasks with the key of this worker.
-			$this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE id in(' . implode(',', $idlist) . ') AND (workerkey IS NULL OR     fetched <= "' . date('Y-m-d H:i:s', time() - $task['timeout']) . '") ORDER BY timediff(NOW(),notbefore) DESC LIMIT 1');
+			$this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE id in(' . implode(',', $idlist) . ') AND (workerkey IS NULL OR fetched <= "' . date('Y-m-d H:i:s', time() - $task['timeout']) . '") ORDER BY timediff(NOW(),notbefore) DESC LIMIT 1');
 			// read which one actually got updated, which is the job we are supposed to execute.
 			$data = $this->find('first', array(
 				'conditions' => array(
@@ -162,7 +164,8 @@ class QueuedTask extends QueueAppModel {
 		
 		return ($this->updateAll(array(
 			'failed' => "failed + 1",
-			'failure_message' => $failureMessage
+			'failure_message' => $failureMessage,
+			//'workerkey' => null
 		), array(
 			'id' => $id
 		)));
@@ -229,7 +232,7 @@ class QueuedTask extends QueueAppModel {
 	 */
 	public function cleanOldJobs() {
 		$this->deleteAll(array(
-			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('queue.cleanuptimeout'))
+			$this->alias.'.completed <' => date('Y-m-d H:i:s', time() - Configure::read('queue.cleanuptimeout'))
 		));
 	
 	}
