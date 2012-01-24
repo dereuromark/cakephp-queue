@@ -9,10 +9,10 @@
  */
 
 /**
- * A Simple QueueTask example.
+ * Execute a Local command on the server.
  *
  */
-class queueExampleTask extends Shell {
+class QueueExecuteTask extends AppShell {
 	/**
 	 * Adding the QueueTask Model
 	 *
@@ -30,11 +30,11 @@ class queueExampleTask extends Shell {
 	public $QueuedTask;
 	
 	/**
-	 * Timeout f�r run, after which the Task is reassigned to a new worker.
+	 * Timeout for run, after which the Task is reassigned to a new worker.
 	 *
 	 * @var integer
 	 */
-	public $timeout = 10;
+	public $timeout = 0;
 	/**
 	 * Number of times a failed instance of this task should be restarted before giving up.
 	 *
@@ -49,34 +49,36 @@ class queueExampleTask extends Shell {
 	public $failureMessage = '';
 
 	/**
-	 * Example add functionality.
+	 * Add functionality.
 	 * Will create one example job in the queue, which later will be executed using run();
 	 */
 	public function add() {
-		$this->out('CakePHP Queue Example task.');
+		$this->out('CakePHP Queue Execute task.');
 		$this->hr();
-		$this->out('This is a very simple example of a queueTask.');
-		$this->out('I will now add an example Job into the Queue.');
-		$this->out('This job will only produce some console output on the worker that it runs on.');
-		$this->out(' ');
-		$this->out('To run a Worker use:');
-		$this->out('	cake queue runworker');
-		$this->out(' ');
-		$this->out('You can find the sourcecode of this task in: ');
-		$this->out(__FILE__);
-		$this->out(' ');
-		/**
-		 * Adding a task of type 'example' with no additionally passed data
-		 */
-		if ($this->QueuedTask->createJob('example', null)) {
-			$this->out('OK, job created, now run the worker');
+		if (count($this->args) < 2) {
+			$this->out('This will run an shell command on the Server.');
+			$this->out('The task is mainly intended to serve as a kind of buffer for programm calls from a cakephp application.');
+			$this->out(' ');
+			$this->out('Call like this:');
+			$this->out('	cake queue add execute *command* *param1* *param2* ...');
+			$this->out(' ');
 		} else {
-			$this->err('Could not create Job');
+			
+			$data = array(
+				'command' => $this->args[1], 
+				'params' => array_slice($this->args, 2)
+			);
+			if ($this->QueuedTask->createJob('execute', $data)) {
+				$this->out('Job created');
+			} else {
+				$this->err('Could not create Job');
+			}
+		
 		}
 	}
 
 	/**
-	 * Example run function.
+	 * Run function.
 	 * This function is executed, when a worker is executing a task.
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
@@ -84,12 +86,11 @@ class queueExampleTask extends Shell {
 	 * @return bool Success
 	 */
 	public function run($data) {
-		$this->hr();
-		$this->out('CakePHP Queue Example task.');
-		$this->hr();
-		$this->out(' ->Success, the Example Job was run.<-');
+		$command = escapeshellcmd($data['command']) . ' ' . implode(' ', $data['params']);
+		$this->out('Executing: ' . $command);
+		exec($command, $output, $status);
 		$this->out(' ');
-		$this->out(' ');
-		return true;
+		$this->out($output);
+		return (!$status);
 	}
 }

@@ -9,13 +9,11 @@
  */
 class QueuedTask extends QueueAppModel {
 	
-	public $name = 'QueuedTask';
-	
 	public $rateHistory = array();
 	
 	public $exit = false;
 	
-	public $_findMethods = array(
+	protected $_findMethods = array(
 		'progress' => true
 	);
 
@@ -106,7 +104,7 @@ class QueuedTask extends QueueAppModel {
 		}
 		// First, find a list of a few of the oldest unfinished tasks.
 		$data = $this->find('all', $findConf);
-		if (is_array($data) && count($data) > 0) {
+		if (!empty($data)) {
 			// generate a list of their ID's
 			foreach ($data as $item) {
 				$idlist[] = $item[$this->name]['id'];
@@ -235,6 +233,18 @@ class QueuedTask extends QueueAppModel {
 		));
 	
 	}
+	
+	public function lastRun() {
+		$workerFileLog = LOGS.'queue'.DS.'runworker.txt';
+		if (file_exists($workerFileLog)) {
+			$worker = file_get_contents($workerFileLog);
+		}
+		return array( 
+			'worker' => isset($worker) ? $worker : '',
+			'queue' => $this->field('completed', array('completed !='=>null), array('completed'=>'DESC')),
+		);
+	}
+	
 
 	protected function _findProgress($state, $query = array(), $results = array()) {
 		if ($state == 'before') {

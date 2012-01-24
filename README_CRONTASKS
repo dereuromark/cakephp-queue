@@ -1,0 +1,33 @@
+--------------------------------
+CakePHP Queue Plugin - Crontasks
+--------------------------------
+http://github.com/
+
+Background:
+--------------------------------
+"Crontasks" are a part of the queue plugin.
+While the queue plugin is helpful to get deferred job execution for time and ressource consuming tasks the crontasks are supposed to be cronjobs that can be adjusted from the user interface (backend of the application).
+Select tasks and when they should be executed.
+As soon as the queue finds out that a cronjob is due it will add this job to the queue and execute it.
+
+Advantage: You don't have to have server rights to modify the cronjobs and how often it should run. Admins can use the website to adjust settings if desired.
+
+Installation:
+--------------------------------
+* ...
+		
+Configuration:
+--------------------------------
+...
+
+Usage:
+--------------------------------
+Run the following using the cakephp shell:
+
+  cake Queue.Cron help
+          -> Display Help message
+  ...
+  
+Notes:
+	
+DO NOT USE YET - DEV ONLY!!! Please use the official Queue Stuff only!

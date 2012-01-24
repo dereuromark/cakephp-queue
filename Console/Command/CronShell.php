@@ -1,15 +1,23 @@
 <?php
 
 /**
- * @author MGriesbach@gmail.com
- * @package QueuePlugin
- * @subpackage QueuePlugin.Shells
+ * Cronjob via crontab etc triggering this script every few minutes
+ * Alternative to indefinitly running queues
+ * based on the idea of
+ * - https://github.com/csrui/cron-mailer
+ *
+ * crontab (in this example running every 30 minutes):
+ * 0,30 * * * * cake cron run -app /full/path/to/app
+ *
+ * probably less memory consuming
+ * 2011-07-17 ms
+ *
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-class queueShell extends Shell {
+class CronShell extends AppShell {
 	public $uses = array(
-		'Queue.QueuedTask'
+		'Queue.CronTask'
 	);
 	/**
 	 * Codecomplete Hint
@@ -17,8 +25,8 @@ class queueShell extends Shell {
 	 * @var QueuedTask
 	 */
 	public $QueuedTask;
-	
-	private $taskConf;
+
+	protected $taskConf;
 
 	/**
 	 * Overwrite shell initialize to dynamically load all Queue Related Tasks.
@@ -26,7 +34,7 @@ class queueShell extends Shell {
 	public function initialize() {
 		App::import('Folder');
 		$this->_loadModels();
-		
+
 		foreach ($this->Dispatch->shellPaths as $path) {
 			$folder = new Folder($path . DS . 'tasks');
 			$this->tasks = array_merge($this->tasks, $folder->find('queue_.*\.php'));
@@ -35,23 +43,26 @@ class queueShell extends Shell {
 		foreach ($this->tasks as &$task) {
 			$task = basename($task, '.php');
 		}
-		
+
 		//Config can be overwritten via local app config.
 		Configure::load('queue');
-		
+
 		$conf = Configure::read('queue');
 		if (!is_array($conf)) {
 			$conf = array();
 		}
 		//merge with default configuration vars.
 		Configure::write('queue', array_merge(array(
+			'maxruntime' => DAY,
+			'cleanuptimeout' => MONTH,
+		/*
 			'sleeptime' => 10,
 			'gcprop' => 10,
 			'defaultworkertimeout' => 120,
 			'defaultworkerretries' => 4,
-			'workermaxruntime' => 0,
-			'cleanuptimeout' => 2000,
+
 			'exitwhennothingtodo' => false
+		*/
 		), $conf));
 	}
 
@@ -59,21 +70,17 @@ class queueShell extends Shell {
 	 * Output some basic usage Info.
 	 */
 	public function help() {
-		$this->out('CakePHP Queue Plugin:');
+		$this->out('CakePHP Cronjobs:');
 		$this->hr();
 		$this->out('Usage:');
-		$this->out('	cake queue help');
+		$this->out('	cake cron help');
 		$this->out('		-> Display this Help message');
-		$this->out('	cake queue add <taskname>');
+		$this->out('	cake cron run <taskname> (no tasks = will call ALL at once)');
 		$this->out('		-> Try to call the cli add() function on a task');
 		$this->out('		-> tasks may or may not provide this functionality.');
-		$this->out('	cake queue runworker');
-		$this->out('		-> run a queue worker, which will look for a pending task it can execute.');
-		$this->out('		-> the worker will always try to find jobs matching its installed Tasks');
-		$this->out('		-> see "Available Tasks" below.');
-		$this->out('	cake queue stats');
+		$this->out('	cake cron stats');
 		$this->out('		-> Display some general Statistics.');
-		$this->out('	cake queue clean');
+		$this->out('	cake cron clean');
 		$this->out('		-> Manually call cleanup function to delete task data of completed tasks.');
 		$this->out('Notes:');
 		$this->out('	<taskname> may either be the complete classname (eg. queue_example)');
@@ -94,7 +101,7 @@ class queueShell extends Shell {
 			$this->out('Please call like this:');
 			$this->out('       cake queue add <taskname>');
 		} else {
-			
+
 			if (in_array($this->args[0], $this->taskNames)) {
 				$this->{$this->args[0]}->add();
 			} elseif (in_array('queue_' . $this->args[0], $this->taskNames)) {
@@ -110,11 +117,24 @@ class queueShell extends Shell {
 	}
 
 	/**
+	 * Select all active and due cronjobs and execute them
+	 * 2011-07-18 ms
+	 */
+	public function run() {
+		// Enable Garbage Collector (PHP >= 5.3)
+		if (function_exists('gc_enable')) {
+		    gc_enable();
+		}
+
+
+	}
+
+	/**
 	 * Run a QueueWorker loop.
 	 * Runs a Queue Worker process which will try to find unassigned jobs in the queue
 	 * which it may run and try to fetch and execute them.
 	 */
-	public function runworker() {
+	public function runOld() {
 		// Enable Garbage Collector (PHP >= 5.3)
 		if (function_exists('gc_enable')) {
 		    gc_enable();
@@ -127,7 +147,7 @@ class queueShell extends Shell {
 		}
 		while (!$exit) {
 			$this->out('Looking for Job....');
-			$data = $this->QueuedTask->requestJob($this->getTaskConf(), $group);
+			$data = $this->QueuedTask->requestJob($this->_getTaskConf(), $group);
 			if ($this->QueuedTask->exit === true) {
 				$exit = true;
 			} else {
@@ -150,14 +170,13 @@ class queueShell extends Shell {
 					$this->out('nothing to do, exiting.');
 					$exit = true;
 				} else {
-					$this->out('nothing to do, sleeping.');
-					sleep(Configure::read('queue.sleeptime'));
-				}
-				
-				// check if we are over the maximum runtime and end processing if so.
-				if (Configure::read('queue.workermaxruntime') != 0 && (time() - $starttime) >= Configure::read('queue.workermaxruntime')) {
 					$exit = true;
-					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('queue.workermaxruntime') . '), terminating.');
+				}
+
+				// check if we are over the maximum runtime and end processing if so.
+				if (Configure::read('queue.maxruntime') != 0 && (time() - $starttime) >= Configure::read('queue.maxruntime')) {
+					$exit = true;
+					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('queue.maxruntime') . '), terminating.');
 				}
 				if ($exit || rand(0, 100) > (100 - Configure::read('queue.gcprop'))) {
 					$this->out('Performing Old job cleanup.');
@@ -183,9 +202,9 @@ class queueShell extends Shell {
 	 */
 	public function stats() {
 		$this->out('Jobs currenty in the Queue:');
-		
+
 		$types = $this->QueuedTask->getTypes();
-		
+
 		foreach ($types as $type) {
 			$this->out("      " . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ": " . $this->QueuedTask->getLength($type));
 		}
@@ -207,7 +226,7 @@ class queueShell extends Shell {
 	 * Returns a List of available QueueTasks and their individual configurations.
 	 * @return array
 	 */
-	private function getTaskConf() {
+	protected function _getTaskConf() {
 		if (!is_array($this->taskConf)) {
 			$this->taskConf = array();
 			foreach ($this->tasks as $task) {
@@ -230,3 +249,4 @@ class queueShell extends Shell {
 		return $this->taskConf;
 	}
 }
+

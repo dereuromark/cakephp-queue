@@ -1,4 +1,7 @@
 <?php
+App::uses('EmailLib', 'Tools.EmailLib');
+App::uses('AppShell', 'Console/Command');
+
 /**
  * @author MGriesbach@gmail.com
  * @package QueuePlugin
@@ -7,10 +10,7 @@
  * @link http://github.com/MSeven/cakephp_queue
  * @see http://bakery.cakephp.org/articles/view/emailcomponent-in-a-cake-shell
  */
-App::import('Core', 'Controller');
-App::import('Component', 'Email');
-
-class queueEmailTask extends Shell {
+class QueueEmailTask extends AppShell {
 	/**
 	 * List of default variables for EmailComponent
 	 *
@@ -61,17 +61,24 @@ class queueEmailTask extends Shell {
 	}
 
 	public function run($data) {
-		$this->Controller = & new Controller();
-		$this->Email = & new EmailComponent(null);
-		$this->Email->initialize($this->Controller, $this->defaults);
+		$this->Email = new EmailLib();
+		//$this->Email->initialize($this->Controller, $this->defaults);
+		
+		# prep
 		if (array_key_exists('settings', $data)) {
-			$this->Email->_set(array_filter(am($this->defaults, $data['settings'])));
-			if (array_key_exists('vars', $data)) {
-				foreach ($data['vars'] as $name => $var) {
-					$this->Controller->set($name, $var);
+			foreach ($data as $key => $val) {
+				if (method_exists($this->Email, $key)) {
+					$this->Email->{$key}($val);
 				}
+				//$this->Email->set(array_filter(am($this->defaults, $data['settings'])));
 			}
-			return ($this->Email->send());
+		}
+		if (array_key_exists('vars', $data)) {
+			$this->Email->viewVars($data['vars']);
+		}
+		
+		if (array_key_exists('settings', $data)) {
+			return $this->Email->send();
 		}
 		$this->err('Queue Email task called without settings data.');
 		return false;

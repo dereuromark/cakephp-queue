@@ -7,14 +7,13 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-class queueSchema extends CakeSchema {
-	var $name = 'queue';
+class QueueSchema extends CakeSchema {
 
-	function before($event = array()) {
+	public function before($event = array()) {
 		return true;
 	}
 
-	function after($event = array()) {
+	public function after($event = array()) {
 	}
 	
 	public $queued_tasks = array(
