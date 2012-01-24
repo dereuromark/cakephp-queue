@@ -4,6 +4,8 @@ App::uses('QueueAppController', 'Queue.Controller');
 class QueueController extends QueueAppController {
 
 	public $uses = array('Queue.QueuedTask');
+	
+	public $helpers = array('Tools.Format', 'Tools.Datetime');
 
 	/**
 	 * admin center
@@ -16,17 +18,25 @@ class QueueController extends QueueAppController {
 		
 		$tasks = array();
 		foreach ($types as $type) {
-			//$this->out("      " . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ": " . $this->QueuedTask->getLength($type));
 			$tasks[$type] = $this->QueuedTask->getLength($type);
 		}
-		//$this->hr();
-		//$this->out('Total unfinished Jobs      : ' . $this->QueuedTask->getLength());
+		# Total unfinished Jobs
 		$allTasks = $this->QueuedTask->getLength();
 		
 		$details = array();
 		$details['worker'] = filemtime(TMP.'queue_notification.txt');
 		
 		$this->set(compact('tasks', 'allTasks', 'details'));
+	}
+
+	/**
+	 * truncate the queue list / table
+	 * 2012-01-24 ms
+	 */
+	public function admin_reset() {
+		$this->QueuedTask->truncate();
+		$this->Common->flashMessage(__('Reset done'), 'success');
+		$this->Common->autoRedirect(array('action'=>'index'));
 	}
 
 }
