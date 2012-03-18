@@ -1,16 +1,17 @@
 <?php
-App::uses('EmailLib', 'Tools.EmailLib');
-App::uses('AppShell', 'Console/Command');
-
 /**
- * @author MGriesbach@gmail.com
+ * @author Mark Scherer
  * @package QueuePlugin
  * @subpackage QueuePlugin.Tasks
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
- * @link http://github.com/MSeven/cakephp_queue
- * @see http://bakery.cakephp.org/articles/view/emailcomponent-in-a-cake-shell
+ * 
+ * @uses Tools.EmailLib
  */
+App::uses('EmailLib', 'Tools.Lib');
+App::uses('AppShell', 'Console/Command');
+
 class QueueEmailTask extends AppShell {
+	
 	/**
 	 * List of default variables for EmailComponent
 	 *
@@ -18,29 +19,12 @@ class QueueEmailTask extends AppShell {
 	 */
 	public $defaults = array(
 		'to' => null,
-		'subject' => null,
-		'charset' => 'UTF-8',
 		'from' => null,
-		'sendAs' => 'html',
-		'template' => null,
-		'debug' => false,
-		'additionalParams' => '',
-		'layout' => 'default'
 	);
 	public $timeout = 120;
-	public $retries = 0;
-	/**
-	 * Controller class
-	 *
-	 * @var Controller
-	 */
-	public $Controller;
 	
-	/**
-	 * EmailComponent
-	 *
-	 * @var EmailComponent
-	 */
+	public $retries = 0;
+
 	public $Email;
 
 	public function add() {
@@ -55,32 +39,30 @@ class QueueEmailTask extends AppShell {
 				'template' => 'sometemplate'
 			),
 			'vars' => array(
-				'text' => 'hello world'
+				'content' => 'hello world',
 			)
 		), true));
 	}
 
 	public function run($data) {
 		$this->Email = new EmailLib();
-		//$this->Email->initialize($this->Controller, $this->defaults);
 		
-		# prep
-		if (array_key_exists('settings', $data)) {
-			foreach ($data as $key => $val) {
-				if (method_exists($this->Email, $key)) {
-					$this->Email->{$key}($val);
-				}
-				//$this->Email->set(array_filter(am($this->defaults, $data['settings'])));
-			}
+		if (!isset($data['settings'])) {
+			$this->err('Queue Email task called without settings data.');
+			return false;
 		}
-		if (array_key_exists('vars', $data)) {
+		$settings = am($this->defaults, $data['settings']);
+		foreach ($settings as $method => $setting) {
+			call_user_func_array(array($this->Email, $method), (array)$setting);
+		}
+		$message = null;
+		if (!empty($data['vars'])) {
+			if (isset($data['vars']['content'])) {
+				$message = $data['vars']['content'];
+			}
 			$this->Email->viewVars($data['vars']);
 		}
-		
-		if (array_key_exists('settings', $data)) {
-			return $this->Email->send();
-		}
-		$this->err('Queue Email task called without settings data.');
-		return false;
+		return $this->Email->send($message);		
 	}
+	
 }

@@ -12,7 +12,7 @@
  * Execute a Local command on the server.
  *
  */
-class QueueExecuteTask extends AppShell {
+class QueueExecuteTask extends Shell {
 	/**
 	 * Adding the QueueTask Model
 	 *

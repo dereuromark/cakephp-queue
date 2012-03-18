@@ -5,7 +5,6 @@
  */
 class CronTask extends QueueAppModel {
 
-	public $name = 'CronTask';
 
 	public $rateHistory = array();
 	public $exit = false;
@@ -353,8 +352,8 @@ class CronTask extends QueueAppModel {
 
 	public static function jobtypes($value = null) {
   	$options = array(
-  		self::TYPE_TASK => __('Task', true),
-			self::TYPE_MODEL => __('Model (Method)', true),
+  		self::TYPE_TASK => __('Task'),
+			self::TYPE_MODEL => __('Model (Method)'),
 		);
 		return parent::enum($value, $options);
 	}

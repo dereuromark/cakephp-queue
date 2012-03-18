@@ -12,8 +12,7 @@
  * A Simple QueueTask example.
  *
  */
-class QueueExampleTask extends AppShell {
-	
+class QueueExampleTask extends Shell {
 	/**
 	 * Adding the QueueTask Model
 	 *
@@ -31,19 +30,17 @@ class QueueExampleTask extends AppShell {
 	public $QueuedTask;
 	
 	/**
-	 * Timeout for run, after which the Task is reassigned to a new worker.
+	 * Timeout f�r run, after which the Task is reassigned to a new worker.
 	 *
 	 * @var integer
 	 */
 	public $timeout = 10;
-	
 	/**
 	 * Number of times a failed instance of this task should be restarted before giving up.
 	 *
 	 * @var integer
 	 */
 	public $retries = 0;
-	
 	/**
 	 * Stores any failure messages triggered during run()
 	 *
