@@ -1,12 +1,14 @@
 
 h1. CakePHP Queue Plugin
 
-*CakePHP2.x*
+PHP5 - *CakePHP2.x*
 
 h2. Background:
 
 This is a modified version of the original Queue Plugin (1.2/1.3 only) from @MSeven.
 Rewritten for 2.x it has also some enhancements added.
+
+Note: Some of those enhancements require my Tools plugin (admin backend, email task, testing emails).
 
 h2. Installation:
 
@@ -45,13 +47,13 @@ h2. Usage:
 
 Run the following using the cakephp shell:
 
-@cake queue help@
+@cake Queue help@
 * Display Help message
           
-@cake queue add <taskname>@  
+@cake Queue add <taskname>@  
 * Try to call the cli add() function on a task
 * tasks may or may not provide this functionality.
-@cake queue runworker@  
+@cake Queue runworker@  
 * run a queue worker, which will look for a pending task it can execute.
 * the worker will always try to find jobs matching its installed Tasks
          
@@ -61,6 +63,6 @@ Run the following using the cakephp shell:
 Use '@cake queue help@' to get a list of installed/available tasks.
 
 Custom tasks should be placed in APP/Console/Command/Task.
-Tasks should be named 'QueueSomethingTask.php' and implement a "QueueSomethingTask", keeping Cakephp Naming conventions intact.
+Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping Cakephp Naming conventions intact.
 
 A detailed Example task can be found in /Console/Command/Task/QueueExampleTask.php inside this folder.
