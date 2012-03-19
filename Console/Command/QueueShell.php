@@ -97,6 +97,8 @@ class QueueShell extends AppShell {
 		$this->out('		-> Display some general Statistics.');
 		$this->out('	cake queue clean');
 		$this->out('		-> Manually call cleanup function to delete task data of completed tasks.');
+		$this->out('	cake queue settings');
+		$this->out('		-> Display current settings.');
 		$this->hr();
 		$this->out('Notes:');
 		$this->out('	<taskname> may either be the complete classname (eg. QueueExample)');
@@ -167,7 +169,7 @@ class QueueShell extends AppShell {
 				$pid = $this->QueuedTask->key();
 			}
 			# global file
-			$fp = fopen($pidFilePath.'queue.pid', "w");
+			$fp = fopen($pidFilePath . 'queue.pid', "w");
 	 		fwrite($fp, $pid);
 	 		fclose($fp);
 	 		# specific pid file
@@ -176,7 +178,7 @@ class QueueShell extends AppShell {
 			} else {
 				$pid = $this->QueuedTask->key();
 			}
-			$pidFileName = 'queue_'.$pid.'.pid';
+			$pidFileName = 'queue_' . $pid . '.pid';
 			$fp = fopen($pidFilePath . $pidFileName, "w");
 	 		fwrite($fp, $pid);
 	 		fclose($fp);	 		
@@ -195,9 +197,12 @@ class QueueShell extends AppShell {
 			// make sure accidental overriding isnt possible
 			set_time_limit(0);
 			if (!empty($pidFilePath)) {
-				touch($pidFilePath.'queue.pid');
+				touch($pidFilePath . 'queue.pid');
 			}
-			$this->_log('runworker');
+			if (!empty($pidFileName)) {
+				touch($pidFilePath . $pidFileName);
+			}
+			$this->_log('runworker', isset($pid) ? $pid : null);
 			$this->out('Looking for Job....');
 			
 			$data = $this->QueuedTask->requestJob($this->_getTaskConf(), $group);
@@ -228,7 +233,7 @@ class QueueShell extends AppShell {
 				}
 
 				// check if we are over the maximum runtime and end processing if so.
-				if (Configure::read('queue.workermaxruntime') != 0 && (time() - $starttime) >= Configure::read('queue.workermaxruntime')) {
+				if (Configure::read('queue.workermaxruntime') && (time() - $starttime) >= Configure::read('queue.workermaxruntime')) {
 					$exit = true;
 					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('queue.workermaxruntime') . '), terminating.');
 				}
@@ -246,16 +251,25 @@ class QueueShell extends AppShell {
 
 	/**
 	 * Manually trigger a Finished job cleanup.
-	 * @return null
 	 */
 	public function clean() {
 		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('queue.cleanuptimeout')));
 		$this->QueuedTask->cleanOldJobs();
 	}
+	
+	/**
+	 * Display current settings
+	 */
+	public function settings() {
+		$this->out('Current Settings:');
+		$conf = (array)Configure::read('queue');
+		foreach ($conf as $key => $val) {
+			$this->out('* '.$key.': '.print_r($val, true));
+		}
+	}
 
 	/**
 	 * Display Some statistics about Finished Jobs.
-	 * @return null
 	 */
 	public function stats() {
 		$this->out('Jobs currenty in the Queue:');
@@ -295,18 +309,23 @@ class QueueShell extends AppShell {
 	
 	
 	/**
-	 * timestamped log
+	 * timestamped log (good for debugging how many and when cronjobs ran)
 	 * 2011-10-09 ms
 	 */
-	protected function _log($type) {
+	protected function _log($type, $pid = null) {
 		# log?
 		if (Configure::read('queue.log')) {
+			/*
+			// now pid file
 			$folder = LOGS.'queue';
 			if (!file_exists($folder)) {
 				mkdir($folder, 0755, true);
 			}
 			$file = $folder . DS . $type.'.txt';
 			file_put_contents($file, date(FORMAT_DB_DATETIME));
+			*/
+			$message = $type.' '.$pid;
+			CakeLog::write('queue', $message);
 		}
 	}
 	

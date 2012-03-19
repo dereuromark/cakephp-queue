@@ -244,7 +244,24 @@ class QueuedTask extends QueueAppModel {
 		$this->deleteAll(array(
 			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('queue.cleanuptimeout'))
 		));
-	
+		if ($pidFilePath = Configure::read('queue.pidfilepath')) {
+			# remove all old pid files left over
+			$timeout = time() - 2 * Configure::read('queue.cleanuptimeout');
+			$Iterator = new RegexIterator(
+				new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pidFilePath)),
+				'/^.+\_.+\.(pid)$/i',
+				RegexIterator::MATCH
+			);
+			foreach ($Iterator as $file) {
+				if ($file->isFile()) {
+					$file = $file->getPathname();
+					$lastModified = filemtime($file);
+					if ($timeout > $lastModified) {
+						unlink($file);
+					}
+				}
+			}
+		}
 	}
 	
 	public function lastRun() {

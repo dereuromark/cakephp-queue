@@ -18,8 +18,13 @@ class QueueController extends QueueAppController {
 		if (!$this->Common->isPosted()) {
 			throw new MethodNotAllowedException();
 		}
-		$res = $this->Queue->truncate();
-		die(returns($res));
+		$res = $this->QueuedTask->truncate();
+		if ($res) {
+			$this->Common->flashMessage('OK', 'success');
+		} else {
+			$this->Common->flashMessage(__('Error'), 'success');
+		}
+		$this->Common->autoPostRedirect(array('action'=>'index'));
 	}
 	
 	protected function _status() {

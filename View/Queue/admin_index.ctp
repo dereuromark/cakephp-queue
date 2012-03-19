@@ -1,5 +1,5 @@
 <div class="page index">
-<h2><?php echo __('Queue Tasks');?></h2>
+<h2><?php echo __('Queue');?></h2>
 
 <h3><?php echo __('Status'); ?></h3>
 <?php if ($status) { ?>
@@ -11,10 +11,10 @@
 n/a
 <?php } ?>
 
-<h3><?php echo __('Current Queue'); ?></h3>
+<h3><?php echo __('Queued Tasks'); ?></h3>
 <?php
  echo $current;
-?> tasks await processing
+?> task(s) await processing
 
 
 <h3><?php echo __('Statistics'); ?></h3>
@@ -37,6 +37,6 @@ foreach ($data as $item) {
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Form->postLink(__('Reset %s', __('All')), array('action' => 'reset')); ?></li>
+		<li><?php echo $this->Form->postLink(__('Reset %s', __('All')), array('action' => 'reset'), array(), __('Sure?')); ?></li>
 	</ul>
 </div>

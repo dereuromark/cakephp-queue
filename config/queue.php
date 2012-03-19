@@ -1,6 +1,8 @@
 <?php
 
 $config['queue'] = array(
-	'defaultworkertimeout' => 180,
-	'log' => true
+	'defaultworkertimeout' => HOUR,
+	//'log' => true,
+	'workermaxruntime' => 120,
+	'cleanuptimeout' => 2 * HOUR
 );
