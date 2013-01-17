@@ -40,7 +40,7 @@ foreach ($cronTasks as $cronTask):
 		<td>
 			<?php echo $this->Format->yesNo($cronTask['CronTask']['status']); ?>
 			<br />
-   		<?php
+			<?php
 				if ($cronTask['CronTask']['notbefore'] > date(FORMAT_DB_DATETIME)) {
 					echo $this->Format->cIcon(ICON_WARNING, 'Achtung');
 				}
@@ -49,7 +49,7 @@ foreach ($cronTasks as $cronTask):
 		<td class="actions">
 			<?php echo $this->Html->link($this->Format->icon('view'), array('action'=>'view', $cronTask['CronTask']['id']), array('escape'=>false)); ?>
 			<?php echo $this->Html->link($this->Format->icon('edit'), array('action'=>'edit', $cronTask['CronTask']['id']), array('escape'=>false)); ?>
-			<?php echo $this->Html->link($this->Format->icon('delete'), array('action'=>'delete', $cronTask['CronTask']['id']), array('escape'=>false), sprintf(__('Are you sure you want to delete # %s?'), $cronTask['CronTask']['id'])); ?>
+			<?php echo $this->Form->postLink($this->Format->icon('delete'), array('action'=>'delete', $cronTask['CronTask']['id']), array('escape'=>false), __('Are you sure you want to delete # %s?', $cronTask['CronTask']['id'])); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>
@@ -64,6 +64,6 @@ foreach ($cronTasks as $cronTask):
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(sprintf(__('Add %s'), __('Cron Task')), array('action' => 'add')); ?></li>
+		<li><?php echo $this->Html->link(__('Add %s', __('Cron Task')), array('action' => 'add')); ?></li>
 	</ul>
 </div>

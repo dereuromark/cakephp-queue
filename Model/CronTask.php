@@ -1,12 +1,13 @@
 <?php
+App::uses('QueueAppModel', 'Queue.Model');
 
 /**
  * 2011-07-17 ms
  */
 class CronTask extends QueueAppModel {
 
-
 	public $rateHistory = array();
+
 	public $exit = false;
 
 	public $_findMethods = array(
@@ -334,9 +335,9 @@ class CronTask extends QueueAppModel {
 
 	public function clearDoublettes() {
 		$x = $this->query('SELECT max(id) as id FROM `queueman`.`queued_tasks`
-    where completed is null
-    group by data
-    having count(id) > 1');
+	where completed is null
+	group by data
+	having count(id) > 1');
 
 		$start = 0;
 		$x = array_keys($x);
@@ -351,8 +352,8 @@ class CronTask extends QueueAppModel {
 	}
 
 	public static function jobtypes($value = null) {
-  	$options = array(
-  		self::TYPE_TASK => __('Task'),
+		$options = array(
+			self::TYPE_TASK => __('Task'),
 			self::TYPE_MODEL => __('Model (Method)'),
 		);
 		return parent::enum($value, $options);

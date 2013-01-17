@@ -1,9 +1,9 @@
-<h2><?php printf(__('Edit %s'), __('Cron Task')); ?></h2>
+<h2><?php echo __('Edit %s', __('Cron Task')); ?></h2>
 
 <div class="page form">
 <?php echo $this->Form->create('CronTask');?>
 	<fieldset>
- 		<legend><?php printf(__('Edit %s'), __('Cron Task')); ?></legend>
+ 		<legend><?php echo __('Edit %s', __('Cron Task')); ?></legend>
 	<?php
 		echo $this->Form->input('id');
 		echo $this->Form->input('jobtype', array('options'=>CronTask::jobtypes()));
@@ -22,7 +22,7 @@
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(__('Delete'), array('action' => 'delete', $this->Form->value('CronTask.id')), null, sprintf(__('Are you sure you want to delete # %s?'), $this->Form->value('CronTask.id'))); ?></li>
-		<li><?php echo $this->Html->link(sprintf(__('List %s'), __('Cron Tasks')), array('action' => 'index'));?></li>
+		<li><?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete', $this->Form->value('CronTask.id')), null, __('Are you sure you want to delete # %s?', $this->Form->value('CronTask.id'))); ?></li>
+		<li><?php echo $this->Html->link(__('List %s', __('Cron Tasks')), array('action' => 'index'));?></li>
 	</ul>
 </div>

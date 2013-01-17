@@ -12,7 +12,7 @@
  * Execute a Local command on the server.
  *
  */
-class QueueExecuteTask extends Shell {
+class QueueExecuteTask extends AppShell {
 	/**
 	 * Adding the QueueTask Model
 	 *
@@ -21,14 +21,14 @@ class QueueExecuteTask extends Shell {
 	public $uses = array(
 		'Queue.QueuedTask'
 	);
-	
+
 	/**
 	 * ZendStudio Codecomplete Hint
 	 *
 	 * @var QueuedTask
 	 */
 	public $QueuedTask;
-	
+
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
 	 *
@@ -63,9 +63,9 @@ class QueueExecuteTask extends Shell {
 			$this->out('	cake queue add execute *command* *param1* *param2* ...');
 			$this->out(' ');
 		} else {
-			
+
 			$data = array(
-				'command' => $this->args[1], 
+				'command' => $this->args[1],
 				'params' => array_slice($this->args, 2)
 			);
 			if ($this->QueuedTask->createJob('Execute', $data)) {
@@ -73,7 +73,7 @@ class QueueExecuteTask extends Shell {
 			} else {
 				$this->err('Could not create Job');
 			}
-		
+
 		}
 	}
 

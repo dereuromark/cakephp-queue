@@ -15,7 +15,7 @@ class QueueSchema extends CakeSchema {
 
 	public function after($event = array()) {
 	}
-	
+
 	public $queued_tasks = array(
 		'id' => array(
 			'type' => 'integer',

@@ -9,7 +9,7 @@
  */
 
 class QueuedTaskFixture extends CakeTestFixture {
-	
+
 	public $table = 'queued_tasks';
 	public $fields = array(
 		'id' => array(

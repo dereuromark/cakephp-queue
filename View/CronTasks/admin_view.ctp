@@ -50,8 +50,8 @@
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(sprintf(__('Edit %s'), __('Cron Task')), array('action' => 'edit', $cronTask['CronTask']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(sprintf(__('Delete %s'), __('Cron Task')), array('action' => 'delete', $cronTask['CronTask']['id']), null, sprintf(__('Are you sure you want to delete # %s?'), $cronTask['CronTask']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(sprintf(__('List %s'), __('Cron Tasks')), array('action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__('Edit %s', __('Cron Task')), array('action' => 'edit', $cronTask['CronTask']['id'])); ?> </li>
+		<li><?php echo $this->Form->postLink(__('Delete %s', __('Cron Task')), array('action' => 'delete', $cronTask['CronTask']['id']), null, __('Are you sure you want to delete # %s?', $cronTask['CronTask']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(__('List %s', __('Cron Tasks')), array('action' => 'index')); ?> </li>
 	</ul>
 </div>

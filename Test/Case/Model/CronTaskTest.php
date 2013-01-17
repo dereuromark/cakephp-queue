@@ -1,15 +1,16 @@
 <?php
-App::import('Model', 'Queue.CronTask');
-App::uses('MyCakeTestCase', 'Tools.Lib');
+App::uses('CronTask', 'Queue.Model');
+App::uses('MyCakeTestCase', 'Tools.TestSuite');
 
 class CronTaskTest extends MyCakeTestCase {
+
 	public $fixtures = array('core.user');
 
-	public function startTest() {
+	public function setUp() {
 		$this->CronTask = ClassRegistry::init('Queue.CronTask');
 	}
 
-	public function endTest() {
+	public function tearDown() {
 		unset($this->CronTask);
 		ClassRegistry::flush();
 	}

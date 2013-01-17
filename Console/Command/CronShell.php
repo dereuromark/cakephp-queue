@@ -1,4 +1,6 @@
 <?php
+App::uses('Folder', 'Utility');
+App::uses('AppShell', 'Console/Command');
 
 /**
  * Cronjob via crontab etc triggering this script every few minutes
@@ -16,6 +18,7 @@
  * @link http://github.com/MSeven/cakephp_queue
  */
 class CronShell extends AppShell {
+
 	public $uses = array(
 		'Queue.CronTask'
 	);
@@ -32,7 +35,6 @@ class CronShell extends AppShell {
 	 * Overwrite shell initialize to dynamically load all Queue Related Tasks.
 	 */
 	public function initialize() {
-		App::import('Folder');
 		$this->_loadModels();
 
 		foreach ($this->Dispatch->shellPaths as $path) {
@@ -123,7 +125,7 @@ class CronShell extends AppShell {
 	public function run() {
 		// Enable Garbage Collector (PHP >= 5.3)
 		if (function_exists('gc_enable')) {
-		    gc_enable();
+			gc_enable();
 		}
 
 
@@ -137,7 +139,7 @@ class CronShell extends AppShell {
 	public function runOld() {
 		// Enable Garbage Collector (PHP >= 5.3)
 		if (function_exists('gc_enable')) {
-		    gc_enable();
+			gc_enable();
 		}
 		$exit = false;
 		$starttime = time();

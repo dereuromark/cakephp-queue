@@ -1,15 +1,15 @@
 <?php
-/* CronTasks Test cases generated on: 2011-07-17 22:22:35 : 1310934155*/
 App::uses('CronTasksController', 'Queue.Controller');
-App::uses('MyCakeTestCase', 'Tools.Lib');
+App::uses('MyCakeTestCase', 'Tools.TestSuite');
 
 class CronTasksControllerTest extends MyCakeTestCase {
-	public function startTest() {
+
+	public function setUp() {
 		$this->CronTasks = new TestCronTasksController();
 		$this->CronTasks->constructClasses();
 	}
 
-	public function endTest() {
+	public function tearDown() {
 		unset($this->CronTasks);
 		ClassRegistry::flush();
 	}

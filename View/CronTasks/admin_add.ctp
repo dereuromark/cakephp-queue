@@ -1,9 +1,9 @@
-<h2><?php printf(__('Add %s'), __('Cron Task')); ?></h2>
+<h2><?php echo __('Add %s', __('Cron Task')); ?></h2>
 
 <div class="page form">
 <?php echo $this->Form->create('CronTask');?>
 	<fieldset>
- 		<legend><?php printf(__('Add %s'), __('Cron Task')); ?></legend>
+ 		<legend><?php echo __('Add %s', __('Cron Task')); ?></legend>
 	<?php
 		echo $this->Form->input('jobtype', array('options'=>CronTask::jobtypes()));
 		echo $this->Form->input('name', array('after'=>'Plugin.Task / Plugin.Model.method'));
@@ -22,6 +22,6 @@
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(sprintf(__('List %s'), __('Cron Tasks')), array('action' => 'index'));?></li>
+		<li><?php echo $this->Html->link(__('List %s', __('Cron Tasks')), array('action' => 'index'));?></li>
 	</ul>
 </div>

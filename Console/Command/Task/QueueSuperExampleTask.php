@@ -21,14 +21,14 @@ class QueueSuperExampleTask extends AppShell {
 	public $uses = array(
 		'Queue.QueuedTask'
 	);
-	
+
 	/**
 	 * ZendStudio Codecomplete Hint
 	 *
 	 * @var QueuedTask
 	 */
 	public $QueuedTask;
-	
+
 	/**
 	 * Timeout f?r run, after which the Task is reassigned to a new worker.
 	 *

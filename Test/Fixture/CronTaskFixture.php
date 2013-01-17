@@ -1,7 +1,7 @@
 <?php
 /* CronTask Fixture generated on: 2011-07-17 22:07:43 : 1310933803 */
 class CronTaskFixture extends CakeTestFixture {
-	
+
 
 	public $fields = array(
 		'id' => array('type' => 'integer', 'null' => false, 'default' => NULL, 'length' => 10, 'key' => 'primary'),
