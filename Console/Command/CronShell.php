@@ -37,22 +37,32 @@ class CronShell extends AppShell {
 	public function initialize() {
 		$this->_loadModels();
 
-		foreach ($this->Dispatch->shellPaths as $path) {
-			$folder = new Folder($path . DS . 'tasks');
-			$this->tasks = array_merge($this->tasks, $folder->find('queue_.*\.php'));
+		$x = App::objects('Queue.Task'); //'Console/Command/Task'
+		//$x = App::path('Task', 'Queue');
+
+		$paths = App::path('Console/Command/Task');
+		foreach ($paths as $path) {
+			$Folder = new Folder($path);
+			$this->tasks = array_merge($this->tasks, $Folder->find('Queue.*\.php'));
 		}
-		// strip the extension fom the found task(file)s
-		foreach ($this->tasks as &$task) {
-			$task = basename($task, '.php');
+
+		$plugins = App::objects('plugin');
+		foreach ($plugins as $plugin) {
+			$pluginPaths = App::path('Console/Command/Task', $plugin);
+			foreach ($pluginPaths as $pluginPath) {
+				$Folder = new Folder($pluginPath);
+				$res = $Folder->find('Queue.*Task\.php');
+				foreach ($res as &$r) {
+					$r = $plugin . '.' . basename($r, 'Task.php');
+				}
+				$this->tasks = array_merge($this->tasks, $res);
+			}
 		}
 
 		//Config can be overwritten via local app config.
-		Configure::load('queue');
+		Configure::load('Queue.queue');
 
-		$conf = Configure::read('queue');
-		if (!is_array($conf)) {
-			$conf = array();
-		}
+		$conf = (array)Configure::read('queue');
 		//merge with default configuration vars.
 		Configure::write('queue', array_merge(array(
 			'maxruntime' => DAY,
@@ -71,7 +81,7 @@ class CronShell extends AppShell {
 	/**
 	 * Output some basic usage Info.
 	 */
-	public function help() {
+	public function main() {
 		$this->out('CakePHP Cronjobs:');
 		$this->hr();
 		$this->out('Usage:');

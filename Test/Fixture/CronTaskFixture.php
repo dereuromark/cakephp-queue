@@ -9,7 +9,7 @@ class CronTaskFixture extends CakeTestFixture {
 		'data' => array('type' => 'text', 'null' => true, 'default' => NULL, 'collate' => 'utf8_unicode_ci', 'charset' => 'utf8'),
 		'group' => array('type' => 'string', 'null' => true, 'default' => NULL, 'collate' => 'utf8_unicode_ci', 'charset' => 'utf8'),
 		'reference' => array('type' => 'string', 'null' => true, 'default' => NULL, 'collate' => 'utf8_unicode_ci', 'charset' => 'utf8'),
-		'created' => array('type' => 'datetime', 'null' => false, 'default' => NULL),
+		'created' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'notbefore' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'fetched' => array('type' => 'datetime', 'null' => true, 'default' => NULL),
 		'completed' => array('type' => 'datetime', 'null' => true, 'default' => NULL),

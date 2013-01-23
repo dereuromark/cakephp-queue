@@ -48,7 +48,8 @@ class QueueSchema extends CakeSchema {
 		),
 		'created' => array(
 			'type' => 'datetime',
-			'null' => false
+			'null' => true,
+			'default' => NULL
 		),
 		'notbefore' => array(
 			'type' => 'datetime',

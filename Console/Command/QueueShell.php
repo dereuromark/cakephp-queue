@@ -1,4 +1,6 @@
 <?php
+declare(ticks = 1);
+
 App::uses('Folder', 'Utility');
 App::uses('AppShell', 'Console/Command');
 
@@ -15,14 +17,11 @@ class QueueShell extends AppShell {
 		'Queue.QueuedTask'
 	);
 
-	/**
-	 * Codecomplete Hint
-	 *
-	 * @var QueuedTask
-	 */
 	public $QueuedTask;
 
-	protected $taskConf;
+	protected $_taskConf;
+
+	protected $_exit;
 
 	/**
 	 * Overwrite shell initialize to dynamically load all Queue Related Tasks.
@@ -142,20 +141,22 @@ class QueueShell extends AppShell {
 		if (function_exists('gc_enable')) {
 			gc_enable();
 		}
-		$exit = false;
+		pcntl_signal(SIGTERM, array(&$this, "_exit"));
+		$this->exit = false;
+
 		$starttime = time();
 		$group = null;
 		if (isset($this->params['group']) && !empty($this->params['group'])) {
 			$group = $this->params['group'];
 		}
-		while (!$exit) {
+		while (!$this->_exit) {
 			$this->_log('runworker');
 			$this->_notify();
 
 			$this->out('Looking for Job....');
 			$data = $this->QueuedTask->requestJob($this->_getTaskConf(), $group);
 			if ($this->QueuedTask->exit === true) {
-				$exit = true;
+				$this->_exit = true;
 			} else {
 				if ($data !== false) {
 					$this->out('Running Job of type "' . $data['jobtype'] . '"');
@@ -175,7 +176,7 @@ class QueueShell extends AppShell {
 					}
 				} elseif (Configure::read('queue.exitwhennothingtodo')) {
 					$this->out('nothing to do, exiting.');
-					$exit = true;
+					$this->_exit = true;
 				} else {
 					$this->out('nothing to do, sleeping.');
 					sleep(Configure::read('queue.sleeptime'));
@@ -183,10 +184,10 @@ class QueueShell extends AppShell {
 
 				// check if we are over the maximum runtime and end processing if so.
 				if (Configure::read('queue.workermaxruntime') != 0 && (time() - $starttime) >= Configure::read('queue.workermaxruntime')) {
-					$exit = true;
+					$this->_exit = true;
 					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('queue.workermaxruntime') . '), terminating.');
 				}
-				if ($exit || rand(0, 100) > (100 - Configure::read('queue.gcprop'))) {
+				if ($this->_exit || rand(0, 100) > (100 - Configure::read('queue.gcprop'))) {
 					$this->out('Performing Old job cleanup.');
 					$this->QueuedTask->cleanOldJobs();
 				}
@@ -329,28 +330,39 @@ class QueueShell extends AppShell {
 	 * @return array
 	 */
 	protected function _getTaskConf() {
-		if (!is_array($this->taskConf)) {
-			$this->taskConf = array();
+		if (!is_array($this->_taskConf)) {
+			$this->_taskConf = array();
 			foreach ($this->tasks as $task) {
 				list($pluginName, $taskName) = pluginSplit($task);
 
-				$this->taskConf[$taskName]['name'] = $taskName;
-				$this->taskConf[$taskName]['plugin'] = $pluginName;
+				$this->_taskConf[$taskName]['name'] = $taskName;
+				$this->_taskConf[$taskName]['plugin'] = $pluginName;
 				if (property_exists($this->{$taskName}, 'timeout')) {
-					$this->taskConf[$taskName]['timeout'] = $this->{$taskName}->timeout;
+					$this->_taskConf[$taskName]['timeout'] = $this->{$taskName}->timeout;
 				} else {
-					$this->taskConf[$taskName]['timeout'] = Configure::read('queue.defaultworkertimeout');
+					$this->_taskConf[$taskName]['timeout'] = Configure::read('queue.defaultworkertimeout');
 				}
 				if (property_exists($this->{$taskName}, 'retries')) {
-					$this->taskConf[$taskName]['retries'] = $this->{$taskName}->retries;
+					$this->_taskConf[$taskName]['retries'] = $this->{$taskName}->retries;
 				} else {
-					$this->taskConf[$taskName]['retries'] = Configure::read('queue.defaultworkerretries');
+					$this->_taskConf[$taskName]['retries'] = Configure::read('queue.defaultworkerretries');
 				}
 				if (property_exists($this->{$taskName}, 'rate')) {
-					$this->taskConf[$taskName]['rate'] = $this->{$taskName}->rate;
+					$this->_taskConf[$taskName]['rate'] = $this->{$taskName}->rate;
 				}
 			}
 		}
-		return $this->taskConf;
+		return $this->_taskConf;
 	}
+
+	/**
+	 * Signal handling to queue worker for clean shutdown
+	 *
+	 * @param int $signal
+	 * @return void
+	 */
+	protected function _exit($signal) {
+		$this->_exit = true;
+	}
+
 }

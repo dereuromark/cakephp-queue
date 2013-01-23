@@ -43,7 +43,8 @@ class QueuedTaskFixture extends CakeTestFixture {
 		),
 		'created' => array(
 			'type' => 'datetime',
-			'null' => false
+			'null' => true,
+			'default' => NULL
 		),
 		'notbefore' => array(
 			'type' => 'datetime',
