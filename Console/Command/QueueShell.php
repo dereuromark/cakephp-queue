@@ -37,7 +37,7 @@ class QueueShell extends AppShell {
 			$Folder = new Folder($path);
 	                $res = $Folder->find('Queue.*Task\.php');
 	                foreach ($res as &$r) {
-	                    $r = 'Queue' . basename($r, 'Task.php');
+	                    $r = basename($r, 'Task.php');
 	                }
 			$this->tasks = array_merge($this->tasks, $res);
 		}
