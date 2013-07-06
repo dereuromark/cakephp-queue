@@ -35,7 +35,11 @@ class QueueShell extends AppShell {
 		$paths = App::path('Console/Command/Task');
 		foreach ($paths as $path) {
 			$Folder = new Folder($path);
-			$this->tasks = array_merge($this->tasks, $Folder->find('Queue.*\.php'));
+            $res = $Folder->find('Queue.*Task\.php');
+            foreach ($res as &$r) {
+                $r = $plugin . '.' . basename($r, 'Task.php');
+            }
+			$this->tasks = array_merge($this->tasks, $res);
 		}
 
 		$plugins = App::objects('plugin');
@@ -141,7 +145,9 @@ class QueueShell extends AppShell {
 		if (function_exists('gc_enable')) {
 			gc_enable();
 		}
-		pcntl_signal(SIGTERM, array(&$this, "_exit"));
+        if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+		    pcntl_signal(SIGTERM, array(&$this, "_exit"));
+        }
 		$this->exit = false;
 
 		$starttime = time();
