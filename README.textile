@@ -57,7 +57,7 @@ You may create a file called "queue.php" inside your 'APP/Config' folder (NOT th
 @$config['queue']['workermaxruntime'] = 0;@
 
 #Should a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running)
-@$config['queue']['exitwhennothingtodo] = false@
+@$config['queue']['exitwhennothingtodo'] = false;@
 
 The values above are the default settings which apply, when no configuration is found.
 
