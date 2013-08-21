@@ -1,5 +1,6 @@
 <?php
 declare(ticks = 1);
+define('FORMAT_DB_DATETIME', 'Y-m-d H:i:s');
 
 App::uses('Folder', 'Utility');
 App::uses('AppShell', 'Console/Command');
