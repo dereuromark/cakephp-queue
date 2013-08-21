@@ -79,18 +79,18 @@ class QueueShell extends AppShell {
 		$this->out('CakePHP Queue Plugin:');
 		$this->hr();
 		$this->out('Usage:');
-		$this->out('	cake queue help');
+		$this->out('	cake Queue.Queue help');
 		$this->out('		-> Display this Help message');
-		$this->out('	cake queue add <taskname>');
+		$this->out('	cake Queue.Queue add <taskname>');
 		$this->out('		-> Try to call the cli add() function on a task');
 		$this->out('		-> tasks may or may not provide this functionality.');
-		$this->out('	cake queue runworker');
+		$this->out('	cake Queue.Queue runworker');
 		$this->out('		-> run a queue worker, which will look for a pending task it can execute.');
 		$this->out('		-> the worker will always try to find jobs matching its installed Tasks');
 		$this->out('		-> see "Available Tasks" below.');
-		$this->out('	cake queue stats');
+		$this->out('	cake Queue.Queue stats');
 		$this->out('		-> Display some general Statistics.');
-		$this->out('	cake queue clean');
+		$this->out('	cake Queue.Queue clean');
 		$this->out('		-> Manually call cleanup function to delete task data of completed tasks.');
 		$this->out('Notes:');
 		$this->out('	<taskname> may either be the complete classname (eg. queue_example)');
@@ -109,7 +109,7 @@ class QueueShell extends AppShell {
 	public function add() {
 		if (count($this->args) < 1) {
 			$this->out('Please call like this:');
-			$this->out('       cake queue add <taskname>');
+			$this->out('       cake Queue.Queue add <taskname>');
 		} else {
 
 			//$this->QueueEmail->add();
