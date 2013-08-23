@@ -1,7 +1,6 @@
 <?php
-/* queue schema generated on: 2011-07-17 22:53:40 : 1310936020*/
-class QueueSchema extends CakeSchema {
 
+class QueueSchema extends CakeSchema {
 
 	public function before($event = array()) {
 		return true;
@@ -44,5 +43,6 @@ class QueueSchema extends CakeSchema {
 		'indexes' => array('PRIMARY' => array('column' => 'id', 'unique' => 1)),
 		'tableParameters' => array('charset' => 'utf8', 'collate' => 'utf8_unicode_ci')
 	);
+
 }
 

@@ -33,6 +33,8 @@ class CronShell extends AppShell {
 
 	/**
 	 * Overwrite shell initialize to dynamically load all Queue Related Tasks.
+	 *
+	 * @return void
 	 */
 	public function initialize() {
 		$this->_loadModels();
@@ -137,7 +139,6 @@ class CronShell extends AppShell {
 		if (function_exists('gc_enable')) {
 			gc_enable();
 		}
-
 
 	}
 

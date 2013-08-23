@@ -55,8 +55,8 @@ foreach ($cronTasks as $cronTask):
 <?php endforeach; ?>
 </table>
 
-<p class="pagination">
-<?php echo $this->element('pagination', array(), array('plugin'=>'tools')); ?></p>
+<div class="pagination">
+<?php echo $this->element('pagination', array(), array('plugin'=>'tools')); ?></div>
 
 </div>
 

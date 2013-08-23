@@ -25,6 +25,8 @@ class QueueShell extends AppShell {
 
 	/**
 	 * Overwrite shell initialize to dynamically load all Queue Related Tasks.
+	 *
+	 * @return void
 	 */
 	public function initialize() {
 		$this->_loadModels();
@@ -74,6 +76,8 @@ class QueueShell extends AppShell {
 
 	/**
 	 * Output some basic usage Info.
+	 *
+	 * @return void
 	 */
 	public function main() {
 		$this->out('CakePHP Queue Plugin:');
@@ -105,6 +109,7 @@ class QueueShell extends AppShell {
 	 * Look for a Queue Task of hte passed name and try to call add() on it.
 	 * A QueueTask may provide an add function to enable the user to create new jobs via commandline.
 	 *
+	 * @return void
 	 */
 	public function add() {
 		if (count($this->args) < 1) {
@@ -115,7 +120,6 @@ class QueueShell extends AppShell {
 			//$this->QueueEmail->add();
 			//echo returns($this->args);
 			//die(returns($this->taskNames));
-
 
 			if (in_array($this->args[0].'', $this->taskNames)) {
 				$this->{$this->args[0]}->add();
@@ -135,6 +139,8 @@ class QueueShell extends AppShell {
 	 * Run a QueueWorker loop.
 	 * Runs a Queue Worker process which will try to find unassigned jobs in the queue
 	 * which it may run and try to fetch and execute them.
+	 *
+	 * @return void
 	 */
 	public function runworker() {
 		// Enable Garbage Collector (PHP >= 5.3)
@@ -198,7 +204,8 @@ class QueueShell extends AppShell {
 
 	/**
 	 * Manually trigger a Finished job cleanup.
-	 * @return null
+	 *
+	 * @return void
 	 */
 	public function clean() {
 		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('queue.cleanuptimeout')));
@@ -207,7 +214,8 @@ class QueueShell extends AppShell {
 
 	/**
 	 * Display Some statistics about Finished Jobs.
-	 * @return null
+	 *
+	 * @return void
 	 */
 	public function stats() {
 		$this->out('Jobs currenty in the Queue:');
@@ -294,7 +302,6 @@ class QueueShell extends AppShell {
 			));
 	}
 
-
 	/**
 	 * timestamped log
 	 * 2011-10-09 ms
@@ -327,6 +334,7 @@ class QueueShell extends AppShell {
 
 	/**
 	 * Returns a List of available QueueTasks and their individual configurations.
+	 *
 	 * @return array
 	 */
 	protected function _getTaskConf() {
@@ -358,7 +366,7 @@ class QueueShell extends AppShell {
 	/**
 	 * Signal handling to queue worker for clean shutdown
 	 *
-	 * @param int $signal
+	 * @param integer $signal
 	 * @return void
 	 */
 	protected function _exit($signal) {

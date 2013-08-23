@@ -74,7 +74,7 @@ class QueuedTask extends QueueAppModel {
 			'limit' => 3
 		);
 
-		if (!is_null($group)) {
+		if ($group !== null) {
 			$findConf['conditions']['group'] = $group;
 		}
 
@@ -247,7 +247,6 @@ class QueuedTask extends QueueAppModel {
 			'queue' => $this->field('completed', array('completed !='=>null), array('completed'=>'DESC')),
 		);
 	}
-
 
 	protected function _findProgress($state, $query = array(), $results = array()) {
 		if ($state == 'before') {

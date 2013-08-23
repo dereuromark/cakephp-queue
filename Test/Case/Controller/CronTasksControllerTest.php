@@ -16,8 +16,6 @@ class CronTasksControllerTest extends MyCakeTestCase {
 
 }
 
-
-
 class TestCronTasksController extends CronTasksController {
 	public $autoRender = false;
 

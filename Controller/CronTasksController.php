@@ -9,8 +9,6 @@ class CronTasksController extends QueueAppController {
 		parent::beforeFilter();
 	}
 
-
-
 /****************************************************************************************
  * USER functions
  ****************************************************************************************/
@@ -78,8 +76,6 @@ class CronTasksController extends QueueAppController {
 		$this->Common->flashMessage(__('record del %s not done exception', h($var)), 'error');
 		$this->Common->autoRedirect(array('action' => 'index'));
 	}
-
-
 
 /****************************************************************************************
  * ADMIN functions
@@ -149,12 +145,9 @@ class CronTasksController extends QueueAppController {
 		$this->Common->autoRedirect(array('action' => 'index'));
 	}
 
-
-
 /****************************************************************************************
  * protected/interal functions
  ****************************************************************************************/
-
 
 /****************************************************************************************
  * deprecated/test functions

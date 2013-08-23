@@ -96,7 +96,6 @@ class QueuedTaskTest extends MyCakeTestCase {
 		);
 		// start off empty.
 
-
 		$this->assertEquals(array(), $this->QueuedTask->find('all'));
 		// at first, the queue should contain 0 items.
 		$this->assertEquals(0, $this->QueuedTask->getLength());
@@ -403,9 +402,7 @@ class QueuedTaskTest extends MyCakeTestCase {
 
 }
 
-
 /*** other classes **/
-
 
 class TestQueuedTask extends QueuedTask {
 

@@ -75,7 +75,6 @@ class CronTask extends QueueAppModel {
 		),
 	);
 
-
 	/**
 	 * Add a new Job to the Queue
 	 *
@@ -132,7 +131,7 @@ class CronTask extends QueueAppModel {
 			'limit' => 3
 		);
 
-		if (!is_null($group)) {
+		if ($group !== null) {
 			$findConf['conditions']['group'] = $group;
 		}
 
@@ -361,7 +360,6 @@ class CronTask extends QueueAppModel {
 
 	const TYPE_TASK = 0;
 	const TYPE_MODEL = 1;
-
 
 }
 
