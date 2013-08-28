@@ -1,6 +1,10 @@
 <?php
 declare(ticks = 1);
 
+if (!defined('FORMAT_DB_DATETIME')) {
+	define('FORMAT_DB_DATETIME', 'Y-m-d H:i:s');
+}
+
 App::uses('Folder', 'Utility');
 App::uses('AppShell', 'Console/Command');
 
