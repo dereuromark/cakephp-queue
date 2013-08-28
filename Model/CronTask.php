@@ -12,7 +12,7 @@ class CronTask extends QueueAppModel {
 
 	public $exit = false;
 
-	public $_findMethods = array(
+	public $findMethods = array(
 		'progress' => true
 	);
 
@@ -20,7 +20,7 @@ class CronTask extends QueueAppModel {
 
 	public $actsAs = array();
 
-	public $order = array('CronTask.created'=>'DESC');
+	public $order = array('CronTask.created' => 'DESC');
 
 	public $validate = array(
 		'jobtype' => array(
@@ -98,7 +98,8 @@ class CronTask extends QueueAppModel {
 		if ($notBefore != null) {
 			$data['notbefore'] = date('Y-m-d H:i:s', strtotime($notBefore));
 		}
-		return ($this->save($this->create($data)));
+		$this->create();
+		return ($this->save($data));
 	}
 
 	public function onError() {
@@ -207,28 +208,28 @@ class CronTask extends QueueAppModel {
 	 * @return bool Success
 	 */
 	public function markJobDone($id) {
-		return ($this->updateAll(array(
+		return $this->updateAll(array(
 			'completed' => "'" . date('Y-m-d H:i:s') . "'"
 		), array(
 			'id' => $id
-		)));
+		));
 	}
 
 	/**
 	 * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
 	 *
 	 * @param integer $id
-	 * @param string $failureMessage Optional message to append to the
-	 * failure_message field
+	 * @param string $failureMessage Optional message to append to the failure_message field.
 	 */
 	public function markJobFailed($id, $failureMessage = null) {
-
-		return ($this->updateAll(array(
+		$fields = array(
 			'failed' => "failed + 1",
 			'failure_message' => $failureMessage
-		), array(
+		);
+		$conditions = array(
 			'id' => $id
-		)));
+		);
+		return $this->updateAll($fields, $conditions);
 	}
 
 	/**
@@ -269,6 +270,7 @@ class CronTask extends QueueAppModel {
 
 	/**
 	 * Return some statistics about finished jobs still in the Database.
+	 *
 	 * @return array
 	 */
 	public function getStats() {
@@ -298,7 +300,6 @@ class CronTask extends QueueAppModel {
 		return $this->deleteAll(array(
 			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))
 		));
-
 	}
 
 	protected function _findProgress($state, $query = array(), $results = array()) {
@@ -348,6 +349,7 @@ class CronTask extends QueueAppModel {
 	}
 
 	const TYPE_TASK = 0;
+
 	const TYPE_MODEL = 1;
 
 }

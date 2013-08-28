@@ -8,9 +8,10 @@ class QueueController extends QueueAppController {
 	public $helpers = array('Tools.Format', 'Tools.Datetime');
 
 	/**
-	 * admin center
-	 * manage queues from admin backend (without the need to open ssh console window)
+	 * Admin center.
+	 * Manage queues from admin backend (without the need to open ssh console window).
 	 *
+	 * @return void
 	 * 2012-01-24 ms
 	 */
 	public function admin_index() {
@@ -24,20 +25,21 @@ class QueueController extends QueueAppController {
 		$allTasks = $this->QueuedTask->getLength();
 
 		$details = array();
-		$details['worker'] = filemtime(TMP.'queue_notification.txt');
+		$details['worker'] = filemtime(TMP . 'queue_notification.txt');
 
 		$this->set(compact('tasks', 'allTasks', 'details'));
 	}
 
 	/**
-	 * truncate the queue list / table
+	 * Truncate the queue list / table.
+	 *
+	 * @return void
 	 * 2012-01-24 ms
 	 */
 	public function admin_reset() {
 		$this->QueuedTask->truncate();
 		$this->Common->flashMessage(__('Reset done'), 'success');
-		$this->Common->autoRedirect(array('action'=>'index'));
+		$this->Common->autoRedirect(array('action' => 'index'));
 	}
 
 }
-

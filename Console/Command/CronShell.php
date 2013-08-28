@@ -144,7 +144,6 @@ class CronShell extends AppShell {
 		if (function_exists('gc_enable')) {
 			gc_enable();
 		}
-
 	}
 
 	/**
