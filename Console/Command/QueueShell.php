@@ -9,9 +9,9 @@ App::uses('Folder', 'Utility');
 App::uses('AppShell', 'Console/Command');
 
 /**
+ * Main shell to init and run queue workers.
+ *
  * @author MGriesbach@gmail.com
- * @package QueuePlugin
- * @subpackage QueuePlugin.Shells
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
@@ -21,8 +21,14 @@ class QueueShell extends AppShell {
 		'Queue.QueuedTask'
 	);
 
+	/**
+	 * @var QueuedTask
+	 */
 	public $QueuedTask;
 
+	/**
+	 * @var array
+	 */
 	protected $_taskConf;
 
 	protected $_exit;
@@ -244,15 +250,19 @@ class QueueShell extends AppShell {
 	}
 
 	/**
-	 * set up tables
+	 * Set up tables
+	 *
 	 * @see readme
+	 * @return void
 	 */
 	public function install() {
 		$this->out('Run `cake Schema create -p Queue`');
 	}
 
 	/**
-	 * remove table and kill workers
+	 * Remove table and kill workers
+	 *
+	 * @return void
 	 */
 	public function uninstall() {
 		$this->out('Remove all workers and then delete the two tables.');
@@ -307,7 +317,9 @@ class QueueShell extends AppShell {
 	}
 
 	/**
-	 * timestamped log
+	 * Timestamped log.
+	 *
+	 * @return void
 	 * 2011-10-09 ms
 	 */
 	protected function _log($type) {
@@ -323,7 +335,9 @@ class QueueShell extends AppShell {
 	}
 
 	/**
-	 * timestamped notification
+	 * Timestamped notification.
+	 *
+	 * @return void
 	 * 2012-01-24 ms
 	 */
 	protected function _notify() {

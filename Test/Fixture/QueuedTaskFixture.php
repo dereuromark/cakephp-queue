@@ -2,20 +2,16 @@
 
 /**
  * @author MGriesbach@gmail.com
- * @package QueuePlugin
- * @subpackage QueuePlugin.Tests.Fixtures
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-
 class QueuedTaskFixture extends CakeTestFixture {
 
-	public $table = 'queued_tasks';
 	public $fields = array(
 		'id' => array(
 			'type' => 'integer',
 			'null' => false,
-			'default' => NULL,
+			'default' => null,
 			'length' => 10,
 			'key' => 'primary'
 		),
@@ -27,39 +23,39 @@ class QueuedTaskFixture extends CakeTestFixture {
 		'data' => array(
 			'type' => 'text',
 			'null' => true,
-			'default' => NULL
+			'default' => null
 		),
 		'group' => array(
 			'type' => 'string',
 			'length' => 255,
 			'null' => true,
-			'default' => NULL
+			'default' => null
 		),
 		'reference' => array(
 			'type' => 'string',
 			'length' => 255,
 			'null' => true,
-			'default' => NULL
+			'default' => null
 		),
 		'created' => array(
 			'type' => 'datetime',
 			'null' => true,
-			'default' => NULL
+			'default' => null
 		),
 		'notbefore' => array(
 			'type' => 'datetime',
 			'null' => true,
-			'default' => NULL
+			'default' => null
 		),
 		'fetched' => array(
 			'type' => 'datetime',
 			'null' => true,
-			'default' => NULL
+			'default' => null
 		),
 		'completed' => array(
 			'type' => 'datetime',
 			'null' => true,
-			'default' => NULL
+			'default' => null
 		),
 		'failed' => array(
 			'type' => 'integer',
@@ -70,7 +66,7 @@ class QueuedTaskFixture extends CakeTestFixture {
 		'failure_message' => array(
 			'type' => 'text',
 			'null' => true,
-			'default' => NULL
+			'default' => null
 		),
 		'workerkey' => array(
 			'type' => 'string',
@@ -84,6 +80,7 @@ class QueuedTaskFixture extends CakeTestFixture {
 			)
 		)
 	);
+
 	public $records = array();
 
 }
