@@ -2,6 +2,8 @@
 App::uses('QueueAppModel', 'Queue.Model');
 
 /**
+ * CronTask for cronjobs.
+ *
  * 2011-07-17 ms
  */
 class CronTask extends QueueAppModel {
@@ -15,7 +17,9 @@ class CronTask extends QueueAppModel {
 	);
 
 	public $displayField = 'title';
+
 	public $actsAs = array();
+
 	public $order = array('CronTask.created'=>'DESC');
 
 	public $validate = array(
@@ -82,10 +86,9 @@ class CronTask extends QueueAppModel {
 	 * @param array $data any array
 	 * @param string $group Used to group similar CronTasks
 	 * @param string $reference any array
-	 * @return bool success
+	 * @return boolean Success
 	 */
 	public function createJob($jobName, $data, $notBefore = null, $group = null, $reference = null) {
-
 		$data = array(
 			'jobtype' => $jobName,
 			'data' => serialize($data),
@@ -108,7 +111,7 @@ class CronTask extends QueueAppModel {
 	 *
 	 * @param array $capabilities Available QueueWorkerTasks.
 	 * @param string $group Request a job from this group, (from any group if null)
-	 * @return Array Taskdata.
+	 * @return array Taskdata.
 	 */
 	public function requestJob($capabilities, $group = null) {
 		$idlist = array();
@@ -162,37 +165,39 @@ class CronTask extends QueueAppModel {
 		}
 		// First, find a list of a few of the oldest unfinished tasks.
 		$data = $this->find('all', $findConf);
-		if (is_array($data) && count($data) > 0) {
-			// generate a list of their ID's
-			foreach ($data as $item) {
-				$idlist[] = $item[$this->name]['id'];
-				if (!empty($item[$this->name]['fetched'])) {
-					$wasFetched[] = $item[$this->name]['id'];
-				}
-			}
-			// Generate a unique Identifier for the current worker thread
-			$key = sha1(microtime());
-			// try to update one of the found tasks with the key of this worker.
-			$this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE id in(' . implode(',', $idlist) . ') AND (workerkey IS NULL OR     fetched <= "' . date('Y-m-d H:i:s', time() - $task['timeout']) . '") ORDER BY timediff(NOW(),notbefore) DESC LIMIT 1');
-			// read which one actually got updated, which is the job we are supposed to execute.
-			$data = $this->find('first', array(
-				'conditions' => array(
-					'workerkey' => $key
-				)
-			));
-			if (is_array($data)) {
-				// if the job had an existing fetched timestamp, increment the failure counter
-				if (in_array($data[$this->name]['id'], $wasFetched)) {
-					$data[$this->name]['failed']++;
-					$data[$this->name]['failure_message'] = 'Restart after timeout';
-					$this->save($data);
-				}
-				//save last fetch by type for Rate Limiting.
-				$this->rateHistory[$data[$this->name]['jobtype']] = time();
-				return $data[$this->name];
+		if (empty($data)) {
+			return array();
+		}
+
+		// generate a list of their ID's
+		foreach ($data as $item) {
+			$idlist[] = $item[$this->name]['id'];
+			if (!empty($item[$this->name]['fetched'])) {
+				$wasFetched[] = $item[$this->name]['id'];
 			}
 		}
-		return FALSE;
+		// Generate a unique Identifier for the current worker thread
+		$key = sha1(microtime());
+		// try to update one of the found tasks with the key of this worker.
+		$this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE id in(' . implode(',', $idlist) . ') AND (workerkey IS NULL OR     fetched <= "' . date('Y-m-d H:i:s', time() - $task['timeout']) . '") ORDER BY timediff(NOW(),notbefore) DESC LIMIT 1');
+		// read which one actually got updated, which is the job we are supposed to execute.
+		$data = $this->find('first', array(
+			'conditions' => array(
+				'workerkey' => $key
+			)
+		));
+		if (empty($data)) {
+			return array();
+		}
+		// if the job had an existing fetched timestamp, increment the failure counter
+		if (in_array($data[$this->name]['id'], $wasFetched)) {
+			$data[$this->name]['failed']++;
+			$data[$this->name]['failure_message'] = 'Restart after timeout';
+			$this->save($data);
+		}
+		//save last fetch by type for Rate Limiting.
+		$this->rateHistory[$data[$this->name]['jobtype']] = time();
+		return $data[$this->name];
 	}
 
 	/**
@@ -284,18 +289,20 @@ class CronTask extends QueueAppModel {
 	/**
 	 * Cleanup/Delete Completed Jobs.
 	 *
+	 * @return boolean Success
 	 */
 	public function cleanOldJobs() {
 		return;
+		//TODO
 
-		$this->deleteAll(array(
+		return $this->deleteAll(array(
 			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))
 		));
 
 	}
 
 	protected function _findProgress($state, $query = array(), $results = array()) {
-		if ($state == 'before') {
+		if ($state === 'before') {
 
 			$query['fields'] = array(
 				$this->alias . '.reference',
@@ -318,36 +325,18 @@ class CronTask extends QueueAppModel {
 				unset($query['conditions']['group']);
 			}
 			return $query;
-		} else {
-			foreach ($results as $k => $result) {
-				$results[$k] = array(
-					'reference' => $result[$this->alias]['reference'],
-					'status' => $result[0]['status']
-				);
-				if (!empty($result[$this->alias]['failure_message'])) {
-					$results[$k]['failure_message'] = $result[$this->alias]['failure_message'];
-				}
+		}
+		// state === after
+		foreach ($results as $k => $result) {
+			$results[$k] = array(
+				'reference' => $result[$this->alias]['reference'],
+				'status' => $result[0]['status']
+			);
+			if (!empty($result[$this->alias]['failure_message'])) {
+				$results[$k]['failure_message'] = $result[$this->alias]['failure_message'];
 			}
-			return $results;
 		}
-	}
-
-	public function clearDoublettes() {
-		$x = $this->query('SELECT max(id) as id FROM `queueman`.`queued_tasks`
-	where completed is null
-	group by data
-	having count(id) > 1');
-
-		$start = 0;
-		$x = array_keys($x);
-		while ($start <= count($x)) {
-			debug($this->deleteAll(array(
-				'id' => array_slice($x, $start, 10)
-			)));
-			debug(array_slice($x, $start, 10));
-			$start = $start + 100;
-		}
-
+		return $results;
 	}
 
 	public static function jobtypes($value = null) {

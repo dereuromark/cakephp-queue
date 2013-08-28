@@ -164,7 +164,7 @@ class CronShell extends AppShell {
 			if ($this->QueuedTask->exit === true) {
 				$exit = true;
 			} else {
-				if ($data !== false) {
+				if ($data) {
 					$this->out('Running Job of type "' . $data['jobtype'] . '"');
 					$taskname = 'queue_' . strtolower($data['jobtype']);
 					$return = $this->{$taskname}->run(unserialize($data['data']));

@@ -13,6 +13,7 @@
  *
  */
 class QueueSuperExampleTask extends AppShell {
+
 	/**
 	 * Adding the QueueTask Model
 	 *
@@ -35,12 +36,14 @@ class QueueSuperExampleTask extends AppShell {
 	 * @var integer
 	 */
 	public $timeout = 10;
+
 	/**
 	 * Number of times a failed instance of this task should be restarted before giving up.
 	 *
 	 * @var integer
 	 */
 	public $retries = 0;
+
 	/**
 	 * Stores any failure messages triggered during run()
 	 *
@@ -80,8 +83,8 @@ class QueueSuperExampleTask extends AppShell {
 	 * This function is executed, when a worker is executing a task.
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
-	 * @param array $data the array passed to QueuedTask->createJob()
-	 * @return bool Success
+	 * @param array $data The array passed to QueuedTask->createJob()
+	 * @return boolean Success
 	 */
 	public function run($data) {
 		$this->hr();
@@ -92,4 +95,5 @@ class QueueSuperExampleTask extends AppShell {
 		$this->out(' ');
 		return true;
 	}
+
 }

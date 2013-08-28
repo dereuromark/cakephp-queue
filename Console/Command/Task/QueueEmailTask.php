@@ -11,6 +11,7 @@ App::uses('AppShell', 'Console/Command');
  * @see http://bakery.cakephp.org/articles/view/emailcomponent-in-a-cake-shell
  */
 class QueueEmailTask extends AppShell {
+
 	/**
 	 * List of default variables for EmailComponent
 	 *
@@ -27,8 +28,11 @@ class QueueEmailTask extends AppShell {
 		'additionalParams' => '',
 		'layout' => 'default'
 	);
+
 	public $timeout = 120;
+
 	public $retries = 0;
+
 	/**
 	 * Controller class
 	 *
@@ -60,9 +64,14 @@ class QueueEmailTask extends AppShell {
 		), true));
 	}
 
+	/**
+	 * QueueEmailTask::run()
+	 *
+	 * @param array $data
+	 * @return boolean Success
+	 */
 	public function run($data) {
 		$this->Email = new EmailLib();
-		//$this->Email->initialize($this->Controller, $this->defaults);
 
 		# prep
 		if (array_key_exists('settings', $data)) {
@@ -83,4 +92,5 @@ class QueueEmailTask extends AppShell {
 		$this->err('Queue Email task called without settings data.');
 		return false;
 	}
+
 }

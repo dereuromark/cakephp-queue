@@ -123,9 +123,9 @@ class QueueShell extends AppShell {
 			//echo returns($this->args);
 			//die(returns($this->taskNames));
 
-			if (in_array($this->args[0].'', $this->taskNames)) {
+			if (in_array($this->args[0], $this->taskNames)) {
 				$this->{$this->args[0]}->add();
-			} elseif (in_array('Queue' . $this->args[0] . '', $this->taskNames)) {
+			} elseif (in_array('Queue' . $this->args[0], $this->taskNames)) {
 				$this->{'Queue' . $this->args[0]}->add();
 			} else {
 				$this->out('Error: Task not Found: ' . $this->args[0]);
@@ -168,7 +168,7 @@ class QueueShell extends AppShell {
 			if ($this->QueuedTask->exit === true) {
 				$this->_exit = true;
 			} else {
-				if ($data !== false) {
+				if ($data) {
 					$this->out('Running Job of type "' . $data['jobtype'] . '"');
 					$taskname = 'Queue' . $data['jobtype'];
 
@@ -313,11 +313,11 @@ class QueueShell extends AppShell {
 	protected function _log($type) {
 		# log?
 		if (Configure::read('Queue.log')) {
-			$folder = LOGS.'queue';
+			$folder = LOGS . 'queue';
 			if (!file_exists($folder)) {
 				mkdir($folder, 0755, true);
 			}
-			$file = $folder . DS . $type.'.txt';
+			$file = $folder . DS . $type . '.txt';
 			file_put_contents($file, date(FORMAT_DB_DATETIME));
 		}
 	}
@@ -330,7 +330,7 @@ class QueueShell extends AppShell {
 		# log?
 		if (Configure::read('Queue.notify')) {
 			$folder = TMP;
-			$file = $folder . 'queue_notification'.'.txt';
+			$file = $folder . 'queue_notification' . '.txt';
 			touch($file);
 			//file_put_contents($file, date(FORMAT_DB_DATETIME));
 		}

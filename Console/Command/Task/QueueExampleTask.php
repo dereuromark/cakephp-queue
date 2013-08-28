@@ -83,7 +83,7 @@ class QueueExampleTask extends AppShell {
 	 * This function is executed, when a worker is executing a task.
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
-	 * @param array $data the array passed to QueuedTask->createJob()
+	 * @param array $data The array passed to QueuedTask->createJob()
 	 * @return bool Success
 	 */
 	public function run($data) {

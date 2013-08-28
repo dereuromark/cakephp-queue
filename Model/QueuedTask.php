@@ -2,9 +2,9 @@
 App::uses('QueueAppModel', 'Queue.Model');
 
 /**
+ * QueuedTask for queued tasks.
+ *
  * @author MGriesbach@gmail.com
- * @package QueuePlugin
- * @subpackage QueuePlugin.Models
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
@@ -124,7 +124,7 @@ class QueuedTask extends QueueAppModel {
 		// read which one actually got updated, which is the job we are supposed to execute.
 		$data = $this->find('first', array(
 			'conditions' => array(
-				'workerkey' => $key
+				$this->alias . '.workerkey' => $key
 			)
 		));
 		if (empty($data)) {
@@ -150,10 +150,10 @@ class QueuedTask extends QueueAppModel {
 	 */
 	public function markJobDone($id) {
 		$fields = array(
-			$this->alias. '.completed' => "'" . date('Y-m-d H:i:s') . "'"
+			$this->alias . '.completed' => "'" . date('Y-m-d H:i:s') . "'"
 		);
-		$conditions =  array(
-			$this->alias. '.id' => $id
+		$conditions = array(
+			$this->alias . '.id' => $id
 		);
 		return $this->updateAll($fields, $conditions);
 	}
@@ -165,14 +165,15 @@ class QueuedTask extends QueueAppModel {
 	 * @param string $failureMessage Optional message to append to the failure_message field.
 	 */
 	public function markJobFailed($id, $failureMessage = null) {
-
-		return ($this->updateAll(array(
-			'failed' => 'failed + 1',
-			'failure_message' => $failureMessage,
-			//'workerkey' => null
-		), array(
-			'id' => $id
-		)));
+		$fields = array(
+			$this->alias . '.failed' => $this->alias . '.failed + 1',
+			$this->alias . '.failure_message' => $failureMessage,
+			//$this->alias . '.workerkey' => null
+		);
+		$conditions = array(
+			$this->alias . '.id' => $id
+		);
+		return $this->updateAll($fields, $conditions);
 	}
 
 	/**
@@ -188,7 +189,7 @@ class QueuedTask extends QueueAppModel {
 				'completed' => null
 			)
 		);
-		if ($type != NULL) {
+		if ($type) {
 			$findConf['conditions']['jobtype'] = $type;
 		}
 		return $this->find('count', $findConf);
@@ -239,7 +240,7 @@ class QueuedTask extends QueueAppModel {
 	 */
 	public function cleanOldJobs() {
 		$conditions = array(
-			$this->alias.'.completed <' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))
+			$this->alias . '.completed <' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))
 		);
 		return $this->deleteAll($conditions);
 	}
@@ -250,13 +251,13 @@ class QueuedTask extends QueueAppModel {
 	 * @return array
 	 */
 	public function lastRun() {
-		$workerFileLog = LOGS.'queue'.DS.'runworker.txt';
+		$workerFileLog = LOGS . 'queue' . DS . 'runworker.txt';
 		if (file_exists($workerFileLog)) {
 			$worker = file_get_contents($workerFileLog);
 		}
 		return array(
 			'worker' => isset($worker) ? $worker : '',
-			'queue' => $this->field('completed', array('completed !='=>null), array('completed'=>'DESC')),
+			'queue' => $this->field('completed', array('completed !=' => null), array('completed' => 'DESC')),
 		);
 	}
 

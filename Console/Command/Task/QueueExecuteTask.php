@@ -13,6 +13,7 @@
  *
  */
 class QueueExecuteTask extends AppShell {
+
 	/**
 	 * Adding the QueueTask Model
 	 *
@@ -35,12 +36,14 @@ class QueueExecuteTask extends AppShell {
 	 * @var integer
 	 */
 	public $timeout = 0;
+
 	/**
 	 * Number of times a failed instance of this task should be restarted before giving up.
 	 *
 	 * @var integer
 	 */
 	public $retries = 0;
+
 	/**
 	 * Stores any failure messages triggered during run()
 	 *
@@ -82,8 +85,8 @@ class QueueExecuteTask extends AppShell {
 	 * This function is executed, when a worker is executing a task.
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
-	 * @param array $data the array passed to QueuedTask->createJob()
-	 * @return bool Success
+	 * @param array $data The array passed to QueuedTask->createJob()
+	 * @return boolean Success
 	 */
 	public function run($data) {
 		$command = escapeshellcmd($data['command']) . ' ' . implode(' ', $data['params']);
@@ -93,4 +96,5 @@ class QueueExecuteTask extends AppShell {
 		$this->out($output);
 		return (!$status);
 	}
+
 }
