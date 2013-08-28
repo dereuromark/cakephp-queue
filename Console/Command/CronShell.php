@@ -64,9 +64,9 @@ class CronShell extends AppShell {
 		//Config can be overwritten via local app config.
 		Configure::load('Queue.queue');
 
-		$conf = (array)Configure::read('queue');
+		$conf = (array)Configure::read('Queue');
 		//merge with default configuration vars.
-		Configure::write('queue', array_merge(array(
+		Configure::write('Queue', array_merge(array(
 			'maxruntime' => DAY,
 			'cleanuptimeout' => MONTH,
 		/*
@@ -179,7 +179,7 @@ class CronShell extends AppShell {
 						$this->QueuedTask->markJobFailed($data['id'], $failureMessage);
 						$this->out('Job did not finish, requeued.');
 					}
-				} elseif (Configure::read('queue.exitwhennothingtodo')) {
+				} elseif (Configure::read('Queue.exitwhennothingtodo')) {
 					$this->out('nothing to do, exiting.');
 					$exit = true;
 				} else {
@@ -187,11 +187,11 @@ class CronShell extends AppShell {
 				}
 
 				// check if we are over the maximum runtime and end processing if so.
-				if (Configure::read('queue.maxruntime') != 0 && (time() - $starttime) >= Configure::read('queue.maxruntime')) {
+				if (Configure::read('Queue.maxruntime') != 0 && (time() - $starttime) >= Configure::read('Queue.maxruntime')) {
 					$exit = true;
-					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('queue.maxruntime') . '), terminating.');
+					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('Queue.maxruntime') . '), terminating.');
 				}
-				if ($exit || rand(0, 100) > (100 - Configure::read('queue.gcprop'))) {
+				if ($exit || rand(0, 100) > (100 - Configure::read('Queue.gcprop'))) {
 					$this->out('Performing Old job cleanup.');
 					$this->QueuedTask->cleanOldJobs();
 				}
@@ -205,7 +205,7 @@ class CronShell extends AppShell {
 	 * @return null
 	 */
 	public function clean() {
-		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('queue.cleanuptimeout')));
+		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout')));
 		$this->QueuedTask->cleanOldJobs();
 	}
 
@@ -247,12 +247,12 @@ class CronShell extends AppShell {
 				if (property_exists($this->{$task}, 'timeout')) {
 					$this->taskConf[$task]['timeout'] = $this->{$task}->timeout;
 				} else {
-					$this->taskConf[$task]['timeout'] = Configure::read('queue.defaultworkertimeout');
+					$this->taskConf[$task]['timeout'] = Configure::read('Queue.defaultworkertimeout');
 				}
 				if (property_exists($this->{$task}, 'retries')) {
 					$this->taskConf[$task]['retries'] = $this->{$task}->retries;
 				} else {
-					$this->taskConf[$task]['retries'] = Configure::read('queue.defaultworkerretries');
+					$this->taskConf[$task]['retries'] = Configure::read('Queue.defaultworkerretries');
 				}
 				if (property_exists($this->{$task}, 'rate')) {
 					$this->taskConf[$task]['rate'] = $this->{$task}->rate;

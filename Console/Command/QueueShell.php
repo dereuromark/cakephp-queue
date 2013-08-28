@@ -62,20 +62,18 @@ class QueueShell extends AppShell {
 		//Config can be overwritten via local app config.
 		Configure::load('Queue.queue');
 
-		$conf = (array)Configure::read('queue');
-		//merge with default configuration vars.
-		Configure::write('queue', array_merge(array(
-			'sleeptime' => 10,
-			'gcprop' => 10,
-			'defaultworkertimeout' => 120,
-			'defaultworkerretries' => 4,
-			'workermaxruntime' => 0,
-			'cleanuptimeout' => 2000,
-			'exitwhennothingtodo' => false,
-			'log' => false,
-			'notify' => 'tmp' # set to false to disable (tmp = file in TMP dir)
-		), $conf));
+		// Local config
+		if (file_exists(APP . 'Config' . DS . 'queue.php')) {
+			Configure::load('queue');
+		}
 
+		// Local config without extra config file
+		$conf = (array)Configure::read('Queue');
+
+		// BC comp:
+		$conf = array_merge($conf, (array)Configure::read('queue'));
+
+		Configure::write('Queue', $conf);
 	}
 
 	/**
@@ -151,7 +149,9 @@ class QueueShell extends AppShell {
 		if (function_exists('gc_enable')) {
 			gc_enable();
 		}
-		pcntl_signal(SIGTERM, array(&$this, "_exit"));
+		if (function_exists('pcntl_signal')) {
+			pcntl_signal(SIGTERM, array(&$this, "_exit"));
+		}
 		$this->exit = false;
 
 		$starttime = time();
@@ -184,20 +184,20 @@ class QueueShell extends AppShell {
 						$this->QueuedTask->markJobFailed($data['id'], $failureMessage);
 						$this->out('Job did not finish, requeued.');
 					}
-				} elseif (Configure::read('queue.exitwhennothingtodo')) {
+				} elseif (Configure::read('Queue.exitwhennothingtodo')) {
 					$this->out('nothing to do, exiting.');
 					$this->_exit = true;
 				} else {
 					$this->out('nothing to do, sleeping.');
-					sleep(Configure::read('queue.sleeptime'));
+					sleep(Configure::read('Queue.sleeptime'));
 				}
 
 				// check if we are over the maximum runtime and end processing if so.
-				if (Configure::read('queue.workermaxruntime') != 0 && (time() - $starttime) >= Configure::read('queue.workermaxruntime')) {
+				if (Configure::read('Queue.workermaxruntime') != 0 && (time() - $starttime) >= Configure::read('Queue.workermaxruntime')) {
 					$this->_exit = true;
-					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('queue.workermaxruntime') . '), terminating.');
+					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('Queue.workermaxruntime') . '), terminating.');
 				}
-				if ($this->_exit || rand(0, 100) > (100 - Configure::read('queue.gcprop'))) {
+				if ($this->_exit || rand(0, 100) > (100 - Configure::read('Queue.gcprop'))) {
 					$this->out('Performing Old job cleanup.');
 					$this->QueuedTask->cleanOldJobs();
 				}
@@ -212,7 +212,7 @@ class QueueShell extends AppShell {
 	 * @return void
 	 */
 	public function clean() {
-		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('queue.cleanuptimeout')));
+		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout')));
 		$this->QueuedTask->cleanOldJobs();
 	}
 
@@ -312,7 +312,7 @@ class QueueShell extends AppShell {
 	 */
 	protected function _log($type) {
 		# log?
-		if (Configure::read('queue.log')) {
+		if (Configure::read('Queue.log')) {
 			$folder = LOGS.'queue';
 			if (!file_exists($folder)) {
 				mkdir($folder, 0755, true);
@@ -328,7 +328,7 @@ class QueueShell extends AppShell {
 	 */
 	protected function _notify() {
 		# log?
-		if (Configure::read('queue.notify')) {
+		if (Configure::read('Queue.notify')) {
 			$folder = TMP;
 			$file = $folder . 'queue_notification'.'.txt';
 			touch($file);
@@ -352,12 +352,12 @@ class QueueShell extends AppShell {
 				if (property_exists($this->{$taskName}, 'timeout')) {
 					$this->_taskConf[$taskName]['timeout'] = $this->{$taskName}->timeout;
 				} else {
-					$this->_taskConf[$taskName]['timeout'] = Configure::read('queue.defaultworkertimeout');
+					$this->_taskConf[$taskName]['timeout'] = Configure::read('Queue.defaultworkertimeout');
 				}
 				if (property_exists($this->{$taskName}, 'retries')) {
 					$this->_taskConf[$taskName]['retries'] = $this->{$taskName}->retries;
 				} else {
-					$this->_taskConf[$taskName]['retries'] = Configure::read('queue.defaultworkerretries');
+					$this->_taskConf[$taskName]['retries'] = Configure::read('Queue.defaultworkerretries');
 				}
 				if (property_exists($this->{$taskName}, 'rate')) {
 					$this->_taskConf[$taskName]['rate'] = $this->{$taskName}->rate;

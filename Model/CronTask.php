@@ -289,7 +289,7 @@ class CronTask extends QueueAppModel {
 		return;
 
 		$this->deleteAll(array(
-			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('queue.cleanuptimeout'))
+			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))
 		));
 
 	}
