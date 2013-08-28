@@ -1,5 +1,6 @@
 <?php
 declare(ticks = 1);
+define('FORMAT_DB_DATETIME', 'Y-m-d H:i:s');
 
 if (!defined('FORMAT_DB_DATETIME')) {
 	define('FORMAT_DB_DATETIME', 'Y-m-d H:i:s');
@@ -59,23 +60,10 @@ class QueueShell extends AppShell {
 		//$pluginPaths = App::path('Console/Command/Task', 'Queue');
 		//die(returns($this->tasks));
 
-		//Config can be overwritten via local app config.
+		// Load Plugin default Config 
 		Configure::load('Queue.queue');
-
-		$conf = (array)Configure::read('queue');
-		//merge with default configuration vars.
-		Configure::write('queue', array_merge(array(
-			'sleeptime' => 10,
-			'gcprop' => 10,
-			'defaultworkertimeout' => 120,
-			'defaultworkerretries' => 4,
-			'workermaxruntime' => 0,
-			'cleanuptimeout' => 2000,
-			'exitwhennothingtodo' => false,
-			'log' => false,
-			'notify' => 'tmp' # set to false to disable (tmp = file in TMP dir)
-		), $conf));
-
+		// Load local app config and merge
+		Configure::load('queue','default', true);
 	}
 
 	/**
