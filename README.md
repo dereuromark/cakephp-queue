@@ -1,4 +1,4 @@
-h1. CakePHP Queue Plugin
+# CakePHP Queue Plugin
 
 modified by Mark Scherer (dereuromark)
 - cake2.x support
@@ -10,7 +10,7 @@ new:
 - config key "queue" is now "Queue" ($config['Queue'][...])
 
 
-h2. Background:
+## Background:
 
 This is a very simple and minimalistic job Queue (or deferred-task) system for CakePHP.
 
@@ -21,7 +21,7 @@ The Plugin is an attempt to provide a basic, simple to use method to enable defe
 without the hassle of setting up or running an extra queue daemon, while integrating nicely into
 CakePHP and also simplifying the creation of worker scripts.
 
-h3. Why use deferred execution?
+### Why use deferred execution?
 
 deferred execution makes sense (especially in PHP) when your page wants' to execute tasks, which are not directly related to rendering the current page.
 For instance, in a BBS-type system, a new users post might require the creation of multiple personalized email messages,
@@ -36,56 +36,69 @@ While you can run multiple workers, and can (to some extend) spread these worker
 you should seriously consider using a more advanced system for high volume/high number of workers systems.
 
 
-h2. Installation:
+## Installation:
 
 * Copy the files in this directory into APP/Plugin/Queue
 * Enable the plugin within your APP/Config/boostrap.php (unless you loadAll)
-		CakePlugin::load('Queue');
+
+	CakePlugin::load('Queue');
 
 * Run the following command in the cake console to create the tables:
 on Cakephp 2.x:
-		@cake Schema create -p Queue@
+
+	@cake Schema create -p Queue@
 
 
-h2. Configuration:
+## Configuration:
 
 The plugin allows some simple runtime configuration.
 You may create a file called "queue.php" inside your 'APP/Config' folder (NOT the plugins config folder) to set the following values:
 
 #seconds to sleep() when no executable job is found
-@$config['Queue']['sleeptime'] = 10;@
+
+	$config['Queue']['sleeptime'] = 10;
 
 #Propability in percent of a old job cleanup happening
-@$config['Queue']['gcprop'] = 10;@
+
+	$config['Queue']['gcprop'] = 10;
 
 #Default timeout after which a job is requeued if the worker doesn't report back
-@$config['Queue']['defaultworkertimeout'] = 120;@
+
+	$config['Queue']['defaultworkertimeout'] = 120;
 
 #Default number of retries if a job fails or times out.
-@$config['Queue']['defaultworkerretries'] = 4;@
+
+	$config['Queue']['defaultworkerretries'] = 4;
 
 #Seconds of runnig time after which the worker will terminate (0 = unlimited)
-@$config['Queue']['workermaxruntime'] = 0;@
+
+	$config['Queue']['workermaxruntime'] = 0;
 
 #Should a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running)
-@$config['Queue']['exitwhennothingtodo'] = false;@
+
+	$config['Queue']['exitwhennothingtodo'] = false;
 
 You can also drop the configuration into an existing config file that is already been loaded.
 
 The values above are the default settings which apply, when no configuration is found.
 
 
-h2. Usage:
+## Usage:
 
 Run the following using the CakePHP shell:
 
-@cake Queue.Queue help@
+	cake Queue.Queue
+
 * Display Help message
 
-@cake Queue.Queue add <taskname>@
+
+	cake Queue.Queue add <taskname>
+
 * Try to call the cli add() function on a task
 * tasks may or may not provide this functionality.
-@cake Queue.Queue runworker@
+
+	cake Queue.Queue runworker
+
 * run a queue worker, which will look for a pending task it can execute.
 * the worker will always try to find jobs matching its installed Tasks
 
@@ -100,3 +113,7 @@ Custom tasks should be placed in APP/Console/Command/Task.
 Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact.
 
 A detailed Example task can be found in /Console/Command/Task/QueueExampleTask.php inside this folder.
+
+
+### Status
+[![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.png)](https://travis-ci.org/dereuromark/cakephp-queue)
