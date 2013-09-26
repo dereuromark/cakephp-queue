@@ -5,8 +5,6 @@ class QueueController extends QueueAppController {
 
 	public $uses = array('Queue.QueuedTask');
 
-	public $helpers = array('Tools.Format', 'Tools.Datetime');
-
 	/**
 	 * Admin center.
 	 * Manage queues from admin backend (without the need to open ssh console window).
@@ -15,19 +13,12 @@ class QueueController extends QueueAppController {
 	 * 2012-01-24 ms
 	 */
 	public function admin_index() {
-		$types = $this->QueuedTask->getTypes();
+		$status = $this->_status();
 
-		$tasks = array();
-		foreach ($types as $type) {
-			$tasks[$type] = $this->QueuedTask->getLength($type);
-		}
-		# Total unfinished Jobs
-		$allTasks = $this->QueuedTask->getLength();
+		$current = $this->QueuedTask->getLength();
+		$data = $this->QueuedTask->getStats();
 
-		$details = array();
-		$details['worker'] = filemtime(TMP . 'queue_notification.txt');
-
-		$this->set(compact('tasks', 'allTasks', 'details'));
+		$this->set(compact('current', 'data', 'status'));
 	}
 
 	/**
@@ -37,9 +28,25 @@ class QueueController extends QueueAppController {
 	 * 2012-01-24 ms
 	 */
 	public function admin_reset() {
-		$this->QueuedTask->truncate();
-		$this->Common->flashMessage(__('Reset done'), 'success');
-		$this->Common->autoRedirect(array('action' => 'index'));
+		if (!$this->Common->isPosted()) {
+			throw new MethodNotAllowedException();
+		}
+		$res = $this->QueuedTask->truncate();
+		if ($res) {
+			$this->Common->flashMessage('OK', 'success');
+		} else {
+			$this->Common->flashMessage(__('Error'), 'success');
+		}
+		return $this->Common->autoPostRedirect(array('action'=>'index'));
+	}
+
+	protected function _status() {
+		$file = TMP.'queue'.DS.'queue.pid';
+		if (!file_exists($file)) {
+			return null;
+		}
+		return filemtime($file);
+		//return filectime($file);
 	}
 
 }

@@ -39,17 +39,16 @@ class QueueShell extends AppShell {
 	 * @return void
 	 */
 	public function initialize() {
-		$this->_loadModels();
-
-		$x = App::objects('Queue.Task'); //'Console/Command/Task'
-		//$x = App::path('Task', 'Queue');
-
 		$paths = App::path('Console/Command/Task');
+
 		foreach ($paths as $path) {
 			$Folder = new Folder($path);
-			$this->tasks = array_merge($this->tasks, $Folder->find('Queue.*\.php'));
+			$res = array_merge($this->tasks, $Folder->find('Queue.*\.php'));
+			foreach ($res as &$r) {
+				$r = basename($r, 'Task.php');
+			}
+			$this->tasks = $res;
 		}
-
 		$plugins = App::objects('plugin');
 		foreach ($plugins as $plugin) {
 			$pluginPaths = App::path('Console/Command/Task', $plugin);
@@ -62,10 +61,8 @@ class QueueShell extends AppShell {
 				$this->tasks = array_merge($this->tasks, $res);
 			}
 		}
-		//$pluginPaths = App::path('Console/Command/Task', 'Queue');
-		//die(returns($this->tasks));
 
-		//Config can be overwritten via local app config.
+		// Config can be overwritten via local app config.
 		Configure::load('Queue.queue');
 
 		// Local config
@@ -80,6 +77,8 @@ class QueueShell extends AppShell {
 		$conf = array_merge($conf, (array)Configure::read('queue'));
 
 		Configure::write('Queue', $conf);
+
+		parent::initialize();
 	}
 
 	/**
@@ -105,11 +104,11 @@ class QueueShell extends AppShell {
 		$this->out('	cake Queue.Queue clean');
 		$this->out('		-> Manually call cleanup function to delete task data of completed tasks.');
 		$this->out('Notes:');
-		$this->out('	<taskname> may either be the complete classname (eg. queue_example)');
-		$this->out('	or the shorthand without the leading "queue_" (eg. example)');
+		$this->out('	<taskname> may either be the complete classname (eg. QueueExample)');
+		$this->out('	or the shorthand without the leading "Queue" (eg. Example)');
 		$this->out('Available Tasks:');
 		foreach ($this->taskNames as $loadedTask) {
-			$this->out('	->' . $loadedTask);
+			$this->out("\t" . '* ' . $this->_taskName($loadedTask));
 		}
 	}
 
@@ -123,24 +122,39 @@ class QueueShell extends AppShell {
 		if (count($this->args) < 1) {
 			$this->out('Please call like this:');
 			$this->out('       cake Queue.Queue add <taskname>');
+			$this->out('Available Tasks:');
+			foreach ($this->taskNames as $loadedTask) {
+				$this->out(' * ' . $this->_taskName($loadedTask));
+			}
+
 		} else {
+			$name = Inflector::camelize($this->args[0]);
 
-			//$this->QueueEmail->add();
-			//echo returns($this->args);
-			//die(returns($this->taskNames));
-
-			if (in_array($this->args[0], $this->taskNames)) {
-				$this->{$this->args[0]}->add();
-			} elseif (in_array('Queue' . $this->args[0], $this->taskNames)) {
-				$this->{'Queue' . $this->args[0]}->add();
+			if (in_array($name.'', $this->taskNames)) {
+				$this->{$name}->add();
+			} elseif (in_array('Queue' . $name . '', $this->taskNames)) {
+				$this->{'Queue' . $name}->add();
 			} else {
-				$this->out('Error: Task not Found: ' . $this->args[0]);
+				$this->out('Error: Task not Found: ' . $name);
 				$this->out('Available Tasks:');
 				foreach ($this->taskNames as $loadedTask) {
-					$this->out(' * ' . $loadedTask);
+					$this->out(' * ' . $this->_taskName($loadedTask));
 				}
 			}
 		}
+	}
+
+	/**
+	 * Output the task without Queue or Task
+	 * example: QueueImageTask becomes Image on display
+	 * @param string $taskName
+	 * @return string cleanedTaskName
+	 */
+	protected function _taskName($task) {
+		if (strpos($task, 'Queue') === 0) {
+			return substr($task, 5);
+		}
+		return $task;
 	}
 
 	/**
@@ -150,7 +164,31 @@ class QueueShell extends AppShell {
 	 *
 	 * @return void
 	 */
-	public function runworker() {
+	public function runworker() {//die(returns(Configure::read('Queue')));
+		if ( $pidFilePath = Configure::read('Queue.pidfilepath')) {
+			if (!file_exists($pidFilePath)) {
+				mkdir($pidFilePath, 0755, true);
+			}
+			if (function_exists('posix_getpid')) {
+				$pid = posix_getpid();
+			} else {
+				$pid = $this->QueuedTask->key();
+			}
+			# global file
+			$fp = fopen($pidFilePath . 'queue.pid', "w");
+			fwrite($fp, $pid);
+			fclose($fp);
+			# specific pid file
+			if (function_exists('posix_getpid')) {
+				$pid = posix_getpid();
+			} else {
+				$pid = $this->QueuedTask->key();
+			}
+			$pidFileName = 'queue_' . $pid . '.pid';
+			$fp = fopen($pidFilePath . $pidFileName, "w");
+			fwrite($fp, $pid);
+			fclose($fp);
+		}
 		// Enable Garbage Collector (PHP >= 5.3)
 		if (function_exists('gc_enable')) {
 			gc_enable();
@@ -158,7 +196,7 @@ class QueueShell extends AppShell {
 		if (function_exists('pcntl_signal')) {
 			pcntl_signal(SIGTERM, array(&$this, "_exit"));
 		}
-		$this->exit = false;
+		$this->_exit = false;
 
 		$starttime = time();
 		$group = null;
@@ -166,9 +204,15 @@ class QueueShell extends AppShell {
 			$group = $this->params['group'];
 		}
 		while (!$this->_exit) {
-			$this->_log('runworker');
-			$this->_notify();
-
+			// make sure accidental overriding isnt possible
+			set_time_limit(0);
+			if (!empty($pidFilePath)) {
+				touch($pidFilePath . 'queue.pid');
+			}
+			if (!empty($pidFileName)) {
+				touch($pidFilePath . $pidFileName);
+			}
+			$this->_log('runworker', isset($pid) ? $pid : null);
 			$this->out('Looking for Job....');
 			$data = $this->QueuedTask->requestJob($this->_getTaskConf(), $group);
 			if ($this->QueuedTask->exit === true) {
@@ -210,6 +254,9 @@ class QueueShell extends AppShell {
 				$this->hr();
 			}
 		}
+		if (!empty($pidFilePath)) {
+			unlink($pidFilePath . 'queue_'.$pid.'.pid');
+		}
 	}
 
 	/**
@@ -220,6 +267,17 @@ class QueueShell extends AppShell {
 	public function clean() {
 		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout')));
 		$this->QueuedTask->cleanOldJobs();
+	}
+
+	/**
+	 * Display current settings
+	 */
+	public function settings() {
+		$this->out('Current Settings:');
+		$conf = (array)Configure::read('Queue');
+		foreach ($conf as $key => $val) {
+			$this->out('* '.$key.': '.print_r($val, true));
+		}
 	}
 
 	/**
@@ -322,15 +380,17 @@ class QueueShell extends AppShell {
 	 * @return void
 	 * 2011-10-09 ms
 	 */
-	protected function _log($type) {
+	protected function _log($type, $pid = null) {
 		# log?
 		if (Configure::read('Queue.log')) {
 			$folder = LOGS . 'queue';
 			if (!file_exists($folder)) {
 				mkdir($folder, 0755, true);
 			}
-			$file = $folder . DS . $type . '.txt';
-			file_put_contents($file, date(FORMAT_DB_DATETIME));
+			//$file = $folder . DS . $type . '.txt';
+			//file_put_contents($file, date(FORMAT_DB_DATETIME));
+			$message = $type.' '.$pid;
+			CakeLog::write('queue', $message);
 		}
 	}
 
@@ -361,7 +421,7 @@ class QueueShell extends AppShell {
 			foreach ($this->tasks as $task) {
 				list($pluginName, $taskName) = pluginSplit($task);
 
-				$this->_taskConf[$taskName]['name'] = $taskName;
+				$this->_taskConf[$taskName]['name'] = substr($taskName, 5);
 				$this->_taskConf[$taskName]['plugin'] = $pluginName;
 				if (property_exists($this->{$taskName}, 'timeout')) {
 					$this->_taskConf[$taskName]['timeout'] = $this->{$taskName}->timeout;
@@ -389,6 +449,20 @@ class QueueShell extends AppShell {
 	 */
 	protected function _exit($signal) {
 		$this->_exit = true;
+	}
+
+	public function __destruct() {
+		if ($pidFilePath = Configure::read('Queue.pidfilepath')) {
+			if (function_exists('posix_getpid')) {
+				$pid = posix_getpid();
+			} else {
+				$pid = $this->QueuedTask->key();
+			}
+			$file = $pidFilePath . 'queue_'.$pid.'.pid';
+			if (file_exists($file)) {
+				unlink($file);
+			}
+		}
 	}
 
 }

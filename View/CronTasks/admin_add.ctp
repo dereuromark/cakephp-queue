@@ -3,7 +3,7 @@
 <div class="page form">
 <?php echo $this->Form->create('CronTask');?>
 	<fieldset>
- 		<legend><?php echo __('Add %s', __('Cron Task')); ?></legend>
+		<legend><?php echo __('Add %s', __('Cron Task')); ?></legend>
 	<?php
 		echo $this->Form->input('jobtype', array('options'=>CronTask::jobtypes()));
 		echo $this->Form->input('name', array('after'=>'Plugin.Task / Plugin.Model.method'));

@@ -1,12 +1,10 @@
 <?php
-
 /**
  * @author MGriesbach@gmail.com
- * @package QueuePlugin
- * @subpackage QueuePlugin.Tasks
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
+App::uses('AppShell', 'Console/Command');
 
 /**
  * A Simple QueueTask example.
@@ -58,12 +56,12 @@ class QueueExampleTask extends AppShell {
 	public function add() {
 		$this->out('CakePHP Queue Example task.');
 		$this->hr();
-		$this->out('This is a very simple example of a queueTask.');
+		$this->out('This is a very simple example of a QueueTask.');
 		$this->out('I will now add an example Job into the Queue.');
 		$this->out('This job will only produce some console output on the worker that it runs on.');
 		$this->out(' ');
 		$this->out('To run a Worker use:');
-		$this->out('	cake queue runworker');
+		$this->out('	cake Queue.Queue runworker');
 		$this->out(' ');
 		$this->out('You can find the sourcecode of this task in: ');
 		$this->out(__FILE__);
@@ -84,7 +82,7 @@ class QueueExampleTask extends AppShell {
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
 	 * @param array $data The array passed to QueuedTask->createJob()
-	 * @return bool Success
+	 * @return boolean Success
 	 */
 	public function run($data) {
 		$this->hr();

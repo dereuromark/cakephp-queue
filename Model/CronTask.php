@@ -18,9 +18,7 @@ class CronTask extends QueueAppModel {
 
 	public $displayField = 'title';
 
-	public $actsAs = array();
-
-	public $order = array('CronTask.created' => 'DESC');
+	public $order = array('CronTask.created'=>'DESC');
 
 	public $validate = array(
 		'jobtype' => array(
@@ -99,7 +97,7 @@ class CronTask extends QueueAppModel {
 			$data['notbefore'] = date('Y-m-d H:i:s', strtotime($notBefore));
 		}
 		$this->create();
-		return ($this->save($data));
+		return $this->save($data);
 	}
 
 	public function onError() {
@@ -205,7 +203,7 @@ class CronTask extends QueueAppModel {
 	 * Mark a job as Completed, removing it from the queue.
 	 *
 	 * @param integer $id
-	 * @return bool Success
+	 * @return boolean Success
 	 */
 	public function markJobDone($id) {
 		return $this->updateAll(array(
@@ -245,7 +243,7 @@ class CronTask extends QueueAppModel {
 				'completed' => null
 			)
 		);
-		if ($type != null) {
+		if ($type !== null) {
 			$findConf['conditions']['jobtype'] = $type;
 		}
 		return $this->find('count', $findConf);

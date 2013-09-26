@@ -97,6 +97,6 @@ Also note that in 2.x you can also use CamelCase style, e.g. `cake add SpecialEx
 Use '@cake Queue.Queue help@' to get a list of installed/available tasks.
 
 Custom tasks should be placed in APP/Console/Command/Task.
-Tasks should be named 'QueueSomething.php' and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact.
+Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact.
 
-A detailed Example task can be found in /Console/Command/Task/QueueExample.php inside this folder.
+A detailed Example task can be found in /Console/Command/Task/QueueExampleTask.php inside this folder.

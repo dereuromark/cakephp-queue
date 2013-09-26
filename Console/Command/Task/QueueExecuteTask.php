@@ -1,12 +1,10 @@
 <?php
-
 /**
  * @author MGriesbach@gmail.com
- * @package QueuePlugin
- * @subpackage QueuePlugin.Tasks
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
+App::uses('AppShell', 'Console/Command');
 
 /**
  * Execute a Local command on the server.

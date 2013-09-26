@@ -7,12 +7,19 @@ class CronTaskTest extends MyCakeTestCase {
 	public $fixtures = array('core.user');
 
 	public function setUp() {
+		parent::setUp();
+
 		$this->CronTask = ClassRegistry::init('Queue.CronTask');
 	}
 
-	public function tearDown() {
-		unset($this->CronTask);
-		ClassRegistry::flush();
+	/**
+	 * QueueShellTest::testObject()
+	 *
+	 * @return void
+	 */
+	public function testObject() {
+		$this->assertTrue(is_object($this->CronTask));
+		$this->assertInstanceOf('CronTask', $this->CronTask);
 	}
 
 }

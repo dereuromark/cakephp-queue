@@ -1,5 +1,6 @@
 <?php
-class QueueAppController extends AppController {
+App::uses('AppController', 'Controller');
 
+class QueueAppController extends AppController {
 }
 

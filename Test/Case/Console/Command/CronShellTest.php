@@ -11,7 +11,14 @@ class CronShellTest extends CakeTestCase {
  		$this->Cron = new CronShell();
  	}
 
-	public function testX() {
-
+	/**
+	 * QueueShellTest::testObject()
+	 *
+	 * @return void
+	 */
+	public function testObject() {
+		$this->assertTrue(is_object($this->Cron));
+		$this->assertInstanceOf('CronShell', $this->Cron);
 	}
+
 }
