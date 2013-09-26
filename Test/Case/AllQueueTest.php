@@ -2,7 +2,7 @@
 /**
  * group test - Queue
  */
-class AllQueueTestsTest extends PHPUnit_Framework_TestSuite {
+class AllQueueTest extends PHPUnit_Framework_TestSuite {
 
 	/**
 	 * suite method, defines tests for this suite.
