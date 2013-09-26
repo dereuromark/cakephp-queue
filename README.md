@@ -46,7 +46,7 @@ you should seriously consider using a more advanced system for high volume/high 
 * Run the following command in the cake console to create the tables:
 on Cakephp 2.x:
 
-	@cake Schema create -p Queue@
+	cake Schema create -p Queue
 
 
 ## Configuration:
@@ -92,7 +92,7 @@ Run the following using the CakePHP shell:
 * Display Help message
 
 
-	cake Queue.Queue add <taskname>
+	cake Queue.Queue add <TaskName>
 
 * Try to call the cli add() function on a task
 * tasks may or may not provide this functionality.
@@ -103,14 +103,14 @@ Run the following using the CakePHP shell:
 * the worker will always try to find jobs matching its installed Tasks
 
 *Notes:*
-	_<taskname>_ may either be the complete classname (eg. QueueExample) or the shorthand without the leading "Queue" (eg. Example)
+	_<TaskName>_ may either be the complete classname (eg. QueueExample) or the shorthand without the leading "Queue" (eg. Example)
 
-Also note that in 2.x you can also use CamelCase style, e.g. `cake add SpecialExample` for QueueSpecialExampleTask
-
-Use '@cake Queue.Queue help@' to get a list of installed/available tasks.
+Also note that you dont need to add the type ("Task"): `cake Queue.Queue add SpecialExample` for QueueSpecialExampleTask.
 
 Custom tasks should be placed in APP/Console/Command/Task.
 Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact.
+
+Plugin tasks go in APP/Plugin/PluginName/Console/Command/Task.
 
 A detailed Example task can be found in /Console/Command/Task/QueueExampleTask.php inside this folder.
 

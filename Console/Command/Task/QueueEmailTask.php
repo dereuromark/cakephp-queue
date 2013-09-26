@@ -2,8 +2,6 @@
 /**
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
- *
- * @uses Tools.EmailLib
  */
 App::uses('EmailLib', 'Tools.Lib');
 App::uses('AppShell', 'Console/Command');

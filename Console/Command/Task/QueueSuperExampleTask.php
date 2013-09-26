@@ -22,14 +22,12 @@ class QueueSuperExampleTask extends AppShell {
 	);
 
 	/**
-	 * ZendStudio Codecomplete Hint
-	 *
 	 * @var QueuedTask
 	 */
 	public $QueuedTask;
 
 	/**
-	 * Timeout f?r run, after which the Task is reassigned to a new worker.
+	 * Timeout for run, after which the Task is reassigned to a new worker.
 	 *
 	 * @var integer
 	 */
@@ -58,6 +56,7 @@ class QueueSuperExampleTask extends AppShell {
 		$this->hr();
 		$this->out('This is a very superb example of a QueueTask.');
 		$this->out('I will now add an example Job into the Queue.');
+		$this->out('It will also fire a callback upon successful execution.');
 		$this->out('This job will only produce some console output on the worker that it runs on.');
 		$this->out(' ');
 		$this->out('To run a Worker use:');
@@ -91,6 +90,10 @@ class QueueSuperExampleTask extends AppShell {
 		$this->out(' ->Success, the SuperExample Job was run.<-');
 		$this->out(' ');
 		$this->out(' ');
+
+		// Lets create an Example task on successful execution
+		ClassRegistry::init('Queue.QueuedTask')->createJob('Example');
+
 		return true;
 	}
 
