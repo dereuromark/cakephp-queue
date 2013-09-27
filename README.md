@@ -39,14 +39,13 @@ you should seriously consider using a more advanced system for high volume/high 
 ## Installation:
 
 * Copy the files in this directory into APP/Plugin/Queue
-* Enable the plugin within your APP/Config/boostrap.php (unless you loadAll)
+* Enable the plugin within your APP/Config/bootstrap.php (unless you loadAll)
 
-	CakePlugin::load('Queue');
+		CakePlugin::load('Queue');
 
 * Run the following command in the cake console to create the tables:
-on Cakephp 2.x:
 
-	cake Schema create -p Queue
+		cake Schema create -p Queue
 
 
 ## Configuration:
@@ -114,6 +113,16 @@ Plugin tasks go in APP/Plugin/PluginName/Console/Command/Task.
 
 A detailed Example task can be found in /Console/Command/Task/QueueExampleTask.php inside this folder.
 
+## Setting up the trigger cronjob
+As outlined in the [book](http://book.cakephp.org/2.0/en/console-and-shells/cron-jobs.html) you can easily set up a cronjob
+to start a new worker:
+
+	*/10  *    *    *    *  cd /full/path/to/app && Console/cake Queue.Queue runworker
+
+This would start a new worker every 10 minutes. If you configure your max life time of a worker to 15 minutes, you
+got a small overlap where two workers would run simulaniously. If you lower the 10 minutes and raise the lifetime, you
+get quite a few overlapping workers and thus more "parallel" processing power.
+Play around with it, but just don't shoot over the top.
 
 ### Status
 [![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.png)](https://travis-ci.org/dereuromark/cakephp-queue)
