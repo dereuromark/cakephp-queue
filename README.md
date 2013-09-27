@@ -35,6 +35,9 @@ The Queue Plugin provides a simple method to create and run such non-user-intera
 While you can run multiple workers, and can (to some extend) spread these workers to different machines via a shared database,
 you should seriously consider using a more advanced system for high volume/high number of workers systems.
 
+### Status
+[![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.png)](https://travis-ci.org/dereuromark/cakephp-queue)
+
 
 ## Installation:
 
@@ -55,30 +58,31 @@ You may create a file called "queue.php" inside your 'APP/Config' folder (NOT th
 
 - seconds to sleep() when no executable job is found
 
-	$config['Queue']['sleeptime'] = 10;
+		$config['Queue']['sleeptime'] = 10;
 
 - Propability in percent of a old job cleanup happening
 
-	$config['Queue']['gcprop'] = 10;
+		$config['Queue']['gcprop'] = 10;
 
 - Default timeout after which a job is requeued if the worker doesn't report back
 
-	$config['Queue']['defaultworkertimeout'] = 120;
+		$config['Queue']['defaultworkertimeout'] = 120;
 
 - Default number of retries if a job fails or times out.
 
-	$config['Queue']['defaultworkerretries'] = 4;
+		$config['Queue']['defaultworkerretries'] = 4;
 
-- Seconds of runnig time after which the worker will terminate (0 = unlimited)
+- Seconds of running time after which the worker will terminate (0 = unlimited)
 
-	$config['Queue']['workermaxruntime'] = 0;
+		$config['Queue']['workermaxruntime'] = 0;
+
+	Warning: Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle.
 
 - Should a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running)
 
-	$config['Queue']['exitwhennothingtodo'] = false;
+		$config['Queue']['exitwhennothingtodo'] = false;
 
 You can also drop the configuration into an existing config file that is already been loaded.
-
 The values above are the default settings which apply, when no configuration is found.
 
 
@@ -86,23 +90,22 @@ The values above are the default settings which apply, when no configuration is 
 
 Run the following using the CakePHP shell:
 
-	cake Queue.Queue
+		cake Queue.Queue
 
 * Display Help message
 
-
-	cake Queue.Queue add <TaskName>
+		cake Queue.Queue add <TaskName>
 
 * Try to call the cli add() function on a task
 * tasks may or may not provide this functionality.
 
-	cake Queue.Queue runworker
+		cake Queue.Queue runworker
 
 * run a queue worker, which will look for a pending task it can execute.
 * the worker will always try to find jobs matching its installed Tasks
 
-*Notes:*
-	_<TaskName>_ may either be the complete classname (eg. QueueExample) or the shorthand without the leading "Queue" (eg. Example)
+### Notes
+`<TaskName>` may either be the complete classname (eg. QueueExample) or the shorthand without the leading "Queue" (eg. Example)
 
 Also note that you dont need to add the type ("Task"): `cake Queue.Queue add SpecialExample` for QueueSpecialExampleTask.
 
@@ -124,5 +127,3 @@ got a small overlap where two workers would run simulaniously. If you lower the 
 get quite a few overlapping workers and thus more "parallel" processing power.
 Play around with it, but just don't shoot over the top.
 
-### Status
-[![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.png)](https://travis-ci.org/dereuromark/cakephp-queue)
