@@ -54,27 +54,27 @@ on Cakephp 2.x:
 The plugin allows some simple runtime configuration.
 You may create a file called "queue.php" inside your 'APP/Config' folder (NOT the plugins config folder) to set the following values:
 
-#seconds to sleep() when no executable job is found
+- seconds to sleep() when no executable job is found
 
 	$config['Queue']['sleeptime'] = 10;
 
-#Propability in percent of a old job cleanup happening
+- Propability in percent of a old job cleanup happening
 
 	$config['Queue']['gcprop'] = 10;
 
-#Default timeout after which a job is requeued if the worker doesn't report back
+- Default timeout after which a job is requeued if the worker doesn't report back
 
 	$config['Queue']['defaultworkertimeout'] = 120;
 
-#Default number of retries if a job fails or times out.
+- Default number of retries if a job fails or times out.
 
 	$config['Queue']['defaultworkerretries'] = 4;
 
-#Seconds of runnig time after which the worker will terminate (0 = unlimited)
+- Seconds of runnig time after which the worker will terminate (0 = unlimited)
 
 	$config['Queue']['workermaxruntime'] = 0;
 
-#Should a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running)
+- Should a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running)
 
 	$config['Queue']['exitwhennothingtodo'] = false;
 
