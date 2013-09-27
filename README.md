@@ -120,6 +120,10 @@ For sending emails, for example:
 	ClassRegistry::init('Queue.QueuedTask')->createJob('Email',
 		array('to' => 'user@example.org', ...)));
 
+It will use your custom APP `QueueEmailTask` to send out emails via CLI.
+
+Important: Do not forget to set your [domain](http://book.cakephp.org/2.0/en/core-utility-libraries/email.html#sending-emails-from-cli) when sending from CLI.
+
 ### Notes
 `<TaskName>` may either be the complete classname (eg. QueueExample) or the shorthand without the leading "Queue" (eg. Example)
 

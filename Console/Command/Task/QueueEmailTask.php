@@ -1,5 +1,7 @@
 <?php
 /**
+ * Leverage the Tools plugin EmailLib to send out emails.
+ *
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
