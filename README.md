@@ -90,19 +90,35 @@ The values above are the default settings which apply, when no configuration is 
 
 Run the following using the CakePHP shell:
 
+* Display Help message:
+
 		cake Queue.Queue
 
-* Display Help message
+* Try to call the cli add() function on a task:
 
 		cake Queue.Queue add <TaskName>
 
-* Try to call the cli add() function on a task
-* tasks may or may not provide this functionality.
+	Tasks may or may not provide this functionality.
+
+* Run a queue worker, which will look for a pending task it can execute:
 
 		cake Queue.Queue runworker
 
-* run a queue worker, which will look for a pending task it can execute.
-* the worker will always try to find jobs matching its installed Tasks
+	The worker will always try to find jobs matching its installed Tasks.
+
+
+Most tasks you will not trigger from the console, but the actual APP code.
+Use the model access for QueueTask to do that:
+
+For sending emails, for example:
+
+	// In your controller
+	$this->loadModel('Queue.QueuedTask');
+	$this->QueuedTask->createJob('Email', array('to' => 'user@example.org', ...)));
+
+	// Somewhere in the model
+	ClassRegistry::init('Queue.QueuedTask')->createJob('Email',
+		array('to' => 'user@example.org', ...)));
 
 ### Notes
 `<TaskName>` may either be the complete classname (eg. QueueExample) or the shorthand without the leading "Queue" (eg. Example)
