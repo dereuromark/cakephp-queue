@@ -8,6 +8,7 @@ $config['Queue'] = array(
 	'workermaxruntime' => 0,
 	'cleanuptimeout' => 2000,
 	'exitwhennothingtodo' => false,
+	'pidfilepath' => TMP . 'queue' . DS,
 	'log' => true,
 	'notify' => 'tmp' // Set to false to disable (tmp = file in TMP dir)
 );

@@ -21,13 +21,38 @@ class QueuedTask extends QueueAppModel {
 	protected $_key = null;
 
 	/**
+	 * QueuedTask::initConfig()
+	 *
+	 * @return void
+	 */
+	public function initConfig() {
+		// Local config without extra config file
+		$conf = (array)Configure::read('Queue');
+
+		// Local config
+		if (file_exists(APP . 'Config' . DS . 'queue.php')) {
+			Configure::load('queue');
+			$conf += (array)Configure::read('Queue');
+		}
+
+		// Fallback to Plugin config which can be overwritten via local app config.
+		Configure::load('Queue.queue');
+		$conf += (array)Configure::read('Queue');
+
+		// BC comp:
+		$conf = array_merge($conf, (array)Configure::read('Queue'));
+
+		Configure::write('Queue', $conf);
+	}
+
+	/**
 	 * Add a new Job to the Queue.
 	 *
 	 * @param string $jobName QueueTask name
 	 * @param array $data any array
 	 * @param string $group Used to group similar QueuedTasks
 	 * @param string $reference any array
-	 * @return boolean Success.
+	 * @return array Created Job array containing id, data, ...
 	 */
 	public function createJob($jobName, $data = null, $notBefore = null, $group = null, $reference = null) {
 		$data = array(
@@ -110,43 +135,61 @@ class QueuedTask extends QueueAppModel {
 
 		// First, find a list of a few of the oldest unfinished tasks.
 		$data = $this->find('all', $findCond);
+		if (!$data) {
+			return array();
+		}
 
-		if (is_array($data) && count($data) > 0) {
-			// generate a list of their ID's
-			foreach ($data as $item) {
-				$idlist[] = $item[$this->alias]['id'];
-				if (!empty($item[$this->alias]['fetched'])) {
-					$wasFetched[] = $item[$this->alias]['id'];
-				}
-			}
-
-			$key = $this->key();
-			//debug($key);ob_flush();
-			// try to update one of the found tasks with the key of this worker.
-			$this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE id in(' . implode(',', $idlist) . ') AND (workerkey IS NULL OR fetched <= "' . date('Y-m-d H:i:s', time() - $task['timeout']) . '") ORDER BY '.$this->virtualFields['age'].' ASC, id ASC LIMIT 1');
-			// read which one actually got updated, which is the job we are supposed to execute.
-			$data = $this->find('first', array(
-				'conditions' => array(
-					'workerkey' => $key,
-					'completed' => null,
-				),
-				'order' => array('fetched' => 'DESC')
-			));
-
-			if (is_array($data)) {
-				// if the job had an existing fetched timestamp, increment the failure counter
-				if (in_array($data[$this->alias]['id'], $wasFetched)) {
-					$data[$this->alias]['failed']++;
-					$data[$this->alias]['failure_message'] = 'Restart after timeout';
-					$this->id = $data[$this->alias]['id'];
-					$this->save($data);
-				}
-				//save last fetch by type for Rate Limiting.
-				$this->rateHistory[$data[$this->alias]['jobtype']] = time();
-				return $data[$this->alias];
+		// Generate a list of their ID's
+		foreach ($data as $item) {
+			$idlist[] = $item[$this->alias]['id'];
+			if (!empty($item[$this->alias]['fetched'])) {
+				$wasFetched[] = $item[$this->alias]['id'];
 			}
 		}
-		return false;
+
+		$key = $this->key();
+		//debug($key);ob_flush();
+
+		// try to update one of the found tasks with the key of this worker.
+		$this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE id in(' . implode(',', $idlist) . ') AND (workerkey IS NULL OR fetched <= "' . date('Y-m-d H:i:s', time() - $task['timeout']) . '") ORDER BY '.$this->virtualFields['age'].' ASC, id ASC LIMIT 1');
+
+		// Read which one actually got updated, which is the job we are supposed to execute.
+		$data = $this->find('first', array(
+			'conditions' => array(
+				'workerkey' => $key,
+				'completed' => null,
+			),
+			'order' => array('fetched' => 'DESC')
+		));
+		if (empty($data)) {
+			return array();
+		}
+
+		// If the job had an existing fetched timestamp, increment the failure counter
+		if (in_array($data[$this->alias]['id'], $wasFetched)) {
+			$data[$this->alias]['failed']++;
+			$data[$this->alias]['failure_message'] = 'Restart after timeout';
+			$this->id = $data[$this->alias]['id'];
+			$this->save($data, false, array('id', 'failed', 'failure_message'));
+		}
+		//save last fetch by type for Rate Limiting.
+		$this->rateHistory[$data[$this->alias]['jobtype']] = time();
+		return $data[$this->alias];
+	}
+
+	/**
+	 * QueuedTask::updateProgress()
+	 *
+	 * @param mixed $id
+	 * @param float $progress Value from 0 to 1
+	 * @return boolean Success
+	 */
+	public function updateProgress($id, $progress) {
+		if (!$id) {
+			return false;
+		}
+		$this->id = $id;
+		return (bool)$this->saveField('progress', round($progress, 2));
 	}
 
 	/**
@@ -170,6 +213,7 @@ class QueuedTask extends QueueAppModel {
 	 *
 	 * @param integer $id
 	 * @param string $failureMessage Optional message to append to the failure_message field.
+	 * @return boolean Success
 	 */
 	public function markJobFailed($id, $failureMessage = null) {
 		$fields = array(
@@ -187,7 +231,7 @@ class QueuedTask extends QueueAppModel {
 	 * Either returns the number of ALL pending tasks, or the number of pending tasks of the passed Type
 	 *
 	 * @param string $type jobType to Count
-	 * @return integer
+	 * @return integer Length
 	 */
 	public function getLength($type = null) {
 		$findCond = array(
@@ -195,7 +239,7 @@ class QueuedTask extends QueueAppModel {
 				'completed' => null
 			)
 		);
-		if ($type != NULL) {
+		if ($type !== null) {
 			$findCond['conditions']['jobtype'] = $type;
 		}
 		return $this->find('count', $findCond);
@@ -242,15 +286,15 @@ class QueuedTask extends QueueAppModel {
 	/**
 	 * Cleanup/Delete Completed Jobs.
 	 *
-	 * @return boolean True on success, false on failure
+	 * @return boolean Success
 	 */
 	public function cleanOldJobs() {
 		$this->deleteAll(array(
-			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('queue.cleanuptimeout'))
+			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))
 		));
-		if ($pidFilePath = Configure::read('queue.pidfilepath')) {
+		if ($pidFilePath = Configure::read('Queue.pidfilepath')) {
 			# remove all old pid files left over
-			$timeout = time() - 2 * Configure::read('queue.cleanuptimeout');
+			$timeout = time() - 2 * Configure::read('Queue.cleanuptimeout');
 			$Iterator = new RegexIterator(
 				new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pidFilePath)),
 				'/^.+\_.+\.(pid)$/i',

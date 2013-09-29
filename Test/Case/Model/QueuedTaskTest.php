@@ -99,7 +99,7 @@ class QueuedTaskTest extends CakeTestCase {
 		// at first, the queue should contain 0 items.
 		$this->assertEquals(0, $this->QueuedTask->getLength());
 		// there are no jobs, so we cant fetch any.
-		$this->assertFalse($this->QueuedTask->requestJob($capabilities));
+		$this->assertSame(array(), $this->QueuedTask->requestJob($capabilities));
 		// insert one job.
 		$this->assertTrue((bool)$this->QueuedTask->createJob('task1', $testData));
 
@@ -115,7 +115,7 @@ class QueuedTaskTest extends CakeTestCase {
 		// after this job has been fetched, it may not be reassigned.
 		$result = $this->QueuedTask->requestJob($capabilities);
 		//debug($result);ob_flush();
-		$this->assertFalse($result);
+		$this->assertSame(array(), $result);
 
 		// queue length is still 1 since the first job did not finish.
 		$this->assertEquals(1, $this->QueuedTask->getLength());
@@ -258,13 +258,13 @@ class QueuedTaskTest extends CakeTestCase {
 		$capabilities = array(
 			'task1' => array(
 				'name' => 'task1',
-				'timeout' => 100,
+				'timeout' => 101,
 				'retries' => 2,
 				'rate' => 1
 			),
 			'dummytask' => array(
 				'name' => 'dummytask',
-				'timeout' => 100,
+				'timeout' => 101,
 				'retries' => 2
 			)
 		);
@@ -283,20 +283,20 @@ class QueuedTaskTest extends CakeTestCase {
 		//At first we get task1-1.
 		$this->QueuedTask->clearKey();
 		$tmp = $this->QueuedTask->requestJob($capabilities);
-		$this->assertEquals($tmp['jobtype'], 'task1');
-		$this->assertEquals(unserialize($tmp['data']), '1');
+		$this->assertEquals('task1', $tmp['jobtype']);
+		$this->assertEquals('1', unserialize($tmp['data']));
 
 		//The rate limit should now skip over task1-2 and fetch a dummytask.
 		$this->QueuedTask->clearKey();
 		$tmp = $this->QueuedTask->requestJob($capabilities);
-		$this->assertEquals($tmp['jobtype'], 'dummytask');
-		$this->assertEquals(unserialize($tmp['data']), null);
+		$this->assertEquals('dummytask', $tmp['jobtype']);
+		$this->assertNull(unserialize($tmp['data']));
 
 		//and again.
 		$this->QueuedTask->clearKey();
 		$tmp = $this->QueuedTask->requestJob($capabilities);
-		$this->assertEquals($tmp['jobtype'], 'dummytask');
-		$this->assertEquals(unserialize($tmp['data']), null);
+		$this->assertEquals('dummytask', $tmp['jobtype']);
+		$this->assertNull(unserialize($tmp['data']));
 
 		//Then some time passes
 		sleep(1);
@@ -305,13 +305,13 @@ class QueuedTaskTest extends CakeTestCase {
 		$this->QueuedTask->clearKey();
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEquals($tmp['jobtype'], 'task1');
-		$this->assertEquals(unserialize($tmp['data']), '2');
+		$this->assertEquals('2', unserialize($tmp['data']));
 
 		//and again rate limit to dummytask.
 		$this->QueuedTask->clearKey();
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEquals($tmp['jobtype'], 'dummytask');
-		$this->assertEquals(unserialize($tmp['data']), null);
+		$this->assertNull(unserialize($tmp['data']));
 
 		//Then some more time passes
 		sleep(1);
@@ -320,18 +320,18 @@ class QueuedTaskTest extends CakeTestCase {
 		$this->QueuedTask->clearKey();
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEquals($tmp['jobtype'], 'task1');
-		$this->assertEquals(unserialize($tmp['data']), '3');
+		$this->assertEquals('3', unserialize($tmp['data']));
 
 		//and again rate limit to dummytask.
 		$this->QueuedTask->clearKey();
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEquals($tmp['jobtype'], 'dummytask');
-		$this->assertEquals(unserialize($tmp['data']), null);
+		$this->assertNull(unserialize($tmp['data']));
 
 		//and now the queue is empty
 		$this->QueuedTask->clearKey();
 		$tmp = $this->QueuedTask->requestJob($capabilities);
-		$this->assertEquals($tmp, null);
+		$this->assertSame(array(), $tmp);
 	}
 
 	/**
@@ -407,7 +407,7 @@ class QueuedTaskTest extends CakeTestCase {
 		$this->QueuedTask->clearKey();
 		$tmp = $this->QueuedTask->requestJob($capabilities, 'testgroup');
 		$this->assertEquals($tmp['jobtype'], 'task1');
-		$this->assertEquals(unserialize($tmp['data']), 6);
+		$this->assertEquals(6, unserialize($tmp['data']));
 
 		// use FindProgress on the testgroup:
 		$progress = $this->QueuedTask->find('progress', array(
@@ -416,7 +416,7 @@ class QueuedTaskTest extends CakeTestCase {
 			)
 		));
 
-		$this->assertEquals(count($progress), 3);
+		$this->assertEquals(3, count($progress));
 
 		$this->assertNull($progress[0]['reference']);
 		$this->assertEquals($progress[0]['status'], 'IN_PROGRESS');

@@ -62,23 +62,9 @@ class QueueShell extends AppShell {
 			}
 		}
 
-		// Config can be overwritten via local app config.
-		Configure::load('Queue.queue');
-
-		// Local config
-		if (file_exists(APP . 'Config' . DS . 'queue.php')) {
-			Configure::load('queue');
-		}
-
-		// Local config without extra config file
-		$conf = (array)Configure::read('Queue');
-
-		// BC comp:
-		$conf = array_merge($conf, (array)Configure::read('queue'));
-
-		Configure::write('Queue', $conf);
-
 		parent::initialize();
+
+		$this->QueuedTask->initConfig();
 	}
 
 	/**
@@ -147,8 +133,9 @@ class QueueShell extends AppShell {
 	/**
 	 * Output the task without Queue or Task
 	 * example: QueueImageTask becomes Image on display
+	 *
 	 * @param string $taskName
-	 * @return string cleanedTaskName
+	 * @return string Cleaned task name
 	 */
 	protected function _taskName($task) {
 		if (strpos($task, 'Queue') === 0) {
@@ -164,8 +151,8 @@ class QueueShell extends AppShell {
 	 *
 	 * @return void
 	 */
-	public function runworker() {//die(returns(Configure::read('Queue')));
-		if ( $pidFilePath = Configure::read('Queue.pidfilepath')) {
+	public function runworker() {
+		if ($pidFilePath = Configure::read('Queue.pidfilepath')) {
 			if (!file_exists($pidFilePath)) {
 				mkdir($pidFilePath, 0755, true);
 			}
@@ -200,7 +187,7 @@ class QueueShell extends AppShell {
 
 		$starttime = time();
 		$group = null;
-		if (isset($this->params['group']) && !empty($this->params['group'])) {
+		if (!empty($this->params['group'])) {
 			$group = $this->params['group'];
 		}
 		while (!$this->_exit) {
@@ -222,7 +209,7 @@ class QueueShell extends AppShell {
 					$this->out('Running Job of type "' . $data['jobtype'] . '"');
 					$taskname = 'Queue' . $data['jobtype'];
 
-					$return = $this->{$taskname}->run(unserialize($data['data']));
+					$return = $this->{$taskname}->run(unserialize($data['data']), $data['id']);
 					if ($return) {
 						$this->QueuedTask->markJobDone($data['id']);
 						$this->out('Job Finished.');
@@ -243,7 +230,7 @@ class QueueShell extends AppShell {
 				}
 
 				// check if we are over the maximum runtime and end processing if so.
-				if (Configure::read('Queue.workermaxruntime') != 0 && (time() - $starttime) >= Configure::read('Queue.workermaxruntime')) {
+				if (Configure::read('Queue.workermaxruntime') && (time() - $starttime) >= Configure::read('Queue.workermaxruntime')) {
 					$this->_exit = true;
 					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('Queue.workermaxruntime') . '), terminating.');
 				}
@@ -271,6 +258,8 @@ class QueueShell extends AppShell {
 
 	/**
 	 * Display current settings
+	 *
+	 * @return void
 	 */
 	public function settings() {
 		$this->out('Current Settings:');
@@ -281,7 +270,7 @@ class QueueShell extends AppShell {
 	}
 
 	/**
-	 * Display Some statistics about Finished Jobs.
+	 * Display some statistics about Finished Jobs.
 	 *
 	 * @return void
 	 */

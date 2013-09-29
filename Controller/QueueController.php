@@ -6,6 +6,17 @@ class QueueController extends QueueAppController {
 	public $uses = array('Queue.QueuedTask');
 
 	/**
+	 * QueueController::beforeFilter()
+	 *
+	 * @return void
+	 */
+	public function beforeFilter() {
+		$this->QueuedTask->initConfig();
+
+		parent::beforeFilter();
+	}
+
+	/**
 	 * Admin center.
 	 * Manage queues from admin backend (without the need to open ssh console window).
 	 *
@@ -38,13 +49,20 @@ class QueueController extends QueueAppController {
 		return $this->Common->autoPostRedirect(array('action'=>'index'));
 	}
 
+	/**
+	 * QueueController::_status()
+	 *
+	 * @return int Timestamp or NULL if not possible to determine last run
+	 */
 	protected function _status() {
-		$file = TMP.'queue'.DS.'queue.pid';
+		if (!($pidFilePath = Configure::read('Queue.pidfilepath'))) {
+			return null;
+		}
+		$file = $pidFilePath . 'queue.pid';
 		if (!file_exists($file)) {
 			return null;
 		}
 		return filemtime($file);
-		//return filectime($file);
 	}
 
 }

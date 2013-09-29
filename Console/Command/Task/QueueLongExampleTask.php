@@ -80,13 +80,19 @@ class QueueLongExampleTask extends AppShell {
 	 * @param array $data The array passed to QueuedTask->createJob()
 	 * @return boolean Success
 	 */
-	public function run($data) {
+	public function run($data, $id = null) {
 		$this->hr();
 		$this->out('CakePHP Queue LongExample task.');
 		$seconds = (int)$data;
+		if (!$seconds) {
+			throw new RuntimeException('Seconds need to be > 0');
+		}
 		$this->out('A total of ' . $seconds . ' seconds need to pass...');
-		sleep($seconds);
-
+		echo returns($id);
+		for ($i = 0; $i < $seconds; $i++) {
+			sleep(1);
+			$this->QueuedTask->updateProgress($id, ($i + 1) / $seconds);
+		}
 		$this->hr();
 		$this->out(' ->Success, the LongExample Job was run.<-');
 		$this->out(' ');

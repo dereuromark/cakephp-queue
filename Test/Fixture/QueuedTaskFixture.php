@@ -57,6 +57,11 @@ class QueuedTaskFixture extends CakeTestFixture {
 			'null' => true,
 			'default' => null
 		),
+		'progress' => array(
+			'type' => 'float',
+			'null' => true,
+			'default' => null
+		),
 		'failed' => array(
 			'type' => 'integer',
 			'null' => false,
