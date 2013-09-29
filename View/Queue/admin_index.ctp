@@ -34,9 +34,30 @@ foreach ($data as $item) {
 	echo '</ul>';
 	echo '</li>';
 }
+if (empty($data)) {
+	echo 'n/a';
+}
 ?>
 </ul>
 
+<h3>Settings</h3>
+<ul>
+<?php
+	$configurations = Configure::read('Queue');
+	foreach ($configurations as $key => $configuration) {
+		echo '<li>';
+		if (is_dir($configuration)) {
+			$configuration = str_replace(APP, 'APP' . DS, $configuration);
+			$configuration = str_replace(DS, '/', $configuration);
+		} elseif (is_bool($configuration)) {
+			$configuration = $configuration ? 'true' : 'false';
+		}
+		echo h($key). ': ' . h($configuration);
+		echo '</li>';
+	}
+
+?>
+</ul>
 </div>
 
 <div class="actions">

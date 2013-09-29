@@ -29,18 +29,18 @@ class QueuedTask extends QueueAppModel {
 		// Local config without extra config file
 		$conf = (array)Configure::read('Queue');
 
-		// Local config
+		// Fallback to Plugin config which can be overwritten via local app config.
+		Configure::load('Queue.queue');
+		$defaultConf = (array)Configure::read('Queue');
+
+		// Local app config
 		if (file_exists(APP . 'Config' . DS . 'queue.php')) {
 			Configure::load('queue');
 			$conf += (array)Configure::read('Queue');
 		}
 
-		// Fallback to Plugin config which can be overwritten via local app config.
-		Configure::load('Queue.queue');
-		$conf += (array)Configure::read('Queue');
-
 		// BC comp:
-		$conf = array_merge($conf, (array)Configure::read('Queue'));
+		$conf = array_merge($defaultConf, $conf, (array)Configure::read('queue'));
 
 		Configure::write('Queue', $conf);
 	}
@@ -286,27 +286,28 @@ class QueuedTask extends QueueAppModel {
 	/**
 	 * Cleanup/Delete Completed Jobs.
 	 *
-	 * @return boolean Success
+	 * @return void
 	 */
 	public function cleanOldJobs() {
 		$this->deleteAll(array(
 			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))
 		));
-		if ($pidFilePath = Configure::read('Queue.pidfilepath')) {
-			# remove all old pid files left over
-			$timeout = time() - 2 * Configure::read('Queue.cleanuptimeout');
-			$Iterator = new RegexIterator(
-				new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pidFilePath)),
-				'/^.+\_.+\.(pid)$/i',
-				RegexIterator::MATCH
-			);
-			foreach ($Iterator as $file) {
-				if ($file->isFile()) {
-					$file = $file->getPathname();
-					$lastModified = filemtime($file);
-					if ($timeout > $lastModified) {
-						unlink($file);
-					}
+		if (!($pidFilePath = Configure::read('Queue.pidfilepath'))) {
+			return;
+		}
+		// Remove all old pid files left over
+		$timeout = time() - 2 * Configure::read('Queue.cleanuptimeout');
+		$Iterator = new RegexIterator(
+			new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pidFilePath)),
+			'/^.+\_.+\.(pid)$/i',
+			RegexIterator::MATCH
+		);
+		foreach ($Iterator as $file) {
+			if ($file->isFile()) {
+				$file = $file->getPathname();
+				$lastModified = filemtime($file);
+				if ($timeout > $lastModified) {
+					unlink($file);
 				}
 			}
 		}
@@ -315,6 +316,7 @@ class QueuedTask extends QueueAppModel {
 	/**
 	 * QueuedTask::lastRun()
 	 *
+	 * @deprecated?
 	 * @return array
 	 */
 	public function lastRun() {
@@ -330,6 +332,8 @@ class QueuedTask extends QueueAppModel {
 
 	/**
 	 * QueuedTask::_findProgress()
+	 *
+	 * Custom find method, as in `find('progress', ...)`.
 	 *
 	 * @param string $state
 	 * @param array $query
@@ -397,10 +401,11 @@ class QueuedTask extends QueueAppModel {
 	}
 
 	/**
-	 * Generate a unique Identifier for the current worker thread
+	 * Generate a unique Identifier for the current worker thread.
 	 *
-	 * useful to idendify the currently running processes for this thread
-	 * @return string identifier
+	 * Useful to idendify the currently running processes for this thread.
+	 *
+	 * @return string Identifier
 	 */
 	public function key() {
 		if ($this->_key !== null) {
@@ -413,6 +418,9 @@ class QueuedTask extends QueueAppModel {
 	/**
 	 * Cleanup (remove the identifier from the db records?)
 	 *
+	 * TODO: FIXME
+	 *
+	 * @return void
 	 */
 	/*
 	public function __destruct() {
