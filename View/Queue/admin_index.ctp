@@ -4,9 +4,13 @@
 <h3><?php echo __('Status'); ?></h3>
 <?php if ($status) { ?>
 <?php
-	$running = (time() - $status) < MINUTE;
+	$running = (time() - $status['time']) < MINUTE;
 ?>
-<?php echo $this->Format->yesNo($running); ?> <?php echo $running ? __('Running') : __('Not running'); ?> (<?php echo __('last %s', $this->Datetime->relLengthOfTime($status))?>)
+<?php echo $this->Format->yesNo($running); ?> <?php echo $running ? __('Running') : __('Not running'); ?> (<?php echo __('last %s', $this->Datetime->relLengthOfTime($status['time']))?>)
+
+<?php
+	echo '<div><small>Currently '.($status['workers']).' worker(s) total.</small></div>';
+?>
 <?php } else { ?>
 n/a
 <?php } ?>

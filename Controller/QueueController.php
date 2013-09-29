@@ -52,17 +52,36 @@ class QueueController extends QueueAppController {
 	/**
 	 * QueueController::_status()
 	 *
-	 * @return int Timestamp or NULL if not possible to determine last run
+	 * If pid loggin is enabled, will return an array with
+	 * - time: int Timestamp
+	 * - workers: int Count of currently running workers
+	 *
+	 * @return array Status array
 	 */
 	protected function _status() {
 		if (!($pidFilePath = Configure::read('Queue.pidfilepath'))) {
-			return null;
+			return array();
 		}
 		$file = $pidFilePath . 'queue.pid';
 		if (!file_exists($file)) {
-			return null;
+			return array();
 		}
-		return filemtime($file);
+
+		$sleepTime = Configure::read('Queue.sleeptime');
+		$thresholdTime = time() - $sleepTime;
+		$count = 0;
+		foreach (glob($pidFilePath . 'queue_*.pid') as $filename) {
+			$time = filemtime($filename);
+			if ($time >= $thresholdTime) {
+				$count++;
+			}
+		}
+
+		$res = array(
+			'time' => filemtime($file),
+			'workers' => $count,
+		);
+		return $res;
 	}
 
 }

@@ -4,7 +4,7 @@ modified by Mark Scherer (dereuromark)
 - cake2.x support
 - some minor fixes
 - added crontasks (as a different approach on specific problems)
-- possible Tools Plugin dependencies
+- possible Tools Plugin dependencies for frontend access via /admin/queue
 
 new:
 - config key "queue" is now "Queue" ($config['Queue'][...])
