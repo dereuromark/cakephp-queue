@@ -1,16 +1,12 @@
 <?php
-/**
- * @author MGriesbach@gmail.com
- * @license http://www.opensource.org/licenses/mit-license.php The MIT License
- * @link http://github.com/MSeven/cakephp_queue
- */
+
 App::uses('AppShell', 'Console/Command');
 
 /**
- * A Simple QueueTask example.
+ * A Simple QueueTask example that runs for a while.
  *
  */
-class QueueExampleTask extends AppShell {
+class QueueLongExampleTask extends AppShell {
 
 	/**
 	 * Adding the QueueTask Model
@@ -33,7 +29,7 @@ class QueueExampleTask extends AppShell {
 	 *
 	 * @var integer
 	 */
-	public $timeout = 10;
+	public $timeout = 120;
 
 	/**
 	 * Number of times a failed instance of this task should be restarted before giving up.
@@ -54,22 +50,22 @@ class QueueExampleTask extends AppShell {
 	 * Will create one example job in the queue, which later will be executed using run();
 	 */
 	public function add() {
-		$this->out('CakePHP Queue Example task.');
+		$this->out('CakePHP Queue LongExample task.');
 		$this->hr();
-		$this->out('This is a very simple example of a QueueTask.');
-		$this->out('I will now add an example Job into the Queue.');
-		$this->out('This job will only produce some console output on the worker that it runs on.');
+		$this->out('This is a very simple but long running example of a QueueTask.');
+		$this->out('I will now add the Job into the Queue.');
+		$this->out('This job will need at least 2 minutes to complete.');
 		$this->out(' ');
 		$this->out('To run a Worker use:');
 		$this->out('	cake Queue.Queue runworker');
 		$this->out(' ');
-		$this->out('You can find the sourcecode of this task in: ');
+		$this->out('You can find the sourcecode of this task in:');
 		$this->out(__FILE__);
 		$this->out(' ');
 		/**
 		 * Adding a task of type 'example' with no additionally passed data
 		 */
-		if ($this->QueuedTask->createJob('Example', null)) {
+		if ($this->QueuedTask->createJob('LongExample', 2 * MINUTE)) {
 			$this->out('OK, job created, now run the worker');
 		} else {
 			$this->err('Could not create Job');
@@ -86,11 +82,16 @@ class QueueExampleTask extends AppShell {
 	 */
 	public function run($data) {
 		$this->hr();
-		$this->out('CakePHP Queue Example task.');
+		$this->out('CakePHP Queue LongExample task.');
+		$seconds = (int)$data;
+		$this->out('A total of ' . $seconds . ' seconds need to pass...');
+		sleep($seconds);
+
 		$this->hr();
-		$this->out(' ->Success, the Example Job was run.<-');
+		$this->out(' ->Success, the LongExample Job was run.<-');
 		$this->out(' ');
 		$this->out(' ');
 		return true;
 	}
+
 }

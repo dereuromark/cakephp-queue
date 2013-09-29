@@ -4,7 +4,6 @@ App::uses('QueueAppModel', 'Queue.Model');
 /**
  * CronTask for cronjobs.
  *
- * 2011-07-17 ms
  */
 class CronTask extends QueueAppModel {
 

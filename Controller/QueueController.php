@@ -10,7 +10,6 @@ class QueueController extends QueueAppController {
 	 * Manage queues from admin backend (without the need to open ssh console window).
 	 *
 	 * @return void
-	 * 2012-01-24 ms
 	 */
 	public function admin_index() {
 		$status = $this->_status();
@@ -25,7 +24,6 @@ class QueueController extends QueueAppController {
 	 * Truncate the queue list / table.
 	 *
 	 * @return void
-	 * 2012-01-24 ms
 	 */
 	public function admin_reset() {
 		if (!$this->Common->isPosted()) {

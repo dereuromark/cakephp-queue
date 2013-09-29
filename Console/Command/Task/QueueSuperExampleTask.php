@@ -38,7 +38,7 @@ class QueueSuperExampleTask extends AppShell {
 	 *
 	 * @var integer
 	 */
-	public $retries = 0;
+	public $retries = 1;
 
 	/**
 	 * Stores any failure messages triggered during run()

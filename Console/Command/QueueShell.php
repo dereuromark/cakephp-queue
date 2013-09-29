@@ -378,7 +378,6 @@ class QueueShell extends AppShell {
 	 * Timestamped log.
 	 *
 	 * @return void
-	 * 2011-10-09 ms
 	 */
 	protected function _log($type, $pid = null) {
 		# log?
@@ -398,7 +397,6 @@ class QueueShell extends AppShell {
 	 * Timestamped notification.
 	 *
 	 * @return void
-	 * 2012-01-24 ms
 	 */
 	protected function _notify() {
 		# log?

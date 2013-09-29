@@ -137,7 +137,6 @@ class CronShell extends AppShell {
 
 	/**
 	 * Select all active and due cronjobs and execute them
-	 * 2011-07-18 ms
 	 */
 	public function run() {
 		// Enable Garbage Collector (PHP >= 5.3)
