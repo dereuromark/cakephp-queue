@@ -1,0 +1,25 @@
+{
+	"name": "dereuromark/cakephp-queue",
+	"type": "cakephp-plugin",
+	"description": "The Queue plugin for CakePHP provides dereferred task execution.",
+	"homepage": "http://github.com/dereuromark/cakephp-queue",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Mark Scherer",
+			"homepage": "http://www.dereuromark.de"
+		}
+	],
+	"require": {
+		"php": ">=5.3.0",
+		"composer/installers": "*"
+	},
+	"support": {
+		"source": "https://github.com/dereuromark/cakephp-queue"
+	},
+	"extra": {
+		"installer-paths": {
+			"Plugin/Queue/": ["dereuromark/cakephp-queue"]
+		}
+	}
+}
