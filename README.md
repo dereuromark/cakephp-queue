@@ -147,3 +147,7 @@ got a small overlap where two workers would run simulaniously. If you lower the 
 get quite a few overlapping workers and thus more "parallel" processing power.
 Play around with it, but just don't shoot over the top.
 
+### TODO
+
+* Add priority
+* Cleanup and better test coverage
