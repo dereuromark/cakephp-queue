@@ -116,7 +116,7 @@ class QueueShell extends AppShell {
 		} else {
 			$name = Inflector::camelize($this->args[0]);
 
-			if (in_array($name.'', $this->taskNames)) {
+			if (in_array($name . '', $this->taskNames)) {
 				$this->{$name}->add();
 			} elseif (in_array('Queue' . $name . '', $this->taskNames)) {
 				$this->{'Queue' . $name}->add();
@@ -242,7 +242,7 @@ class QueueShell extends AppShell {
 			}
 		}
 		if (!empty($pidFilePath)) {
-			unlink($pidFilePath . 'queue_'.$pid.'.pid');
+			unlink($pidFilePath . 'queue_' . $pid . '.pid');
 		}
 	}
 
@@ -265,7 +265,7 @@ class QueueShell extends AppShell {
 		$this->out('Current Settings:');
 		$conf = (array)Configure::read('Queue');
 		foreach ($conf as $key => $val) {
-			$this->out('* '.$key.': '.print_r($val, true));
+			$this->out('* ' . $key . ': ' . print_r($val, true));
 		}
 	}
 
@@ -377,7 +377,7 @@ class QueueShell extends AppShell {
 			}
 			//$file = $folder . DS . $type . '.txt';
 			//file_put_contents($file, date(FORMAT_DB_DATETIME));
-			$message = $type.' '.$pid;
+			$message = $type . ' ' . $pid;
 			CakeLog::write('queue', $message);
 		}
 	}
@@ -445,7 +445,7 @@ class QueueShell extends AppShell {
 			} else {
 				$pid = $this->QueuedTask->key();
 			}
-			$file = $pidFilePath . 'queue_'.$pid.'.pid';
+			$file = $pidFilePath . 'queue_' . $pid . '.pid';
 			if (file_exists($file)) {
 				unlink($file);
 			}

@@ -17,7 +17,7 @@ class CronTask extends QueueAppModel {
 
 	public $displayField = 'title';
 
-	public $order = array('CronTask.created'=>'DESC');
+	public $order = array('CronTask.created' => 'DESC');
 
 	public $validate = array(
 		'jobtype' => array(

@@ -17,6 +17,7 @@ class QueueEmailTask extends AppShell {
 		'to' => null,
 		'from' => null,
 	);
+
 	public $timeout = 120;
 
 	public $retries = 1;

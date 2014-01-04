@@ -18,7 +18,7 @@ class QueueTestShell extends AppShell {
 	public function email() {
 		$data = array(
 			'settings' => array(
-				'subject' => 'Some test - '.date(FORMAT_DB_DATETIME),
+				'subject' => 'Some test - ' . date(FORMAT_DB_DATETIME),
 				'to' => Configure::read('Config.admin_email'),
 				'domain' => 'example.org',
 			),

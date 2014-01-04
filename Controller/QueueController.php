@@ -46,7 +46,7 @@ class QueueController extends QueueAppController {
 		} else {
 			$this->Common->flashMessage(__('Error'), 'success');
 		}
-		return $this->Common->autoPostRedirect(array('action'=>'index'));
+		return $this->Common->autoPostRedirect(array('action' => 'index'));
 	}
 
 	/**
