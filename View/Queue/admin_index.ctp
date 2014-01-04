@@ -62,6 +62,6 @@ if (empty($data)) {
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Form->postLink(__('Reset %s', __('All')), array('action' => 'reset'), array(), __('Sure?')); ?></li>
+		<li><?php echo $this->Form->postLink(__('Reset %s', __('Queue Tasks')), array('action' => 'reset'), array(), __('Sure? This will completely reset the queue.')); ?></li>
 	</ul>
 </div>

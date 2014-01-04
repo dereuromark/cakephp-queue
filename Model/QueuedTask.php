@@ -50,8 +50,8 @@ class QueuedTask extends QueueAppModel {
 	 *
 	 * @param string $jobName QueueTask name
 	 * @param array $data any array
-	 * @param string $group Used to group similar QueuedTasks
-	 * @param string $reference any array
+	 * @param string $group Used to group similar QueuedTasks.
+	 * @param string $reference An optional reference string.
 	 * @return array Created Job array containing id, data, ...
 	 */
 	public function createJob($jobName, $data = null, $notBefore = null, $group = null, $reference = null) {

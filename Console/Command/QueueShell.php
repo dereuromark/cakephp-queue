@@ -116,7 +116,7 @@ class QueueShell extends AppShell {
 		} else {
 			$name = Inflector::camelize($this->args[0]);
 
-			if (in_array($name . '', $this->taskNames)) {
+			if (in_array($name, $this->taskNames)) {
 				$this->{$name}->add();
 			} elseif (in_array('Queue' . $name . '', $this->taskNames)) {
 				$this->{'Queue' . $name}->add();
@@ -209,7 +209,10 @@ class QueueShell extends AppShell {
 					$this->out('Running Job of type "' . $data['jobtype'] . '"');
 					$taskname = 'Queue' . $data['jobtype'];
 
-					$return = $this->{$taskname}->run(unserialize($data['data']), $data['id']);
+					if ($this->{$taskname}->autoUnserialize) {
+						$data['data'] = unserialize($data['data']);
+					}
+					$return = $this->{$taskname}->run($data['data'], $data['id']);
 					if ($return) {
 						$this->QueuedTask->markJobDone($data['id']);
 						$this->out('Job Finished.');

@@ -48,6 +48,11 @@ class QueueSuperExampleTask extends AppShell {
 	public $failureMessage = '';
 
 	/**
+	 * @var boolean
+	 */
+	public $autoUnserialize = true;
+
+	/**
 	 * SuperExample add functionality.
 	 * Will create one example job in the queue, which later will be executed using run();
 	 */

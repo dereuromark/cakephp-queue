@@ -34,4 +34,33 @@ class QueueTestShell extends AppShell {
 		}
 	}
 
+	/**
+	 * Test sending emails via CLI and Queue transport.
+	 *
+	 * @return void
+	 */
+	public function complete_email() {
+		App::uses('EmailLib', 'Tools.Lib');
+
+		Configure::write('debug', 0);
+		$Email = new EmailLib();
+		$Email->to('markscherer@gmx.de', 'Mark Test');
+		$Email->subject('Testing Message');
+		$host = Configure::read('App.host');
+		if ($host) {
+			$Email->domain($host);
+		}
+
+		$config = $Email->config();
+		if (!isset($config['queue'])) {
+			$this->error('queue key in config missing');
+		}
+
+		$res = $Email->send('Foo');
+		if (!$res) {
+			$this->error('Could not send email: ' . $Email->getError());
+		}
+		$this->out('YEAH!');
+	}
+
 }

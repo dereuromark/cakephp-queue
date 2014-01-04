@@ -22,6 +22,11 @@ class QueueEmailTask extends AppShell {
 
 	public $retries = 1;
 
+	/**
+	 * @var boolean
+	 */
+	public $autoUnserialize = true;
+
 	public $Email;
 
 	public function add() {
@@ -39,15 +44,53 @@ class QueueEmailTask extends AppShell {
 				'content' => 'hello world',
 			)
 		), true));
+		$this->out('Alternativly, you can pass the whole EmailLib to directly use it.');
 	}
 
+	/**
+	 * QueueEmailTask::run()
+	 *
+	 * @param mixed $data
+	 * @return boolean Success
+	 */
 	public function run($data) {
-		$this->Email = new EmailLib();
-
 		if (!isset($data['settings'])) {
 			$this->err('Queue Email task called without settings data.');
 			return false;
 		}
+
+		if (is_object($email = $data['settings']) && $email instanceof CakeEmail) {
+			try {
+				$transport = $email->transportClass();
+				$config = $email->config();
+				//echo returns($config);
+				$transport->config($config);
+				$result = $transport->send($email);
+
+				if (!isset($config['log']) || !empty($config['logTrace']) && $config['logTrace'] === true) {
+					$config['log'] = 'email_trace';
+				} elseif (!empty($config['logTrace'])) {
+					$config['log'] = $config['logTrace'];
+				}
+				if (isset($config['logTrace']) && !$config['logTrace']) {
+					$config['log'] = false;
+				}
+
+				if (!empty($config['logTrace'])) {
+					$this->_log($result, $config['log']);
+				}
+				return (bool)$result;
+			} catch (Exception $e) {
+
+				$error = $e->getMessage();
+				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
+				CakeLog::write('email_error', $error);
+
+				return false;
+			}
+		}
+
+		$this->Email = new EmailLib();
 		$settings = array_merge($this->defaults, $data['settings']);
 		foreach ($settings as $method => $setting) {
 			call_user_func_array(array($this->Email, $method), (array)$setting);
@@ -60,6 +103,24 @@ class QueueEmailTask extends AppShell {
 			$this->Email->viewVars($data['vars']);
 		}
 		return $this->Email->send($message);
+	}
+
+	protected function _log($contents, $log) {
+		$config = array(
+			'level' => LOG_DEBUG,
+			'scope' => 'email'
+		);
+		if ($log !== true) {
+			if (!is_array($log)) {
+				$log = array('level' => $log);
+			}
+			$config = array_merge($config, $log);
+		}
+		CakeLog::write(
+			$config['level'],
+			PHP_EOL . $contents['headers'] . PHP_EOL . $contents['message'],
+			$config['scope']
+		);
 	}
 
 }

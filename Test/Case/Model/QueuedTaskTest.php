@@ -29,6 +29,7 @@ class QueuedTaskTest extends CakeTestCase {
 	 *
 	 */
 	public function setUp() {
+		parent::setUp();
 		$this->QueuedTask = ClassRegistry::init('TestQueuedTask');
 	}
 

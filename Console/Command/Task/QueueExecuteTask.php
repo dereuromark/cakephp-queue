@@ -48,6 +48,11 @@ class QueueExecuteTask extends AppShell {
 	public $failureMessage = '';
 
 	/**
+	 * @var boolean
+	 */
+	public $autoUnserialize = true;
+
+	/**
 	 * Add functionality.
 	 * Will create one example job in the queue, which later will be executed using run();
 	 */

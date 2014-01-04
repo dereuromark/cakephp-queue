@@ -112,13 +112,15 @@ Use the model access for QueueTask to do that:
 
 For sending emails, for example:
 
-	// In your controller
-	$this->loadModel('Queue.QueuedTask');
-	$this->QueuedTask->createJob('Email', array('to' => 'user@example.org', ...)));
+```php
+// In your controller
+$this->loadModel('Queue.QueuedTask');
+$this->QueuedTask->createJob('Email', array('to' => 'user@example.org', ...)));
 
-	// Somewhere in the model
-	ClassRegistry::init('Queue.QueuedTask')->createJob('Email',
-		array('to' => 'user@example.org', ...)));
+// Somewhere in the model
+ClassRegistry::init('Queue.QueuedTask')->createJob('Email',
+	array('to' => 'user@example.org', ...)));
+```
 
 It will use your custom APP `QueueEmailTask` to send out emails via CLI.
 
