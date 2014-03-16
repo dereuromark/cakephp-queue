@@ -19,8 +19,6 @@
 		"source": "https://github.com/dereuromark/cakephp-queue"
 	},
 	"extra": {
-		"installer-paths": {
-			"Plugin/Queue/": ["dereuromark/cakephp-queue"]
-		}
+		"installer-name": "Queue"
 	}
 }
