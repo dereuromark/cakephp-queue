@@ -76,15 +76,15 @@ class CronTask extends QueueAppModel {
 		),
 	);
 
-	/**
-	 * Add a new Job to the Queue
-	 *
-	 * @param string $jobName QueueTask name
-	 * @param array $data any array
-	 * @param string $group Used to group similar CronTasks
-	 * @param string $reference any array
-	 * @return boolean Success
-	 */
+/**
+ * Add a new Job to the Queue
+ *
+ * @param string $jobName QueueTask name
+ * @param array $data any array
+ * @param string $group Used to group similar CronTasks
+ * @param string $reference any array
+ * @return boolean Success
+ */
 	public function createJob($jobName, $data, $notBefore = null, $group = null, $reference = null) {
 		$data = array(
 			'jobtype' => $jobName,
@@ -103,14 +103,14 @@ class CronTask extends QueueAppModel {
 		$this->exit = true;
 	}
 
-	/**
-	 * Look for a new job that can be processed with the current abilities and
-	 * from the specified group (or any if null).
-	 *
-	 * @param array $capabilities Available QueueWorkerTasks.
-	 * @param string $group Request a job from this group, (from any group if null)
-	 * @return array Taskdata.
-	 */
+/**
+ * Look for a new job that can be processed with the current abilities and
+ * from the specified group (or any if null).
+ *
+ * @param array $capabilities Available QueueWorkerTasks.
+ * @param string $group Request a job from this group, (from any group if null)
+ * @return array Taskdata.
+ */
 	public function requestJob($capabilities, $group = null) {
 		$idlist = array();
 		$wasFetched = array();
@@ -198,12 +198,12 @@ class CronTask extends QueueAppModel {
 		return $data[$this->name];
 	}
 
-	/**
-	 * Mark a job as Completed, removing it from the queue.
-	 *
-	 * @param integer $id
-	 * @return boolean Success
-	 */
+/**
+ * Mark a job as Completed, removing it from the queue.
+ *
+ * @param integer $id
+ * @return boolean Success
+ */
 	public function markJobDone($id) {
 		return $this->updateAll(array(
 			'completed' => "'" . date('Y-m-d H:i:s') . "'"
@@ -212,12 +212,12 @@ class CronTask extends QueueAppModel {
 		));
 	}
 
-	/**
-	 * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
-	 *
-	 * @param integer $id
-	 * @param string $failureMessage Optional message to append to the failure_message field.
-	 */
+/**
+ * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
+ *
+ * @param integer $id
+ * @param string $failureMessage Optional message to append to the failure_message field.
+ */
 	public function markJobFailed($id, $failureMessage = null) {
 		$fields = array(
 			'failed' => "failed + 1",
@@ -229,13 +229,13 @@ class CronTask extends QueueAppModel {
 		return $this->updateAll($fields, $conditions);
 	}
 
-	/**
-	 * Returns the number of items in the Queue.
-	 * Either returns the number of ALL pending tasks, or the number of pending tasks of the passed Type
-	 *
-	 * @param string $type jobType to Count
-	 * @return integer
-	 */
+/**
+ * Returns the number of items in the Queue.
+ * Either returns the number of ALL pending tasks, or the number of pending tasks of the passed Type
+ *
+ * @param string $type jobType to Count
+ * @return integer
+ */
 	public function getLength($type = null) {
 		$findConf = array(
 			'conditions' => array(
@@ -248,11 +248,11 @@ class CronTask extends QueueAppModel {
 		return $this->find('count', $findConf);
 	}
 
-	/**
-	 * Return a list of all jobtypes in the Queue.
-	 *
-	 * @return array
-	 */
+/**
+ * Return a list of all jobtypes in the Queue.
+ *
+ * @return array
+ */
 	public function getTypes() {
 		$findConf = array(
 			'fields' => array(
@@ -265,11 +265,11 @@ class CronTask extends QueueAppModel {
 		return $this->find('list', $findConf);
 	}
 
-	/**
-	 * Return some statistics about finished jobs still in the Database.
-	 *
-	 * @return array
-	 */
+/**
+ * Return some statistics about finished jobs still in the Database.
+ *
+ * @return array
+ */
 	public function getStats() {
 		$findConf = array(
 			'fields' => array(
@@ -285,11 +285,11 @@ class CronTask extends QueueAppModel {
 		return $this->find('all', $findConf);
 	}
 
-	/**
-	 * Cleanup/Delete Completed Jobs.
-	 *
-	 * @return boolean Success
-	 */
+/**
+ * Cleanup/Delete Completed Jobs.
+ *
+ * @return boolean Success
+ */
 	public function cleanOldJobs() {
 		return;
 		//TODO

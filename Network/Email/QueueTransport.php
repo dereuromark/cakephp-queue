@@ -12,12 +12,12 @@
  */
 class QueueTransport extends AbstractTransport {
 
-	/**
-	 * Send mail
-	 *
-	 * @param CakeEmail $email CakeEmail
-	 * @return array
-	 */
+/**
+ * Send mail
+ *
+ * @param CakeEmail $email CakeEmail
+ * @return array
+ */
 	public function send(CakeEmail $email) {
 		if (!empty($this->_config['queue'])) {
 			$this->_config = $this->_config['queue'] + $this->_config;

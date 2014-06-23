@@ -8,11 +8,11 @@ App::uses('AppShell', 'Console/Command');
 
 class QueueEmailTask extends AppShell {
 
-	/**
-	 * List of default variables for EmailComponent
-	 *
-	 * @var array
-	 */
+/**
+ * List of default variables for EmailComponent
+ *
+ * @var array
+ */
 	public $defaults = array(
 		'to' => null,
 		'from' => null,
@@ -22,9 +22,9 @@ class QueueEmailTask extends AppShell {
 
 	public $retries = 1;
 
-	/**
-	 * @var boolean
-	 */
+/**
+ * @var boolean
+ */
 	public $autoUnserialize = true;
 
 	public $Email;
@@ -47,12 +47,12 @@ class QueueEmailTask extends AppShell {
 		$this->out('Alternativly, you can pass the whole EmailLib to directly use it.');
 	}
 
-	/**
-	 * QueueEmailTask::run()
-	 *
-	 * @param mixed $data
-	 * @return boolean Success
-	 */
+/**
+ * QueueEmailTask::run()
+ *
+ * @param mixed $data
+ * @return boolean Success
+ */
 	public function run($data) {
 		if (!isset($data['settings'])) {
 			$this->err('Queue Email task called without settings data.');

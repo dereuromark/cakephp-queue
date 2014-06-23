@@ -7,11 +7,11 @@ class QueueShellTest extends MyCakeTestCase {
 
 	public $QueueShell;
 
-	/**
-	 * Fixtures to load
-	 *
-	 * @var array
-	 */
+/**
+ * Fixtures to load
+ *
+ * @var array
+ */
 	public $fixtures = array(
 		'plugin.queue.queued_task'
 	);
@@ -36,42 +36,42 @@ class QueueShellTest extends MyCakeTestCase {
 		));
 	}
 
-	/**
-	 * QueueShellTest::testObject()
-	 *
-	 * @return void
-	 */
+/**
+ * QueueShellTest::testObject()
+ *
+ * @return void
+ */
 	public function testObject() {
 		$this->assertTrue(is_object($this->QueueShell));
 		$this->assertInstanceOf('QueueShell', $this->QueueShell);
 	}
 
-	/**
-	 * QueueShellTest::testStats()
-	 *
-	 * @return void
-	 */
+/**
+ * QueueShellTest::testStats()
+ *
+ * @return void
+ */
 	public function testStats() {
 		$result = $this->QueueShell->stats();
 		//debug($this->QueueShell->out);
 		$this->assertTrue(in_array('Total unfinished Jobs      : 0', $this->QueueShell->out));
 	}
 
-	/**
-	 * QueueShellTest::testSettings()
-	 *
-	 * @return void
-	 */
+/**
+ * QueueShellTest::testSettings()
+ *
+ * @return void
+ */
 	public function testSettings() {
 		$result = $this->QueueShell->settings();
 		$this->assertTrue(in_array('* cleanuptimeout: 10', $this->QueueShell->out));
 	}
 
-	/**
-	 * QueueShellTest::testRunworker()
-	 *
-	 * @return void
-	 */
+/**
+ * QueueShellTest::testRunworker()
+ *
+ * @return void
+ */
 	public function _testRunworker() {
 		$result = $this->QueueShell->runworker();
 		//debug($this->QueueShell->out);

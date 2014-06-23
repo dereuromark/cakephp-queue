@@ -10,39 +10,39 @@ App::uses('MyCakeTestCase', 'Tools.TestSuite');
 
 class QueuedTaskTest extends CakeTestCase {
 
-	/**
-	 * @var TestQueuedTask
-	 */
+/**
+ * @var TestQueuedTask
+ */
 	public $QueuedTask;
 
-	/**
-	 * Fixtures to load
-	 *
-	 * @var array
-	 */
+/**
+ * Fixtures to load
+ *
+ * @var array
+ */
 	public $fixtures = array(
 		'plugin.queue.queued_task'
 	);
 
-	/**
-	 * Initialize the Testcase
-	 *
-	 */
+/**
+ * Initialize the Testcase
+ *
+ */
 	public function setUp() {
 		parent::setUp();
 		$this->QueuedTask = ClassRegistry::init('TestQueuedTask');
 	}
 
-	/**
-	 * Basic Instance test
-	 */
+/**
+ * Basic Instance test
+ */
 	public function testQueueInstance() {
 		$this->assertTrue(is_a($this->QueuedTask, 'TestQueuedTask'));
 	}
 
-	/**
-	 * Test the basic create and length evaluation functions.
-	 */
+/**
+ * Test the basic create and length evaluation functions.
+ */
 	public function testCreateAndCount() {
 		// at first, the queue should contain 0 items.
 		$this->assertEquals(0, $this->QueuedTask->getLength());
@@ -127,11 +127,11 @@ class QueuedTaskTest extends CakeTestCase {
 		$this->assertEquals(0, $this->QueuedTask->getLength());
 	}
 
-	/**
-	 * Test the delivery of jobs in sequence, skipping fetched but not completed tasks.
-	 *
-	 * @return void
-	 */
+/**
+ * Test the delivery of jobs in sequence, skipping fetched but not completed tasks.
+ *
+ * @return void
+ */
 	public function testSequence() {
 		//$capabilities is a list of tasks the worker can run.
 		$capabilities = array(
@@ -177,11 +177,11 @@ class QueuedTaskTest extends CakeTestCase {
 		}
 	}
 
-	/**
-	 * Test creating Jobs to run close to a specified time, and strtotime parsing.
-	 *
-	 * @return null
-	 */
+/**
+ * Test creating Jobs to run close to a specified time, and strtotime parsing.
+ *
+ * @return null
+ */
 	public function testNotBefore() {
 		$this->assertTrue((bool)$this->QueuedTask->createJob('task1', array(), '+ 1 Min'));
 		$this->assertTrue((bool)$this->QueuedTask->createJob('task1', array(), '+ 1 Day'));
@@ -192,12 +192,12 @@ class QueuedTaskTest extends CakeTestCase {
 		$this->assertWithinMargin(strtotime($data[2]['TestQueuedTask']['notbefore']), strtotime('2009-07-01 12:00:00'), 1);
 	}
 
-	/**
-	 * Test Job reordering depending on 'notBefore' field.
-	 * Jobs with an expired notbefore field should be executed before any other job without specific timing info.
-	 *
-	 * @return null
-	 */
+/**
+ * Test Job reordering depending on 'notBefore' field.
+ * Jobs with an expired notbefore field should be executed before any other job without specific timing info.
+ *
+ * @return null
+ */
 	public function testNotBeforeOrder() {
 		$capabilities = array(
 			'task1' => array(
@@ -251,10 +251,10 @@ class QueuedTaskTest extends CakeTestCase {
 		}
 	}
 
-	/**
-	 * Job Rate limiting.
-	 * Do not execute jobs of a certain type more often than once every X seconds.
-	 */
+/**
+ * Job Rate limiting.
+ * Do not execute jobs of a certain type more often than once every X seconds.
+ */
 	public function testRateLimit() {
 		$capabilities = array(
 			'task1' => array(
@@ -335,11 +335,11 @@ class QueuedTaskTest extends CakeTestCase {
 		$this->assertSame(array(), $tmp);
 	}
 
-	/**
-	 * QueuedTaskTest::testRequeueAfterTimeout()
-	 *
-	 * @return void
-	 */
+/**
+ * QueuedTaskTest::testRequeueAfterTimeout()
+ *
+ * @return void
+ */
 	public function testRequeueAfterTimeout() {
 		$capabilities = array(
 			'task1' => array(

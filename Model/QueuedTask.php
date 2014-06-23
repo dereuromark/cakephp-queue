@@ -20,11 +20,11 @@ class QueuedTask extends QueueAppModel {
 
 	protected $_key = null;
 
-	/**
-	 * QueuedTask::initConfig()
-	 *
-	 * @return void
-	 */
+/**
+ * QueuedTask::initConfig()
+ *
+ * @return void
+ */
 	public function initConfig() {
 		// Local config without extra config file
 		$conf = (array)Configure::read('Queue');
@@ -45,15 +45,15 @@ class QueuedTask extends QueueAppModel {
 		Configure::write('Queue', $conf);
 	}
 
-	/**
-	 * Add a new Job to the Queue.
-	 *
-	 * @param string $jobName QueueTask name
-	 * @param array $data any array
-	 * @param string $group Used to group similar QueuedTasks.
-	 * @param string $reference An optional reference string.
-	 * @return array Created Job array containing id, data, ...
-	 */
+/**
+ * Add a new Job to the Queue.
+ *
+ * @param string $jobName QueueTask name
+ * @param array $data any array
+ * @param string $group Used to group similar QueuedTasks.
+ * @param string $reference An optional reference string.
+ * @return array Created Job array containing id, data, ...
+ */
 	public function createJob($jobName, $data = null, $notBefore = null, $group = null, $reference = null) {
 		$data = array(
 			'jobtype' => $jobName,
@@ -72,14 +72,14 @@ class QueuedTask extends QueueAppModel {
 		$this->exit = true;
 	}
 
-	/**
-	 * Look for a new job that can be processed with the current abilities and
-	 * from the specified group (or any if null).
-	 *
-	 * @param array $capabilities Available QueueWorkerTasks.
-	 * @param string $group Request a job from this group, (from any group if null)
-	 * @return array Taskdata.
-	 */
+/**
+ * Look for a new job that can be processed with the current abilities and
+ * from the specified group (or any if null).
+ *
+ * @param array $capabilities Available QueueWorkerTasks.
+ * @param string $group Request a job from this group, (from any group if null)
+ * @return array Taskdata.
+ */
 	public function requestJob($capabilities, $group = null) {
 		$idlist = array();
 		$wasFetched = array();
@@ -177,13 +177,13 @@ class QueuedTask extends QueueAppModel {
 		return $data[$this->alias];
 	}
 
-	/**
-	 * QueuedTask::updateProgress()
-	 *
-	 * @param mixed $id
-	 * @param float $progress Value from 0 to 1
-	 * @return boolean Success
-	 */
+/**
+ * QueuedTask::updateProgress()
+ *
+ * @param mixed $id
+ * @param float $progress Value from 0 to 1
+ * @return boolean Success
+ */
 	public function updateProgress($id, $progress) {
 		if (!$id) {
 			return false;
@@ -192,12 +192,12 @@ class QueuedTask extends QueueAppModel {
 		return (bool)$this->saveField('progress', round($progress, 2));
 	}
 
-	/**
-	 * Mark a job as Completed, removing it from the queue.
-	 *
-	 * @param integer $id
-	 * @return boolean Success
-	 */
+/**
+ * Mark a job as Completed, removing it from the queue.
+ *
+ * @param integer $id
+ * @return boolean Success
+ */
 	public function markJobDone($id) {
 		$fields = array(
 			$this->alias . '.completed' => "'" . date('Y-m-d H:i:s') . "'"
@@ -208,13 +208,13 @@ class QueuedTask extends QueueAppModel {
 		return $this->updateAll($fields, $conditions);
 	}
 
-	/**
-	 * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
-	 *
-	 * @param integer $id
-	 * @param string $failureMessage Optional message to append to the failure_message field.
-	 * @return boolean Success
-	 */
+/**
+ * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
+ *
+ * @param integer $id
+ * @param string $failureMessage Optional message to append to the failure_message field.
+ * @return boolean Success
+ */
 	public function markJobFailed($id, $failureMessage = null) {
 		$fields = array(
 			$this->alias . '.failed' => $this->alias . '.failed + 1',
@@ -226,13 +226,13 @@ class QueuedTask extends QueueAppModel {
 		return $this->updateAll($fields, $conditions);
 	}
 
-	/**
-	 * Returns the number of items in the Queue.
-	 * Either returns the number of ALL pending tasks, or the number of pending tasks of the passed Type
-	 *
-	 * @param string $type jobType to Count
-	 * @return integer Length
-	 */
+/**
+ * Returns the number of items in the Queue.
+ * Either returns the number of ALL pending tasks, or the number of pending tasks of the passed Type
+ *
+ * @param string $type jobType to Count
+ * @return integer Length
+ */
 	public function getLength($type = null) {
 		$findCond = array(
 			'conditions' => array(
@@ -245,11 +245,11 @@ class QueuedTask extends QueueAppModel {
 		return $this->find('count', $findCond);
 	}
 
-	/**
-	 * Return a list of all jobtypes in the Queue.
-	 *
-	 * @return array
-	 */
+/**
+ * Return a list of all jobtypes in the Queue.
+ *
+ * @return array
+ */
 	public function getTypes() {
 		$findCond = array(
 			'fields' => array(
@@ -262,12 +262,12 @@ class QueuedTask extends QueueAppModel {
 		return $this->find('list', $findCond);
 	}
 
-	/**
-	 * Return some statistics about finished jobs still in the Database.
-	 * //TODO: rewrite as virtual field
-	 *
-	 * @return array
-	 */
+/**
+ * Return some statistics about finished jobs still in the Database.
+ * //TODO: rewrite as virtual field
+ *
+ * @return array
+ */
 	public function getStats() {
 		$findCond = array(
 			'fields' => array(
@@ -283,11 +283,11 @@ class QueuedTask extends QueueAppModel {
 		return $this->find('all', $findCond);
 	}
 
-	/**
-	 * Cleanup/Delete Completed Jobs.
-	 *
-	 * @return void
-	 */
+/**
+ * Cleanup/Delete Completed Jobs.
+ *
+ * @return void
+ */
 	public function cleanOldJobs() {
 		$this->deleteAll(array(
 			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))
@@ -313,12 +313,12 @@ class QueuedTask extends QueueAppModel {
 		}
 	}
 
-	/**
-	 * QueuedTask::lastRun()
-	 *
-	 * @deprecated?
-	 * @return array
-	 */
+/**
+ * QueuedTask::lastRun()
+ *
+ * @deprecated?
+ * @return array
+ */
 	public function lastRun() {
 		$workerFileLog = LOGS . 'queue' . DS . 'runworker.txt';
 		if (file_exists($workerFileLog)) {
@@ -330,16 +330,16 @@ class QueuedTask extends QueueAppModel {
 		);
 	}
 
-	/**
-	 * QueuedTask::_findProgress()
-	 *
-	 * Custom find method, as in `find('progress', ...)`.
-	 *
-	 * @param string $state
-	 * @param array $query
-	 * @param array $results
-	 * @return array
-	 */
+/**
+ * QueuedTask::_findProgress()
+ *
+ * Custom find method, as in `find('progress', ...)`.
+ *
+ * @param string $state
+ * @param array $query
+ * @param array $results
+ * @return array
+ */
 	protected function _findProgress($state, $query = array(), $results = array()) {
 		if ($state === 'before') {
 			$query['fields'] = array(
@@ -377,12 +377,12 @@ class QueuedTask extends QueueAppModel {
 		return $results;
 	}
 
-	/**
-	 * QueuedTask::clearDoublettes()
-	 * //FIXME
-	 *
-	 * @return void
-	 */
+/**
+ * QueuedTask::clearDoublettes()
+ * //FIXME
+ *
+ * @return void
+ */
 	public function clearDoublettes() {
 		$x = $this->query('SELECT max(id) as id FROM `' . $this->tablePrefix . $this->table . '`
 	WHERE completed is null
@@ -400,13 +400,13 @@ class QueuedTask extends QueueAppModel {
 		}
 	}
 
-	/**
-	 * Generate a unique Identifier for the current worker thread.
-	 *
-	 * Useful to idendify the currently running processes for this thread.
-	 *
-	 * @return string Identifier
-	 */
+/**
+ * Generate a unique Identifier for the current worker thread.
+ *
+ * Useful to idendify the currently running processes for this thread.
+ *
+ * @return string Identifier
+ */
 	public function key() {
 		if ($this->_key !== null) {
 			return $this->_key;
@@ -415,13 +415,13 @@ class QueuedTask extends QueueAppModel {
 		return $this->_key;
 	}
 
-	/**
-	 * Cleanup (remove the identifier from the db records?)
-	 *
-	 * TODO: FIXME
-	 *
-	 * @return void
-	 */
+/**
+ * Cleanup (remove the identifier from the db records?)
+ *
+ * TODO: FIXME
+ *
+ * @return void
+ */
 	/*
 	public function __destruct() {
 		$this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "" WHERE workerkey = "' . $this->_key() . '" LIMIT 1');

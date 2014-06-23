@@ -23,21 +23,21 @@ class CronShell extends AppShell {
 		'Queue.CronTask'
 	);
 
-	/**
-	 * @var CronTask
-	 */
+/**
+ * @var CronTask
+ */
 	public $CronTask;
 
-	/**
-	 * @var array
-	 */
+/**
+ * @var array
+ */
 	protected $_taskConf;
 
-	/**
-	 * Overwrite shell initialize to dynamically load all Queue Related Tasks.
-	 *
-	 * @return void
-	 */
+/**
+ * Overwrite shell initialize to dynamically load all Queue Related Tasks.
+ *
+ * @return void
+ */
 	public function initialize() {
 		$this->_loadModels();
 
@@ -82,11 +82,11 @@ class CronShell extends AppShell {
 		), $conf));
 	}
 
-	/**
-	 * Output some basic usage Info.
-	 *
-	 * @return void
-	 */
+/**
+ * Output some basic usage Info.
+ *
+ * @return void
+ */
 	public function main() {
 		$this->out('CakePHP Cronjobs:');
 		$this->hr();
@@ -109,12 +109,12 @@ class CronShell extends AppShell {
 		}
 	}
 
-	/**
-	 * Look for a Queue Task of hte passed name and try to call add() on it.
-	 * A QueueTask may provide an add function to enable the user to create new jobs via commandline.
-	 *
-	 * @return void
-	 */
+/**
+ * Look for a Queue Task of hte passed name and try to call add() on it.
+ * A QueueTask may provide an add function to enable the user to create new jobs via commandline.
+ *
+ * @return void
+ */
 	public function add() {
 		if (count($this->args) < 1) {
 			$this->out('Please call like this:');
@@ -135,9 +135,9 @@ class CronShell extends AppShell {
 		}
 	}
 
-	/**
-	 * Select all active and due cronjobs and execute them
-	 */
+/**
+ * Select all active and due cronjobs and execute them
+ */
 	public function run() {
 		// Enable Garbage Collector (PHP >= 5.3)
 		if (function_exists('gc_enable')) {
@@ -145,11 +145,11 @@ class CronShell extends AppShell {
 		}
 	}
 
-	/**
-	 * Run a QueueWorker loop.
-	 * Runs a Queue Worker process which will try to find unassigned jobs in the queue
-	 * which it may run and try to fetch and execute them.
-	 */
+/**
+ * Run a QueueWorker loop.
+ * Runs a Queue Worker process which will try to find unassigned jobs in the queue
+ * which it may run and try to fetch and execute them.
+ */
 	public function runOld() {
 		// Enable Garbage Collector (PHP >= 5.3)
 		if (function_exists('gc_enable')) {
@@ -203,21 +203,21 @@ class CronShell extends AppShell {
 		}
 	}
 
-	/**
-	 * Manually trigger a Finished job cleanup.
-	 *
-	 * @return void
-	 */
+/**
+ * Manually trigger a Finished job cleanup.
+ *
+ * @return void
+ */
 	public function clean() {
 		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout')));
 		$this->CronTask->cleanOldJobs();
 	}
 
-	/**
-	 * Display Some statistics about Finished Jobs.
-	 *
-	 * @return void
-	 */
+/**
+ * Display Some statistics about Finished Jobs.
+ *
+ * @return void
+ */
 	public function stats() {
 		$this->out('Jobs currenty in the Queue:');
 
@@ -240,11 +240,11 @@ class CronShell extends AppShell {
 		}
 	}
 
-	/**
-	 * Returns a List of available QueueTasks and their individual configurations.
-	 *
-	 * @return array
-	 */
+/**
+ * Returns a List of available QueueTasks and their individual configurations.
+ *
+ * @return array
+ */
 	protected function _getTaskConf() {
 		if (!is_array($this->_taskConf)) {
 			$this->_taskConf = array();

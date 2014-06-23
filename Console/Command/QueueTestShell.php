@@ -34,11 +34,11 @@ class QueueTestShell extends AppShell {
 		}
 	}
 
-	/**
-	 * Test sending emails via CLI and Queue transport.
-	 *
-	 * @return void
-	 */
+/**
+ * Test sending emails via CLI and Queue transport.
+ *
+ * @return void
+ */
 	public function complete_email() {
 		App::uses('EmailLib', 'Tools.Lib');
 
