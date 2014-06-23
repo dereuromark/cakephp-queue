@@ -33,6 +33,8 @@ before_script:
       'persistent' => false,
     );
     }" > app/Config/database.php
+  - sh -c "if [ '$TRAVIS_PHP_VERSION' != '5.2' ]; then composer global require 'phpunit/phpunit=3.7.33'; fi"
+  - sh -c "if [ '$TRAVIS_PHP_VERSION' != '5.2' ]; then ln -s ~/.composer/vendor/phpunit/phpunit/PHPUnit ./vendors/PHPUnit; fi"
   - cd app
 script:
   - ../lib/Cake/Console/cake test Queue AllQueue --stderr
