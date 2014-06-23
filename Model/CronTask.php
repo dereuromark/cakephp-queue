@@ -81,6 +81,7 @@ class CronTask extends QueueAppModel {
  *
  * @param string $jobName QueueTask name
  * @param array $data any array
+ * @param string $notBefore notbefore time
  * @param string $group Used to group similar CronTasks
  * @param string $reference any array
  * @return boolean Success
@@ -99,6 +100,11 @@ class CronTask extends QueueAppModel {
 		return $this->save($data);
 	}
 
+/**
+ * onError handler
+ *
+ * @return void
+ */
 	public function onError() {
 		$this->exit = true;
 	}
@@ -201,7 +207,7 @@ class CronTask extends QueueAppModel {
 /**
  * Mark a job as Completed, removing it from the queue.
  *
- * @param integer $id
+ * @param integer $id job ID
  * @return boolean Success
  */
 	public function markJobDone($id) {
@@ -215,8 +221,9 @@ class CronTask extends QueueAppModel {
 /**
  * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
  *
- * @param integer $id
+ * @param integer $id job ID
  * @param string $failureMessage Optional message to append to the failure_message field.
+ * @return boolean Success
  */
 	public function markJobFailed($id, $failureMessage = null) {
 		$fields = array(
@@ -292,7 +299,7 @@ class CronTask extends QueueAppModel {
  */
 	public function cleanOldJobs() {
 		return;
-		//TODO
+		// implement this
 
 		return $this->deleteAll(array(
 			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))
