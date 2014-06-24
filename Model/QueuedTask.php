@@ -81,7 +81,7 @@ class QueuedTask extends QueueAppModel {
 	 * @return array Taskdata.
 	 */
 	public function requestJob($capabilities, $group = null) {
-		$idlist = array();
+		$whereClause = array();
 		$wasFetched = array();
 
 		$this->virtualFields['age'] = 'IFNULL(TIMESTAMPDIFF(SECOND, NOW(),notbefore), 0)';
@@ -143,7 +143,7 @@ class QueuedTask extends QueueAppModel {
 		// Generate a list of already fetched ID's and a where clause for the update statement
 		$capTimeout = Hash::combine($capabilities, '{s}.name', '{s}.timeout');
 		foreach ($data as $item) {
-			$idlist[] = '(id = ' . $item[$this->alias]['id'] . ' AND (workerkey IS NULL OR fetched <= "' . date('Y-m-d H:i:s', time() - $capTimeout[$item[$this->alias]['jobtype']]) . '"))';
+			$whereClause[] = '(id = ' . $item[$this->alias]['id'] . ' AND (workerkey IS NULL OR fetched <= "' . date('Y-m-d H:i:s', time() - $capTimeout[$item[$this->alias]['jobtype']]) . '"))';
 			if (!empty($item[$this->alias]['fetched'])) {
 				$wasFetched[] = $item[$this->alias]['id'];
 			}
@@ -153,7 +153,7 @@ class QueuedTask extends QueueAppModel {
 		//debug($key);ob_flush();
 
 		// try to update one of the found tasks with the key of this worker.
-		$this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE ' . implode(' OR ', $idlist) . ' ORDER BY ' . $this->virtualFields['age'] . ' ASC, id ASC LIMIT 1');
+		$this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE ' . implode(' OR ', $whereClause) . ' ORDER BY ' . $this->virtualFields['age'] . ' ASC, id ASC LIMIT 1');
 
 		// Read which one actually got updated, which is the job we are supposed to execute.
 		$data = $this->find('first', array(
