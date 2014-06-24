@@ -335,10 +335,10 @@ class QueuedTask extends QueueAppModel {
  *
  * Custom find method, as in `find('progress', ...)`.
  *
- * @param string $state
- * @param array $query
- * @param array $results
- * @return array
+ * @param string $state Current state
+ * @param array $query Parameters
+ * @param array $results Results
+ * @return array         Query/Results based on state
  */
 	protected function _findProgress($state, $query = array(), $results = array()) {
 		if ($state === 'before') {

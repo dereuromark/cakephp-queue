@@ -134,7 +134,7 @@ class QueueShell extends AppShell {
  * Output the task without Queue or Task
  * example: QueueImageTask becomes Image on display
  *
- * @param string $taskName
+ * @param string $task Taskname
  * @return string Cleaned task name
  */
 	protected function _taskName($task) {
@@ -374,6 +374,8 @@ class QueueShell extends AppShell {
 /**
  * Timestamped log.
  *
+ * @param string $type Log type
+ * @param integer $pid PID of the process
  * @return void
  */
 	protected function _log($type, $pid = null) {
@@ -439,7 +441,7 @@ class QueueShell extends AppShell {
 /**
  * Signal handling to queue worker for clean shutdown
  *
- * @param integer $signal
+ * @param integer $signal not used
  * @return void
  */
 	protected function _exit($signal) {

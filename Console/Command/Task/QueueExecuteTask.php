@@ -55,6 +55,8 @@ class QueueExecuteTask extends AppShell {
 /**
  * Add functionality.
  * Will create one example job in the queue, which later will be executed using run();
+ *
+ * @return void
  */
 	public function add() {
 		$this->out('CakePHP Queue Execute task.');

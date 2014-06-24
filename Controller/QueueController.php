@@ -35,6 +35,7 @@ class QueueController extends QueueAppController {
  * Truncate the queue list / table.
  *
  * @return void
+ * @throws MethodNotAllowedException when not posted
  */
 	public function admin_reset() {
 		if (!$this->Common->isPosted()) {

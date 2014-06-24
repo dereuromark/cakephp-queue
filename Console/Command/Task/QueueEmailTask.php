@@ -29,6 +29,11 @@ class QueueEmailTask extends AppShell {
 
 	public $Email;
 
+/**
+ * "Add" the task, not possible for QueueEmailTask
+ *
+ * @return void
+ */
 	public function add() {
 		$this->err('Queue Email Task cannot be added via Console.');
 		$this->out('Please use createJob() on the QueuedTask Model to create a Proper Email Task.');
@@ -50,7 +55,7 @@ class QueueEmailTask extends AppShell {
 /**
  * QueueEmailTask::run()
  *
- * @param mixed $data
+ * @param mixed $data Job data
  * @return boolean Success
  */
 	public function run($data) {
@@ -105,6 +110,13 @@ class QueueEmailTask extends AppShell {
 		return $this->Email->send($message);
 	}
 
+/**
+ * Log message
+ *
+ * @param array $contents log-data
+ * @param mixed $log int for loglevel, array for merge with log-data
+ * @return void
+ */
 	protected function _log($contents, $log) {
 		$config = array(
 			'level' => LOG_DEBUG,

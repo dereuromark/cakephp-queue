@@ -15,6 +15,11 @@ class QueueTestShell extends AppShell {
 		'Queue.QueuedTask'
 	);
 
+/**
+ * Test queue of email job
+ *
+ * @return void
+ */
 	public function email() {
 		$data = array(
 			'settings' => array(

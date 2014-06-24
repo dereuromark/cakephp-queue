@@ -306,6 +306,14 @@ class CronTask extends QueueAppModel {
 		));
 	}
 
+/**
+ * Custom find method, as in `find('progress', ...)`.
+ *
+ * @param string $state   Current state of find
+ * @param array  $query   Search-query
+ * @param array  $results Results
+ * @return mixed          Based on state
+ */
 	protected function _findProgress($state, $query = array(), $results = array()) {
 		if ($state === 'before') {
 
@@ -344,6 +352,12 @@ class CronTask extends QueueAppModel {
 		return $results;
 	}
 
+/**
+ * Return jobtypes
+ *
+ * @param mixed  $value value
+ * @return array        list of jobtypes
+ */
 	public static function jobtypes($value = null) {
 		$options = array(
 			self::TYPE_TASK => __('Task'),

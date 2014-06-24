@@ -137,6 +137,8 @@ class CronShell extends AppShell {
 
 /**
  * Select all active and due cronjobs and execute them
+ *
+ * @return void
  */
 	public function run() {
 		// Enable Garbage Collector (PHP >= 5.3)
@@ -149,6 +151,8 @@ class CronShell extends AppShell {
  * Run a QueueWorker loop.
  * Runs a Queue Worker process which will try to find unassigned jobs in the queue
  * which it may run and try to fetch and execute them.
+ *
+ * @return void
  */
 	public function runOld() {
 		// Enable Garbage Collector (PHP >= 5.3)

@@ -53,6 +53,8 @@ class QueueLongExampleTask extends AppShell {
 /**
  * Example add functionality.
  * Will create one example job in the queue, which later will be executed using run();
+ *
+ * @return void
  */
 	public function add() {
 		$this->out('CakePHP Queue LongExample task.');
@@ -83,7 +85,9 @@ class QueueLongExampleTask extends AppShell {
  * The return parameter will determine, if the task will be marked completed, or be requeued.
  *
  * @param array $data The array passed to QueuedTask->createJob()
+ * @param integer $id The id
  * @return boolean Success
+ * @throws RuntimeException when seconds are 0;
  */
 	public function run($data, $id = null) {
 		$this->hr();
