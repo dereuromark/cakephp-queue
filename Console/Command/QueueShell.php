@@ -49,7 +49,7 @@ class QueueShell extends AppShell {
 			}
 			$this->tasks = $res;
 		}
-		$plugins = App::objects('plugin');
+		$plugins = CakePlugin::loaded();
 		foreach ($plugins as $plugin) {
 			$pluginPaths = App::path('Console/Command/Task', $plugin);
 			foreach ($pluginPaths as $pluginPath) {
