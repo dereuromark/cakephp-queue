@@ -62,7 +62,7 @@ class QueuedTask extends QueueAppModel {
 			'group' => $group,
 			'reference' => $reference
 		);
-		if ($notBefore != null) {
+		if ($notBefore !== null) {
 			$data['notbefore'] = date('Y-m-d H:i:s', strtotime($notBefore));
 		}
 		$this->create();
