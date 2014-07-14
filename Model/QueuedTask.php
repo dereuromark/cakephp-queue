@@ -1,5 +1,6 @@
 <?php
 App::uses('QueueAppModel', 'Queue.Model');
+App::uses('Hash', 'Utility');
 
 /**
  * QueuedTask for queued tasks.
