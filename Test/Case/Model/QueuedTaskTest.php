@@ -351,12 +351,54 @@ class QueuedTaskTest extends CakeTestCase {
 		);
 
 		$this->assertTrue((bool)$this->QueuedTask->createJob('task1', '1'));
+
+		$this->QueuedTask->clearKey();
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEquals($tmp['jobtype'], 'task1');
 		$this->assertEquals('1', unserialize($tmp['data']));
 		$this->assertEquals($tmp['failed'], '0');
 		sleep(2);
 
+		$this->QueuedTask->clearKey();
+		$tmp = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEquals($tmp['jobtype'], 'task1');
+		$this->assertEquals('1', unserialize($tmp['data']));
+		$this->assertEquals($tmp['failed'], '1');
+		$this->assertEquals($tmp['failure_message'], 'Restart after timeout');
+	}
+
+	/**
+	 * Tests wheter the timeout of second tasks doesn't interfere with
+	 * requeue of tasks
+	 *
+	 * @return void
+	 */
+	public function testRequeueAfterTimeout2() {
+		$capabilities = array(
+			'task1' => array(
+				'name' => 'task1',
+				'timeout' => 1,
+				'retries' => 2,
+				'rate' => 0
+			),
+			'task2' => array(
+				'name' => 'task2',
+				'timeout' => 100,
+				'retries' => 2,
+				'rate' => 0
+			)
+		);
+
+		$this->assertTrue((bool)$this->QueuedTask->createJob('task1', '1'));
+
+		$this->QueuedTask->clearKey();
+		$tmp = $this->QueuedTask->requestJob($capabilities);
+		$this->assertEquals($tmp['jobtype'], 'task1');
+		$this->assertEquals('1', unserialize($tmp['data']));
+		$this->assertEquals($tmp['failed'], '0');
+		sleep(2);
+
+		$this->QueuedTask->clearKey();
 		$tmp = $this->QueuedTask->requestJob($capabilities);
 		$this->assertEquals($tmp['jobtype'], 'task1');
 		$this->assertEquals('1', unserialize($tmp['data']));
