@@ -85,9 +85,9 @@ class CronTasksController extends QueueAppController {
 /**
  * delete action
  *
- * @throws MethodNotAllowedException when method is not POST
  * @param integer $id CronTask ID
  * @return void
+ * @throws MethodNotAllowedException when method is not POST
  */
 	public function delete($id = null) {
 		if (!$this->Common->isPosted()) {
