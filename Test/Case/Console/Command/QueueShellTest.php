@@ -68,32 +68,21 @@ class QueueShellTest extends MyCakeTestCase {
 	}
 
 /**
- * QueueShellTest::testRunworker()
+ * QueueShellTest::testAddInexistent()
  *
  * @return void
  */
-	public function _testRunworker() {
-		$result = $this->QueueShell->runworker();
-		//debug($this->QueueShell->out);
-		$this->assertTrue(in_array('Looking for Job....', $this->QueueShell->out));
-	}
-
-	/**
-	 * QueueShellTest::testAddInexistent()
-	 *
-	 * @return void
-	 */
 	public function testAddInexistent() {
 		$this->QueueShell->args[] = 'Foo';
 		$result = $this->QueueShell->add();
 		$this->assertTrue(in_array('Error: Task not Found: Foo', $this->QueueShell->out));
 	}
 
-	/**
-	 * QueueShellTest::testAdd()
-	 *
-	 * @return void
-	 */
+/**
+ * QueueShellTest::testAdd()
+ *
+ * @return void
+ */
 	public function testAdd() {
 		$this->QueueShell->args[] = 'Example';
 		$result = $this->QueueShell->add();

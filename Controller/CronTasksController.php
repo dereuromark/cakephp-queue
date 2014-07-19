@@ -9,10 +9,6 @@ class CronTasksController extends QueueAppController {
 		parent::beforeFilter();
 	}
 
-/****************************************************************************************
- * USER functions
- ****************************************************************************************/
-
 	public function index() {
 		$this->CronTask->recursive = 0;
 		$cronTasks = $this->paginate();
@@ -59,6 +55,9 @@ class CronTasksController extends QueueAppController {
 		}
 	}
 
+/**
+ * @throws MethodNotAllowedException when method is not POST
+ */
 	public function delete($id = null) {
 		if (!$this->Common->isPosted()) {
 			throw new MethodNotAllowedException();
@@ -76,10 +75,6 @@ class CronTasksController extends QueueAppController {
 		$this->Common->flashMessage(__('record del %s not done exception', h($var)), 'error');
 		return $this->Common->autoRedirect(array('action' => 'index'));
 	}
-
-/****************************************************************************************
- * ADMIN functions
- ****************************************************************************************/
 
 	public function admin_index() {
 		$this->CronTask->recursive = 0;
@@ -126,7 +121,9 @@ class CronTasksController extends QueueAppController {
 			$this->request->data = $cronTask;
 		}
 	}
-
+/**
+ * @throws MethodNotAllowedException when method is not POST
+ */
 	public function admin_delete($id = null) {
 		if (!$this->Common->isPosted()) {
 			throw new MethodNotAllowedException();
@@ -144,13 +141,5 @@ class CronTasksController extends QueueAppController {
 		$this->Common->flashMessage(__('record del %s not done exception', h($var)), 'error');
 		return $this->Common->autoRedirect(array('action' => 'index'));
 	}
-
-/****************************************************************************************
- * protected/interal functions
- ****************************************************************************************/
-
-/****************************************************************************************
- * deprecated/test functions
- ****************************************************************************************/
 
 }

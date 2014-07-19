@@ -300,10 +300,7 @@ class CronTask extends QueueAppModel {
 	public function cleanOldJobs() {
 		return;
 		// implement this
-
-		return $this->deleteAll(array(
-			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))
-		));
+		// return $this->deleteAll(array('completed < ' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))));
 	}
 
 /**
@@ -355,7 +352,7 @@ class CronTask extends QueueAppModel {
 /**
  * Return jobtypes
  *
- * @param mixed  $value value
+ * @param  mixed $value value
  * @return array        list of jobtypes
  */
 	public static function jobtypes($value = null) {

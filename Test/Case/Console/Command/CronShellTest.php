@@ -5,11 +5,11 @@ class CronShellTest extends CakeTestCase {
 
 	public $Cron;
 
- 	public function setUp() {
- 		parent::setUp();
+	public function setUp() {
+		parent::setUp();
 
- 		$this->Cron = new CronShell();
- 	}
+		$this->Cron = new CronShell();
+	}
 
 /**
  * QueueShellTest::testObject()

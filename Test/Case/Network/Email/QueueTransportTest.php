@@ -36,7 +36,7 @@ class QueueTransportTest extends CakeTestCase {
  *
  * @return void
  */
-	public function _testSendWithEmailLib() {
+	public function notestSendWithEmailLib() {
 		$Email = new EmailLib();
 		$Email->from('noreply@cakephp.org', 'CakePHP Test');
 		$Email->to('cake@cakephp.org', 'CakePHP');

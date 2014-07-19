@@ -49,11 +49,12 @@ class QueuedTask extends QueueAppModel {
 /**
  * Add a new Job to the Queue.
  *
- * @param string $jobName QueueTask name
- * @param array $data any array
- * @param string $group Used to group similar QueuedTasks.
- * @param string $reference An optional reference string.
- * @return array Created Job array containing id, data, ...
+ * @param  string $jobName   QueueTask name
+ * @param  array  $data      any array
+ * @param  array  $notBefore optional date which must not be preceded
+ * @param  string $group     Used to group similar QueuedTasks.
+ * @param  string $reference An optional reference string.
+ * @return array             Created Job array containing id, data, ...
  */
 	public function createJob($jobName, $data = null, $notBefore = null, $group = null, $reference = null) {
 		$data = array(
@@ -69,6 +70,11 @@ class QueuedTask extends QueueAppModel {
 		return $this->save($data);
 	}
 
+/**
+ * Set exit to true on error
+ *
+ * @return void
+ */
 	public function onError() {
 		$this->exit = true;
 	}
@@ -183,7 +189,7 @@ class QueuedTask extends QueueAppModel {
 /**
  * QueuedTask::updateProgress()
  *
- * @param mixed $id
+ * @param integer $id ID of task
  * @param float $progress Value from 0 to 1
  * @return boolean Success
  */
@@ -198,7 +204,7 @@ class QueuedTask extends QueueAppModel {
 /**
  * Mark a job as Completed, removing it from the queue.
  *
- * @param integer $id
+ * @param integer $id ID of task
  * @return boolean Success
  */
 	public function markJobDone($id) {
@@ -214,6 +220,7 @@ class QueuedTask extends QueueAppModel {
 /**
  * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
  *
+ * @param integer $id ID of task
  * @param integer $id
  * @param string $failureMessage Optional message to append to the failure_message field.
  * @return boolean Success
@@ -267,7 +274,7 @@ class QueuedTask extends QueueAppModel {
 
 /**
  * Return some statistics about finished jobs still in the Database.
- * //TODO: rewrite as virtual field
+ * TO-DO: rewrite as virtual field
  *
  * @return array
  */
@@ -394,7 +401,8 @@ class QueuedTask extends QueueAppModel {
 
 		$start = 0;
 		$x = array_keys($x);
-		while ($start <= count($x)) {
+		$numX = count($x);
+		while ($start <= $numX) {
 			$this->deleteAll(array(
 				'id' => array_slice($x, $start, 10)
 			));
@@ -421,7 +429,7 @@ class QueuedTask extends QueueAppModel {
 /**
  * Cleanup (remove the identifier from the db records?)
  *
- * TODO: FIXME
+ * TO-DO: FIXME
  *
  * @return void
  */

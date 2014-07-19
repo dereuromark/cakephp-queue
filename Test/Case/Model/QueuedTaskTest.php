@@ -367,12 +367,12 @@ class QueuedTaskTest extends CakeTestCase {
 		$this->assertEquals($tmp['failure_message'], 'Restart after timeout');
 	}
 
-	/**
-	 * Tests wheter the timeout of second tasks doesn't interfere with
-	 * requeue of tasks
-	 *
-	 * @return void
-	 */
+/**
+ * Tests wheter the timeout of second tasks doesn't interfere with
+ * requeue of tasks
+ *
+ * @return void
+ */
 	public function testRequeueAfterTimeout2() {
 		$capabilities = array(
 			'task1' => array(
