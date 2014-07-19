@@ -31,6 +31,7 @@ before_script:
   - chmod -R 0777 ./app/tmp
   - sh -c "if [ '$PHPCS' = '1' ]; then pear channel-discover pear.cakephp.org; fi"
   - sh -c "if [ '$PHPCS' = '1' ]; then pear install --alldeps cakephp/CakePHP_CodeSniffer; fi"
+  - phpenv rehash
   - echo "<?php
     class DATABASE_CONFIG {
     public \$test = array(
@@ -44,8 +45,10 @@ before_script:
   - sh -c "if [ '$TRAVIS_PHP_VERSION' != '5.2' ]; then composer global require 'phpunit/phpunit=3.7.33'; fi"
   - sh -c "if [ '$TRAVIS_PHP_VERSION' != '5.2' ]; then ln -s ~/.composer/vendor/phpunit/phpunit/PHPUnit ./vendors/PHPUnit; fi"
   - cd app
+
 script:
-  - sh -c "if [ '$PHPCS' != '1' ]; then ../lib/Cake/Console/cake test Queue AllQueue --stderr; else cd ..; phpcs -p --extensions=php --standard=CakePHP ./plugins/Queue; fi"
+  - sh -c "if [ '$PHPCS' != '1' ]; then ../lib/Cake/Console/cake test Queue AllQueue --stderr; fi"
+  - sh -c "if [ '$PHPCS' = '1' ]; then cd ..; phpcs -p --extensions=php --standard=CakePHP ./plugins/Queue; fi"
 
 notifications:
   email: false
