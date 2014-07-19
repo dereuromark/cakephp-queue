@@ -15,7 +15,7 @@ matrix:
         - PHPCS=1
 
 before_script:
-  - git clone --depth 1 --branch $CAKE_VERSION git://github.com/cakephp/cakephp ../cakephp && cd ../cakephp
+  - sh -c "if [ '$PHPCS' != '1' ]; then git clone --depth 1 --branch $CAKE_VERSION git://github.com/cakephp/cakephp ../cakephp; else git clone --depth 1 --branch 2.6 git://github.com/cakephp/cakephp ../cakephp; fi" && cd ../cakephp
   - rm -R app
   - git clone --depth 1 --branch master git://github.com/dereuromark/tools-app app
   - git clone --depth 1 --branch master git://github.com/dereuromark/tools plugins/Tools
