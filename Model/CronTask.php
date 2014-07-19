@@ -352,8 +352,8 @@ class CronTask extends QueueAppModel {
 /**
  * Return jobtypes
  *
- * @param  mixed $value value
- * @return array        list of jobtypes
+ * @param mixed $value value
+ * @return array       list of jobtypes
  */
 	public static function jobtypes($value = null) {
 		$options = array(

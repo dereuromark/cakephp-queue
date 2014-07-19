@@ -49,12 +49,12 @@ class QueuedTask extends QueueAppModel {
 /**
  * Add a new Job to the Queue.
  *
- * @param  string $jobName   QueueTask name
- * @param  array  $data      any array
- * @param  array  $notBefore optional date which must not be preceded
- * @param  string $group     Used to group similar QueuedTasks.
- * @param  string $reference An optional reference string.
- * @return array             Created Job array containing id, data, ...
+ * @param string $jobName   QueueTask name
+ * @param array  $data      any array
+ * @param array  $notBefore optional date which must not be preceded
+ * @param string $group     Used to group similar QueuedTasks.
+ * @param string $reference An optional reference string.
+ * @return array            Created Job array containing id, data, ...
  */
 	public function createJob($jobName, $data = null, $notBefore = null, $group = null, $reference = null) {
 		$data = array(
@@ -221,7 +221,6 @@ class QueuedTask extends QueueAppModel {
  * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
  *
  * @param integer $id ID of task
- * @param integer $id
  * @param string $failureMessage Optional message to append to the failure_message field.
  * @return boolean Success
  */
