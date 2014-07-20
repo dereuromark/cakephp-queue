@@ -12,50 +12,52 @@ App::uses('AppShell', 'Console/Command');
  */
 class QueueSuperExampleTask extends AppShell {
 
-	/**
-	 * Adding the QueueTask Model
-	 *
-	 * @var array
-	 */
+/**
+ * Adding the QueueTask Model
+ *
+ * @var array
+ */
 	public $uses = array(
 		'Queue.QueuedTask'
 	);
 
-	/**
-	 * @var QueuedTask
-	 */
+/**
+ * @var QueuedTask
+ */
 	public $QueuedTask;
 
-	/**
-	 * Timeout for run, after which the Task is reassigned to a new worker.
-	 *
-	 * @var integer
-	 */
+/**
+ * Timeout for run, after which the Task is reassigned to a new worker.
+ *
+ * @var integer
+ */
 	public $timeout = 10;
 
-	/**
-	 * Number of times a failed instance of this task should be restarted before giving up.
-	 *
-	 * @var integer
-	 */
+/**
+ * Number of times a failed instance of this task should be restarted before giving up.
+ *
+ * @var integer
+ */
 	public $retries = 1;
 
-	/**
-	 * Stores any failure messages triggered during run()
-	 *
-	 * @var string
-	 */
+/**
+ * Stores any failure messages triggered during run()
+ *
+ * @var string
+ */
 	public $failureMessage = '';
 
-	/**
-	 * @var boolean
-	 */
+/**
+ * @var boolean
+ */
 	public $autoUnserialize = true;
 
-	/**
-	 * SuperExample add functionality.
-	 * Will create one example job in the queue, which later will be executed using run();
-	 */
+/**
+ * SuperExample add functionality.
+ * Will create one example job in the queue, which later will be executed using run();
+ *
+ * @return void
+ */
 	public function add() {
 		$this->out('CakePHP Queue SuperExample task.');
 		$this->hr();
@@ -70,7 +72,7 @@ class QueueSuperExampleTask extends AppShell {
 		$this->out('You can find the sourcecode of this task in: ');
 		$this->out(__FILE__);
 		$this->out(' ');
-		/**
+		/*
 		 * Adding a task of type 'example' with no additionally passed data
 		 */
 		if ($this->QueuedTask->createJob('SuperExample', null)) {
@@ -80,14 +82,14 @@ class QueueSuperExampleTask extends AppShell {
 		}
 	}
 
-	/**
-	 * SuperExample run function.
-	 * This function is executed, when a worker is executing a task.
-	 * The return parameter will determine, if the task will be marked completed, or be requeued.
-	 *
-	 * @param array $data The array passed to QueuedTask->createJob()
-	 * @return boolean Success
-	 */
+/**
+ * SuperExample run function.
+ * This function is executed, when a worker is executing a task.
+ * The return parameter will determine, if the task will be marked completed, or be requeued.
+ *
+ * @param array $data The array passed to QueuedTask->createJob()
+ * @return boolean Success
+ */
 	public function run($data) {
 		$this->hr();
 		$this->out('CakePHP Queue SuperExample task.');

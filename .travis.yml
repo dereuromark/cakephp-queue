@@ -8,8 +8,14 @@ env:
   - CAKE_VERSION=master
   - CAKE_VERSION=2.6
 
+matrix:
+  include:
+    - php: 5.4
+      env:
+        - PHPCS=1
+
 before_script:
-  - git clone --depth 1 --branch $CAKE_VERSION git://github.com/cakephp/cakephp ../cakephp && cd ../cakephp
+  - sh -c "if [ '$PHPCS' != '1' ]; then git clone --depth 1 --branch $CAKE_VERSION git://github.com/cakephp/cakephp ../cakephp; else git clone --depth 1 --branch 2.6 git://github.com/cakephp/cakephp ../cakephp; fi" && cd ../cakephp
   - rm -R app
   - git clone --depth 1 --branch master git://github.com/dereuromark/tools-app app
   - git clone --depth 1 --branch master git://github.com/dereuromark/tools plugins/Tools
@@ -23,6 +29,9 @@ before_script:
   - mkdir ./app/tmp/cache/persistent
   - mkdir ./app/tmp/cache/models
   - chmod -R 0777 ./app/tmp
+  - sh -c "if [ '$PHPCS' = '1' ]; then pear channel-discover pear.cakephp.org; fi"
+  - sh -c "if [ '$PHPCS' = '1' ]; then pear install --alldeps cakephp/CakePHP_CodeSniffer; fi"
+  - phpenv rehash
   - echo "<?php
     class DATABASE_CONFIG {
     public \$test = array(
@@ -36,8 +45,10 @@ before_script:
   - sh -c "if [ '$TRAVIS_PHP_VERSION' != '5.2' ]; then composer global require 'phpunit/phpunit=3.7.33'; fi"
   - sh -c "if [ '$TRAVIS_PHP_VERSION' != '5.2' ]; then ln -s ~/.composer/vendor/phpunit/phpunit/PHPUnit ./vendors/PHPUnit; fi"
   - cd app
+
 script:
-  - ../lib/Cake/Console/cake test Queue AllQueue --stderr
+  - sh -c "if [ '$PHPCS' != '1' ]; then ../lib/Cake/Console/cake test Queue AllQueue --stderr; fi"
+  - sh -c "if [ '$PHPCS' = '1' ]; then cd ..; phpcs -p --extensions=php --standard=CakePHP ./plugins/Queue; fi"
 
 notifications:
   email: false

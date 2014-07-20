@@ -8,11 +8,11 @@ App::uses('AppShell', 'Console/Command');
 
 class QueueEmailTask extends AppShell {
 
-	/**
-	 * List of default variables for EmailComponent
-	 *
-	 * @var array
-	 */
+/**
+ * List of default variables for EmailComponent
+ *
+ * @var array
+ */
 	public $defaults = array(
 		'to' => null,
 		'from' => null,
@@ -22,13 +22,18 @@ class QueueEmailTask extends AppShell {
 
 	public $retries = 1;
 
-	/**
-	 * @var boolean
-	 */
+/**
+ * @var boolean
+ */
 	public $autoUnserialize = true;
 
 	public $Email;
 
+/**
+ * "Add" the task, not possible for QueueEmailTask
+ *
+ * @return void
+ */
 	public function add() {
 		$this->err('Queue Email Task cannot be added via Console.');
 		$this->out('Please use createJob() on the QueuedTask Model to create a Proper Email Task.');
@@ -47,12 +52,12 @@ class QueueEmailTask extends AppShell {
 		$this->out('Alternativly, you can pass the whole EmailLib to directly use it.');
 	}
 
-	/**
-	 * QueueEmailTask::run()
-	 *
-	 * @param mixed $data
-	 * @return boolean Success
-	 */
+/**
+ * QueueEmailTask::run()
+ *
+ * @param mixed $data Job data
+ * @return boolean Success
+ */
 	public function run($data) {
 		if (!isset($data['settings'])) {
 			$this->err('Queue Email task called without settings data.');
@@ -105,6 +110,13 @@ class QueueEmailTask extends AppShell {
 		return $this->Email->send($message);
 	}
 
+/**
+ * Log message
+ *
+ * @param array $contents log-data
+ * @param mixed $log int for loglevel, array for merge with log-data
+ * @return void
+ */
 	protected function _log($contents, $log) {
 		$config = array(
 			'level' => LOG_DEBUG,

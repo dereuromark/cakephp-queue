@@ -5,23 +5,23 @@ class QueueController extends QueueAppController {
 
 	public $uses = array('Queue.QueuedTask');
 
-	/**
-	 * QueueController::beforeFilter()
-	 *
-	 * @return void
-	 */
+/**
+ * QueueController::beforeFilter()
+ *
+ * @return void
+ */
 	public function beforeFilter() {
 		$this->QueuedTask->initConfig();
 
 		parent::beforeFilter();
 	}
 
-	/**
-	 * Admin center.
-	 * Manage queues from admin backend (without the need to open ssh console window).
-	 *
-	 * @return void
-	 */
+/**
+ * Admin center.
+ * Manage queues from admin backend (without the need to open ssh console window).
+ *
+ * @return void
+ */
 	public function admin_index() {
 		$status = $this->_status();
 
@@ -31,11 +31,12 @@ class QueueController extends QueueAppController {
 		$this->set(compact('current', 'data', 'status'));
 	}
 
-	/**
-	 * Truncate the queue list / table.
-	 *
-	 * @return void
-	 */
+/**
+ * Truncate the queue list / table.
+ *
+ * @return void
+ * @throws MethodNotAllowedException when not posted
+ */
 	public function admin_reset() {
 		if (!$this->Common->isPosted()) {
 			throw new MethodNotAllowedException();
@@ -49,15 +50,15 @@ class QueueController extends QueueAppController {
 		return $this->Common->autoPostRedirect(array('action' => 'index'));
 	}
 
-	/**
-	 * QueueController::_status()
-	 *
-	 * If pid loggin is enabled, will return an array with
-	 * - time: int Timestamp
-	 * - workers: int Count of currently running workers
-	 *
-	 * @return array Status array
-	 */
+/**
+ * QueueController::_status()
+ *
+ * If pid loggin is enabled, will return an array with
+ * - time: int Timestamp
+ * - workers: int Count of currently running workers
+ *
+ * @return array Status array
+ */
 	protected function _status() {
 		if (!($pidFilePath = Configure::read('Queue.pidfilepath'))) {
 			return array();

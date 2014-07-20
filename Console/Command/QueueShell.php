@@ -21,23 +21,23 @@ class QueueShell extends AppShell {
 		'Queue.QueuedTask'
 	);
 
-	/**
-	 * @var QueuedTask
-	 */
+/**
+ * @var QueuedTask
+ */
 	public $QueuedTask;
 
-	/**
-	 * @var array
-	 */
+/**
+ * @var array
+ */
 	protected $_taskConf;
 
 	protected $_exit;
 
-	/**
-	 * Overwrite shell initialize to dynamically load all Queue Related Tasks.
-	 *
-	 * @return void
-	 */
+/**
+ * Overwrite shell initialize to dynamically load all Queue Related Tasks.
+ *
+ * @return void
+ */
 	public function initialize() {
 		$paths = App::path('Console/Command/Task');
 
@@ -67,11 +67,11 @@ class QueueShell extends AppShell {
 		$this->QueuedTask->initConfig();
 	}
 
-	/**
-	 * Output some basic usage Info.
-	 *
-	 * @return void
-	 */
+/**
+ * Output some basic usage Info.
+ *
+ * @return void
+ */
 	public function main() {
 		$this->out('CakePHP Queue Plugin:');
 		$this->hr();
@@ -98,12 +98,12 @@ class QueueShell extends AppShell {
 		}
 	}
 
-	/**
-	 * Look for a Queue Task of hte passed name and try to call add() on it.
-	 * A QueueTask may provide an add function to enable the user to create new jobs via commandline.
-	 *
-	 * @return void
-	 */
+/**
+ * Look for a Queue Task of hte passed name and try to call add() on it.
+ * A QueueTask may provide an add function to enable the user to create new jobs via commandline.
+ *
+ * @return void
+ */
 	public function add() {
 		if (count($this->args) < 1) {
 			$this->out('Please call like this:');
@@ -130,13 +130,13 @@ class QueueShell extends AppShell {
 		}
 	}
 
-	/**
-	 * Output the task without Queue or Task
-	 * example: QueueImageTask becomes Image on display
-	 *
-	 * @param string $taskName
-	 * @return string Cleaned task name
-	 */
+/**
+ * Output the task without Queue or Task
+ * example: QueueImageTask becomes Image on display
+ *
+ * @param string $task Taskname
+ * @return string Cleaned task name
+ */
 	protected function _taskName($task) {
 		if (strpos($task, 'Queue') === 0) {
 			return substr($task, 5);
@@ -144,13 +144,13 @@ class QueueShell extends AppShell {
 		return $task;
 	}
 
-	/**
-	 * Run a QueueWorker loop.
-	 * Runs a Queue Worker process which will try to find unassigned jobs in the queue
-	 * which it may run and try to fetch and execute them.
-	 *
-	 * @return void
-	 */
+/**
+ * Run a QueueWorker loop.
+ * Runs a Queue Worker process which will try to find unassigned jobs in the queue
+ * which it may run and try to fetch and execute them.
+ *
+ * @return void
+ */
 	public function runworker() {
 		if ($pidFilePath = Configure::read('Queue.pidfilepath')) {
 			if (!file_exists($pidFilePath)) {
@@ -249,21 +249,21 @@ class QueueShell extends AppShell {
 		}
 	}
 
-	/**
-	 * Manually trigger a Finished job cleanup.
-	 *
-	 * @return void
-	 */
+/**
+ * Manually trigger a Finished job cleanup.
+ *
+ * @return void
+ */
 	public function clean() {
 		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout')));
 		$this->QueuedTask->cleanOldJobs();
 	}
 
-	/**
-	 * Display current settings
-	 *
-	 * @return void
-	 */
+/**
+ * Display current settings
+ *
+ * @return void
+ */
 	public function settings() {
 		$this->out('Current Settings:');
 		$conf = (array)Configure::read('Queue');
@@ -272,11 +272,11 @@ class QueueShell extends AppShell {
 		}
 	}
 
-	/**
-	 * Display some statistics about Finished Jobs.
-	 *
-	 * @return void
-	 */
+/**
+ * Display some statistics about Finished Jobs.
+ *
+ * @return void
+ */
 	public function stats() {
 		$this->out('Jobs currenty in the Queue:');
 
@@ -299,25 +299,30 @@ class QueueShell extends AppShell {
 		}
 	}
 
-	/**
-	 * Set up tables
-	 *
-	 * @see readme
-	 * @return void
-	 */
+/**
+ * Set up tables
+ *
+ * @see readme
+ * @return void
+ */
 	public function install() {
 		$this->out('Run `cake Schema create -p Queue`');
 	}
 
-	/**
-	 * Remove table and kill workers
-	 *
-	 * @return void
-	 */
+/**
+ * Remove table and kill workers
+ *
+ * @return void
+ */
 	public function uninstall() {
 		$this->out('Remove all workers and then delete the two tables.');
 	}
 
+/**
+ * Get option parser method to parse commandline options
+ *
+ * @return OptionParser
+ */
 	public function getOptionParser() {
 		$subcommandParser = array(
 			'options' => array(
@@ -366,11 +371,13 @@ class QueueShell extends AppShell {
 			));
 	}
 
-	/**
-	 * Timestamped log.
-	 *
-	 * @return void
-	 */
+/**
+ * Timestamped log.
+ *
+ * @param string $type Log type
+ * @param integer $pid PID of the process
+ * @return void
+ */
 	protected function _log($type, $pid = null) {
 		# log?
 		if (Configure::read('Queue.log')) {
@@ -385,11 +392,11 @@ class QueueShell extends AppShell {
 		}
 	}
 
-	/**
-	 * Timestamped notification.
-	 *
-	 * @return void
-	 */
+/**
+ * Timestamped notification.
+ *
+ * @return void
+ */
 	protected function _notify() {
 		# log?
 		if (Configure::read('Queue.notify')) {
@@ -400,11 +407,11 @@ class QueueShell extends AppShell {
 		}
 	}
 
-	/**
-	 * Returns a List of available QueueTasks and their individual configurations.
-	 *
-	 * @return array
-	 */
+/**
+ * Returns a List of available QueueTasks and their individual configurations.
+ *
+ * @return array
+ */
 	protected function _getTaskConf() {
 		if (!is_array($this->_taskConf)) {
 			$this->_taskConf = array();
@@ -431,16 +438,21 @@ class QueueShell extends AppShell {
 		return $this->_taskConf;
 	}
 
-	/**
-	 * Signal handling to queue worker for clean shutdown
-	 *
-	 * @param integer $signal
-	 * @return void
-	 */
+/**
+ * Signal handling to queue worker for clean shutdown
+ *
+ * @param integer $signal not used
+ * @return void
+ */
 	protected function _exit($signal) {
 		$this->_exit = true;
 	}
 
+/**
+ * Destructor, removes pid-file
+ *
+ * @return void
+ */
 	public function __destruct() {
 		if ($pidFilePath = Configure::read('Queue.pidfilepath')) {
 			if (function_exists('posix_getpid')) {

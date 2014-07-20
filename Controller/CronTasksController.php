@@ -5,20 +5,32 @@ class CronTasksController extends QueueAppController {
 
 	public $paginate = array();
 
+/**
+ * beforeFilter action
+ *
+ * @return void
+ */
 	public function beforeFilter() {
 		parent::beforeFilter();
 	}
 
-/****************************************************************************************
- * USER functions
- ****************************************************************************************/
-
+/**
+ * index action
+ *
+ * @return void
+ */
 	public function index() {
 		$this->CronTask->recursive = 0;
 		$cronTasks = $this->paginate();
 		$this->set(compact('cronTasks'));
 	}
 
+/**
+ * view action
+ *
+ * @param integer $id CronTask ID
+ * @return void
+ */
 	public function view($id = null) {
 		if (empty($id) || !($cronTask = $this->CronTask->find('first', array('conditions' => array('CronTask.id' => $id))))) {
 			$this->Common->flashMessage(__('invalid record'), 'error');
@@ -27,6 +39,11 @@ class CronTasksController extends QueueAppController {
 		$this->set(compact('cronTask'));
 	}
 
+/**
+ * add action
+ *
+ * @return void
+ */
 	public function add() {
 		if ($this->Common->isPosted()) {
 			$this->CronTask->create();
@@ -40,6 +57,12 @@ class CronTasksController extends QueueAppController {
 		}
 	}
 
+/**
+ * edit action
+ *
+ * @param integer $id CronTask ID
+ * @return void
+ */
 	public function edit($id = null) {
 		if (empty($id) || !($cronTask = $this->CronTask->find('first', array('conditions' => array('CronTask.id' => $id))))) {
 			$this->Common->flashMessage(__('invalid record'), 'error');
@@ -59,6 +82,13 @@ class CronTasksController extends QueueAppController {
 		}
 	}
 
+/**
+ * delete action
+ *
+ * @param integer $id CronTask ID
+ * @return void
+ * @throws MethodNotAllowedException when method is not POST
+ */
 	public function delete($id = null) {
 		if (!$this->Common->isPosted()) {
 			throw new MethodNotAllowedException();
@@ -77,16 +107,23 @@ class CronTasksController extends QueueAppController {
 		return $this->Common->autoRedirect(array('action' => 'index'));
 	}
 
-/****************************************************************************************
- * ADMIN functions
- ****************************************************************************************/
-
+/**
+ * admin_index action
+ *
+ * @return void
+ */
 	public function admin_index() {
 		$this->CronTask->recursive = 0;
 		$cronTasks = $this->paginate();
 		$this->set(compact('cronTasks'));
 	}
 
+/**
+ * admin_view action
+ *
+ * @param integer $id CronTask ID
+ * @return void
+ */
 	public function admin_view($id = null) {
 		if (empty($id) || !($cronTask = $this->CronTask->find('first', array('conditions' => array('CronTask.id' => $id))))) {
 			$this->Common->flashMessage(__('invalid record'), 'error');
@@ -95,6 +132,11 @@ class CronTasksController extends QueueAppController {
 		$this->set(compact('cronTask'));
 	}
 
+/**
+ * admin_add action
+ *
+ * @return void
+ */
 	public function admin_add() {
 		if ($this->Common->isPosted()) {
 			$this->CronTask->create();
@@ -108,6 +150,12 @@ class CronTasksController extends QueueAppController {
 		}
 	}
 
+/**
+ * admin_edit action
+ *
+ * @param integer $id CronTask ID
+ * @return void
+ */
 	public function admin_edit($id = null) {
 		if (empty($id) || !($cronTask = $this->CronTask->find('first', array('conditions' => array('CronTask.id' => $id))))) {
 			$this->Common->flashMessage(__('invalid record'), 'error');
@@ -126,7 +174,13 @@ class CronTasksController extends QueueAppController {
 			$this->request->data = $cronTask;
 		}
 	}
-
+/**
+ * admin_delete action
+ *
+ * @param integer $id CronTask ID
+ * @return void
+ * @throws MethodNotAllowedException when method is not POST
+ */
 	public function admin_delete($id = null) {
 		if (!$this->Common->isPosted()) {
 			throw new MethodNotAllowedException();
@@ -144,13 +198,5 @@ class CronTasksController extends QueueAppController {
 		$this->Common->flashMessage(__('record del %s not done exception', h($var)), 'error');
 		return $this->Common->autoRedirect(array('action' => 'index'));
 	}
-
-/****************************************************************************************
- * protected/interal functions
- ****************************************************************************************/
-
-/****************************************************************************************
- * deprecated/test functions
- ****************************************************************************************/
 
 }

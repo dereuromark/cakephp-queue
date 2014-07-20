@@ -15,6 +15,11 @@ class QueueTestShell extends AppShell {
 		'Queue.QueuedTask'
 	);
 
+/**
+ * Test queue of email job
+ *
+ * @return void
+ */
 	public function email() {
 		$data = array(
 			'settings' => array(
@@ -34,11 +39,11 @@ class QueueTestShell extends AppShell {
 		}
 	}
 
-	/**
-	 * Test sending emails via CLI and Queue transport.
-	 *
-	 * @return void
-	 */
+/**
+ * Test sending emails via CLI and Queue transport.
+ *
+ * @return void
+ */
 	public function complete_email() {
 		App::uses('EmailLib', 'Tools.Lib');
 

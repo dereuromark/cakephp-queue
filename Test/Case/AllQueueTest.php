@@ -4,11 +4,11 @@
  */
 class AllQueueTest extends PHPUnit_Framework_TestSuite {
 
-	/**
-	 * Suite method, defines tests for this suite.
-	 *
-	 * @return void
-	 */
+/**
+ * Suite method, defines tests for this suite.
+ *
+ * @return void
+ */
 	public static function suite() {
 		$Suite = new CakeTestSuite('All Queue tests');
 		$path = dirname(__FILE__);

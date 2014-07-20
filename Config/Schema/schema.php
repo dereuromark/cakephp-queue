@@ -2,10 +2,22 @@
 
 class QueueSchema extends CakeSchema {
 
+/**
+ * Before handler
+ *
+ * @param array $event event
+ * @return bool always true
+ */
 	public function before($event = array()) {
 		return true;
 	}
 
+/**
+ * After handler
+ *
+ * @param array $event event
+ * @return void
+ */
 	public function after($event = array()) {
 	}
 
