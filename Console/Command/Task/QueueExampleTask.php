@@ -31,14 +31,14 @@ class QueueExampleTask extends AppShell {
 /**
  * Timeout for run, after which the Task is reassigned to a new worker.
  *
- * @var integer
+ * @var int
  */
 	public $timeout = 10;
 
 /**
  * Number of times a failed instance of this task should be restarted before giving up.
  *
- * @var integer
+ * @var int
  */
 	public $retries = 1;
 
@@ -50,7 +50,7 @@ class QueueExampleTask extends AppShell {
 	public $failureMessage = '';
 
 /**
- * @var boolean
+ * @var bool
  */
 	public $autoUnserialize = true;
 
@@ -89,7 +89,7 @@ class QueueExampleTask extends AppShell {
  * The return parameter will determine, if the task will be marked completed, or be requeued.
  *
  * @param array $data The array passed to QueuedTask->createJob()
- * @return boolean Success
+ * @return bool Success
  */
 	public function run($data) {
 		$this->hr();

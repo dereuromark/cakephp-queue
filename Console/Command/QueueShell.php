@@ -375,7 +375,7 @@ class QueueShell extends AppShell {
  * Timestamped log.
  *
  * @param string $type Log type
- * @param integer $pid PID of the process
+ * @param int $pid PID of the process
  * @return void
  */
 	protected function _log($type, $pid = null) {
@@ -441,7 +441,7 @@ class QueueShell extends AppShell {
 /**
  * Signal handling to queue worker for clean shutdown
  *
- * @param integer $signal not used
+ * @param int $signal not used
  * @return void
  */
 	protected function _exit($signal) {
@@ -451,7 +451,6 @@ class QueueShell extends AppShell {
 /**
  * Destructor, removes pid-file
  *
- * @return void
  */
 	public function __destruct() {
 		if ($pidFilePath = Configure::read('Queue.pidfilepath')) {

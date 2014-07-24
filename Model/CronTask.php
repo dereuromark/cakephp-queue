@@ -84,7 +84,7 @@ class CronTask extends QueueAppModel {
  * @param string $notBefore notbefore time
  * @param string $group Used to group similar CronTasks
  * @param string $reference any array
- * @return boolean Success
+ * @return bool Success
  */
 	public function createJob($jobName, $data, $notBefore = null, $group = null, $reference = null) {
 		$data = array(
@@ -207,8 +207,8 @@ class CronTask extends QueueAppModel {
 /**
  * Mark a job as Completed, removing it from the queue.
  *
- * @param integer $id job ID
- * @return boolean Success
+ * @param int $id job ID
+ * @return bool Success
  */
 	public function markJobDone($id) {
 		return $this->updateAll(array(
@@ -221,9 +221,9 @@ class CronTask extends QueueAppModel {
 /**
  * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
  *
- * @param integer $id job ID
+ * @param int $id job ID
  * @param string $failureMessage Optional message to append to the failure_message field.
- * @return boolean Success
+ * @return bool Success
  */
 	public function markJobFailed($id, $failureMessage = null) {
 		$fields = array(
@@ -241,7 +241,7 @@ class CronTask extends QueueAppModel {
  * Either returns the number of ALL pending tasks, or the number of pending tasks of the passed Type
  *
  * @param string $type jobType to Count
- * @return integer
+ * @return int
  */
 	public function getLength($type = null) {
 		$findConf = array(
@@ -295,7 +295,7 @@ class CronTask extends QueueAppModel {
 /**
  * Cleanup/Delete Completed Jobs.
  *
- * @return boolean Success
+ * @return bool Success
  */
 	public function cleanOldJobs() {
 		return;

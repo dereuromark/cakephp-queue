@@ -27,14 +27,14 @@ class QueueLongExampleTask extends AppShell {
 /**
  * Timeout for run, after which the Task is reassigned to a new worker.
  *
- * @var integer
+ * @var int
  */
 	public $timeout = 120;
 
 /**
  * Number of times a failed instance of this task should be restarted before giving up.
  *
- * @var integer
+ * @var int
  */
 	public $retries = 1;
 
@@ -46,7 +46,7 @@ class QueueLongExampleTask extends AppShell {
 	public $failureMessage = '';
 
 /**
- * @var boolean
+ * @var bool
  */
 	public $autoUnserialize = true;
 
@@ -85,8 +85,8 @@ class QueueLongExampleTask extends AppShell {
  * The return parameter will determine, if the task will be marked completed, or be requeued.
  *
  * @param array $data The array passed to QueuedTask->createJob()
- * @param integer $id The id
- * @return boolean Success
+ * @param int $id The id
+ * @return bool Success
  * @throws RuntimeException when seconds are 0;
  */
 	public function run($data, $id = null) {

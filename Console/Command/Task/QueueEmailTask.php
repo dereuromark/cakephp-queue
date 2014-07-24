@@ -23,7 +23,7 @@ class QueueEmailTask extends AppShell {
 	public $retries = 1;
 
 /**
- * @var boolean
+ * @var bool
  */
 	public $autoUnserialize = true;
 
@@ -56,7 +56,7 @@ class QueueEmailTask extends AppShell {
  * QueueEmailTask::run()
  *
  * @param mixed $data Job data
- * @return boolean Success
+ * @return bool Success
  */
 	public function run($data) {
 		if (!isset($data['settings'])) {

@@ -189,9 +189,9 @@ class QueuedTask extends QueueAppModel {
 /**
  * QueuedTask::updateProgress()
  *
- * @param integer $id ID of task
+ * @param int $id ID of task
  * @param float $progress Value from 0 to 1
- * @return boolean Success
+ * @return bool Success
  */
 	public function updateProgress($id, $progress) {
 		if (!$id) {
@@ -204,8 +204,8 @@ class QueuedTask extends QueueAppModel {
 /**
  * Mark a job as Completed, removing it from the queue.
  *
- * @param integer $id ID of task
- * @return boolean Success
+ * @param int $id ID of task
+ * @return bool Success
  */
 	public function markJobDone($id) {
 		$fields = array(
@@ -220,9 +220,9 @@ class QueuedTask extends QueueAppModel {
 /**
  * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
  *
- * @param integer $id ID of task
+ * @param int $id ID of task
  * @param string $failureMessage Optional message to append to the failure_message field.
- * @return boolean Success
+ * @return bool Success
  */
 	public function markJobFailed($id, $failureMessage = null) {
 		$fields = array(
@@ -240,7 +240,7 @@ class QueuedTask extends QueueAppModel {
  * Either returns the number of ALL pending tasks, or the number of pending tasks of the passed Type
  *
  * @param string $type jobType to Count
- * @return integer Length
+ * @return int Length
  */
 	public function getLength($type = null) {
 		$findCond = array(

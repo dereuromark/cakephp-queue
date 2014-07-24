@@ -28,7 +28,7 @@ class CronTasksController extends QueueAppController {
 /**
  * view action
  *
- * @param integer $id CronTask ID
+ * @param int $id CronTask ID
  * @return void
  */
 	public function view($id = null) {
@@ -60,7 +60,7 @@ class CronTasksController extends QueueAppController {
 /**
  * edit action
  *
- * @param integer $id CronTask ID
+ * @param int $id CronTask ID
  * @return void
  */
 	public function edit($id = null) {
@@ -85,7 +85,7 @@ class CronTasksController extends QueueAppController {
 /**
  * delete action
  *
- * @param integer $id CronTask ID
+ * @param int $id CronTask ID
  * @return void
  * @throws MethodNotAllowedException when method is not POST
  */
@@ -121,7 +121,7 @@ class CronTasksController extends QueueAppController {
 /**
  * admin_view action
  *
- * @param integer $id CronTask ID
+ * @param int $id CronTask ID
  * @return void
  */
 	public function admin_view($id = null) {
@@ -153,7 +153,7 @@ class CronTasksController extends QueueAppController {
 /**
  * admin_edit action
  *
- * @param integer $id CronTask ID
+ * @param int $id CronTask ID
  * @return void
  */
 	public function admin_edit($id = null) {
@@ -177,7 +177,7 @@ class CronTasksController extends QueueAppController {
 /**
  * admin_delete action
  *
- * @param integer $id CronTask ID
+ * @param int $id CronTask ID
  * @return void
  * @throws MethodNotAllowedException when method is not POST
  */
