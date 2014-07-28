@@ -68,7 +68,6 @@ class QueueEmailTask extends AppShell {
 			try {
 				$transport = $email->transportClass();
 				$config = $email->config();
-				//echo returns($config);
 				$transport->config($config);
 				$result = $transport->send($email);
 

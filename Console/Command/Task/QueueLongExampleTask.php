@@ -97,7 +97,6 @@ class QueueLongExampleTask extends AppShell {
 			throw new RuntimeException('Seconds need to be > 0');
 		}
 		$this->out('A total of ' . $seconds . ' seconds need to pass...');
-		echo returns($id);
 		for ($i = 0; $i < $seconds; $i++) {
 			sleep(1);
 			$this->QueuedTask->updateProgress($id, ($i + 1) / $seconds);
