@@ -94,6 +94,21 @@ class QueueShellTest extends MyCakeTestCase {
 		$this->assertTrue(in_array('Running Job of type "Example"', $this->QueueShell->out));
 	}
 
+	/**
+	 * QueueShellTest::testRetry()
+	 *
+	 * @return void
+	 */
+	public function testRetry() {
+		$this->QueueShell->args[] = 'RetryExample';
+		$result = $this->QueueShell->add();
+		$this->assertEmpty($this->QueueShell->out);
+
+		$result = $this->QueueShell->runworker();
+		//debug($this->QueueShell->out);
+		$this->assertTrue(in_array('Job did not finish, requeued.', $this->QueueShell->out));
+	}
+
 }
 
 class TestQueueShell extends QueueShell {

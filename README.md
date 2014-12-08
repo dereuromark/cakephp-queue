@@ -1,13 +1,16 @@
 # CakePHP Queue Plugin
+[![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.png)](https://travis-ci.org/dereuromark/cakephp-queue)
+[![License](https://poser.pugx.org/dereuromark/cakephp-queue/license.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
+[![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-queue/d/total.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
 
-modified by Mark Scherer (dereuromark)
-- cake2.x support
-- some minor fixes
-- added crontasks (as a different approach on specific problems)
-- possible Tools Plugin dependencies for frontend access via /admin/queue
+Modified by Mark Scherer (dereuromark)
+- CakePHP2.x support
+- Some minor fixes
+- Added crontasks (as a different approach on specific problems)
+- Possible (optional) Tools Plugin dependencies for frontend access via /admin/queue
 
-new:
-- config key "queue" is now "Queue" ($config['Queue'][...])
+New:
+- Config key "queue" is now "Queue" ($config['Queue'][...])
 
 
 ## Background:
@@ -35,13 +38,11 @@ The Queue Plugin provides a simple method to create and run such non-user-intera
 While you can run multiple workers, and can (to some extend) spread these workers to different machines via a shared database,
 you should seriously consider using a more advanced system for high volume/high number of workers systems.
 
-### Status
-[![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.png)](https://travis-ci.org/dereuromark/cakephp-queue)
-
-
 ## Installation:
 
 * Copy the files in this directory into APP/Plugin/Queue
+  Ideally, using composer and `require dereuromark/cakephp-queue`
+
 * Enable the plugin within your APP/Config/bootstrap.php (unless you loadAll)
 
 		CakePlugin::load('Queue');
