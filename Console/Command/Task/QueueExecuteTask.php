@@ -92,7 +92,11 @@ class QueueExecuteTask extends AppShell {
  * @return bool Success
  */
 	public function run($data) {
-		$command = escapeshellcmd($data['command']) . ' ' . implode(' ', $data['params']);
+		$command = escapeshellcmd($data['command']);
+		if (!empty($data['params'])) {
+			$command .= ' ' . implode(' ', $data['params']);
+		}
+		
 		$this->out('Executing: ' . $command);
 		exec($command, $output, $status);
 		$this->out(' ');
