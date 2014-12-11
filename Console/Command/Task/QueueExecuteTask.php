@@ -71,8 +71,8 @@ class QueueExecuteTask extends AppShell {
 		} else {
 
 			$data = array(
-				'command' => $this->args[1],
-				'params' => array_slice($this->args, 2)
+				'command' => $this->args[0],
+				'params' => array_slice($this->args, 1)
 			);
 			if ($this->QueuedTask->createJob('Execute', $data)) {
 				$this->out('Job created');
