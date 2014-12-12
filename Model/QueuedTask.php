@@ -225,12 +225,13 @@ class QueuedTask extends QueueAppModel {
  * @return bool Success
  */
 	public function markJobFailed($id, $failureMessage = null) {
+		$db = $this->getDataSource();
 		$fields = array(
 			$this->alias . '.failed' => $this->alias . '.failed + 1',
-			$this->alias . '.failure_message' => $failureMessage,
+			$this->alias . '.failure_message' => $db->value($failureMessage),
 		);
 		$conditions = array(
-			$this->alias . '.id' => $id
+			$this->alias . '.id' => (integer) $id
 		);
 		return $this->updateAll($fields, $conditions);
 	}
