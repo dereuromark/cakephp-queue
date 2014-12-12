@@ -226,9 +226,10 @@ class CronTask extends QueueAppModel {
  * @return bool Success
  */
 	public function markJobFailed($id, $failureMessage = null) {
+		$db = $this->getDataSource();
 		$fields = array(
 			'failed' => "failed + 1",
-			'failure_message' => $failureMessage
+			'failure_message' => $db->value($failureMessage)
 		);
 		$conditions = array(
 			'id' => $id

@@ -231,7 +231,7 @@ class QueuedTask extends QueueAppModel {
 			$this->alias . '.failure_message' => $db->value($failureMessage),
 		);
 		$conditions = array(
-			$this->alias . '.id' => (integer) $id
+			$this->alias . '.id' => $id
 		);
 		return $this->updateAll($fields, $conditions);
 	}
