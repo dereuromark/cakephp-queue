@@ -1,5 +1,5 @@
 <div class="page index">
-<h2><?php echo __('Cron Tasks');?></h2>
+<h2><?php echo __d('queue', 'Cron Tasks');?></h2>
 
 <table class="list">
 <tr>
@@ -9,7 +9,7 @@
 	<th><?php echo $this->Paginator->sort('completed');?></th>
 	<th><?php echo $this->Paginator->sort('failed');?></th>
 	<th><?php echo $this->Paginator->sort('status');?></th>
-	<th class="actions"><?php echo __('Actions');?></th>
+	<th class="actions"><?php echo __d('queue', 'Actions');?></th>
 </tr>
 <?php
 $i = 0;
@@ -49,7 +49,7 @@ foreach ($cronTasks as $cronTask):
 		<td class="actions">
 			<?php echo $this->Html->link($this->Format->icon('view'), array('action'=>'view', $cronTask['CronTask']['id']), array('escape'=>false)); ?>
 			<?php echo $this->Html->link($this->Format->icon('edit'), array('action'=>'edit', $cronTask['CronTask']['id']), array('escape'=>false)); ?>
-			<?php echo $this->Form->postLink($this->Format->icon('delete'), array('action'=>'delete', $cronTask['CronTask']['id']), array('escape'=>false), __('Are you sure you want to delete # %s?', $cronTask['CronTask']['id'])); ?>
+			<?php echo $this->Form->postLink($this->Format->icon('delete'), array('action'=>'delete', $cronTask['CronTask']['id']), array('escape'=>false), __d('queue', 'Are you sure you want to delete # %s?', $cronTask['CronTask']['id'])); ?>
 		</td>
 	</tr>
 <?php endforeach; ?>
@@ -64,6 +64,6 @@ foreach ($cronTasks as $cronTask):
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(__('Add %s', __('Cron Task')), array('action' => 'add')); ?></li>
+		<li><?php echo $this->Html->link(__d('queue', 'Add %s', __d('queue', 'Cron Task')), array('action' => 'add')); ?></li>
 	</ul>
 </div>

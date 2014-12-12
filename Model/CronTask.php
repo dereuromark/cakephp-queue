@@ -357,8 +357,8 @@ class CronTask extends QueueAppModel {
  */
 	public static function jobtypes($value = null) {
 		$options = array(
-			self::TYPE_TASK => __('Task'),
-			self::TYPE_MODEL => __('Model (Method)'),
+			self::TYPE_TASK => __d('queue', 'Task'),
+			self::TYPE_MODEL => __d('queue', 'Model (Method)'),
 		);
 		return parent::enum($value, $options);
 	}

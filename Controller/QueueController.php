@@ -43,9 +43,9 @@ class QueueController extends QueueAppController {
 		}
 		$res = $this->QueuedTask->truncate();
 		if ($res) {
-			$this->Common->flashMessage('OK', 'success');
+			$this->Common->flashMessage(__d('queue', 'OK'), 'success');
 		} else {
-			$this->Common->flashMessage(__('Error'), 'success');
+			$this->Common->flashMessage(__d('queue', 'Error'), 'success');
 		}
 		return $this->Common->autoPostRedirect(array('action' => 'index'));
 	}
