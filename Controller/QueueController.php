@@ -38,14 +38,12 @@ class QueueController extends QueueAppController {
  * @throws MethodNotAllowedException when not posted
  */
 	public function admin_reset() {
-		if (!$this->Common->isPosted()) {
-			throw new MethodNotAllowedException();
-		}
+		$this->request->allowMethod('post');
 		$res = $this->QueuedTask->truncate();
 		if ($res) {
-			$this->Common->flashMessage(__d('queue', 'OK'), 'success');
+			$this->Flash->message(__d('queue', 'OK'), 'success');
 		} else {
-			$this->Common->flashMessage(__d('queue', 'Error'), 'success');
+			$this->Flash->message(__d('queue', 'Error'), 'success');
 		}
 		return $this->Common->autoPostRedirect(array('action' => 'index'));
 	}
