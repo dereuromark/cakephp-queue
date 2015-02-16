@@ -15,6 +15,9 @@
 		"php": ">=5.3.0",
 		"composer/installers": "*"
 	},
+	"suggest": {
+		"dereuromark/cakephp-tools": "For the Email lib and QueueEmailTask. Or write your own task here."
+	},
 	"support": {
 		"source": "https://github.com/dereuromark/cakephp-queue"
 	},

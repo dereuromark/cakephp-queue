@@ -6,7 +6,7 @@
  */
 
 App::uses('QueuedTask', 'Queue.Model');
-App::uses('MyCakeTestCase', 'Tools.TestSuite');
+App::uses('CakeTestCase', 'TestSuite');
 
 class QueuedTaskTest extends CakeTestCase {
 

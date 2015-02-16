@@ -1,9 +1,9 @@
 <?php
 
 App::uses('QueueShell', 'Queue.Console/Command');
-App::uses('MyCakeTestCase', 'Tools.TestSuite');
+App::uses('CakeTestCase', 'TestSuite');
 
-class QueueShellTest extends MyCakeTestCase {
+class QueueShellTest extends CakeTestCase {
 
 	public $QueueShell;
 
