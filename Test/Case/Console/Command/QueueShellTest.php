@@ -25,7 +25,7 @@ class QueueShellTest extends MyCakeTestCase {
 
 		Configure::write('Queue', array(
 			'sleeptime' => 2,
-			'gcprop' => 10,
+			'gcprob' => 10,
 			'defaultworkertimeout' => 3,
 			'defaultworkerretries' => 1,
 			'workermaxruntime' => 5,

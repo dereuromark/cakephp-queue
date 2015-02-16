@@ -237,7 +237,7 @@ class QueueShell extends AppShell {
 					$this->_exit = true;
 					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('Queue.workermaxruntime') . '), terminating.');
 				}
-				if ($this->_exit || rand(0, 100) > (100 - Configure::read('Queue.gcprop'))) {
+				if ($this->_exit || rand(0, 100) > (100 - Configure::read('Queue.gcprob'))) {
 					$this->out('Performing Old job cleanup.');
 					$this->QueuedTask->cleanOldJobs();
 				}

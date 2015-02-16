@@ -73,7 +73,7 @@ class CronShell extends AppShell {
 			'cleanuptimeout' => MONTH,
 		/*
 			'sleeptime' => 10,
-			'gcprop' => 10,
+			'gcprob' => 10,
 			'defaultworkertimeout' => 120,
 			'defaultworkerretries' => 4,
 
@@ -198,7 +198,7 @@ class CronShell extends AppShell {
 					$exit = true;
 					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('Queue.maxruntime') . '), terminating.');
 				}
-				if ($exit || rand(0, 100) > (100 - Configure::read('Queue.gcprop'))) {
+				if ($exit || rand(0, 100) > (100 - Configure::read('Queue.gcprob'))) {
 					$this->out('Performing Old job cleanup.');
 					$this->CronTask->cleanOldJobs();
 				}
