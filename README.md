@@ -3,14 +3,14 @@
 [![License](https://poser.pugx.org/dereuromark/cakephp-queue/license.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
 [![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-queue/d/total.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
 
-Modified by Mark Scherer (dereuromark)
+Modified by Mark Scherer ([dereuromark](https://github.com/dereuromark))
 - CakePHP2.x support
 - Some minor fixes
 - Added crontasks (as a different approach on specific problems)
 - Possible (optional) Tools Plugin dependencies for frontend access via /admin/queue
 - Config key "queue" is now "Queue" ($config['Queue'][...])
 
-Added by Christian Charukiewicz (charukiewicz):
+Added by Christian Charukiewicz ([charukiewicz](https://github.com/charukiewicz)):
 - Configuration option 'gcprop' is now 'gcprob'
 - Fixed typo in README and variable name (Propability -> Probability)
 - Added a few lines about createJob() usage to README
