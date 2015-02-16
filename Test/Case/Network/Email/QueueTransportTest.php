@@ -10,7 +10,7 @@ App::uses('QueueTransport', 'Queue.Network/Email');
  */
 class QueueTransportTest extends CakeTestCase {
 
-	public $fixtures = array('plugin.queue.queued_task');
+	public $fixtures = ['plugin.queue.queued_task'];
 
 /**
  * Setup
@@ -40,7 +40,7 @@ class QueueTransportTest extends CakeTestCase {
 		$Email = new EmailLib();
 		$Email->from('noreply@cakephp.org', 'CakePHP Test');
 		$Email->to('cake@cakephp.org', 'CakePHP');
-		$Email->cc(array('mark@cakephp.org' => 'Mark Story', 'juan@cakephp.org' => 'Juan Basso'));
+		$Email->cc(['mark@cakephp.org' => 'Mark Story', 'juan@cakephp.org' => 'Juan Basso']);
 		$Email->bcc('phpnut@cakephp.org');
 		$Email->subject('Testing Message');
 		$Email->transport('Queue.Queue');
@@ -56,7 +56,7 @@ class QueueTransportTest extends CakeTestCase {
 	}
 
 	public function testSendLiveEmail() {
-		ClassRegistry::init(array('class' => 'Queue.QueuedTask', 'table' => 'queued_tasks', 'prefix' => 'site_'));
+		ClassRegistry::init(['class' => 'Queue.QueuedTask', 'table' => 'queued_tasks', 'prefix' => 'site_']);
 
 		Configure::write('debug', 0);
 		$Email = new EmailLib();

@@ -4,7 +4,7 @@ App::uses('MyCakeTestCase', 'Tools.TestSuite');
 
 class CronTaskTest extends MyCakeTestCase {
 
-	public $fixtures = array('core.user');
+	public $fixtures = ['core.user'];
 
 	public function setUp() {
 		parent::setUp();

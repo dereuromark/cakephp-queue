@@ -17,9 +17,9 @@ class QueueSuperExampleTask extends AppShell {
  *
  * @var array
  */
-	public $uses = array(
+	public $uses = [
 		'Queue.QueuedTask'
-	);
+	];
 
 /**
  * @var QueuedTask

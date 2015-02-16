@@ -7,74 +7,74 @@ App::uses('QueueAppModel', 'Queue.Model');
  */
 class CronTask extends QueueAppModel {
 
-	public $rateHistory = array();
+	public $rateHistory = [];
 
 	public $exit = false;
 
-	public $findMethods = array(
+	public $findMethods = [
 		'progress' => true
-	);
+	];
 
 	public $displayField = 'title';
 
-	public $order = array('CronTask.created' => 'DESC');
+	public $order = ['CronTask.created' => 'DESC'];
 
-	public $validate = array(
-		'jobtype' => array(
-			'notempty' => array(
-				'rule' => array('notempty'),
+	public $validate = [
+		'jobtype' => [
+			'notempty' => [
+				'rule' => ['notempty'],
 				'message' => 'valErrMandatoryField',
-			),
-		),
-		'name' => array(
-			'notempty' => array(
-				'rule' => array('notempty'),
+			],
+		],
+		'name' => [
+			'notempty' => [
+				'rule' => ['notempty'],
 				'message' => 'valErrMandatoryField',
 				'last' => true
-			),
-			'isUnique' => array(
-				'rule' => array('isUnique'),
+			],
+			'isUnique' => [
+				'rule' => ['isUnique'],
 				'message' => 'valErrRecordNameExists',
 				'last' => true
-			),
-		),
-		'title' => array(
-			'notempty' => array(
-				'rule' => array('notempty'),
+			],
+		],
+		'title' => [
+			'notempty' => [
+				'rule' => ['notempty'],
 				'message' => 'valErrMandatoryField',
 				'last' => true
-			),
-			'isUnique' => array(
-				'rule' => array('isUnique'),
+			],
+			'isUnique' => [
+				'rule' => ['isUnique'],
 				'message' => 'valErrRecordNameExists',
 				'last' => true
-			),
-		),
-		'failed' => array(
-			'numeric' => array(
-				'rule' => array('numeric'),
+			],
+		],
+		'failed' => [
+			'numeric' => [
+				'rule' => ['numeric'],
 				'message' => 'valErrMandatoryField',
-			),
-		),
-		'status' => array(
-			'numeric' => array(
-				'rule' => array('numeric'),
+			],
+		],
+		'status' => [
+			'numeric' => [
+				'rule' => ['numeric'],
 				'message' => 'valErrMandatoryField',
-			),
-		),
-		'interval' => array(
-			'numeric' => array(
-				'rule' => array('numeric'),
+			],
+		],
+		'interval' => [
+			'numeric' => [
+				'rule' => ['numeric'],
 				'message' => 'valErrMandatoryField',
 				'last' => true
-			),
-			'numeric' => array(
-				'rule' => array('range', 1, 8900000),
+			],
+			'numeric' => [
+				'rule' => ['range', 1, 8900000],
 				'message' => 'valErrInvalidRange',
 				'last' => true
-			),
-		),
-	);
+			],
+		],
+	];
 
 /**
  * Add a new Job to the Queue
@@ -87,12 +87,12 @@ class CronTask extends QueueAppModel {
  * @return bool Success
  */
 	public function createJob($jobName, $data, $notBefore = null, $group = null, $reference = null) {
-		$data = array(
+		$data = [
 			'jobtype' => $jobName,
 			'data' => serialize($data),
 			'group' => $group,
 			'reference' => $reference
-		);
+		];
 		if ($notBefore != null) {
 			$data['notbefore'] = date('Y-m-d H:i:s', strtotime($notBefore));
 		}
@@ -118,25 +118,25 @@ class CronTask extends QueueAppModel {
  * @return array Taskdata.
  */
 	public function requestJob($capabilities, $group = null) {
-		$idlist = array();
-		$wasFetched = array();
+		$idlist = [];
+		$wasFetched = [];
 
-		$findConf = array(
-			'conditions' => array(
+		$findConf = [
+			'conditions' => [
 				'completed' => null,
-				'OR' => array()
-			),
-			'fields' => array(
+				'OR' => []
+			],
+			'fields' => [
 				'id',
 				'fetched',
 				'timediff(NOW(),notbefore) AS age'
-			),
-			'order' => array(
+			],
+			'order' => [
 				'age DESC',
 				'id ASC'
-			),
+			],
 			'limit' => 3
-		);
+		];
 
 		if ($group !== null) {
 			$findConf['conditions']['group'] = $group;
@@ -144,24 +144,24 @@ class CronTask extends QueueAppModel {
 
 		// generate the task specific conditions.
 		foreach ($capabilities as $task) {
-			$tmp = array(
+			$tmp = [
 				'jobtype' => str_replace('queue_', '', $task['name']),
-				'AND' => array(
-					array(
-						'OR' => array(
+				'AND' => [
+					[
+						'OR' => [
 							'notbefore <' => date('Y-m-d H:i:s'),
 							'notbefore' => null
-						)
-					),
-					array(
-						'OR' => array(
+						]
+					],
+					[
+						'OR' => [
 							'fetched <' => date('Y-m-d H:i:s', time() - $task['timeout']),
 							'fetched' => null
-						)
-					)
-				),
+						]
+					]
+				],
 				'failed <' => ($task['retries'] + 1)
-			);
+			];
 			if (array_key_exists('rate', $task) && array_key_exists($tmp['jobtype'], $this->rateHistory)) {
 				$tmp['NOW() >='] = date('Y-m-d H:i:s', $this->rateHistory[$tmp['jobtype']] + $task['rate']);
 			}
@@ -170,7 +170,7 @@ class CronTask extends QueueAppModel {
 		// First, find a list of a few of the oldest unfinished tasks.
 		$data = $this->find('all', $findConf);
 		if (empty($data)) {
-			return array();
+			return [];
 		}
 
 		// generate a list of their ID's
@@ -185,13 +185,13 @@ class CronTask extends QueueAppModel {
 		// try to update one of the found tasks with the key of this worker.
 		$this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE id in(' . implode(',', $idlist) . ') AND (workerkey IS null OR     fetched <= "' . date('Y-m-d H:i:s', time() - $task['timeout']) . '") ORDER BY timediff(NOW(),notbefore) DESC LIMIT 1');
 		// read which one actually got updated, which is the job we are supposed to execute.
-		$data = $this->find('first', array(
-			'conditions' => array(
+		$data = $this->find('first', [
+			'conditions' => [
 				'workerkey' => $key
-			)
-		));
+			]
+		]);
 		if (empty($data)) {
-			return array();
+			return [];
 		}
 		// if the job had an existing fetched timestamp, increment the failure counter
 		if (in_array($data[$this->name]['id'], $wasFetched)) {
@@ -211,11 +211,11 @@ class CronTask extends QueueAppModel {
  * @return bool Success
  */
 	public function markJobDone($id) {
-		return $this->updateAll(array(
+		return $this->updateAll([
 			'completed' => "'" . date('Y-m-d H:i:s') . "'"
-		), array(
+		], [
 			'id' => $id
-		));
+		]);
 	}
 
 /**
@@ -227,13 +227,13 @@ class CronTask extends QueueAppModel {
  */
 	public function markJobFailed($id, $failureMessage = null) {
 		$db = $this->getDataSource();
-		$fields = array(
+		$fields = [
 			'failed' => "failed + 1",
 			'failure_message' => $db->value($failureMessage)
-		);
-		$conditions = array(
+		];
+		$conditions = [
 			'id' => $id
-		);
+		];
 		return $this->updateAll($fields, $conditions);
 	}
 
@@ -245,11 +245,11 @@ class CronTask extends QueueAppModel {
  * @return int
  */
 	public function getLength($type = null) {
-		$findConf = array(
-			'conditions' => array(
+		$findConf = [
+			'conditions' => [
 				'completed' => null
-			)
-		);
+			]
+		];
 		if ($type !== null) {
 			$findConf['conditions']['jobtype'] = $type;
 		}
@@ -262,14 +262,14 @@ class CronTask extends QueueAppModel {
  * @return array
  */
 	public function getTypes() {
-		$findConf = array(
-			'fields' => array(
+		$findConf = [
+			'fields' => [
 				'jobtype'
-			),
-			'group' => array(
+			],
+			'group' => [
 				'jobtype'
-			)
-		);
+			]
+		];
 		return $this->find('list', $findConf);
 	}
 
@@ -279,17 +279,17 @@ class CronTask extends QueueAppModel {
  * @return array
  */
 	public function getStats() {
-		$findConf = array(
-			'fields' => array(
+		$findConf = [
+			'fields' => [
 				'jobtype,count(id) as num, AVG(UNIX_TIMESTAMP(completed)-UNIX_TIMESTAMP(created)) AS alltime, AVG(UNIX_TIMESTAMP(completed)-UNIX_TIMESTAMP(fetched)) AS runtime, AVG(UNIX_TIMESTAMP(fetched)-IF(notbefore is null,UNIX_TIMESTAMP(created),UNIX_TIMESTAMP(notbefore))) AS fetchdelay'
-			),
-			'conditions' => array(
+			],
+			'conditions' => [
 				'completed NOT' => null
-			),
-			'group' => array(
+			],
+			'group' => [
 				'jobtype'
-			)
-		);
+			]
+		];
 		return $this->find('all', $findConf);
 	}
 
@@ -312,24 +312,24 @@ class CronTask extends QueueAppModel {
  * @param array  $results Results
  * @return mixed          Based on state
  */
-	protected function _findProgress($state, $query = array(), $results = array()) {
+	protected function _findProgress($state, $query = [], $results = []) {
 		if ($state === 'before') {
 
-			$query['fields'] = array(
+			$query['fields'] = [
 				$this->alias . '.reference',
 				'(CASE WHEN ' . $this->alias . '.notbefore > NOW() THEN \'NOT_READY\' WHEN ' . $this->alias . '.fetched IS null THEN \'NOT_STARTED\' WHEN ' . $this->alias . '.fetched IS NOT null AND ' . $this->alias . '.completed IS null AND ' . $this->alias . '.failed = 0 THEN \'IN_PROGRESS\' WHEN ' . $this->alias . '.fetched IS NOT null AND ' . $this->alias . '.completed IS null AND ' . $this->alias . '.failed > 0 THEN \'FAILED\' WHEN ' . $this->alias . '.fetched IS NOT null AND ' . $this->alias . '.completed IS NOT null THEN \'COMPLETED\' ELSE \'UNKNOWN\' END) AS status',
 				$this->alias . '.failure_message'
-			);
+			];
 			if (isset($query['conditions']['exclude'])) {
 				$exclude = $query['conditions']['exclude'];
 				unset($query['conditions']['exclude']);
 				$exclude = trim($exclude, ',');
 				$exclude = explode(',', $exclude);
-				$query['conditions'][] = array(
-					'NOT' => array(
+				$query['conditions'][] = [
+					'NOT' => [
 						'reference' => $exclude
-					)
-				);
+					]
+				];
 			}
 			if (isset($query['conditions']['group'])) {
 				$query['conditions'][][$this->alias . '.group'] = $query['conditions']['group'];
@@ -339,10 +339,10 @@ class CronTask extends QueueAppModel {
 		}
 		// state === after
 		foreach ($results as $k => $result) {
-			$results[$k] = array(
+			$results[$k] = [
 				'reference' => $result[$this->alias]['reference'],
 				'status' => $result[0]['status']
-			);
+			];
 			if (!empty($result[$this->alias]['failure_message'])) {
 				$results[$k]['failure_message'] = $result[$this->alias]['failure_message'];
 			}
@@ -357,10 +357,10 @@ class CronTask extends QueueAppModel {
  * @return array       list of jobtypes
  */
 	public static function jobtypes($value = null) {
-		$options = array(
+		$options = [
 			self::TYPE_TASK => __d('queue', 'Task'),
 			self::TYPE_MODEL => __d('queue', 'Model (Method)'),
-		);
+		];
 		return parent::enum($value, $options);
 	}
 

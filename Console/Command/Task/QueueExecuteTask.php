@@ -17,9 +17,9 @@ class QueueExecuteTask extends AppShell {
  *
  * @var array
  */
-	public $uses = array(
+	public $uses = [
 		'Queue.QueuedTask'
-	);
+	];
 
 /**
  * @var QueuedTask
@@ -70,10 +70,10 @@ class QueueExecuteTask extends AppShell {
 			$this->out(' ');
 		} else {
 
-			$data = array(
+			$data = [
 				'command' => $this->args[1],
 				'params' => array_slice($this->args, 2)
-			);
+			];
 			if ($this->QueuedTask->createJob('Execute', $data)) {
 				$this->out('Job created');
 			} else {

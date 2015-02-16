@@ -19,9 +19,9 @@ App::uses('AppShell', 'Console/Command');
  */
 class CronShell extends AppShell {
 
-	public $uses = array(
+	public $uses = [
 		'Queue.CronTask'
-	);
+	];
 
 /**
  * @var CronTask
@@ -68,7 +68,7 @@ class CronShell extends AppShell {
 
 		$conf = (array)Configure::read('Queue');
 		//merge with default configuration vars.
-		Configure::write('Queue', array_merge(array(
+		Configure::write('Queue', array_merge([
 			'maxruntime' => DAY,
 			'cleanuptimeout' => MONTH,
 		/*
@@ -79,7 +79,7 @@ class CronShell extends AppShell {
 
 			'exitwhennothingtodo' => false
 		*/
-		), $conf));
+		], $conf));
 	}
 
 /**
@@ -251,7 +251,7 @@ class CronShell extends AppShell {
  */
 	protected function _getTaskConf() {
 		if (!is_array($this->_taskConf)) {
-			$this->_taskConf = array();
+			$this->_taskConf = [];
 			foreach ($this->tasks as $task) {
 				$this->_taskConf[$task]['name'] = $task;
 				if (property_exists($this->{$task}, 'timeout')) {

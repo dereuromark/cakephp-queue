@@ -17,9 +17,9 @@ class QueueExampleTask extends AppShell {
  *
  * @var array
  */
-	public $uses = array(
+	public $uses = [
 		'Queue.QueuedTask'
-	);
+	];
 
 /**
  * ZendStudio Codecomplete Hint

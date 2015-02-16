@@ -8,7 +8,7 @@
  */
 
 
-$config['Queue'] = array(
+$config['Queue'] = [
 	// seconds to sleep() when no executable job is found
 	'sleeptime' => 10,
 
@@ -38,4 +38,4 @@ $config['Queue'] = array(
 
 	// set to false to disable (tmp = file in TMP dir)
 	'notify' => 'tmp'
-);
+];

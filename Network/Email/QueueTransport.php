@@ -21,7 +21,7 @@ class QueueTransport extends AbstractTransport {
 	public function send(CakeEmail $email) {
 		if (!empty($this->_config['queue'])) {
 			$this->_config = $this->_config['queue'] + $this->_config;
-			$email->config((array)$this->_config['queue'] + array('queue' => array()));
+			$email->config((array)$this->_config['queue'] + ['queue' => []]);
 			unset($this->_config['queue']);
 		}
 
@@ -29,7 +29,7 @@ class QueueTransport extends AbstractTransport {
 		$email->transport($transport);
 
 		$QueuedTask = ClassRegistry::init('Queue.QueuedTask');
-		$result = $QueuedTask->createJob('Email', array('transport' => $transport, 'settings' => $email));
+		$result = $QueuedTask->createJob('Email', ['transport' => $transport, 'settings' => $email]);
 		$result['headers'] = '';
 		$result['message'] = '';
 		return $result;

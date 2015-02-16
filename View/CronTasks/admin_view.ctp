@@ -50,8 +50,8 @@
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Html->link(__d('queue', 'Edit %s', __d('queue', 'Cron Task')), array('action' => 'edit', $cronTask['CronTask']['id'])); ?> </li>
-		<li><?php echo $this->Form->postLink(__d('queue', 'Delete %s', __d('queue', 'Cron Task')), array('action' => 'delete', $cronTask['CronTask']['id']), null, __d('queue', 'Are you sure you want to delete # %s?', $cronTask['CronTask']['id'])); ?> </li>
-		<li><?php echo $this->Html->link(__d('queue', 'List %s', __d('queue', 'Cron Tasks')), array('action' => 'index')); ?> </li>
+		<li><?php echo $this->Html->link(__d('queue', 'Edit %s', __d('queue', 'Cron Task')), ['action' => 'edit', $cronTask['CronTask']['id']]); ?> </li>
+		<li><?php echo $this->Form->postLink(__d('queue', 'Delete %s', __d('queue', 'Cron Task')), ['action' => 'delete', $cronTask['CronTask']['id']], null, __d('queue', 'Are you sure you want to delete # %s?', $cronTask['CronTask']['id'])); ?> </li>
+		<li><?php echo $this->Html->link(__d('queue', 'List %s', __d('queue', 'Cron Tasks')), ['action' => 'index']); ?> </li>
 	</ul>
 </div>
