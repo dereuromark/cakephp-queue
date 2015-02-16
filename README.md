@@ -61,9 +61,9 @@ You may create a file called "queue.php" inside your 'APP/Config' folder (NOT th
 
 		$config['Queue']['sleeptime'] = 10;
 
-- Propability in percent of a old job cleanup happening
+- Probability in percent of a old job cleanup happening
 
-		$config['Queue']['gcprop'] = 10;
+		$config['Queue']['gcprob'] = 10;
 
 - Default timeout after which a job is requeued if the worker doesn't report back
 
@@ -108,8 +108,10 @@ Run the following using the CakePHP shell:
 	The worker will always try to find jobs matching its installed Tasks.
 
 
-Most tasks you will not trigger from the console, but the actual APP code.
-Use the model access for QueueTask to do that:
+Some tasks will not be triggered from the console, but from the APP code.
+You will need to use the model access for QueueTask and the createJob() function to do this.
+
+The `createJob()` function takes two arguments.  The first argument is the name of the type of job that you are creating.  The second argument can take any format and will be passed as a parameter to the `run()` function of the worker.
 
 For sending emails, for example:
 
