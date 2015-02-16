@@ -8,9 +8,13 @@ Modified by Mark Scherer (dereuromark)
 - Some minor fixes
 - Added crontasks (as a different approach on specific problems)
 - Possible (optional) Tools Plugin dependencies for frontend access via /admin/queue
-
-New:
 - Config key "queue" is now "Queue" ($config['Queue'][...])
+
+Added by Christian Charukiewicz (charukiewicz):
+- Configuration option 'gcprop' is now 'gcprob'
+- Fixed typo in README and variable name (Propability -> Probability)
+- Added a few lines about createJob() usage to README
+- Added comments to queue.php explaining configuration options
 
 
 ## Background:
