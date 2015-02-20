@@ -172,7 +172,7 @@ class QueuedTask extends QueueAppModel {
 			),
 		));
 
-		if(isset($find_jobs)){
+		if(isset($find_jobs['QueuedTask'])){
 			$find_jobs['QueuedTask']['workerkey'] = $key;
 			$find_jobs['QueuedTask']['fetched'] = date('Y-m-d H:i:s');
 
