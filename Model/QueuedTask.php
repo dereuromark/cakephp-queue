@@ -166,17 +166,21 @@ class QueuedTask extends QueueAppModel {
 
 		// try to update one of the found tasks with the key of this worker.
 		// $this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE ' . implode(' OR ', $whereClause) . ' ORDER BY ' . $this->virtualFields['age'] . ' ASC, id ASC LIMIT 1');
-		$find_jobs = $this->find('first', array(
-			'conditions' => array(
+
+		$find_jobs_to_update = $this->find('first', [
+			'conditions' => [
 				'OR' => $whereClause
-			),
-		));
+			],
+			'order' => [
+				$this->virtualFields['age'] => 'ASC',
+			],
+		]);
 
-		if(isset($find_jobs['QueuedTask'])){
-			$find_jobs['QueuedTask']['workerkey'] = $key;
-			$find_jobs['QueuedTask']['fetched'] = date('Y-m-d H:i:s');
+		if(isset($find_jobs_to_update[$this->alias])){
+			$find_jobs_to_update[$this->alias]['workerkey'] = $key;
+			$find_jobs_to_update[$this->alias]['fetched'] = date('Y-m-d H:i:s');
 
-			$this->save($find_jobs);
+			$this->save($find_jobs_to_update);
 		}
 
 		// Read which one actually got updated, which is the job we are supposed to execute.
