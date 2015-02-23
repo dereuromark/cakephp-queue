@@ -88,7 +88,7 @@ You may create a file called "queue.php" inside your 'APP/Config' folder (NOT th
 
 		$config['Queue']['exitwhennothingtodo'] = false;
 
-- Minimum number of seconds before cleanup runs. Defaults to 0 for the Queue worker, or 2592000 for the Cron worker.
+- Minimum number of seconds before a cleanup run will remove a completed task. Defaults to 0 for the Queue worker, or 2592000 for the Cron worker.
 
 		$config['Queue']['cleanuptimeout'] = 2592000; // 30 days
 
