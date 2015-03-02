@@ -49,6 +49,7 @@ class QueueSchema extends CakeSchema {
 		'created' => ['type' => 'datetime', 'null' => false, 'default' => null],
 		'notbefore' => ['type' => 'datetime', 'null' => true, 'default' => null],
 		'fetched' => ['type' => 'datetime', 'null' => true, 'default' => null],
+		'progress' => ['type' => 'float', 'null' => true, 'default' => null, 'length' => '3,2'],
 		'completed' => ['type' => 'datetime', 'null' => true, 'default' => null],
 		'failed' => ['type' => 'integer', 'null' => false, 'default' => '0', 'length' => 3],
 		'failure_message' => ['type' => 'text', 'null' => true, 'default' => null, 'collate' => 'utf8_unicode_ci', 'charset' => 'utf8'],
