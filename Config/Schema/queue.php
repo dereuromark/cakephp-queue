@@ -71,6 +71,12 @@ class QueueSchema extends CakeSchema {
 			'null' => true,
 			'default' => null
 		],
+		'progress' => [
+			'type' => 'float',
+			'null' => true,
+			'default' => null,
+			'length' => '3,2'
+		],
 		'completed' => [
 			'type' => 'datetime',
 			'null' => true,
