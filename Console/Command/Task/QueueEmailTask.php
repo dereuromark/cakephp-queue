@@ -56,9 +56,10 @@ class QueueEmailTask extends AppShell {
  * QueueEmailTask::run()
  *
  * @param mixed $data Job data
+ * @param int $id The id of the QueuedTask
  * @return bool Success
  */
-	public function run($data) {
+	public function run($data, $id = null) {
 		if (!isset($data['settings'])) {
 			$this->err('Queue Email task called without settings data.');
 			return false;
