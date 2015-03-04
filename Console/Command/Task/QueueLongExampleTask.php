@@ -85,7 +85,7 @@ class QueueLongExampleTask extends AppShell {
  * The return parameter will determine, if the task will be marked completed, or be requeued.
  *
  * @param array $data The array passed to QueuedTask->createJob()
- * @param int $id The id
+ * @param int $id The id of the QueuedTask
  * @return bool Success
  * @throws RuntimeException when seconds are 0;
  */

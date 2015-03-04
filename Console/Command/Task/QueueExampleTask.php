@@ -89,9 +89,10 @@ class QueueExampleTask extends AppShell {
  * The return parameter will determine, if the task will be marked completed, or be requeued.
  *
  * @param array $data The array passed to QueuedTask->createJob()
+ * @param int $id The id of the QueuedTask
  * @return bool Success
  */
-	public function run($data) {
+	public function run($data, $id = null) {
 		$this->hr();
 		$this->out('CakePHP Queue Example task.');
 		$this->hr();
