@@ -394,7 +394,7 @@ class QueuedTask extends QueueAppModel {
 		foreach ($results as $k => $result) {
 			$results[$k] = [
 				'reference' => $result[$this->alias]['reference'],
-				'status' => $result[0]['status']
+				'status' => $result[$this->alias]['status']
 			];
 			if (!empty($result[$this->alias]['progress'])) {
 				$results[$k]['progress'] = $result[$this->alias]['progress'];
