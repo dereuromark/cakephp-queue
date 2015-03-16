@@ -77,7 +77,7 @@ class QueueExecuteTask extends QueueTask {
  * @param array $data The array passed to QueuedTask->createJob()
  * @return bool Success
  */
-	public function run($data) {
+	public function run($data, $id = null) {
 		$command = escapeshellcmd($data['command']);
 		if (!empty($data['params'])) {
 			$command .= ' ' . implode(' ', $data['params']);
