@@ -4,22 +4,13 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-App::uses('AppShell', 'Console/Command');
+App::uses('QueueTask', 'Queue.Console/Command/Task');
 
 /**
  * A Simple QueueTask example.
  *
  */
-class QueueSuperExampleTask extends AppShell {
-
-/**
- * Adding the QueueTask Model
- *
- * @var array
- */
-	public $uses = [
-		'Queue.QueuedTask'
-	];
+class QueueSuperExampleTask extends QueueTask {
 
 /**
  * @var QueuedTask
@@ -46,11 +37,6 @@ class QueueSuperExampleTask extends AppShell {
  * @var string
  */
 	public $failureMessage = '';
-
-/**
- * @var bool
- */
-	public $autoUnserialize = true;
 
 /**
  * SuperExample add functionality.
@@ -88,10 +74,9 @@ class QueueSuperExampleTask extends AppShell {
  * The return parameter will determine, if the task will be marked completed, or be requeued.
  *
  * @param array $data The array passed to QueuedTask->createJob()
- * @param int $id The id of the QueuedTask
  * @return bool Success
  */
-	public function run($data, $id = null) {
+	public function run($data) {
 		$this->hr();
 		$this->out('CakePHP Queue SuperExample task.');
 		$this->hr();

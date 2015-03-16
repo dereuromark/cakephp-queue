@@ -4,22 +4,13 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-App::uses('AppShell', 'Console/Command');
+App::uses('QueueTask', 'Queue.Console/Command/Task');
 
 /**
  * Execute a Local command on the server.
  *
  */
-class QueueExecuteTask extends AppShell {
-
-/**
- * Adding the QueueTask Model
- *
- * @var array
- */
-	public $uses = [
-		'Queue.QueuedTask'
-	];
+class QueueExecuteTask extends QueueTask {
 
 /**
  * @var QueuedTask
@@ -46,11 +37,6 @@ class QueueExecuteTask extends AppShell {
  * @var string
  */
 	public $failureMessage = '';
-
-/**
- * @var bool
- */
-	public $autoUnserialize = true;
 
 /**
  * Add functionality.
@@ -89,15 +75,14 @@ class QueueExecuteTask extends AppShell {
  * The return parameter will determine, if the task will be marked completed, or be requeued.
  *
  * @param array $data The array passed to QueuedTask->createJob()
- * @param int $id The id of the QueuedTask
  * @return bool Success
  */
-	public function run($data, $id = null) {
+	public function run($data) {
 		$command = escapeshellcmd($data['command']);
 		if (!empty($data['params'])) {
 			$command .= ' ' . implode(' ', $data['params']);
 		}
-		
+
 		$this->out('Executing: ' . $command);
 		exec($command, $output, $status);
 		$this->out(' ');
