@@ -26,9 +26,10 @@ class QueueController extends QueueAppController {
 		$status = $this->_status();
 
 		$current = $this->QueuedTask->getLength();
+		$pendingDetails = $this->QueuedTask->getPendingStats();
 		$data = $this->QueuedTask->getStats();
 
-		$this->set(compact('current', 'data', 'status'));
+		$this->set(compact('current', 'data', 'pendingDetails', 'status'));
 		$this->helpers[] = 'Tools.Format';
 		$this->helpers[] = 'Tools.Datetime';
 	}
