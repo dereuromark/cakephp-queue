@@ -143,7 +143,7 @@ Important: Do not forget to set your [domain](http://book.cakephp.org/2.0/en/cor
 Also note that you dont need to add the type ("Task"): `cake Queue.Queue add SpecialExample` for QueueSpecialExampleTask.
 
 Custom tasks should be placed in APP/Console/Command/Task.
-Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact.
+Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact. Custom tasks should extend the `QueueTask` class (you will need to include this at the top of your custom task file: `App::uses('QueueTask', 'Queue.Console/Command/Task')`).
 
 Plugin tasks go in APP/Plugin/PluginName/Console/Command/Task.
 
