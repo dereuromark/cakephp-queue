@@ -44,13 +44,6 @@ class QueueController extends QueueAppController {
 		$this->request->allowMethod('post');
 		$res = $this->QueuedTask->truncate();
 		
-		$useToolsPlugin = false;
-		try {
-			@$this->Flash = $this->Components->load('Tools.Flash');
-			$useToolsPlugin = true;
-		} catch (Exception $e) {
-		}			
-		
 		if ($res) {
 			$message = __d('queue', 'OK');
 			$class = 'success';
@@ -59,7 +52,7 @@ class QueueController extends QueueAppController {
 			$class = 'error';
 		}
 		
-		if ($useToolsPlugin) {
+		if (isset($this->Flash)) {
 			$this->Flash->message($message, $class);
 		} else {
 			$this->Session->setFlash($message, 'default', array('class' => $class));
