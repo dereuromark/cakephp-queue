@@ -26,9 +26,10 @@ class QueueController extends QueueAppController {
 		$status = $this->_status();
 
 		$current = $this->QueuedTask->getLength();
+		$pendingDetails = $this->QueuedTask->getPendingStats();
 		$data = $this->QueuedTask->getStats();
 
-		$this->set(compact('current', 'data', 'status'));
+		$this->set(compact('current', 'data', 'pendingDetails', 'status'));
 		$this->helpers[] = 'Tools.Format';
 		$this->helpers[] = 'Tools.Datetime';
 	}
@@ -43,11 +44,11 @@ class QueueController extends QueueAppController {
 		$this->request->allowMethod('post');
 		$res = $this->QueuedTask->truncate();
 		if ($res) {
-			$this->Flash->message(__d('queue', 'OK'), 'success');
+			$this->Session->setFlash(__d('queue', 'OK'));
 		} else {
-			$this->Flash->message(__d('queue', 'Error'), 'success');
+			$this->Session->setFlash(__d('queue', 'Error'));
 		}
-		return $this->Common->autoPostRedirect(['action' => 'index']);
+		return $this->redirect(['action' => 'index']);
 	}
 
 /**
