@@ -309,6 +309,30 @@ class QueuedTask extends QueueAppModel {
 	}
 
 /**
+ * Return some statistics about unfinished jobs still in the Database.
+ *
+ * @return array
+ */
+	public function getPendingStats() {
+		$findCond = [
+			'fields' => [
+				'jobtype',
+				'created',
+				'status',
+				'fetched',
+				'progress',
+				'reference',
+				'failed',
+				'failure_message'
+			],
+			'conditions' => [
+				'completed' => null
+			]
+		];
+		return $this->find('all', $findCond);
+	}
+
+/**
  * Cleanup/Delete Completed Jobs.
  *
  * @return void
@@ -443,6 +467,15 @@ class QueuedTask extends QueueAppModel {
 		}
 		$this->_key = sha1(microtime());
 		return $this->_key;
+	}
+
+/**
+ * Truncate table.
+ *
+ * @return array Query results
+ */
+	public function truncate() {
+		return $this->query('TRUNCATE TABLE `' . $this->tablePrefix . $this->table . '`');
 	}
 
 /**

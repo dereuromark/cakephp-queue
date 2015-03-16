@@ -20,6 +20,22 @@ n/a
  echo $current;
 ?> task(s) await processing
 
+<ol>
+<?php
+foreach ($pendingDetails as $item) {
+	echo '<li>'.$item['QueuedTask']['jobtype'] . " (" . $item['QueuedTask']['reference'] . "):";
+	echo '<ul>';
+		echo '<li>Created: '.$item['QueuedTask']['created'].'</li>';
+		echo '<li>Fetched: '.$item['QueuedTask']['fetched'].'</li>';
+		echo '<li>Status: '.$item['QueuedTask']['status'].'</li>';
+		echo '<li>Progress: '.$this->Number->toPercentage($item['QueuedTask']['progress']).'</li>';
+		echo '<li>Failures: '.$item['QueuedTask']['failed'].'</li>';
+		echo '<li>Failure Message: '.$item['QueuedTask']['failure_message'].'</li>';
+	echo '</ul>';
+	echo '</li>';
+}
+?>
+</ol>
 
 <h3><?php echo __d('queue', 'Statistics'); ?></h3>
 <ul>
