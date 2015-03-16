@@ -4,22 +4,13 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-App::uses('AppShell', 'Console/Command');
+App::uses('QueueTask', 'Queue.Console/Command/Task');
 
 /**
  * A Simple QueueTask example.
  *
  */
-class QueueRetryExampleTask extends AppShell {
-
-/**
- * Adding the QueueTask Model
- *
- * @var array
- */
-	public $uses = [
-		'Queue.QueuedTask'
-	];
+class QueueRetryExampleTask extends QueueTask {
 
 /**
  * ZendStudio Codecomplete Hint
@@ -48,11 +39,6 @@ class QueueRetryExampleTask extends AppShell {
  * @var string
  */
 	public $failureMessage = '';
-
-/**
- * @var bool
- */
-	public $autoUnserialize = true;
 
 /**
  *  Constructs this Shell instance.
