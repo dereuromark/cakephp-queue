@@ -47,9 +47,7 @@ class QueueTask extends AppShell {
  * @return void
  */
 	public function add() {
-
 		return;
-
 	}
 
 /**
@@ -62,9 +60,7 @@ class QueueTask extends AppShell {
  * @return bool Success
  */
 	public function run($data, $id = null) {
-
 		return true;
-
 	}
 
 }
