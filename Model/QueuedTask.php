@@ -446,6 +446,15 @@ class QueuedTask extends QueueAppModel {
 	}
 
 /**
+ * Truncate table.
+ *
+ * @return array Query results
+ */
+	public function truncate() {
+		return $this->query('TRUNCATE TABLE `' . $this->tablePrefix . $this->table . '`');
+	}
+
+/**
  * Cleanup (remove the identifier from the db records?)
  *
  * TO-DO: FIXME
