@@ -43,10 +43,26 @@ class QueueController extends QueueAppController {
 	public function admin_reset() {
 		$this->request->allowMethod('post');
 		$res = $this->QueuedTask->truncate();
+		
+		$useToolsPlugin = false;
+		try {
+			@$this->Flash = $this->Components->load('Tools.Flash');
+			$useToolsPlugin = true;
+		} catch (Exception $e) {
+		}			
+		
 		if ($res) {
-			$this->Session->setFlash(__d('queue', 'OK'));
+			$message = __d('queue', 'OK');
+			$class = 'success';
 		} else {
-			$this->Session->setFlash(__d('queue', 'Error'));
+			$message = __d('queue', 'Error');
+			$class = 'error';
+		}
+		
+		if ($useToolsPlugin) {
+			$this->Flash->message($message, $class);
+		} else {
+			$this->Session->setFlash($message, 'default', array('class' => $class));
 		}
 		return $this->redirect(['action' => 'index']);
 	}
