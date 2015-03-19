@@ -474,8 +474,11 @@ class QueuedTask extends QueueAppModel {
  *
  * @return array Query results
  */
-	public function truncate() {
-		return $this->query('TRUNCATE TABLE `' . $this->tablePrefix . $this->table . '`');
+	public function truncate($table = null) {
+		if ($table === null) {
+			$table = $this->table;
+		}
+		return $this->query('TRUNCATE TABLE `' . $this->tablePrefix . $table . '`');
 	}
 
 /**
