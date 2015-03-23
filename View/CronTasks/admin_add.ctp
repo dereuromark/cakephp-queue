@@ -15,7 +15,7 @@
 		//echo $this->Form->input('reference');
 	?>
 	</fieldset>
-<?php echo $this->Form->end(__d('queue', 'Submit'));?>
+<?php echo $this->Form->submit(__d('queue', 'Submit')); echo $this->Form->end();?>
 </div>
 
 <br /><br />

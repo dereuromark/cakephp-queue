@@ -15,7 +15,7 @@
 		echo $this->Form->input('status', ['type'=>'checkbox', 'label'=>__d('queue', 'Active')]);
 	?>
 	</fieldset>
-<?php echo $this->Form->end(__d('queue', 'Submit'));?>
+<?php echo $this->Form->submit(__d('queue', 'Submit')); echo $this->Form->end();?>
 </div>
 
 <br /><br />
