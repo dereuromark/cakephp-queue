@@ -78,6 +78,6 @@ if (empty($data)) {
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Form->postLink(__d('queue', 'Reset %s', __d('queue', 'Queue Tasks')), ['action' => 'reset'], [], __d('queue', 'Sure? This will completely reset the queue.')); ?></li>
+		<li><?php echo $this->Form->postLink(__d('queue', 'Reset %s', __d('queue', 'Queue Tasks')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will completely reset the queue.')]); ?></li>
 	</ul>
 </div>
