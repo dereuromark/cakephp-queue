@@ -55,7 +55,7 @@ class QueueController extends QueueAppController {
 		if (isset($this->Flash)) {
 			$this->Flash->message($message, $class);
 		} else {
-			$this->Session->setFlash($message, 'default', array('class' => $class));
+			$this->Session->setFlash($message, 'default', ['class' => $class]);
 		}
 		return $this->redirect(['action' => 'index']);
 	}
