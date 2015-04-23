@@ -1,11 +1,9 @@
 <?php
-App::uses('QueueAppModel', 'Queue.Model');
-App::uses('Hash', 'Utility');
-
 namespace Queue\Model\Table;
 
 use Cake\ORM\Table;
-use Queue\Model\Traits\JobsTrait;
+use Queue\Model\Trait\JobsTrait;
+use Cake\Utility\Hash
 
 /**
  * QueuedTask for queued tasks.
@@ -28,8 +26,7 @@ class QueuedTask extends Table {
 
 	protected $_key = null;
 
-	public function initialize(array $config)
-	{
+	public function initialize(array $config) {
 
 	}
 
@@ -38,8 +35,7 @@ class QueuedTask extends Table {
 	 *
 	 * @return void
 	 */
-	public function initConfig()
-	{
+	public function initConfig() {
 		// Local config without extra config file
 		$conf = (array)Configure::read('Queue');
 
