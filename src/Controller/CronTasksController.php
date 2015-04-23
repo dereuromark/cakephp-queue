@@ -1,21 +1,9 @@
 <?php
 namespace Queue\Controller;
 
-use Queue\Controller\QueueAppController;
-
-class CronTasksController extends QueueAppController {
+class CronTasksController extends AppController {
 
 	public $paginate = [];
-
-	/**
-	 * beforeFilter action
-	 *
-	 * @return void
-	 */
-	public function beforeFilter()
-	{
-		parent::beforeFilter();
-	}
 
 	/**
 	 * index action
