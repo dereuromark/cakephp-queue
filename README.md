@@ -4,26 +4,10 @@ This `3.0` branch is for use with **CakePHP 3**.
 
 WARNING: NOT FULLY MIGRATED YET
 
-[![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.png)](https://travis-ci.org/dereuromark/cakephp-queue)
+[![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.png?branch=3.0)](https://travis-ci.org/dereuromark/cakephp-queue)
 [![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.4-8892BF.svg)](https://php.net/)
 [![License](https://poser.pugx.org/dereuromark/cakephp-queue/license.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
 [![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-queue/d/total.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
-
-Modified by David Yell ([davidyell](https://github.com/davidyell))
-- CakePHP 3.x support
-
-Modified by Mark Scherer ([dereuromark](https://github.com/dereuromark))
-- CakePHP2.x support
-- Some minor fixes
-- Added crontasks (as a different approach on specific problems)
-- Possible (optional) Tools Plugin dependencies for frontend access via /admin/queue
-- Config key "queue" is now "Queue" ($config['Queue'][...])
-
-Added by Christian Charukiewicz ([charukiewicz](https://github.com/charukiewicz)):
-- Configuration option 'gcprop' is now 'gcprob'
-- Fixed typo in README and variable name (Propability -> Probability)
-- Added a few lines about createJob() usage to README
-- Added comments to queue.php explaining configuration options
 
 
 ## Background:
@@ -53,21 +37,22 @@ you should seriously consider using a more advanced system for high volume/high 
 
 ## Installation:
 
-* Either copy the files in this directory into APP/Plugin/Queue; or ideally install using composer and `require dereuromark/cakephp-queue`.
+* Install using composer and `require dereuromark/cakephp-queue:3.0`.
 
-* Enable the plugin within your APP/Config/bootstrap.php (unless you use loadAll):
+* Enable the plugin within your config/bootstrap.php (unless you use loadAll):
 
-		CakePlugin::load('Queue');
+		Plugin::load('Queue');
 
 * Run the following command in the cake console to create the tables:
 
 		cake Schema create -p Queue
 
+//TODO: Use migrations plugin
 
 ## Configuration:
 
 The plugin allows some simple runtime configuration.
-You may create a file called "queue.php" inside your 'APP/Config' folder (NOT the plugins config folder) to set the following values:
+You may create a file called `app_queue.php` inside your `config` folder (NOT the plugins config folder) to set the following values:
 
 - Seconds to sleep() when no executable job is found:
 
@@ -98,6 +83,8 @@ You may create a file called "queue.php" inside your 'APP/Config' folder (NOT th
 - Minimum number of seconds before a cleanup run will remove a completed task; defaults to 0 for the Queue worker, or 2592000 for the Cron worker:
 
 		$config['Queue']['cleanuptimeout'] = 2592000; // 30 days
+
+Don't forget to load that config file: `Configure::load('app_queue');`
 
 You can also drop the configuration into an existing config file that is already been loaded.
 The values above are the default settings which apply, when no configuration is found.
@@ -133,11 +120,11 @@ For sending emails, for example:
 
 ```php
 // In your controller
-$this->loadModel('Queue.QueuedTask');
-$this->QueuedTask->createJob('Email', array('to' => 'user@example.org', ...)));
+$this->loadModel('Queue.QueuedTasks');
+$this->QueuedTasks->createJob('Email', array('to' => 'user@example.org', ...)));
 
 // Somewhere in the model
-ClassRegistry::init('Queue.QueuedTask')->createJob('Email',
+TableRegistry::get('Queue.QueuedTasks')->createJob('Email',
 	array('to' => 'user@example.org', ...)));
 ```
 
@@ -158,17 +145,35 @@ Plugin tasks go in APP/Plugin/PluginName/Console/Command/Task.
 A detailed Example task can be found in /Console/Command/Task/QueueExampleTask.php inside this folder.
 
 ## Setting up the trigger cronjob
-As outlined in the [book](http://book.cakephp.org/2.0/en/console-and-shells/cron-jobs.html) you can easily set up a cronjob
+As outlined in the [book](http://book.cakephp.org/3.0/en/console-and-shells/cron-jobs.html) you can easily set up a cronjob
 to start a new worker:
 
-	*/10  *    *    *    *  cd /full/path/to/app && Console/cake Queue.Queue runworker
+	*/10  *    *    *    *  cd /full/path/to/app && bin/cake Queue.Queue runworker
 
 This would start a new worker every 10 minutes. If you configure your max life time of a worker to 15 minutes, you
-got a small overlap where two workers would run simulaniously. If you lower the 10 minutes and raise the lifetime, you
+got a small overlap where two workers would run simultaneously. If you lower the 10 minutes and raise the lifetime, you
 get quite a few overlapping workers and thus more "parallel" processing power.
 Play around with it, but just don't shoot over the top.
 
-### TODO
+## TODO
 
 * Add priority
 * Cleanup and better test coverage
+
+## History
+Modified by David Yell ([davidyell](https://github.com/davidyell))
+- CakePHP 3.x support
+
+Modified by Mark Scherer ([dereuromark](https://github.com/dereuromark))
+- CakePHP2.x support
+- Some minor fixes
+- Added crontasks (as a different approach on specific problems)
+- Possible (optional) Tools Plugin dependencies for frontend access via /admin/queue
+- Config key "queue" is now "Queue" ($config['Queue'][...])
+
+Added by Christian Charukiewicz ([charukiewicz](https://github.com/charukiewicz)):
+- Configuration option 'gcprop' is now 'gcprob'
+- Fixed typo in README and variable name (Propability -> Probability)
+- Added a few lines about createJob() usage to README
+- Added comments to queue.php explaining configuration options
+
