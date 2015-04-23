@@ -8,12 +8,18 @@
 	"authors": [
 		{
 			"name": "Mark Scherer",
-			"homepage": "http://www.dereuromark.de"
+			"homepage": "http://www.dereuromark.de",
+			"role": "Contributor"
+		},
+		{
+			"name": "David Yell",
+			"homepage": "https://github.com/davidyell",
+			"role": "Contributor"
 		}
 	],
 	"require": {
-		"php": ">=5.4.0",
-		"composer/installers": "*"
+		"cakephp/cakephp": "3.0.*@dev",
+		"php": ">=5.4.16"
 	},
 	"suggest": {
 		"dereuromark/cakephp-tools": "For the Email lib and QueueEmailTask. Or write your own task here."
@@ -23,5 +29,10 @@
 	},
 	"extra": {
 		"installer-name": "Queue"
+	},
+	"autoload": {
+		"psr-4": {
+			"Queue\\": "src"
+		}
 	}
 }

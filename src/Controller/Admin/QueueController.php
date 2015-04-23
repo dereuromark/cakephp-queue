@@ -1,28 +1,32 @@
 <?php
-App::uses('QueueAppController', 'Queue.Controller');
+namespace Queue\Controller\Admin;
 
-class QueueController extends QueueAppController {
+use Queue\Controller\AppController;
+
+class QueueController extends AppController {
 
 	public $uses = ['Queue.QueuedTask'];
 
-/**
- * QueueController::beforeFilter()
- *
- * @return void
- */
-	public function beforeFilter() {
+	/**
+	 * QueueController::beforeFilter()
+	 *
+	 * @return void
+	 */
+	public function beforeFilter()
+	{
 		$this->QueuedTask->initConfig();
 
 		parent::beforeFilter();
 	}
 
-/**
- * Admin center.
- * Manage queues from admin backend (without the need to open ssh console window).
- *
- * @return void
- */
-	public function admin_index() {
+	/**
+	 * Admin center.
+	 * Manage queues from admin backend (without the need to open ssh console window).
+	 *
+	 * @return void
+	 */
+	public function index()
+	{
 		$status = $this->_status();
 
 		$current = $this->QueuedTask->getLength();
@@ -34,16 +38,17 @@ class QueueController extends QueueAppController {
 		$this->helpers[] = 'Tools.Datetime';
 	}
 
-/**
- * Truncate the queue list / table.
- *
- * @return void
- * @throws MethodNotAllowedException when not posted
- */
-	public function admin_reset() {
+	/**
+	 * Truncate the queue list / table.
+	 *
+	 * @return void
+	 * @throws MethodNotAllowedException when not posted
+	 */
+	public function reset()
+	{
 		$this->request->allowMethod('post');
 		$res = $this->QueuedTask->truncate();
-		
+
 		if ($res) {
 			$message = __d('queue', 'OK');
 			$class = 'success';
@@ -51,7 +56,7 @@ class QueueController extends QueueAppController {
 			$message = __d('queue', 'Error');
 			$class = 'error';
 		}
-		
+
 		if (isset($this->Flash)) {
 			$this->Flash->message($message, $class);
 		} else {
@@ -60,16 +65,17 @@ class QueueController extends QueueAppController {
 		return $this->redirect(['action' => 'index']);
 	}
 
-/**
- * QueueController::_status()
- *
- * If pid loggin is enabled, will return an array with
- * - time: int Timestamp
- * - workers: int Count of currently running workers
- *
- * @return array Status array
- */
-	protected function _status() {
+	/**
+	 * QueueController::_status()
+	 *
+	 * If pid loggin is enabled, will return an array with
+	 * - time: int Timestamp
+	 * - workers: int Count of currently running workers
+	 *
+	 * @return array Status array
+	 */
+	protected function _status()
+	{
 		if (!($pidFilePath = Configure::read('Queue.pidfilepath'))) {
 			return [];
 		}

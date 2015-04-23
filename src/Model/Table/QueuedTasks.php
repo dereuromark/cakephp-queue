@@ -2,6 +2,11 @@
 App::uses('QueueAppModel', 'Queue.Model');
 App::uses('Hash', 'Utility');
 
+namespace Queue\Model\Table;
+
+use Cake\ORM\Table;
+use Queue\Model\Traits\JobsTrait;
+
 /**
  * QueuedTask for queued tasks.
  *
@@ -9,7 +14,9 @@ App::uses('Hash', 'Utility');
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-class QueuedTask extends QueueAppModel {
+class QueuedTask extends Table {
+
+	use JobsTrait;
 
 	public $rateHistory = [];
 
@@ -21,27 +28,18 @@ class QueuedTask extends QueueAppModel {
 
 	protected $_key = null;
 
-/**
- * QueuedTask::__construct()
- *
- * @param integer $id
- * @param string $table
- * @param string $ds
- */
+	public function initialize(array $config)
+	{
 
-	public function __construct($id = false, $table = null, $ds = null) {
-		parent::__construct($id, $table, $ds);
-
-		// set virtualFields
-		$this->virtualFields['status'] = '(CASE WHEN ' . $this->alias . '.notbefore > NOW() THEN \'NOT_READY\' WHEN ' . $this->alias . '.fetched IS null THEN \'NOT_STARTED\' WHEN ' . $this->alias . '.fetched IS NOT null AND ' . $this->alias . '.completed IS null AND ' . $this->alias . '.failed = 0 THEN \'IN_PROGRESS\' WHEN ' . $this->alias . '.fetched IS NOT null AND ' . $this->alias . '.completed IS null AND ' . $this->alias . '.failed > 0 THEN \'FAILED\' WHEN ' . $this->alias . '.fetched IS NOT null AND ' . $this->alias . '.completed IS NOT null THEN \'COMPLETED\' ELSE \'UNKNOWN\' END)';
 	}
 
-/**
- * QueuedTask::initConfig()
- *
- * @return void
- */
-	public function initConfig() {
+	/**
+	 * QueuedTask::initConfig()
+	 *
+	 * @return void
+	 */
+	public function initConfig()
+	{
 		// Local config without extra config file
 		$conf = (array)Configure::read('Queue');
 
@@ -59,39 +57,6 @@ class QueuedTask extends QueueAppModel {
 		$conf = array_merge($defaultConf, $conf, (array)Configure::read('queue'));
 
 		Configure::write('Queue', $conf);
-	}
-
-/**
- * Add a new Job to the Queue.
- *
- * @param string $jobName   QueueTask name
- * @param array  $data      any array
- * @param array  $notBefore optional date which must not be preceded
- * @param string $group     Used to group similar QueuedTasks.
- * @param string $reference An optional reference string.
- * @return array            Created Job array containing id, data, ...
- */
-	public function createJob($jobName, $data = null, $notBefore = null, $group = null, $reference = null) {
-		$data = [
-			'jobtype' => $jobName,
-			'data' => serialize($data),
-			'group' => $group,
-			'reference' => $reference
-		];
-		if ($notBefore !== null) {
-			$data['notbefore'] = date('Y-m-d H:i:s', strtotime($notBefore));
-		}
-		$this->create();
-		return $this->save($data);
-	}
-
-/**
- * Set exit to true on error
- *
- * @return void
- */
-	public function onError() {
-		$this->exit = true;
 	}
 
 /**
@@ -249,63 +214,6 @@ class QueuedTask extends QueueAppModel {
 			$this->alias . '.id' => $id
 		];
 		return $this->updateAll($fields, $conditions);
-	}
-
-/**
- * Returns the number of items in the Queue.
- * Either returns the number of ALL pending tasks, or the number of pending tasks of the passed Type
- *
- * @param string $type jobType to Count
- * @return int Length
- */
-	public function getLength($type = null) {
-		$findCond = [
-			'conditions' => [
-				'completed' => null
-			]
-		];
-		if ($type !== null) {
-			$findCond['conditions']['jobtype'] = $type;
-		}
-		return $this->find('count', $findCond);
-	}
-
-/**
- * Return a list of all jobtypes in the Queue.
- *
- * @return array
- */
-	public function getTypes() {
-		$findCond = [
-			'fields' => [
-				'jobtype'
-			],
-			'group' => [
-				'jobtype'
-			]
-		];
-		return $this->find('list', $findCond);
-	}
-
-/**
- * Return some statistics about finished jobs still in the Database.
- * TO-DO: rewrite as virtual field
- *
- * @return array
- */
-	public function getStats() {
-		$findCond = [
-			'fields' => [
-				'jobtype,count(id) as num, AVG(UNIX_TIMESTAMP(completed)-UNIX_TIMESTAMP(created)) AS alltime, AVG(UNIX_TIMESTAMP(completed)-UNIX_TIMESTAMP(fetched)) AS runtime, AVG(UNIX_TIMESTAMP(fetched)-IF(notbefore is null,UNIX_TIMESTAMP(created),UNIX_TIMESTAMP(notbefore))) AS fetchdelay'
-			],
-			'conditions' => [
-				'completed NOT' => null
-			],
-			'group' => [
-				'jobtype'
-			]
-		];
-		return $this->find('all', $findCond);
 	}
 
 /**

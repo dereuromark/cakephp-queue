@@ -1,123 +1,62 @@
 <?php
-App::uses('QueueAppModel', 'Queue.Model');
+namespace Queue\Model\Table;
+
+use Cake\ORM\Table;
+use Queue\Model\Traits\JobsTrait;
 
 /**
  * CronTask for cronjobs.
  *
  */
-class CronTask extends QueueAppModel {
+class CronTask extends Table {
+
+	use JobsTrait;
 
 	public $rateHistory = [];
 
 	public $exit = false;
 
+	public function initialize (array $config)
+	{
+		$this->displayField('title');
+	}
+
+	public function validationDefault(Validator $validator)
+	{
+		return $validator
+			->notEmpty('jobtype')
+			->notempty('name')
+			->notEmpty('title')
+			->add('failed', 'numbers', ['rule' => 'numeric'])
+			->add('status', 'numbers', ['rule' => 'numeric'])
+			->add('interval', 'numbers', ['rule' => 'numeric'])
+			->add('interval', 'range', ['rule' => ['range', 1, 8900000]]);
+	}
+
+	public function buildRules(RulesChecker $rules)
+	{
+		$rules->add($rules->isUnique(['name']));
+		$rules->add($rules->isUnique(['title']));
+		return $rules;
+	}
+
+
 	public $findMethods = [
 		'progress' => true
 	];
 
-	public $displayField = 'title';
-
 	public $order = ['CronTask.created' => 'DESC'];
 
-	public $validate = [
-		'jobtype' => [
-			'notempty' => [
-				'rule' => ['notempty'],
-				'message' => 'valErrMandatoryField',
-			],
-		],
-		'name' => [
-			'notempty' => [
-				'rule' => ['notempty'],
-				'message' => 'valErrMandatoryField',
-				'last' => true
-			],
-			'isUnique' => [
-				'rule' => ['isUnique'],
-				'message' => 'valErrRecordNameExists',
-				'last' => true
-			],
-		],
-		'title' => [
-			'notempty' => [
-				'rule' => ['notempty'],
-				'message' => 'valErrMandatoryField',
-				'last' => true
-			],
-			'isUnique' => [
-				'rule' => ['isUnique'],
-				'message' => 'valErrRecordNameExists',
-				'last' => true
-			],
-		],
-		'failed' => [
-			'numeric' => [
-				'rule' => ['numeric'],
-				'message' => 'valErrMandatoryField',
-			],
-		],
-		'status' => [
-			'numeric' => [
-				'rule' => ['numeric'],
-				'message' => 'valErrMandatoryField',
-			],
-		],
-		'interval' => [
-			'numeric' => [
-				'rule' => ['numeric'],
-				'message' => 'valErrMandatoryField',
-				'last' => true
-			],
-			'numeric' => [
-				'rule' => ['range', 1, 8900000],
-				'message' => 'valErrInvalidRange',
-				'last' => true
-			],
-		],
-	];
-
-/**
- * Add a new Job to the Queue
- *
- * @param string $jobName QueueTask name
- * @param array $data any array
- * @param string $notBefore notbefore time
- * @param string $group Used to group similar CronTasks
- * @param string $reference any array
- * @return bool Success
- */
-	public function createJob($jobName, $data, $notBefore = null, $group = null, $reference = null) {
-		$data = [
-			'jobtype' => $jobName,
-			'data' => serialize($data),
-			'group' => $group,
-			'reference' => $reference
-		];
-		if ($notBefore != null) {
-			$data['notbefore'] = date('Y-m-d H:i:s', strtotime($notBefore));
-		}
-		$this->create();
-		return $this->save($data);
-	}
-
-/**
- * onError handler
- *
- * @return void
- */
-	public function onError() {
-		$this->exit = true;
-	}
-
-/**
- * Look for a new job that can be processed with the current abilities and
- * from the specified group (or any if null).
- *
- * @param array $capabilities Available QueueWorkerTasks.
- * @param string $group Request a job from this group, (from any group if null)
- * @return array Taskdata.
- */
-	public function requestJob($capabilities, $group = null) {
+	/**
+	 * Look for a new job that can be processed with the current abilities and
+	 * from the specified group (or any if null).
+	 *
+	 * @param array $capabilities Available QueueWorkerTasks.
+	 * @param string $group Request a job from this group, (from any group if null)
+	 * @return array Taskdata.
+	 */
+	public function requestJob($capabilities, $group = null)
+	{
 		$idlist = [];
 		$wasFetched = [];
 
@@ -204,13 +143,14 @@ class CronTask extends QueueAppModel {
 		return $data[$this->name];
 	}
 
-/**
- * Mark a job as Completed, removing it from the queue.
- *
- * @param int $id job ID
- * @return bool Success
- */
-	public function markJobDone($id) {
+	/**
+	 * Mark a job as Completed, removing it from the queue.
+	 *
+	 * @param int $id job ID
+	 * @return bool Success
+	 */
+	public function markJobDone($id)
+	{
 		return $this->updateAll([
 			'completed' => "'" . date('Y-m-d H:i:s') . "'"
 		], [
@@ -218,14 +158,15 @@ class CronTask extends QueueAppModel {
 		]);
 	}
 
-/**
- * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
- *
- * @param int $id job ID
- * @param string $failureMessage Optional message to append to the failure_message field.
- * @return bool Success
- */
-	public function markJobFailed($id, $failureMessage = null) {
+	/**
+	 * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
+	 *
+	 * @param int $id job ID
+	 * @param string $failureMessage Optional message to append to the failure_message field.
+	 * @return bool Success
+	 */
+	public function markJobFailed($id, $failureMessage = null)
+	{
 		$db = $this->getDataSource();
 		$fields = [
 			'failed' => "failed + 1",
@@ -237,82 +178,28 @@ class CronTask extends QueueAppModel {
 		return $this->updateAll($fields, $conditions);
 	}
 
-/**
- * Returns the number of items in the Queue.
- * Either returns the number of ALL pending tasks, or the number of pending tasks of the passed Type
- *
- * @param string $type jobType to Count
- * @return int
- */
-	public function getLength($type = null) {
-		$findConf = [
-			'conditions' => [
-				'completed' => null
-			]
-		];
-		if ($type !== null) {
-			$findConf['conditions']['jobtype'] = $type;
-		}
-		return $this->find('count', $findConf);
-	}
-
-/**
- * Return a list of all jobtypes in the Queue.
- *
- * @return array
- */
-	public function getTypes() {
-		$findConf = [
-			'fields' => [
-				'jobtype'
-			],
-			'group' => [
-				'jobtype'
-			]
-		];
-		return $this->find('list', $findConf);
-	}
-
-/**
- * Return some statistics about finished jobs still in the Database.
- *
- * @return array
- */
-	public function getStats() {
-		$findConf = [
-			'fields' => [
-				'jobtype,count(id) as num, AVG(UNIX_TIMESTAMP(completed)-UNIX_TIMESTAMP(created)) AS alltime, AVG(UNIX_TIMESTAMP(completed)-UNIX_TIMESTAMP(fetched)) AS runtime, AVG(UNIX_TIMESTAMP(fetched)-IF(notbefore is null,UNIX_TIMESTAMP(created),UNIX_TIMESTAMP(notbefore))) AS fetchdelay'
-			],
-			'conditions' => [
-				'completed NOT' => null
-			],
-			'group' => [
-				'jobtype'
-			]
-		];
-		return $this->find('all', $findConf);
-	}
-
-/**
- * Cleanup/Delete Completed Jobs.
- *
- * @return bool Success
- */
-	public function cleanOldJobs() {
+	/**
+	 * Cleanup/Delete Completed Jobs.
+	 *
+	 * @return bool Success
+	 */
+	public function cleanOldJobs()
+	{
 		return;
-		// implement this
+		// TODO: implement this
 		// return $this->deleteAll(array('completed < ' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))));
 	}
 
-/**
- * Custom find method, as in `find('progress', ...)`.
- *
- * @param string $state   Current state of find
- * @param array  $query   Search-query
- * @param array  $results Results
- * @return mixed          Based on state
- */
-	protected function _findProgress($state, $query = [], $results = []) {
+	/**
+	 * Custom find method, as in `find('progress', ...)`.
+	 *
+	 * @param string $state   Current state of find
+	 * @param array  $query   Search-query
+	 * @param array  $results Results
+	 * @return mixed          Based on state
+	 */
+	protected function _findProgress($state, $query = [], $results = [])
+	{
 		if ($state === 'before') {
 
 			$query['fields'] = [
@@ -350,13 +237,14 @@ class CronTask extends QueueAppModel {
 		return $results;
 	}
 
-/**
- * Return jobtypes
- *
- * @param mixed $value value
- * @return array       list of jobtypes
- */
-	public static function jobtypes($value = null) {
+	/**
+	 * Return jobtypes
+	 *
+	 * @param mixed $value value
+	 * @return array       list of jobtypes
+	 */
+	public static function jobtypes($value = null)
+	{
 		$options = [
 			self::TYPE_TASK => __d('queue', 'Task'),
 			self::TYPE_MODEL => __d('queue', 'Model (Method)'),

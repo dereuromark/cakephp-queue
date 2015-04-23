@@ -1,8 +1,14 @@
-# CakePHP Queue Plugin
+# CakePHP 3 Queue Plugin
+
+This `3.0` branch is for use with **CakePHP 3**.
+
 [![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.png)](https://travis-ci.org/dereuromark/cakephp-queue)
 [![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.4-8892BF.svg)](https://php.net/)
 [![License](https://poser.pugx.org/dereuromark/cakephp-queue/license.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
 [![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-queue/d/total.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
+
+Modified by David Yell ([davidyell](https://github.com/davidyell))
+- CakePHP 3.x support
 
 Modified by Mark Scherer ([dereuromark](https://github.com/dereuromark))
 - CakePHP2.x support
