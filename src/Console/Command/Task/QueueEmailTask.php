@@ -1,18 +1,19 @@
 <?php
+namespace Queue\Console\Command\Task;
+
 /**
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-App::uses('EmailLib', 'Tools.Lib');
-App::uses('AppShell', 'Console/Command');
+use Cake\Console\Shell;
 
-class QueueEmailTask extends AppShell {
+class QueueEmailTask extends Shell {
 
-/**
- * List of default variables for EmailComponent
- *
- * @var array
- */
+    /**
+     * List of default variables for EmailComponent
+     *
+     * @var array
+     */
 	public $defaults = [
 		'to' => null,
 		'from' => null,
@@ -22,19 +23,20 @@ class QueueEmailTask extends AppShell {
 
 	public $retries = 1;
 
-/**
- * @var bool
- */
+    /**
+     * @var bool
+     */
 	public $autoUnserialize = true;
 
 	public $Email;
 
-/**
- * "Add" the task, not possible for QueueEmailTask
- *
- * @return void
- */
-	public function add() {
+    /**
+     * "Add" the task, not possible for QueueEmailTask
+     *
+     * @return void
+     */
+	public function add()
+    {
 		$this->err('Queue Email Task cannot be added via Console.');
 		$this->out('Please use createJob() on the QueuedTask Model to create a Proper Email Task.');
 		$this->out('The Data Array should look something like this:');
@@ -52,14 +54,15 @@ class QueueEmailTask extends AppShell {
 		$this->out('Alternativly, you can pass the whole EmailLib to directly use it.');
 	}
 
-/**
- * QueueEmailTask::run()
- *
- * @param mixed $data Job data
- * @param int $id The id of the QueuedTask
- * @return bool Success
- */
-	public function run($data, $id = null) {
+    /**
+     * QueueEmailTask::run()
+     *
+     * @param mixed $data Job data
+     * @param int $id The id of the QueuedTask
+     * @return bool Success
+     */
+	public function run($data, $id = null)
+    {
 		if (!isset($data['settings'])) {
 			$this->err('Queue Email task called without settings data.');
 			return false;
@@ -110,14 +113,15 @@ class QueueEmailTask extends AppShell {
 		return $this->Email->send($message);
 	}
 
-/**
- * Log message
- *
- * @param array $contents log-data
- * @param mixed $log int for loglevel, array for merge with log-data
- * @return void
- */
-	protected function _log($contents, $log) {
+    /**
+     * Log message
+     *
+     * @param array $contents log-data
+     * @param mixed $log int for loglevel, array for merge with log-data
+     * @return void
+     */
+	protected function _log($contents, $log)
+    {
 		$config = [
 			'level' => LOG_DEBUG,
 			'scope' => 'email'
