@@ -1,14 +1,13 @@
 language: php
 
 php:
-  - 5.3
   - 5.4
   - 5.5
   - 5.6
 
 env:
-  - CAKE_VERSION=master
   - CAKE_VERSION=2.6
+  - CAKE_VERSION=2.7
 
 matrix:
   include:
@@ -25,7 +24,8 @@ before_script:
   - sh -c "if [ '$PHPCS' != '1' ]; then git clone --depth 1 --branch $CAKE_VERSION git://github.com/cakephp/cakephp ../cakephp; else git clone --depth 1 --branch 2.6 git://github.com/cakephp/cakephp ../cakephp; fi" && cd ../cakephp
   - rm -R app
   - git clone --depth 1 --branch master git://github.com/dereuromark/tools-app app
-  - git clone --depth 1 --branch master git://github.com/dereuromark/tools plugins/Tools
+  - git clone --depth 1 --branch master git://github.com/dereuromark/cakephp-tools plugins/Tools
+  - git clone --depth 1 --branch master git://github.com/dereuromark/cakephp-shim plugins/Shim
   - cp -R ../cakephp-queue plugins/Queue
   - sh -c "mysql -e 'CREATE DATABASE cakephp_test;'"
   - mkdir ./app/tmp

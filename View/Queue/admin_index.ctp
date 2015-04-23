@@ -1,12 +1,12 @@
 <div class="page index">
-<h2><?php echo __('Queue');?></h2>
+<h2><?php echo __d('queue', 'Queue');?></h2>
 
-<h3><?php echo __('Status'); ?></h3>
+<h3><?php echo __d('queue', 'Status'); ?></h3>
 <?php if ($status) { ?>
 <?php
 	$running = (time() - $status['time']) < MINUTE;
 ?>
-<?php echo $this->Format->yesNo($running); ?> <?php echo $running ? __('Running') : __('Not running'); ?> (<?php echo __('last %s', $this->Datetime->relLengthOfTime($status['time']))?>)
+<?php echo $this->Format->yesNo($running); ?> <?php echo $running ? __d('queue', 'Running') : __d('queue', 'Not running'); ?> (<?php echo __d('queue', 'last %s', $this->Datetime->relLengthOfTime($status['time']))?>)
 
 <?php
 	echo '<div><small>Currently '.($status['workers']).' worker(s) total.</small></div>';
@@ -15,13 +15,29 @@
 n/a
 <?php } ?>
 
-<h3><?php echo __('Queued Tasks'); ?></h3>
+<h3><?php echo __d('queue', 'Queued Tasks'); ?></h3>
 <?php
  echo $current;
 ?> task(s) await processing
 
+<ol>
+<?php
+foreach ($pendingDetails as $item) {
+	echo '<li>'.$item['QueuedTask']['jobtype'] . " (" . $item['QueuedTask']['reference'] . "):";
+	echo '<ul>';
+		echo '<li>Created: '.$item['QueuedTask']['created'].'</li>';
+		echo '<li>Fetched: '.$item['QueuedTask']['fetched'].'</li>';
+		echo '<li>Status: '.$item['QueuedTask']['status'].'</li>';
+		echo '<li>Progress: '.$this->Number->toPercentage($item['QueuedTask']['progress']).'</li>';
+		echo '<li>Failures: '.$item['QueuedTask']['failed'].'</li>';
+		echo '<li>Failure Message: '.$item['QueuedTask']['failure_message'].'</li>';
+	echo '</ul>';
+	echo '</li>';
+}
+?>
+</ol>
 
-<h3><?php echo __('Statistics'); ?></h3>
+<h3><?php echo __d('queue', 'Statistics'); ?></h3>
 <ul>
 <?php
 foreach ($data as $item) {
@@ -62,6 +78,6 @@ if (empty($data)) {
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Form->postLink(__('Reset %s', __('Queue Tasks')), array('action' => 'reset'), array(), __('Sure? This will completely reset the queue.')); ?></li>
+		<li><?php echo $this->Form->postLink(__d('queue', 'Reset %s', __d('queue', 'Queue Tasks')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will completely reset the queue.')]); ?></li>
 	</ul>
 </div>

@@ -1,9 +1,9 @@
 <?php
 
 App::uses('CronTasksController', 'Queue.Controller');
-App::uses('MyCakeTestCase', 'Tools.TestSuite');
+App::uses('CakeTestCase', 'TestSuite');
 
-class CronTasksControllerTest extends MyCakeTestCase {
+class CronTasksControllerTest extends CakeTestCase {
 
 	public $CronTasks;
 

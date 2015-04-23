@@ -1,21 +1,12 @@
 <?php
 
-App::uses('AppShell', 'Console/Command');
+App::uses('QueueTask', 'Queue.Console/Command/Task');
 
 /**
  * A Simple QueueTask example that runs for a while.
  *
  */
-class QueueLongExampleTask extends AppShell {
-
-/**
- * Adding the QueueTask Model
- *
- * @var array
- */
-	public $uses = array(
-		'Queue.QueuedTask'
-	);
+class QueueLongExampleTask extends QueueTask {
 
 /**
  * ZendStudio Codecomplete Hint
@@ -44,11 +35,6 @@ class QueueLongExampleTask extends AppShell {
  * @var string
  */
 	public $failureMessage = '';
-
-/**
- * @var bool
- */
-	public $autoUnserialize = true;
 
 /**
  * Example add functionality.
@@ -85,7 +71,7 @@ class QueueLongExampleTask extends AppShell {
  * The return parameter will determine, if the task will be marked completed, or be requeued.
  *
  * @param array $data The array passed to QueuedTask->createJob()
- * @param int $id The id
+ * @param int $id The id of the QueuedTask
  * @return bool Success
  * @throws RuntimeException when seconds are 0;
  */

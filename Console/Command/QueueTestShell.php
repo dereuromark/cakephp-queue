@@ -11,9 +11,9 @@ if (!defined('FORMAT_DB_DATE')) {
  */
 class QueueTestShell extends AppShell {
 
-	public $uses = array(
+	public $uses = [
 		'Queue.QueuedTask'
-	);
+	];
 
 /**
  * Test queue of email job
@@ -21,16 +21,16 @@ class QueueTestShell extends AppShell {
  * @return void
  */
 	public function email() {
-		$data = array(
-			'settings' => array(
+		$data = [
+			'settings' => [
 				'subject' => 'Some test - ' . date(FORMAT_DB_DATETIME),
 				'to' => Configure::read('Config.admin_email'),
 				'domain' => 'example.org',
-			),
-			'vars' => array(
+			],
+			'vars' => [
 				'content' => 'I am a test',
-			)
-		);
+			]
+		];
 
 		if ($this->QueuedTask->createJob('Email', $data)) {
 			$this->out('OK, test email created');

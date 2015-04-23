@@ -1,10 +1,10 @@
 <?php
 App::uses('CronTask', 'Queue.Model');
-App::uses('MyCakeTestCase', 'Tools.TestSuite');
+App::uses('CakeTestCase', 'TestSuite');
 
-class CronTaskTest extends MyCakeTestCase {
+class CronTaskTest extends CakeTestCase {
 
-	public $fixtures = array('core.user');
+	public $fixtures = ['core.user'];
 
 	public function setUp() {
 		parent::setUp();
