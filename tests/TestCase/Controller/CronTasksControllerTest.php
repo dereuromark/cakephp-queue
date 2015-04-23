@@ -10,7 +10,7 @@ class CronTasksControllerTest extends CakeTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->CronTasks = new TestCronTasksController(new CakeRequest, new CakeResponse);
+		$this->CronTasks = new TestCronTasksController(new CakeRequest(), new CakeResponse());
 		$this->CronTasks->constructClasses();
 	}
 

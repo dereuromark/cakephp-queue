@@ -1,0 +1,39 @@
+<phpunit backupGlobals="false"
+	backupStaticAttributes="false"
+	bootstrap="./tests/bootstrap.php"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	processIsolation="false"
+	stopOnError="false"
+	stopOnFailure="false"
+	stopOnIncomplete="false"
+	stopOnSkipped="false"
+	syntaxCheck="false">
+
+	<testsuites>
+		<testsuite name="Geo">
+			<directory>./tests/</directory>
+		</testsuite>
+	</testsuites>
+
+	<listeners>
+		<listener class="\Cake\TestSuite\Fixture\FixtureInjector">
+			<arguments>
+				<object class="\Cake\TestSuite\Fixture\FixtureManager" />
+			</arguments>
+		</listener>
+	</listeners>
+
+	<filter>
+		<blacklist>
+			<directory suffix=".php">./vendor/</directory>
+			<directory suffix=".ctp">./vendor/</directory>
+
+			<directory suffix=".php">./tests/</directory>
+			<directory suffix=".ctp">./tests/</directory>
+		</blacklist>
+	</filter>
+
+</phpunit>

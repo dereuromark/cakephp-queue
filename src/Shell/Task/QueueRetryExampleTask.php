@@ -12,53 +12,53 @@ App::uses('QueueTask', 'Queue.Console/Command/Task');
  */
 class QueueRetryExampleTask extends QueueTask {
 
-/**
- * ZendStudio Codecomplete Hint
- *
- * @var QueuedTask
- */
+	/**
+	 * ZendStudio Codecomplete Hint
+	 *
+	 * @var QueuedTask
+	 */
 	public $QueuedTask;
 
-/**
- * Timeout for run, after which the Task is reassigned to a new worker.
- *
- * @var int
- */
+	/**
+	 * Timeout for run, after which the Task is reassigned to a new worker.
+	 *
+	 * @var int
+	 */
 	public $timeout = 10;
 
-/**
- * Number of times a failed instance of this task should be restarted before giving up.
- *
- * @var int
- */
+	/**
+	 * Number of times a failed instance of this task should be restarted before giving up.
+	 *
+	 * @var int
+	 */
 	public $retries = 5;
 
-/**
- * Stores any failure messages triggered during run()
- *
- * @var string
- */
+	/**
+	 * Stores any failure messages triggered during run()
+	 *
+	 * @var string
+	 */
 	public $failureMessage = '';
 
-/**
- *  Constructs this Shell instance.
- *
- * @param ConsoleOutput $stdout A ConsoleOutput object for stdout.
- * @param ConsoleOutput $stderr A ConsoleOutput object for stderr.
- * @param ConsoleInput $stdin A ConsoleInput object for stdin.
- */
+	/**
+	 *  Constructs this Shell instance.
+	 *
+	 * @param ConsoleOutput $stdout A ConsoleOutput object for stdout.
+	 * @param ConsoleOutput $stderr A ConsoleOutput object for stderr.
+	 * @param ConsoleInput $stdin A ConsoleInput object for stdin.
+	 */
 	public function __construct($stdout = null, $stderr = null, $stdin = null) {
 		parent::__construct($stdout, $stderr, $stdin);
 
 		$this->file = TMP . 'task_retry.txt';
 	}
 
-/**
- * Example add functionality.
- * Will create one example job in the queue, which later will be executed using run();
- *
- * @return void
- */
+	/**
+	 * Example add functionality.
+	 * Will create one example job in the queue, which later will be executed using run();
+	 *
+	 * @return void
+	 */
 	public function add() {
 		$this->out('CakePHP Queue Retry Example task.');
 		$this->hr();
@@ -85,15 +85,15 @@ class QueueRetryExampleTask extends QueueTask {
 		}
 	}
 
-/**
- * Example run function.
- * This function is executed, when a worker is executing a task.
- * The return parameter will determine, if the task will be marked completed, or be requeued.
- *
- * @param array $data The array passed to QueuedTask->createJob()
- * @param int $id The id of the QueuedTask
- * @return bool Success
- */
+	/**
+	 * Example run function.
+	 * This function is executed, when a worker is executing a task.
+	 * The return parameter will determine, if the task will be marked completed, or be requeued.
+	 *
+	 * @param array $data The array passed to QueuedTask->createJob()
+	 * @param int $id The id of the QueuedTask
+	 * @return bool Success
+	 */
 	public function run($data, $id = null) {
 		$count = (int)file_get_contents($this->file);
 

@@ -7,7 +7,6 @@
  *
  */
 
-
 $config['Queue'] = [
 	// seconds to sleep() when no executable job is found
 	'sleeptime' => 10,

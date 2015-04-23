@@ -12,11 +12,11 @@ class QueueTransportTest extends CakeTestCase {
 
 	public $fixtures = ['plugin.queue.queued_task'];
 
-/**
- * Setup
- *
- * @return void
- */
+	/**
+	 * Setup
+	 *
+	 * @return void
+	 */
 	public function setUp() {
 		parent::setUp();
 		$this->QueueTransport = new QueueTransport();
@@ -31,11 +31,11 @@ class QueueTransportTest extends CakeTestCase {
 		$this->assertTrue(isset($res['queue']));
 	}
 
-/**
- * TestSend method
- *
- * @return void
- */
+	/**
+	 * TestSend method
+	 *
+	 * @return void
+	 */
 	public function notestSendWithEmailLib() {
 		$Email = new EmailLib();
 		$Email->from('noreply@cakephp.org', 'CakePHP Test');

@@ -27,12 +27,19 @@
 	"support": {
 		"source": "https://github.com/dereuromark/cakephp-queue"
 	},
-	"extra": {
-		"installer-name": "Queue"
-	},
 	"autoload": {
 		"psr-4": {
-			"Queue\\": "src"
+			"Queue\\": "src",
+			"Queue\\Test\\Fixture\\": "tests\\Fixture"
 		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Queue\\Test\\": "tests",
+			"Cake\\Test\\": "vendor/cakephp/cakephp/tests"
+		}
+	},
+	"extra": {
+		"installer-name": "Queue"
 	}
 }

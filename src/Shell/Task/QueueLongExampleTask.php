@@ -8,40 +8,40 @@ App::uses('QueueTask', 'Queue.Console/Command/Task');
  */
 class QueueLongExampleTask extends QueueTask {
 
-/**
- * ZendStudio Codecomplete Hint
- *
- * @var QueuedTask
- */
+	/**
+	 * ZendStudio Codecomplete Hint
+	 *
+	 * @var QueuedTask
+	 */
 	public $QueuedTask;
 
-/**
- * Timeout for run, after which the Task is reassigned to a new worker.
- *
- * @var int
- */
+	/**
+	 * Timeout for run, after which the Task is reassigned to a new worker.
+	 *
+	 * @var int
+	 */
 	public $timeout = 120;
 
-/**
- * Number of times a failed instance of this task should be restarted before giving up.
- *
- * @var int
- */
+	/**
+	 * Number of times a failed instance of this task should be restarted before giving up.
+	 *
+	 * @var int
+	 */
 	public $retries = 1;
 
-/**
- * Stores any failure messages triggered during run()
- *
- * @var string
- */
+	/**
+	 * Stores any failure messages triggered during run()
+	 *
+	 * @var string
+	 */
 	public $failureMessage = '';
 
-/**
- * Example add functionality.
- * Will create one example job in the queue, which later will be executed using run();
- *
- * @return void
- */
+	/**
+	 * Example add functionality.
+	 * Will create one example job in the queue, which later will be executed using run();
+	 *
+	 * @return void
+	 */
 	public function add() {
 		$this->out('CakePHP Queue LongExample task.');
 		$this->hr();
@@ -65,16 +65,16 @@ class QueueLongExampleTask extends QueueTask {
 		}
 	}
 
-/**
- * Example run function.
- * This function is executed, when a worker is executing a task.
- * The return parameter will determine, if the task will be marked completed, or be requeued.
- *
- * @param array $data The array passed to QueuedTask->createJob()
- * @param int $id The id of the QueuedTask
- * @return bool Success
- * @throws RuntimeException when seconds are 0;
- */
+	/**
+	 * Example run function.
+	 * This function is executed, when a worker is executing a task.
+	 * The return parameter will determine, if the task will be marked completed, or be requeued.
+	 *
+	 * @param array $data The array passed to QueuedTask->createJob()
+	 * @param int $id The id of the QueuedTask
+	 * @return bool Success
+	 * @throws RuntimeException when seconds are 0;
+	 */
 	public function run($data, $id = null) {
 		$this->hr();
 		$this->out('CakePHP Queue LongExample task.');

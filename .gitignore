@@ -1,2 +1,4 @@
-.svn
-*.bak
+/phpunit.phar
+/vendor/
+/tmp/
+/composer.lock

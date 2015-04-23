@@ -2,7 +2,7 @@
 
 namespace Queue\Model\Traits;
 
-trait Jobs {
+trait JobsTrait {
 
 	/**
 	 * Add a new Job to the Queue.

@@ -12,11 +12,11 @@ class CronTaskTest extends CakeTestCase {
 		$this->CronTask = ClassRegistry::init('Queue.CronTask');
 	}
 
-/**
- * QueueShellTest::testObject()
- *
- * @return void
- */
+	/**
+	 * QueueShellTest::testObject()
+	 *
+	 * @return void
+	 */
 	public function testObject() {
 		$this->assertTrue(is_object($this->CronTask));
 		$this->assertInstanceOf('CronTask', $this->CronTask);
