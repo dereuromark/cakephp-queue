@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Shell\Task;
+namespace Queue\Shell\Task;
 
 use Queue\Console\Command\Task\QueueTask;
 

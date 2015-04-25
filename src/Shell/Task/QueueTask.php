@@ -3,7 +3,7 @@
  * @author Andy Carter
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-namespace App\Shell\Task;
+namespace Queue\Shell\Task;
 
 use App\Console\Command\AppShell;
 

@@ -4,7 +4,7 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-namespace App\Shell\Task;
+namespace Queue\Shell\Task;
 
 use Queue\Console\Command\Task\QueueTask;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Shell;
+namespace Queue\Shell;
 
 use Cake\Console\Shell;
 use Cake\Core\Configure;

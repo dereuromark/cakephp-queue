@@ -18,7 +18,7 @@
 		}
 	],
 	"require": {
-		"cakephp/cakephp": "3.0.*@dev",
+		"cakephp/cakephp": "~3.0",
 		"php": ">=5.4.16"
 	},
 	"require-dev": {
@@ -45,5 +45,6 @@
 	},
 	"extra": {
 		"installer-name": "Queue"
-	}
+	},
+	"minimum-stability": "dev"
 }

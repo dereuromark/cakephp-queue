@@ -1,19 +1,15 @@
 <?php
-namespace App\Shell;
+namespace Queue\Shell;
 
-use App\Console\Command\AppShell;
+use Cake\Console\Shell;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Log\Log;
 use Cake\Utility\Folder;
 use Cake\Utility\Inflector;
+
 declare(ticks = 1);
-
-if (!defined('FORMAT_DB_DATETIME')) {
-	define('FORMAT_DB_DATETIME', 'Y-m-d H:i:s');
-}
-
 
 /**
  * Main shell to init and run queue workers.
@@ -22,7 +18,7 @@ if (!defined('FORMAT_DB_DATETIME')) {
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-class QueueShell extends AppShell {
+class QueueShell extends Shell {
 
 	public $modelClass = 'Queue.QueuedTasks';
 
@@ -390,8 +386,7 @@ class QueueShell extends AppShell {
 			if (!file_exists($folder)) {
 				mkdir($folder, 0755, true);
 			}
-			//$file = $folder . DS . $type . '.txt';
-			//file_put_contents($file, date(FORMAT_DB_DATETIME));
+
 			$message = $type . ' ' . $pid;
 			Log::write('queue', $message);
 		}
@@ -408,7 +403,6 @@ class QueueShell extends AppShell {
 			$folder = TMP;
 			$file = $folder . 'queue_notification' . '.txt';
 			touch($file);
-			//file_put_contents($file, date(FORMAT_DB_DATETIME));
 		}
 	}
 
