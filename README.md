@@ -1,23 +1,22 @@
 # CakePHP 3 Queue Plugin
+[![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.png?branch=3.0)](https://travis-ci.org/dereuromark/cakephp-queue)
+[![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.4-8892BF.svg)](https://php.net/)
+[![License](https://poser.pugx.org/dereuromark/cakephp-queue/license.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
+[![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-queue/d/total.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
+[![Coding Standards](https://img.shields.io/badge/cs-PSR--2--R-yellow.svg)](https://github.com/php-fig-rectified/fig-rectified-standards)
 
 This `3.0` branch is for use with **CakePHP 3**.
 
 WARNING: NOT FULLY MIGRATED YET
 
-[![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.png?branch=3.0)](https://travis-ci.org/dereuromark/cakephp-queue)
-[![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.4-8892BF.svg)](https://php.net/)
-[![License](https://poser.pugx.org/dereuromark/cakephp-queue/license.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
-[![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-queue/d/total.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
-
-
 ## Background:
 
-This is a very simple and minimalistic job Queue (or deferred-task) system for CakePHP.
+This is a very simple and minimalistic job queue (or deferred-task) system for CakePHP.
 
 Overall functionality is inspired by systems like Gearman, Beanstalk or dropr, but without
 any illusion to compete with these more advanced Systems.
 
-The Plugin is an attempt to provide a basic, simple to use method to enable deferred job execution,
+The plugin is an attempt to provide a basic, simple to use method to enable deferred job execution,
 without the hassle of setting up or running an extra queue daemon, while integrating nicely into
 CakePHP and also simplifying the creation of worker scripts.
 
@@ -30,7 +29,7 @@ Creating and sending these emails is completely irrelevant to the currently acti
 Another example would be downloading, extraction and/or analyzing an external file per request of the user.
 The regular solution to these problems would be to create specialized cronjobs which use specific database states to determine which action should be done.
 
-The Queue Plugin provides a simple method to create and run such non-user-interaction-critical tasks.
+The Queue plugin provides a simple method to create and run such non-user-interaction-critical tasks.
 
 While you can run multiple workers, and can (to some extent) spread these workers to different machines via a shared database,
 you should seriously consider using a more advanced system for high volume/high number of workers systems.
@@ -43,11 +42,11 @@ you should seriously consider using a more advanced system for high volume/high 
 
 		Plugin::load('Queue');
 
-* Run the following command in the cake console to create the tables:
+* Run the following command in the CakePHP console to create the tables:
 
 		cake Schema create -p Queue
 
-//TODO: Use migrations plugin
+//TODO: Use migrations plugin:  cake Migrations.Migration run
 
 ## Configuration:
 
@@ -138,7 +137,7 @@ Important: Do not forget to set your [domain](http://book.cakephp.org/2.0/en/cor
 Also note that you dont need to add the type ("Task"): `cake Queue.Queue add SpecialExample` for QueueSpecialExampleTask.
 
 Custom tasks should be placed in APP/Console/Command/Task.
-Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact. Custom tasks should extend the `QueueTask` class (you will need to include this at the top of your custom task file: `App::uses('QueueTask', 'Queue.Console/Command/Task')`).
+Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact. Custom tasks should extend the `QueueTask` class (you will need to include this at the top of your custom task file: `use Queue\Shell\Task\QueueTask;`).
 
 Plugin tasks go in APP/Plugin/PluginName/Console/Command/Task.
 
@@ -165,7 +164,7 @@ Modified by David Yell ([davidyell](https://github.com/davidyell))
 - CakePHP 3.x support
 
 Modified by Mark Scherer ([dereuromark](https://github.com/dereuromark))
-- CakePHP2.x support
+- CakePHP 2.x support
 - Some minor fixes
 - Added crontasks (as a different approach on specific problems)
 - Possible (optional) Tools Plugin dependencies for frontend access via /admin/queue

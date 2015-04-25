@@ -1,5 +1,9 @@
 <?php
-App::uses('AppShell', 'Console/Command');
+
+use Cake\Console\Shell;
+use Tools\Network\Email\Email;
+use Cake\Core\Configure;
+
 if (!defined('FORMAT_DB_DATE')) {
 	define('FORMAT_DB_DATETIME', 'Y-m-d H:i:s');
 }
@@ -9,7 +13,7 @@ if (!defined('FORMAT_DB_DATE')) {
  *
  * @author Mark Scherer
  */
-class QueueTestShell extends AppShell {
+class QueueTestShell extends Shell {
 
 	public $uses = [
 		'Queue.QueuedTask'
@@ -45,10 +49,8 @@ class QueueTestShell extends AppShell {
 	 * @return void
 	 */
 	public function complete_email() {
-		App::uses('EmailLib', 'Tools.Lib');
-
 		Configure::write('debug', 0);
-		$Email = new EmailLib();
+		$Email = new Email();
 		$Email->to('markscherer@gmx.de', 'Mark Test');
 		$Email->subject('Testing Message');
 		$host = Configure::read('App.host');
