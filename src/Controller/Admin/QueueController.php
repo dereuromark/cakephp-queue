@@ -1,22 +1,24 @@
 <?php
 namespace Queue\Controller\Admin;
 
+use Cake\Core\Configure;
 use Queue\Controller\AppController;
+use Cake\Event\Event;
 
 class QueueController extends AppController {
 
-	public $uses = ['Queue.QueuedTask'];
+	public $modelClass = 'Queue.QueuedTask';
 
 	/**
 	 * QueueController::beforeFilter()
 	 *
 	 * @return void
 	 */
-	public function beforeFilter()
+	public function beforeFilter(Event $event)
 	{
 		$this->QueuedTask->initConfig();
 
-		parent::beforeFilter();
+		parent::beforeFilter($event);
 	}
 
 	/**
@@ -57,11 +59,8 @@ class QueueController extends AppController {
 			$class = 'error';
 		}
 
-		if (isset($this->Flash)) {
-			$this->Flash->message($message, $class);
-		} else {
-			$this->Session->setFlash($message, 'default', ['class' => $class]);
-		}
+		$this->Flash->message($message, $class);
+
 		return $this->redirect(['action' => 'index']);
 	}
 
