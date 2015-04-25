@@ -3,7 +3,9 @@
  * @author Andy Carter
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-App::uses('AppShell', 'Console/Command');
+namespace App\Shell\Task;
+
+use App\Console\Command\AppShell;
 
 /**
  * Queue Task.
@@ -18,9 +20,7 @@ class QueueTask extends AppShell {
 	 *
 	 * @var array
 	 */
-	public $uses = [
-		'Queue.QueuedTask'
-	];
+	public $modelClass = 'Queue.QueuedTask';
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.

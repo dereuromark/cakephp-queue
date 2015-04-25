@@ -5,6 +5,8 @@
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
  */
+namespace App\Network\Email;
+
 
 /**
  * Send mail using Queue plugin
@@ -15,10 +17,10 @@ class QueueTransport extends AbstractTransport {
 	/**
 	 * Send mail
 	 *
-	 * @param CakeEmail $email CakeEmail
+	 * @param Email $email Email
 	 * @return array
 	 */
-	public function send(CakeEmail $email) {
+	public function send(Email $email) {
 		if (!empty($this->_config['queue'])) {
 			$this->_config = $this->_config['queue'] + $this->_config;
 			$email->config((array)$this->_config['queue'] + ['queue' => []]);

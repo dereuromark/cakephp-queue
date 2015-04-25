@@ -1,6 +1,7 @@
 <?php
 namespace Queue\Model\Table;
 
+use Cake\Core\Configure;
 use Cake\ORM\Table;
 use Queue\Model\Trait\JobsTrait;
 use Cake\Utility\Hash

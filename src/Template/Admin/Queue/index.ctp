@@ -6,7 +6,7 @@
 <?php
 	$running = (time() - $status['time']) < MINUTE;
 ?>
-<?php echo $this->Format->yesNo($running); ?> <?php echo $running ? __d('queue', 'Running') : __d('queue', 'Not running'); ?> (<?php echo __d('queue', 'last %s', $this->Datetime->relLengthOfTime($status['time']))?>)
+<?php echo $this->Format->yesNo($running); ?> <?php echo $running ? __d('queue', 'Running') : __d('queue', 'Not running'); ?> (<?php echo __d('queue', 'last {0}', $this->Time->relLengthOfTime($status['time']))?>)
 
 <?php
 	echo '<div><small>Currently '.($status['workers']).' worker(s) total.</small></div>';
@@ -23,14 +23,14 @@ n/a
 <ol>
 <?php
 foreach ($pendingDetails as $item) {
-	echo '<li>'.$item['QueuedTask']['jobtype'] . " (" . $item['QueuedTask']['reference'] . "):";
+	echo '<li>'.$item['jobtype'] . " (" . $item['reference'] . "):";
 	echo '<ul>';
-		echo '<li>Created: '.$item['QueuedTask']['created'].'</li>';
-		echo '<li>Fetched: '.$item['QueuedTask']['fetched'].'</li>';
-		echo '<li>Status: '.$item['QueuedTask']['status'].'</li>';
-		echo '<li>Progress: '.$this->Number->toPercentage($item['QueuedTask']['progress']).'</li>';
-		echo '<li>Failures: '.$item['QueuedTask']['failed'].'</li>';
-		echo '<li>Failure Message: '.$item['QueuedTask']['failure_message'].'</li>';
+		echo '<li>Created: '.$item['created'].'</li>';
+		echo '<li>Fetched: '.$item['fetched'].'</li>';
+		echo '<li>Status: '.$item['status'].'</li>';
+		echo '<li>Progress: '.$this->Number->toPercentage($item['progress']).'</li>';
+		echo '<li>Failures: '.$item['failed'].'</li>';
+		echo '<li>Failure Message: '.$item['failure_message'].'</li>';
 	echo '</ul>';
 	echo '</li>';
 }
@@ -41,7 +41,7 @@ foreach ($pendingDetails as $item) {
 <ul>
 <?php
 foreach ($data as $item) {
-	echo '<li>'.$item['QueuedTask']['jobtype'] . ":";
+	echo '<li>'.$item['jobtype'] . ":";
 	echo '<ul>';
 		echo '<li>Finished Jobs in Database: '.$item[0]['num'].'</li>';
 		echo '<li>Average Job existence: '.$item[0]['alltime'].'s</li>';
@@ -78,6 +78,6 @@ if (empty($data)) {
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Form->postLink(__d('queue', 'Reset %s', __d('queue', 'Queue Tasks')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will completely reset the queue.')]); ?></li>
+		<li><?php echo $this->Form->postLink(__d('queue', 'Reset {0}', __d('queue', 'Queue Tasks')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will completely reset the queue.')]); ?></li>
 	</ul>
 </div>

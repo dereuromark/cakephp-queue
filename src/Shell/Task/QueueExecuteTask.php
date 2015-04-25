@@ -4,7 +4,9 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-App::uses('QueueTask', 'Queue.Console/Command/Task');
+namespace App\Shell\Task;
+
+use Queue\Console\Command\Task\QueueTask;
 
 /**
  * Execute a Local command on the server.

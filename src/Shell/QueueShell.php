@@ -1,12 +1,19 @@
 <?php
+namespace App\Shell;
+
+use App\Console\Command\AppShell;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Core\Plugin;
+use Cake\Log\Log;
+use Cake\Utility\Folder;
+use Cake\Utility\Inflector;
 declare(ticks = 1);
 
 if (!defined('FORMAT_DB_DATETIME')) {
 	define('FORMAT_DB_DATETIME', 'Y-m-d H:i:s');
 }
 
-App::uses('Folder', 'Utility');
-App::uses('AppShell', 'Console/Command');
 
 /**
  * Main shell to init and run queue workers.
@@ -17,9 +24,7 @@ App::uses('AppShell', 'Console/Command');
  */
 class QueueShell extends AppShell {
 
-	public $uses = [
-		'Queue.QueuedTask'
-	];
+	public $modelClass = 'Queue.QueuedTasks';
 
 	/**
 	 * @var QueuedTask
@@ -49,7 +54,7 @@ class QueueShell extends AppShell {
 			}
 			$this->tasks = $res;
 		}
-		$plugins = CakePlugin::loaded();
+		$plugins = Plugin::loaded();
 		foreach ($plugins as $plugin) {
 			$pluginPaths = App::path('Console/Command/Task', $plugin);
 			foreach ($pluginPaths as $pluginPath) {
@@ -291,7 +296,7 @@ class QueueShell extends AppShell {
 		$this->out('Finished Job Statistics:');
 		$data = $this->QueuedTask->getStats();
 		foreach ($data as $item) {
-			$this->out(" " . $item['QueuedTask']['jobtype'] . ": ");
+			$this->out(" " . $item['jobtype'] . ": ");
 			$this->out("   Finished Jobs in Database: " . $item[0]['num']);
 			$this->out("   Average Job existence    : " . $item[0]['alltime'] . 's');
 			$this->out("   Average Execution delay  : " . $item[0]['fetchdelay'] . 's');
@@ -388,7 +393,7 @@ class QueueShell extends AppShell {
 			//$file = $folder . DS . $type . '.txt';
 			//file_put_contents($file, date(FORMAT_DB_DATETIME));
 			$message = $type . ' ' . $pid;
-			CakeLog::write('queue', $message);
+			Log::write('queue', $message);
 		}
 	}
 

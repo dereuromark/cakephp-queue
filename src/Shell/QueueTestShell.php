@@ -1,8 +1,10 @@
 <?php
 
+namespace App\Shell;
+
 use Cake\Console\Shell;
-use Tools\Network\Email\Email;
 use Cake\Core\Configure;
+use Tools\Network\Email\Email;
 
 if (!defined('FORMAT_DB_DATE')) {
 	define('FORMAT_DB_DATETIME', 'Y-m-d H:i:s');
@@ -15,9 +17,7 @@ if (!defined('FORMAT_DB_DATE')) {
  */
 class QueueTestShell extends Shell {
 
-	public $uses = [
-		'Queue.QueuedTask'
-	];
+	public $modelClass = 'Queue.QueuedTask';
 
 	/**
 	 * Test queue of email job

@@ -1,11 +1,14 @@
 <?php
 namespace Queue\Console\Command\Task;
 
+use Cake\Console\Shell;
+use Cake\Log\Log;
+use createJob() on the QueuedTask Model to create a Proper Email Task.');
+use it.');
 /**
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-use Cake\Console\Shell;
 
 class QueueEmailTask extends Shell {
 
@@ -68,7 +71,7 @@ class QueueEmailTask extends Shell {
 			return false;
 		}
 
-		if (is_object($email = $data['settings']) && $email instanceof CakeEmail) {
+		if (is_object($email = $data['settings']) && $email instanceof Email) {
 			try {
 				$transport = $email->transportClass();
 				$config = $email->config();
@@ -92,7 +95,7 @@ class QueueEmailTask extends Shell {
 
 				$error = $e->getMessage();
 				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
-				CakeLog::write('email_error', $error);
+				Log::write('email_error', $error);
 
 				return false;
 			}
@@ -132,7 +135,7 @@ class QueueEmailTask extends Shell {
 			}
 			$config = array_merge($config, $log);
 		}
-		CakeLog::write(
+		Log::write(
 			$config['level'],
 			PHP_EOL . $contents['headers'] . PHP_EOL . $contents['message'],
 			$config['scope']

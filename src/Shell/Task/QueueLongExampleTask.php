@@ -1,6 +1,8 @@
 <?php
 
-App::uses('QueueTask', 'Queue.Console/Command/Task');
+namespace App\Shell\Task;
+
+use Queue\Console\Command\Task\QueueTask;
 
 /**
  * A Simple QueueTask example that runs for a while.
