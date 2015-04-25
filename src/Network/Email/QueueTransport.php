@@ -7,7 +7,6 @@
  */
 namespace Queue\Network\Email;
 
-
 /**
  * Send mail using Queue plugin
  *

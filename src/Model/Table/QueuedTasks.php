@@ -3,7 +3,7 @@ namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
 use Tools\Model\Table\Table;
-use Cake\Utility\Hash
+use Cake\Utility\Hash;
 
 /**
  * QueuedTask for queued tasks.
