@@ -12,9 +12,7 @@ use Cake\Utility\Hash;
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-class QueuedTasks extends Table {
-
-	use JobsTrait;
+class QueuedTasksTable extends Table {
 
 	public $rateHistory = [];
 

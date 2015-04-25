@@ -8,7 +8,7 @@
 App::uses('QueuedTask', 'Queue.Model');
 App::uses('CakeTestCase', 'TestSuite');
 
-class QueuedTaskTest extends CakeTestCase {
+class QueuedTasksTableTest extends CakeTestCase {
 
 	/**
 	 * @var TestQueuedTask
@@ -21,7 +21,7 @@ class QueuedTaskTest extends CakeTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'plugin.queue.queued_task'
+		'plugin.Queue.QueuedTasks'
 	];
 
 	/**
@@ -30,14 +30,14 @@ class QueuedTaskTest extends CakeTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		$this->QueuedTask = ClassRegistry::init('TestQueuedTask');
+		$this->QueuedTasks = ClassRegistry::init('TestQueuedTasks');
 	}
 
 	/**
 	 * Basic Instance test
 	 */
 	public function testQueueInstance() {
-		$this->assertTrue(is_a($this->QueuedTask, 'TestQueuedTask'));
+		$this->assertTrue(is_a($this->QueuedTasks, 'TestQueuedTasks'));
 	}
 
 	/**
@@ -473,7 +473,7 @@ class QueuedTaskTest extends CakeTestCase {
 
 /*** other classes **/
 
-class TestQueuedTask extends QueuedTask {
+class TestQueuedTasks extends QueuedTasks {
 
 	public $useTable = 'queued_tasks';
 
