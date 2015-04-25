@@ -361,6 +361,10 @@ class QueueShell extends Shell {
 				'help' => __d('cake_console', 'Uninstall info'),
 				'parser' => $subcommandParser
 			])
+			->addSubcommand('stats', [
+				'help' => __d('cake_console', 'Stats'),
+				'parser' => $subcommandParserFull
+			])
 			->addSubcommand('runworker', [
 				'help' => __d('cake_console', 'Run Worker'),
 				'parser' => $subcommandParserFull

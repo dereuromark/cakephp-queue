@@ -132,18 +132,24 @@ class QueuedTasksTable extends Table {
 	 * @return array
 	 */
 	public function getStats() {
-		$findCond = [
-			'fields' => [
-				'jobtype,count(id) as num, AVG(UNIX_TIMESTAMP(completed)-UNIX_TIMESTAMP(created)) AS alltime, AVG(UNIX_TIMESTAMP(completed)-UNIX_TIMESTAMP(fetched)) AS runtime, AVG(UNIX_TIMESTAMP(fetched)-IF(notbefore is null,UNIX_TIMESTAMP(created),UNIX_TIMESTAMP(notbefore))) AS fetchdelay'
-			],
+		$options = [
+			'fields' => function ($query) {
+				return [
+					'jobtype',
+					'num' => $query->func()->count('*'),
+					'alltime' => $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(created)'),
+					'runtime' => $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)'),
+					'fetchdelay' => $query->func()->avg('UNIX_TIMESTAMP(fetched) - IF(notbefore is NULL, UNIX_TIMESTAMP(created), UNIX_TIMESTAMP(notbefore))'),
+				];
+			},
 			'conditions' => [
-				'completed NOT' => null
+				'completed IS NOT' => null
 			],
 			'group' => [
 				'jobtype'
 			]
 		];
-		return $this->find('all', $findCond);
+		return $this->find('all', $options);
 	}
 
 /**
@@ -161,7 +167,7 @@ class QueuedTasksTable extends Table {
 		$this->virtualFields['age'] = 'IFNULL(TIMESTAMPDIFF(SECOND, NOW(),notbefore), 0)';
 		$findCond = [
 			'conditions' => [
-				'completed' => null,
+				'completed IS' => null,
 				'OR' => []
 			],
 			'fields' => [
@@ -190,13 +196,13 @@ class QueuedTasksTable extends Table {
 					[
 						'OR' => [
 							'notbefore <' => date('Y-m-d H:i:s'),
-							'notbefore' => null
+							'notbefore IS' => null
 						]
 					],
 					[
 						'OR' => [
 							'fetched <' => date('Y-m-d H:i:s', time() - $task['timeout']),
-							'fetched' => null
+							'fetched IS' => null
 						]
 					]
 				],
@@ -334,17 +340,17 @@ class QueuedTasksTable extends Table {
  */
 	public function cleanOldJobs() {
 		$this->deleteAll([
-			'completed < ' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))
+			'completed <' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))
 		]);
 		if (!($pidFilePath = Configure::read('Queue.pidfilepath'))) {
 			return;
 		}
 		// Remove all old pid files left over
 		$timeout = time() - 2 * Configure::read('Queue.cleanuptimeout');
-		$Iterator = new RegexIterator(
-			new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pidFilePath)),
+		$Iterator = new \RegexIterator(
+			new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($pidFilePath)),
 			'/^.+\_.+\.(pid)$/i',
-			RegexIterator::MATCH
+			\RegexIterator::MATCH
 		);
 		foreach ($Iterator as $file) {
 			if ($file->isFile()) {
@@ -471,9 +477,9 @@ class QueuedTasksTable extends Table {
  */
 	public function truncate($table = null) {
 		if ($table === null) {
-			$table = $this->table;
+			$table = $this->table();
 		}
-		return $this->query('TRUNCATE TABLE `' . $this->tablePrefix . $table . '`');
+		return $this->query('TRUNCATE TABLE `' . $table . '`');
 	}
 
 /**
