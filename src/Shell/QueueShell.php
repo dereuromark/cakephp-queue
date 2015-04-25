@@ -23,11 +23,6 @@ class QueueShell extends Shell {
 	public $modelClass = 'Queue.QueuedTasks';
 
 	/**
-	 * @var QueuedTask
-	 */
-	public $QueuedTask;
-
-	/**
 	 * @var array
 	 */
 	protected $_taskConf;
@@ -65,7 +60,7 @@ class QueueShell extends Shell {
 
 		parent::initialize();
 
-		$this->QueuedTask->initConfig();
+		$this->QueuedTasks->initConfig();
 	}
 
 	/**
@@ -160,7 +155,7 @@ class QueueShell extends Shell {
 			if (function_exists('posix_getpid')) {
 				$pid = posix_getpid();
 			} else {
-				$pid = $this->QueuedTask->key();
+				$pid = $this->QueuedTasks->key();
 			}
 			# global file
 			$fp = fopen($pidFilePath . 'queue.pid', "w");
@@ -170,7 +165,7 @@ class QueueShell extends Shell {
 			if (function_exists('posix_getpid')) {
 				$pid = posix_getpid();
 			} else {
-				$pid = $this->QueuedTask->key();
+				$pid = $this->QueuedTasks->key();
 			}
 			$pidFileName = 'queue_' . $pid . '.pid';
 			$fp = fopen($pidFilePath . $pidFileName, "w");
@@ -202,8 +197,8 @@ class QueueShell extends Shell {
 			}
 			$this->_log('runworker', isset($pid) ? $pid : null);
 			$this->out('Looking for Job....');
-			$data = $this->QueuedTask->requestJob($this->_getTaskConf(), $group);
-			if ($this->QueuedTask->exit === true) {
+			$data = $this->QueuedTasks->requestJob($this->_getTaskConf(), $group);
+			if ($this->QueuedTasks->exit === true) {
 				$this->_exit = true;
 			} else {
 				if ($data) {
@@ -215,14 +210,14 @@ class QueueShell extends Shell {
 					}
 					$return = $this->{$taskname}->run($data['data'], $data['id']);
 					if ($return) {
-						$this->QueuedTask->markJobDone($data['id']);
+						$this->QueuedTasks->markJobDone($data['id']);
 						$this->out('Job Finished.');
 					} else {
 						$failureMessage = null;
 						if (isset($this->{$taskname}->failureMessage) && !empty($this->{$taskname}->failureMessage)) {
 							$failureMessage = $this->{$taskname}->failureMessage;
 						}
-						$this->QueuedTask->markJobFailed($data['id'], $failureMessage);
+						$this->QueuedTasks->markJobFailed($data['id'], $failureMessage);
 						$this->out('Job did not finish, requeued.');
 					}
 				} elseif (Configure::read('Queue.exitwhennothingtodo')) {
@@ -240,7 +235,7 @@ class QueueShell extends Shell {
 				}
 				if ($this->_exit || rand(0, 100) > (100 - Configure::read('Queue.gcprob'))) {
 					$this->out('Performing Old job cleanup.');
-					$this->QueuedTask->cleanOldJobs();
+					$this->QueuedTasks->cleanOldJobs();
 				}
 				$this->hr();
 			}
@@ -257,7 +252,7 @@ class QueueShell extends Shell {
 	 */
 	public function clean() {
 		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout')));
-		$this->QueuedTask->cleanOldJobs();
+		$this->QueuedTasks->cleanOldJobs();
 	}
 
 	/**
@@ -281,16 +276,16 @@ class QueueShell extends Shell {
 	public function stats() {
 		$this->out('Jobs currenty in the Queue:');
 
-		$types = $this->QueuedTask->getTypes();
+		$types = $this->QueuedTasks->getTypes();
 
 		foreach ($types as $type) {
-			$this->out("      " . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ": " . $this->QueuedTask->getLength($type));
+			$this->out("      " . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ": " . $this->QueuedTasks->getLength($type));
 		}
 		$this->hr();
-		$this->out('Total unfinished Jobs      : ' . $this->QueuedTask->getLength());
+		$this->out('Total unfinished Jobs      : ' . $this->QueuedTasks->getLength());
 		$this->hr();
 		$this->out('Finished Job Statistics:');
-		$data = $this->QueuedTask->getStats();
+		$data = $this->QueuedTasks->getStats();
 		foreach ($data as $item) {
 			$this->out(" " . $item['jobtype'] . ": ");
 			$this->out("   Finished Jobs in Database: " . $item[0]['num']);
@@ -456,7 +451,7 @@ class QueueShell extends Shell {
 			if (function_exists('posix_getpid')) {
 				$pid = posix_getpid();
 			} else {
-				$pid = $this->QueuedTask->key();
+				$pid = $this->QueuedTasks->key();
 			}
 			$file = $pidFilePath . 'queue_' . $pid . '.pid';
 			if (file_exists($file)) {
