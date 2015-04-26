@@ -4,11 +4,14 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
+namespace App\Test\TestCase\Model\Table;
 
-App::uses('QueuedTask', 'Queue.Model');
-App::uses('CakeTestCase', 'TestSuite');
+use App\TestSuite\TestCase;
+use Cake\TestSuite\TestCase;
+use Queue\Model\QueuedTask;
 
-class QueuedTasksTableTest extends CakeTestCase {
+
+class QueuedTasksTableTest extends TestCase {
 
 	/**
 	 * @var TestQueuedTask

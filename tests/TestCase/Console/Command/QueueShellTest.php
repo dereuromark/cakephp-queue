@@ -1,9 +1,14 @@
 <?php
 
-App::uses('QueueShell', 'Queue.Console/Command');
-App::uses('CakeTestCase', 'TestSuite');
+namespace App\Test\TestCase\Console\Command;
 
-class QueueShellTest extends CakeTestCase {
+use App\TestSuite\TestCase;
+use Cake\Console\Shell;
+use Cake\Core\Configure;
+use Cake\TestSuite\TestCase;
+use Queue\Console\Command\QueueShell;
+
+class QueueShellTest extends TestCase {
 
 	public $QueueShell;
 
@@ -13,7 +18,7 @@ class QueueShellTest extends CakeTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'plugin.queue.queued_task'
+		'plugin.Queue.QueuedTasks'
 	];
 
 	public function setUp() {

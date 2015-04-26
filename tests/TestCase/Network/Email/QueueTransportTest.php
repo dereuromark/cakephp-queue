@@ -1,16 +1,22 @@
 <?php
 
-App::uses('EmailLib', 'Tools.Lib');
-App::uses('AbstractTransport', 'Network/Email');
-App::uses('QueueTransport', 'Queue.Network/Email');
+namespace App\Test\TestCase\Network\Email;
+
+use App\Network\Email\AbstractTransport;
+use Cake\Core\Configure;
+use Cake\TestSuite\TestCase;
+use Queue\Network\Email\QueueTransport;
+use Tools\Network\Email\Email;
 
 /**
  * Test case
  *
  */
-class QueueTransportTest extends CakeTestCase {
+class QueueTransportTest extends TestCase {
 
-	public $fixtures = ['plugin.queue.queued_task'];
+	public $fixtures = [
+		'plugin.Queue.QueuedTasks'
+	];
 
 	/**
 	 * Setup
@@ -48,10 +54,10 @@ class QueueTransportTest extends CakeTestCase {
 		$this->QueueTransport->config($config);
 
 		$result = $this->QueueTransport->send($Email);
-		$this->assertEquals('Email', $result['QueuedTask']['jobtype']);
-		$this->assertTrue(strlen($result['QueuedTask']['data']) < 10000);
+		$this->assertEquals('Email', $result['jobtype']);
+		$this->assertTrue(strlen($result['data']) < 10000);
 
-		$output = unserialize($result['QueuedTask']['data']);
+		$output = unserialize($result['data']);
 		debug($output);
 	}
 
