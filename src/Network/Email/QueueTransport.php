@@ -7,6 +7,9 @@
  */
 namespace Queue\Network\Email;
 
+use Cake\Network\Email\AbstractTransport;
+use Cake\Network\Email\Email;
+
 /**
  * Send mail using Queue plugin
  *

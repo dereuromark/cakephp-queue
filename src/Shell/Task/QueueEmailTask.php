@@ -3,13 +3,12 @@ namespace Queue\Console\Command\Task;
 
 use Cake\Console\Shell;
 use Cake\Log\Log;
-use createJob() on the QueuedTask Model to create a Proper Email Task.');
-use it.');
+use Toos\Network\Email\Email;
+
 /**
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-
 class QueueEmailTask extends Shell {
 
 	/**
@@ -101,7 +100,7 @@ class QueueEmailTask extends Shell {
 			}
 		}
 
-		$this->Email = new EmailLib();
+		$this->Email = new Email();
 		$settings = array_merge($this->defaults, $data['settings']);
 		foreach ($settings as $method => $setting) {
 			call_user_func_array([$this->Email, $method], (array)$setting);

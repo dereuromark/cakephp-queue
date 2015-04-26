@@ -7,6 +7,7 @@ use Cake\Core\Configure;
 use Cake\TestSuite\TestCase;
 use Queue\Network\Email\QueueTransport;
 use Tools\Network\Email\Email;
+use Cake\ORM\TableRegistry;
 
 /**
  * Test case
@@ -29,7 +30,7 @@ class QueueTransportTest extends TestCase {
 	}
 
 	public function testConfig() {
-		$Email = new EmailLib();
+		$Email = new Email();
 		$Email->transport('Queue.Queue');
 		$Email->config('default');
 
@@ -42,8 +43,8 @@ class QueueTransportTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function notestSendWithEmailLib() {
-		$Email = new EmailLib();
+	public function notestSendWithEmail() {
+		$Email = new Email();
 		$Email->from('noreply@cakephp.org', 'CakePHP Test');
 		$Email->to('cake@cakephp.org', 'CakePHP');
 		$Email->cc(['mark@cakephp.org' => 'Mark Story', 'juan@cakephp.org' => 'Juan Basso']);
@@ -65,7 +66,7 @@ class QueueTransportTest extends TestCase {
 		TableRegistry::get(['class' => 'Queue.QueuedTasks', 'table' => 'queued_tasks']);
 
 		Configure::write('debug', 0);
-		$Email = new EmailLib();
+		$Email = new Email();
 		$Email->to('markscherer@gmx.de', 'Mark Test');
 		$Email->subject('Testing Message');
 

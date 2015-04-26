@@ -61,7 +61,7 @@ $cache = [
 
 Cake\Cache\Cache::config($cache);
 
-Cake\Core\Plugin::load('Setup', ['path' => ROOT . DS]);
+Cake\Core\Plugin::load('Queue', ['path' => ROOT . DS]);
 Cake\Core\Plugin::load('Tools', ['path' => ROOT . DS . 'plugins' . DS . 'Tools' . DS]);
 
 // Ensure default test connection is defined
