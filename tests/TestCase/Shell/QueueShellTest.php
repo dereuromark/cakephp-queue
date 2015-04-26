@@ -91,6 +91,7 @@ class QueueShellTest extends TestCase {
 		$this->QueueShell->args[] = 'Example';
 		$result = $this->QueueShell->add();
 		//debug($this->QueueShell->out);
+
 		$this->assertEmpty($this->QueueShell->out);
 
 		$result = $this->QueueShell->runworker();

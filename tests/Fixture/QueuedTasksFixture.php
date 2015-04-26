@@ -12,7 +12,7 @@ use Cake\TestSuite\Fixture\TestFixture;
 class QueuedTasksFixture extends TestFixture {
 
 	public $fields = [
-		'id' => ['type' => 'integer', 'null' => false, 'default' => null, 'length' => 10],
+		'id' => ['type' => 'integer'],
 		'jobtype' => ['type' => 'string', 'null' => false, 'length' => 45],
 		'data' => ['type' => 'text', 'null' => true, 'default' => null],
 		'group' => ['type' => 'string', 'length' => 255, 'null' => true, 'default' => null],

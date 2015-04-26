@@ -40,6 +40,7 @@
 	"autoload-dev": {
 		"psr-4": {
 			"Queue\\Test\\": "tests",
+			"TestApp\\": "tests/TestApp",
 			"Cake\\Test\\": "vendor/cakephp/cakephp/tests"
 		}
 	},

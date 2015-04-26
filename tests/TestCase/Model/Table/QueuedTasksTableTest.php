@@ -7,8 +7,8 @@
 namespace Queue\Test\TestCase\Model\Table;
 
 use Cake\TestSuite\TestCase;
-use Queue\Model\Table\QueuedTasksTable;
 use Cake\ORM\TableRegistry;
+use Cake\Core\Configure;
 
 class QueuedTasksTableTest extends TestCase {
 
@@ -32,14 +32,17 @@ class QueuedTasksTableTest extends TestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		$this->QueuedTasks = TableRegistry::get('TestQueuedTasks');
+
+		Configure::write('App.namespace', 'TestApp');
+
+		$this->QueuedTasks = TableRegistry::get('QueuedTasks');
 	}
 
 	/**
 	 * Basic Instance test
 	 */
 	public function testQueueInstance() {
-		$this->assertTrue(is_a($this->QueuedTasks, 'TestQueuedTasksTable'));
+		$this->assertInstanceOf('Queue\\Model\\Table\\QueuedTasksTable', $this->QueuedTasks);
 	}
 
 	/**
@@ -98,7 +101,7 @@ class QueuedTasksTableTest extends TestCase {
 		];
 
 		// start off empty.
-		$this->assertEquals([], $this->QueuedTasks->find('all'));
+		$this->assertEquals([], $this->QueuedTasks->find('all')->toArray());
 		// at first, the queue should contain 0 items.
 		$this->assertEquals(0, $this->QueuedTasks->getLength());
 		// there are no jobs, so we cant fetch any.
@@ -469,20 +472,6 @@ class QueuedTasksTableTest extends TestCase {
 		$this->assertEquals($progress[1]['status'], 'IN_PROGRESS');
 		$this->assertEquals($progress[2]['reference'], 'Job number 6');
 		$this->assertEquals($progress[2]['status'], 'IN_PROGRESS');
-	}
-
-}
-
-/*** other classes **/
-
-class TestQueuedTasksTable extends QueuedTasksTable {
-
-	public $useTable = 'queued_tasks';
-
-	public $cacheSources = false;
-
-	public function clearKey() {
-		$this->_key = null;
 	}
 
 }

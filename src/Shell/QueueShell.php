@@ -47,10 +47,10 @@ class QueueShell extends Shell {
 		}
 		$plugins = Plugin::loaded();
 		foreach ($plugins as $plugin) {
-			$pluginPaths = App::path('Console/Command/Task', $plugin);
+			$pluginPaths = App::path('Shell/Task', $plugin);
 			foreach ($pluginPaths as $pluginPath) {
 				$Folder = new Folder($pluginPath);
-				$res = $Folder->find('Queue.*Task\.php');
+				$res = $Folder->find('Queue.+Task\.php');
 				foreach ($res as &$r) {
 					$r = $plugin . '.' . basename($r, 'Task.php');
 				}

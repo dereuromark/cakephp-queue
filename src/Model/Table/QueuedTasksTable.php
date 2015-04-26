@@ -25,7 +25,6 @@ class QueuedTasksTable extends Table {
 	protected $_key = null;
 
 	public function initialize(array $config) {
-
 	}
 
 	/**
