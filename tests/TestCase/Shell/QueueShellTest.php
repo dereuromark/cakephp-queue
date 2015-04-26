@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Test\TestCase\Console\Command;
+namespace Queue\Test\TestCase\Console\Command;
 
-use App\TestSuite\TestCase;
 use Cake\Console\Shell;
 use Cake\Core\Configure;
 use Cake\TestSuite\TestCase;
-use Queue\Console\Command\QueueShell;
+use Queue\Shell\QueueShell;
 
 class QueueShellTest extends TestCase {
 

@@ -233,7 +233,7 @@ class QueuedTasksTable extends Table {
 		//debug($key);ob_flush();
 
 		// try to update one of the found tasks with the key of this worker.
-		$this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE ' . implode(' OR ', $whereClause) . ' ORDER BY ' . $this->virtualFields['age'] . ' ASC, id ASC LIMIT 1');
+		$this->query('UPDATE ' . $this->table() . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE ' . implode(' OR ', $whereClause) . ' ORDER BY ' . $this->virtualFields['age'] . ' ASC, id ASC LIMIT 1');
 
 		// Read which one actually got updated, which is the job we are supposed to execute.
 		$data = $this->find('first', [
@@ -438,7 +438,7 @@ class QueuedTasksTable extends Table {
  * @return void
  */
 	public function clearDoublettes() {
-		$x = $this->query('SELECT max(id) as id FROM `' . $this->tablePrefix . $this->table . '`
+		$x = $this->query('SELECT max(id) as id FROM `' . $this->table() . '`
 	WHERE completed is null
 	GROUP BY data
 	HAVING COUNT(id) > 1');
@@ -481,20 +481,5 @@ class QueuedTasksTable extends Table {
 		}
 		return $this->query('TRUNCATE TABLE `' . $table . '`');
 	}
-
-/**
- * Cleanup (remove the identifier from the db records?)
- *
- * TO-DO: FIXME
- *
- * @return void
- */
-	/*
-	public function __destruct() {
-		$this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "" WHERE workerkey = "' . $this->_key() . '" LIMIT 1');
-
-		parent::__destruct();
-	}
-	*/
 
 }

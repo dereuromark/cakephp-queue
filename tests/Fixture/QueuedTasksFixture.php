@@ -5,7 +5,7 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-namespace App\Test\Fixture;
+namespace Queue\Test\Fixture;
 
 use Cake\TestSuite\Fixture\TestFixture;
 

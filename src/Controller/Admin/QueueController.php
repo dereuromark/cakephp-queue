@@ -16,7 +16,7 @@ class QueueController extends AppController {
 	 */
 	public function beforeFilter(Event $event)
 	{
-		$this->QueuedTask->initConfig();
+		$this->QueuedTasks->initConfig();
 
 		parent::beforeFilter($event);
 	}
@@ -31,9 +31,9 @@ class QueueController extends AppController {
 	{
 		$status = $this->_status();
 
-		$current = $this->QueuedTask->getLength();
-		$pendingDetails = $this->QueuedTask->getPendingStats();
-		$data = $this->QueuedTask->getStats();
+		$current = $this->QueuedTasks->getLength();
+		$pendingDetails = $this->QueuedTasks->getPendingStats();
+		$data = $this->QueuedTasks->getStats();
 
 		$this->set(compact('current', 'data', 'pendingDetails', 'status'));
 		$this->helpers[] = 'Tools.Format';
@@ -49,7 +49,7 @@ class QueueController extends AppController {
 	public function reset()
 	{
 		$this->request->allowMethod('post');
-		$res = $this->QueuedTask->truncate();
+		$res = $this->QueuedTasks->truncate();
 
 		if ($res) {
 			$message = __d('queue', 'OK');

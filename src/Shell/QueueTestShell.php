@@ -36,7 +36,7 @@ class QueueTestShell extends Shell {
 			]
 		];
 
-		if ($this->QueuedTask->createJob('Email', $data)) {
+		if ($this->QueuedTasks->createJob('Email', $data)) {
 			$this->out('OK, test email created');
 		} else {
 			$this->err('Could not create test email');

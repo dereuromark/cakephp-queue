@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Test\TestCase\Network\Email;
+namespace Queue\Test\TestCase\Network\Email;
 
 use App\Network\Email\AbstractTransport;
 use Cake\Core\Configure;
@@ -62,7 +62,7 @@ class QueueTransportTest extends TestCase {
 	}
 
 	public function testSendLiveEmail() {
-		ClassRegistry::init(['class' => 'Queue.QueuedTask', 'table' => 'queued_tasks', 'prefix' => 'site_']);
+		TableRegistry::get(['class' => 'Queue.QueuedTasks', 'table' => 'queued_tasks']);
 
 		Configure::write('debug', 0);
 		$Email = new EmailLib();

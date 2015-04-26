@@ -63,7 +63,7 @@ class QueueSuperExampleTask extends QueueTask {
 		/*
 		 * Adding a task of type 'example' with no additionally passed data
 		 */
-		if ($this->QueuedTask->createJob('SuperExample', null)) {
+		if ($this->QueuedTasks->createJob('SuperExample', null)) {
 			$this->out('OK, job created, now run the worker');
 		} else {
 			$this->err('Could not create Job');
@@ -88,7 +88,7 @@ class QueueSuperExampleTask extends QueueTask {
 		$this->out(' ');
 
 		// Lets create an Example task on successful execution
-		ClassRegistry::init('Queue.QueuedTask')->createJob('Example');
+		TableRegistry::get('Queue.QueuedTasks')->createJob('Example');
 
 		return true;
 	}

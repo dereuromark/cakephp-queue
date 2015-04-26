@@ -80,7 +80,7 @@ class QueueRetryExampleTask extends QueueTask {
 		/*
 		 * Adding a task of type 'example' with no additionally passed data
 		 */
-		if ($this->QueuedTask->createJob('RetryExample', null)) {
+		if ($this->QueuedTasks->createJob('RetryExample', null)) {
 			$this->out('OK, job created, now run the worker');
 		} else {
 			$this->err('Could not create Job');
