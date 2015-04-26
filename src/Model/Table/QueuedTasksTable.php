@@ -60,7 +60,7 @@ class QueuedTasksTable extends Table {
 	 * @param array  $notBefore optional date which must not be preceded
 	 * @param string $group     Used to group similar QueuedTasks.
 	 * @param string $reference An optional reference string.
-	 * @return array            Created Job array containing id, data, ...
+	 * @return Cake\ORM\Entity Saved job entity
 	 */
 	public function createJob($jobName, $data = null, $notBefore = null, $group = null, $reference = null)
 	{
@@ -73,8 +73,11 @@ class QueuedTasksTable extends Table {
 		if ($notBefore !== null) {
 			$data['notbefore'] = date('Y-m-d H:i:s', strtotime($notBefore));
 		}
-		$this->create();
-		return $this->save($data);
+		$queuedTask = $this->newEntity($data);
+		if ($queuedTask->errors()) {
+			throw new \Exception('Invalid entity data');
+		}
+		return $this->save($entity);
 	}
 
 	/**

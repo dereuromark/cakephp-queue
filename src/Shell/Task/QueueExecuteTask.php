@@ -6,7 +6,7 @@
  */
 namespace Queue\Shell\Task;
 
-use Queue\Console\Command\Task\QueueTask;
+use Queue\Shell\Task\QueueTask;
 
 /**
  * Execute a Local command on the server.

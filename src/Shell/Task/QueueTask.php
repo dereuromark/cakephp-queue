@@ -5,7 +5,7 @@
  */
 namespace Queue\Shell\Task;
 
-use App\Console\Command\AppShell;
+use Cake\Console\Shell;
 
 /**
  * Queue Task.
@@ -13,7 +13,7 @@ use App\Console\Command\AppShell;
  * Common Queue plugin tasks properties and methods to be extended by custom
  * tasks.
  */
-class QueueTask extends AppShell {
+class QueueTask extends Shell {
 
 	/**
 	 * Adding the QueueTask Model
@@ -27,14 +27,14 @@ class QueueTask extends AppShell {
 	 *
 	 * @var int
 	 */
-//	public $timeout = 120;
+	public $timeout = 120;
 
 	/**
 	 * Number of times a failed instance of this task should be restarted before giving up.
 	 *
 	 * @var int
 	 */
-//	public $retries = 4;
+	public $retries = 4;
 
 	/**
 	 * @var bool

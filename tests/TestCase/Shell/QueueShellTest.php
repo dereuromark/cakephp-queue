@@ -1,6 +1,6 @@
 <?php
 
-namespace Queue\Test\TestCase\Console\Command;
+namespace Queue\Test\TestCase\Shell;
 
 use Cake\Console\Shell;
 use Cake\Core\Configure;

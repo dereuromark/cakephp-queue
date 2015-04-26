@@ -1,7 +1,7 @@
 <?php
-namespace Queue\Console\Command\Task;
+namespace Queue\Shell\Task;
 
-use Cake\Console\Shell;
+use Queue\Shell\Task\QueueTask;
 use Cake\Log\Log;
 use Toos\Network\Email\Email;
 
@@ -9,7 +9,7 @@ use Toos\Network\Email\Email;
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-class QueueEmailTask extends Shell {
+class QueueEmailTask extends QueueTask {
 
 	/**
 	 * List of default variables for EmailComponent
