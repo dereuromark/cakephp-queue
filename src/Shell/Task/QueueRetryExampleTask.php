@@ -19,7 +19,7 @@ class QueueRetryExampleTask extends QueueTask {
 	 *
 	 * @var QueuedTask
 	 */
-	public $QueuedTask;
+	public $QueuedTasks;
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.

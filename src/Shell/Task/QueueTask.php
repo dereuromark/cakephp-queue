@@ -20,7 +20,7 @@ class QueueTask extends Shell {
 	 *
 	 * @var array
 	 */
-	public $modelClass = 'Queue.QueuedTask';
+	public $modelClass = 'Queue.QueuedTasks';
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.

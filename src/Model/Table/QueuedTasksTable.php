@@ -77,7 +77,7 @@ class QueuedTasksTable extends Table {
 		if ($queuedTask->errors()) {
 			throw new \Exception('Invalid entity data');
 		}
-		return $this->save($entity);
+		return $this->save($queuedTask);
 	}
 
 	/**
