@@ -60,12 +60,12 @@ class QueueTestShell extends Shell {
 
 		$config = $Email->config();
 		if (!isset($config['queue'])) {
-			$this->error('queue key in config missing');
+			return $this->error('queue key in config missing');
 		}
 
 		$res = $Email->send('Foo');
 		if (!$res) {
-			$this->error('Could not send email: ' . $Email->getError());
+			return $this->error('Could not send email: ' . $Email->getError());
 		}
 		$this->out('YEAH!');
 	}
