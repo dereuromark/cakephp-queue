@@ -4,10 +4,10 @@ namespace Queue\Test\TestCase\Network\Email;
 
 use App\Network\Email\AbstractTransport;
 use Cake\Core\Configure;
+use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Queue\Network\Email\QueueTransport;
 use Tools\Network\Email\Email;
-use Cake\ORM\TableRegistry;
 
 /**
  * Test case

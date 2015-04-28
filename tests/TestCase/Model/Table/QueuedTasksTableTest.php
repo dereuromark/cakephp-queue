@@ -6,9 +6,9 @@
  */
 namespace Queue\Test\TestCase\Model\Table;
 
-use Cake\TestSuite\TestCase;
-use Cake\ORM\TableRegistry;
 use Cake\Core\Configure;
+use Cake\ORM\TableRegistry;
+use Cake\TestSuite\TestCase;
 
 class QueuedTasksTableTest extends TestCase {
 
@@ -191,10 +191,10 @@ class QueuedTasksTableTest extends TestCase {
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', [], '+ 1 Min'));
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', [], '+ 1 Day'));
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', [], '2009-07-01 12:00:00'));
-		$data = $this->QueuedTasks->find('all');
-		$this->assertWithinMargin(strtotime($data[0]['TestQueuedTask']['notbefore']), strtotime('+ 1 Min'), 1);
-		$this->assertWithinMargin(strtotime($data[1]['TestQueuedTask']['notbefore']), strtotime('+ 1 Day'), 1);
-		$this->assertWithinMargin(strtotime($data[2]['TestQueuedTask']['notbefore']), strtotime('2009-07-01 12:00:00'), 1);
+		$data = $this->QueuedTasks->find('all')->toArray();
+		$this->assertWithinRange(strtotime($data[0]['notbefore']), strtotime('+ 1 Min'), 1);
+		$this->assertWithinRange(strtotime($data[1]['notbefore']), strtotime('+ 1 Day'), 1);
+		$this->assertWithinRange(strtotime($data[2]['notbefore']), strtotime('2009-07-01 12:00:00'), 1);
 	}
 
 	/**
