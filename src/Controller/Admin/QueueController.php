@@ -14,8 +14,7 @@ class QueueController extends AppController {
 	 *
 	 * @return void
 	 */
-	public function beforeFilter(Event $event)
-	{
+	public function beforeFilter(Event $event) {
 		$this->QueuedTasks->initConfig();
 
 		parent::beforeFilter($event);
@@ -27,8 +26,7 @@ class QueueController extends AppController {
 	 *
 	 * @return void
 	 */
-	public function index()
-	{
+	public function index() {
 		$status = $this->_status();
 
 		$current = $this->QueuedTasks->getLength();
@@ -46,8 +44,7 @@ class QueueController extends AppController {
 	 * @return void
 	 * @throws MethodNotAllowedException when not posted
 	 */
-	public function reset()
-	{
+	public function reset() {
 		$this->request->allowMethod('post');
 		$res = $this->QueuedTasks->truncate();
 
@@ -73,8 +70,7 @@ class QueueController extends AppController {
 	 *
 	 * @return array Status array
 	 */
-	protected function _status()
-	{
+	protected function _status() {
 		if (!($pidFilePath = Configure::read('Queue.pidfilepath'))) {
 			return [];
 		}

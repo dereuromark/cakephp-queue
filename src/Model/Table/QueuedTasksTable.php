@@ -62,8 +62,7 @@ class QueuedTasksTable extends Table {
 	 * @param string $reference An optional reference string.
 	 * @return Cake\ORM\Entity Saved job entity
 	 */
-	public function createJob($jobName, $data = null, $notBefore = null, $group = null, $reference = null)
-	{
+	public function createJob($jobName, $data = null, $notBefore = null, $group = null, $reference = null) {
 		$data = [
 			'jobtype' => $jobName,
 			'data' => serialize($data),
@@ -85,8 +84,7 @@ class QueuedTasksTable extends Table {
 	 *
 	 * @return void
 	 */
-	public function onError()
-	{
+	public function onError() {
 		$this->exit = true;
 	}
 
@@ -97,8 +95,7 @@ class QueuedTasksTable extends Table {
 	 * @param string $type jobType to Count
 	 * @return int
 	 */
-	public function getLength($type = null)
-	{
+	public function getLength($type = null) {
 		$findConf = [
 			'conditions' => [
 				'completed' => null

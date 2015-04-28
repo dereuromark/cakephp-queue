@@ -37,8 +37,7 @@ class QueueEmailTask extends QueueTask {
 	 *
 	 * @return void
 	 */
-	public function add()
-	{
+	public function add() {
 		$this->err('Queue Email Task cannot be added via Console.');
 		$this->out('Please use createJob() on the QueuedTask Model to create a Proper Email Task.');
 		$this->out('The Data Array should look something like this:');
@@ -63,8 +62,7 @@ class QueueEmailTask extends QueueTask {
 	 * @param int $id The id of the QueuedTask
 	 * @return bool Success
 	 */
-	public function run($data, $id = null)
-	{
+	public function run($data, $id = null) {
 		if (!isset($data['settings'])) {
 			$this->err('Queue Email task called without settings data.');
 			return false;
@@ -122,8 +120,7 @@ class QueueEmailTask extends QueueTask {
 	 * @param mixed $log int for loglevel, array for merge with log-data
 	 * @return void
 	 */
-	protected function _log($contents, $log)
-	{
+	protected function _log($contents, $log) {
 		$config = [
 			'level' => LOG_DEBUG,
 			'scope' => 'email'

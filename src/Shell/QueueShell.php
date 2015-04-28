@@ -214,7 +214,7 @@ class QueueShell extends Shell {
 						$this->out('Job Finished.');
 					} else {
 						$failureMessage = null;
-						if (isset($this->{$taskname}->failureMessage) && !empty($this->{$taskname}->failureMessage)) {
+						if (!empty($this->{$taskname}->failureMessage)) {
 							$failureMessage = $this->{$taskname}->failureMessage;
 						}
 						$this->QueuedTasks->markJobFailed($data['id'], $failureMessage);
