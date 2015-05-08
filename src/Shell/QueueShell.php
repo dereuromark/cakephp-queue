@@ -197,9 +197,10 @@ class QueueShell extends Shell {
 				touch($pidFilePath . $pidFileName);
 			}
 			$this->_log('runworker', isset($pid) ? $pid : null);
-			$this->out('Looking for Job....');
-			$data = $this->QueuedTasks->requestJob($this->_getTaskConf(), $group);
-			if ($this->QueuedTasks->exit === true) {
+			$this->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
+
+			$data = $this->QueuedTask->requestJob($this->_getTaskConf(), $group);
+			if ($this->QueuedTask->exit === true) {
 				$this->_exit = true;
 			} else {
 				if ($data) {
