@@ -39,6 +39,6 @@ $config['Queue'] = [
 	// set to false to disable (tmp = file in TMP dir)
 	'notify' => 'tmp',
 
-    // prints a timestamp each time a worker begins looking for a job
-    'workertimestamp' => false
+	// prints a timestamp each time a worker begins looking for a job
+	'workertimestamp' => false
 ];
