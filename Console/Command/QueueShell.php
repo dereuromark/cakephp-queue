@@ -43,7 +43,7 @@ class QueueShell extends AppShell {
 
 		foreach ($paths as $path) {
 			$Folder = new Folder($path);
-			$res = array_merge($this->tasks, $Folder->find('Queue.*\.php'));
+			$res = array_merge($this->tasks, $Folder->find('Queue.+\.php'));
 			foreach ($res as &$r) {
 				$r = basename($r, 'Task.php');
 			}
@@ -54,7 +54,7 @@ class QueueShell extends AppShell {
 			$pluginPaths = App::path('Console/Command/Task', $plugin);
 			foreach ($pluginPaths as $pluginPath) {
 				$Folder = new Folder($pluginPath);
-				$res = $Folder->find('Queue.*Task\.php');
+				$res = $Folder->find('Queue.+Task\.php');
 				foreach ($res as &$r) {
 					$r = $plugin . '.' . basename($r, 'Task.php');
 				}
@@ -200,11 +200,8 @@ class QueueShell extends AppShell {
 				touch($pidFilePath . $pidFileName);
 			}
 			$this->_log('runworker', isset($pid) ? $pid : null);
-			if (Configure::read('Queue.workertimestamp')) {
- 				$this->out('['.date('Y-m-d H:i:s').'] Looking for Job....');
-			} else {
- 				$this->out('Looking for Job....');
-			}
+			$this->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
+
 			$data = $this->QueuedTask->requestJob($this->_getTaskConf(), $group);
 			if ($this->QueuedTask->exit === true) {
 				$this->_exit = true;
@@ -352,7 +349,7 @@ class QueueShell extends AppShell {
 		];
 
 		return parent::getOptionParser()
-			->description(__d('cake_console', "..."))
+			->description(__d('cake_console', "Simple and minimalistic job queue (or deferred-task) system."))
 			->addSubcommand('clean', [
 				'help' => __d('cake_console', 'Remove old jobs (cleanup)'),
 				'parser' => $subcommandParser
