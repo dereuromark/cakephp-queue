@@ -200,7 +200,7 @@ class QueueShell extends AppShell {
 				touch($pidFilePath . $pidFileName);
 			}
 			$this->_log('runworker', isset($pid) ? $pid : null);
-			$this->out('Looking for Job....');
+			$this->out('['.date('Y-m-d H:i:s').'] Looking for Job....');
 			$data = $this->QueuedTask->requestJob($this->_getTaskConf(), $group);
 			if ($this->QueuedTask->exit === true) {
 				$this->_exit = true;
