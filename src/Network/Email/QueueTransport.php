@@ -9,6 +9,7 @@ namespace Queue\Network\Email;
 
 use Cake\Network\Email\AbstractTransport;
 use Cake\Network\Email\Email;
+use Cake\ORM\TableRegistry;
 
 /**
  * Send mail using Queue plugin

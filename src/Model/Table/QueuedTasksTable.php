@@ -98,12 +98,13 @@ class QueuedTasksTable extends Table {
 	public function getLength($type = null) {
 		$findConf = [
 			'conditions' => [
-				'completed' => null
+				'completed IS' => null
 			]
 		];
 		if ($type !== null) {
 			$findConf['conditions']['jobtype'] = $type;
 		}
+
 		return $this->find('count', $findConf);
 	}
 
@@ -151,30 +152,33 @@ class QueuedTasksTable extends Table {
 		return $this->find('all', $options);
 	}
 
-/**
- * Look for a new job that can be processed with the current abilities and
- * from the specified group (or any if null).
- *
- * @param array $capabilities Available QueueWorkerTasks.
- * @param string $group Request a job from this group, (from any group if null)
- * @return array Taskdata.
- */
+	/**
+	 * Look for a new job that can be processed with the current abilities and
+	 * from the specified group (or any if null).
+	 *
+	 * @param array $capabilities Available QueueWorkerTasks.
+	 * @param string $group Request a job from this group, (from any group if null)
+	 * @return array Taskdata.
+	 */
 	public function requestJob($capabilities, $group = null) {
 		$whereClause = [];
 		$wasFetched = [];
 
-		$this->virtualFields['age'] = 'IFNULL(TIMESTAMPDIFF(SECOND, NOW(),notbefore), 0)';
+		//$this->virtualFields['age'] = 'IFNULL(TIMESTAMPDIFF(SECOND, NOW(),notbefore), 0)';
 		$findCond = [
 			'conditions' => [
 				'completed IS' => null,
 				'OR' => []
 			],
-			'fields' => [
-				'id',
-				'jobtype',
-				'fetched',
-				'age',
-			],
+			'fields' => function ($query) {
+				return [
+					'id',
+					'jobtype',
+					'fetched',
+					//'age' => $query->func('IFNULL(TIMESTAMPDIFF(SECOND, NOW(), notbefore), 0)'),
+					'age' => $query->newExpr()->add('IFNULL(TIMESTAMPDIFF(SECOND, NOW(), notbefore), 0)'),
+				];
+			},
 			'order' => [
 				'age ASC',
 				'id ASC'
@@ -216,15 +220,15 @@ class QueuedTasksTable extends Table {
 		// First, find a list of a few of the oldest unfinished tasks.
 		$data = $this->find('all', $findCond);
 		if (!$data) {
-			return [];
+			return null;
 		}
 
 		// Generate a list of already fetched ID's and a where clause for the update statement
 		$capTimeout = Hash::combine($capabilities, '{s}.name', '{s}.timeout');
 		foreach ($data as $item) {
-			$whereClause[] = '(id = ' . $item[$this->alias]['id'] . ' AND (workerkey IS NULL OR fetched <= "' . date('Y-m-d H:i:s', time() - $capTimeout[$item[$this->alias]['jobtype']]) . '"))';
-			if (!empty($item[$this->alias]['fetched'])) {
-				$wasFetched[] = $item[$this->alias]['id'];
+			$whereClause[] = '(id = ' . $item['id'] . ' AND (workerkey IS NULL OR fetched <= "' . date('Y-m-d H:i:s', time() - $capTimeout[$item['jobtype']]) . '"))';
+			if (!empty($item['fetched'])) {
+				$wasFetched[] = $item['id'];
 			}
 		}
 
@@ -232,7 +236,8 @@ class QueuedTasksTable extends Table {
 		//debug($key);ob_flush();
 
 		// try to update one of the found tasks with the key of this worker.
-		$this->query('UPDATE ' . $this->table() . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE ' . implode(' OR ', $whereClause) . ' ORDER BY ' . $this->virtualFields['age'] . ' ASC, id ASC LIMIT 1');
+		$virtualFields['age'] = 'IFNULL(TIMESTAMPDIFF(SECOND, NOW(),notbefore), 0)';
+		$this->query('UPDATE ' . $this->table() . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE ' . implode(' OR ', $whereClause) . ' ORDER BY ' . $virtualFields['age'] . ' ASC, id ASC LIMIT 1');
 
 		// Read which one actually got updated, which is the job we are supposed to execute.
 		$data = $this->find('first', [
@@ -242,43 +247,44 @@ class QueuedTasksTable extends Table {
 			],
 			'order' => ['fetched' => 'DESC']
 		]);
-		if (empty($data)) {
-			return [];
+		debug($data);
+
+		if (!$data) {
+			return null;
 		}
 
 		// If the job had an existing fetched timestamp, increment the failure counter
-		if (in_array($data[$this->alias]['id'], $wasFetched)) {
-			$data[$this->alias]['failed']++;
-			$data[$this->alias]['failure_message'] = 'Restart after timeout';
-			$this->id = $data[$this->alias]['id'];
-			$this->save($data, false, ['id', 'failed', 'failure_message']);
+		if (in_array($data['id'], $wasFetched)) {
+			$data['failed']++;
+			$data['failure_message'] = 'Restart after timeout';
+			$this->id = $data['id'];
+			$this->saveArray($data, ['fieldList' => ['id', 'failed', 'failure_message']]);
 		}
 		//save last fetch by type for Rate Limiting.
-		$this->rateHistory[$data[$this->alias]['jobtype']] = time();
-		return $data[$this->alias];
+		$this->rateHistory[$data['jobtype']] = time();
+		return $data;
 	}
 
-/**
- * QueuedTask::updateProgress()
- *
- * @param int $id ID of task
- * @param float $progress Value from 0 to 1
- * @return bool Success
- */
+	/**
+	 * QueuedTask::updateProgress()
+	 *
+	 * @param int $id ID of task
+	 * @param float $progress Value from 0 to 1
+	 * @return bool Success
+	 */
 	public function updateProgress($id, $progress) {
 		if (!$id) {
 			return false;
 		}
-		$this->id = $id;
-		return (bool)$this->saveField('progress', round($progress, 2));
+		return (bool)$this->saveField($id, 'progress', round($progress, 2));
 	}
 
-/**
- * Mark a job as Completed, removing it from the queue.
- *
- * @param int $id ID of task
- * @return bool Success
- */
+	/**
+	 * Mark a job as Completed, removing it from the queue.
+	 *
+	 * @param int $id ID of task
+	 * @return bool Success
+	 */
 	public function markJobDone($id) {
 		$fields = [
 			$this->alias . '.completed' => "'" . date('Y-m-d H:i:s') . "'"
@@ -289,13 +295,13 @@ class QueuedTasksTable extends Table {
 		return $this->updateAll($fields, $conditions);
 	}
 
-/**
- * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
- *
- * @param int $id ID of task
- * @param string $failureMessage Optional message to append to the failure_message field.
- * @return bool Success
- */
+	/**
+	 * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
+	 *
+	 * @param int $id ID of task
+	 * @param string $failureMessage Optional message to append to the failure_message field.
+	 * @return bool Success
+	 */
 	public function markJobFailed($id, $failureMessage = null) {
 		$db = $this->getDataSource();
 		$fields = [
@@ -308,11 +314,11 @@ class QueuedTasksTable extends Table {
 		return $this->updateAll($fields, $conditions);
 	}
 
-/**
- * Return some statistics about unfinished jobs still in the Database.
- *
- * @return array
- */
+	/**
+	 * Return some statistics about unfinished jobs still in the Database.
+	 *
+	 * @return array
+	 */
 	public function getPendingStats() {
 		$findCond = [
 			'fields' => [
@@ -332,11 +338,11 @@ class QueuedTasksTable extends Table {
 		return $this->find('all', $findCond);
 	}
 
-/**
- * Cleanup/Delete Completed Jobs.
- *
- * @return void
- */
+	/**
+	 * Cleanup/Delete Completed Jobs.
+	 *
+	 * @return void
+	 */
 	public function cleanOldJobs() {
 		$this->deleteAll([
 			'completed <' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))
@@ -362,12 +368,12 @@ class QueuedTasksTable extends Table {
 		}
 	}
 
-/**
- * QueuedTask::lastRun()
- *
- * @deprecated?
- * @return array
- */
+	/**
+	 * QueuedTask::lastRun()
+	 *
+	 * @deprecated?
+	 * @return array
+	 */
 	public function lastRun() {
 		$workerFileLog = LOGS . 'queue' . DS . 'runworker.txt';
 		if (file_exists($workerFileLog)) {
@@ -379,16 +385,16 @@ class QueuedTasksTable extends Table {
 		];
 	}
 
-/**
- * QueuedTask::_findProgress()
- *
- * Custom find method, as in `find('progress', ...)`.
- *
- * @param string $state Current state
- * @param array $query Parameters
- * @param array $results Results
- * @return array         Query/Results based on state
- */
+	/**
+	 * QueuedTask::_findProgress()
+	 *
+	 * Custom find method, as in `find('progress', ...)`.
+	 *
+	 * @param string $state Current state
+	 * @param array $query Parameters
+	 * @param array $results Results
+	 * @return array         Query/Results based on state
+	 */
 	protected function _findProgress($state, $query = [], $results = []) {
 		if ($state === 'before') {
 			$query['fields'] = [
@@ -417,28 +423,28 @@ class QueuedTasksTable extends Table {
 		// state === after
 		foreach ($results as $k => $result) {
 			$results[$k] = [
-				'reference' => $result[$this->alias]['reference'],
-				'status' => $result[$this->alias]['status']
+				'reference' => $result['reference'],
+				'status' => $result['status']
 			];
-			if (!empty($result[$this->alias]['progress'])) {
-				$results[$k]['progress'] = $result[$this->alias]['progress'];
+			if (!empty($result['progress'])) {
+				$results[$k]['progress'] = $result['progress'];
 			}
-			if (!empty($result[$this->alias]['failure_message'])) {
-				$results[$k]['failure_message'] = $result[$this->alias]['failure_message'];
+			if (!empty($result['failure_message'])) {
+				$results[$k]['failure_message'] = $result['failure_message'];
 			}
 		}
 		return $results;
 	}
 
-/**
- * QueuedTask::clearDoublettes()
- * //FIXME
- *
- * @return void
- */
+	/**
+	 * QueuedTask::clearDoublettes()
+	 * //FIXME
+	 *
+	 * @return void
+	 */
 	public function clearDoublettes() {
 		$x = $this->query('SELECT max(id) as id FROM `' . $this->table() . '`
-	WHERE completed is null
+	WHERE completed is NULL
 	GROUP BY data
 	HAVING COUNT(id) > 1');
 
@@ -454,13 +460,13 @@ class QueuedTasksTable extends Table {
 		}
 	}
 
-/**
- * Generate a unique Identifier for the current worker thread.
- *
- * Useful to idendify the currently running processes for this thread.
- *
- * @return string Identifier
- */
+	/**
+	 * Generates a unique Identifier for the current worker thread.
+	 *
+	 * Useful to idendify the currently running processes for this thread.
+	 *
+	 * @return string Identifier
+	 */
 	public function key() {
 		if ($this->_key !== null) {
 			return $this->_key;
@@ -469,11 +475,11 @@ class QueuedTasksTable extends Table {
 		return $this->_key;
 	}
 
-/**
- * Truncate table.
- *
- * @return array Query results
- */
+	/**
+	 * Truncates table.
+	 *
+	 * @return array Query results
+	 */
 	public function truncate($table = null) {
 		if ($table === null) {
 			$table = $this->table();

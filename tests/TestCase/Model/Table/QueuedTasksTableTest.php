@@ -101,17 +101,17 @@ class QueuedTasksTableTest extends TestCase {
 		];
 
 		// start off empty.
-		$this->assertEquals([], $this->QueuedTasks->find('all')->toArray());
+		$this->assertEquals([], $this->QueuedTasks->find()->toArray());
 		// at first, the queue should contain 0 items.
 		$this->assertEquals(0, $this->QueuedTasks->getLength());
 		// there are no jobs, so we cant fetch any.
-		$this->assertSame([], $this->QueuedTasks->requestJob($capabilities));
+		$this->assertNull($this->QueuedTasks->requestJob($capabilities));
 		// insert one job.
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $testData));
 
 		// fetch and check the first job.
 		$data = $this->QueuedTasks->requestJob($capabilities);
-
+debug($data);
 		$this->assertEquals(1, $data['id']);
 		$this->assertEquals('task1', $data['jobtype']);
 		$this->assertEquals(0, $data['failed']);

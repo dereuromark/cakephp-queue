@@ -31,6 +31,18 @@ Cake\Core\Configure::write('App', [
 		'encoding' => 'UTF-8']);
 Cake\Core\Configure::write('debug', true);
 
+Cake\Core\Configure::write('EmailTransport', [
+		'default' => [
+			'className' => 'Debug',
+		],
+]);
+Cake\Core\Configure::write('Email', [
+		'default' => [
+			'transport' => 'default',
+			'from' => 'you@localhost',
+		]
+]);
+
 mb_internal_encoding('UTF-8');
 
 $Tmp = new \Cake\Filesystem\Folder(TMP);
@@ -64,13 +76,23 @@ Cake\Cache\Cache::config($cache);
 Cake\Core\Plugin::load('Queue', ['path' => ROOT . DS]);
 Cake\Core\Plugin::load('Tools', ['path' => ROOT . DS . 'plugins' . DS . 'Tools' . DS]);
 
+Cake\Network\Email\Email::configTransport('default', [
+	'className' => 'Debug'
+]);
+Cake\Network\Email\Email::configTransport('queue', [
+	'className' => 'Queue.Queue'
+]);
+Cake\Network\Email\Email::config('default', [
+	'transport' => 'default'
+]);
+
 // Ensure default test connection is defined
 if (!getenv('db_class')) {
 	putenv('db_class=Cake\Database\Driver\Sqlite');
 	putenv('db_dsn=sqlite::memory:');
 }
 
-if (false && WINDOWS) {
+if (WINDOWS) {
 	Cake\Datasource\ConnectionManager::config('test', [
 		'className' => 'Cake\Database\Connection',
 		'driver' => 'Cake\Database\Driver\Mysql',

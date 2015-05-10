@@ -39,7 +39,7 @@ class QueueShell extends Shell {
 
 		foreach ($paths as $path) {
 			$Folder = new Folder($path);
-			$res = array_merge($this->tasks, $Folder->find('Queue.*\.php'));
+			$res = array_merge($this->tasks, $Folder->find('Queue.+\.php'));
 			foreach ($res as &$r) {
 				$r = basename($r, 'Task.php');
 			}
@@ -344,7 +344,7 @@ class QueueShell extends Shell {
 		];
 
 		return parent::getOptionParser()
-			->description(__d('cake_console', "..."))
+			->description(__d('cake_console', "Simple and minimalistic job queue (or deferred-task) system."))
 			->addSubcommand('clean', [
 				'help' => __d('cake_console', 'Remove old jobs (cleanup)'),
 				'parser' => $subcommandParser
