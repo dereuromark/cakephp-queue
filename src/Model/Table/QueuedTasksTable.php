@@ -25,6 +25,7 @@ class QueuedTasksTable extends Table {
 	protected $_key = null;
 
 	public function initialize(array $config) {
+		parent::initialize($config);
 	}
 
 	/**
@@ -160,7 +161,7 @@ class QueuedTasksTable extends Table {
 	 * @param string $group Request a job from this group, (from any group if null)
 	 * @return array Taskdata.
 	 */
-	public function requestJob($capabilities, $group = null) {
+	public function requestJob(array $capabilities, $group = null) {
 		$whereClause = [];
 		$wasFetched = [];
 
@@ -218,7 +219,7 @@ class QueuedTasksTable extends Table {
 		}
 
 		// First, find a list of a few of the oldest unfinished tasks.
-		$data = $this->find('all', $findCond);
+		$data = $this->find('all', $findCond)->all()->toArray();
 		if (!$data) {
 			return null;
 		}
@@ -237,17 +238,16 @@ class QueuedTasksTable extends Table {
 
 		// try to update one of the found tasks with the key of this worker.
 		$virtualFields['age'] = 'IFNULL(TIMESTAMPDIFF(SECOND, NOW(),notbefore), 0)';
-		$this->query('UPDATE ' . $this->table() . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE ' . implode(' OR ', $whereClause) . ' ORDER BY ' . $virtualFields['age'] . ' ASC, id ASC LIMIT 1');
+		$this->_connection->query('UPDATE ' . $this->table() . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE ' . implode(' OR ', $whereClause) . ' ORDER BY ' . $virtualFields['age'] . ' ASC, id ASC LIMIT 1');
 
 		// Read which one actually got updated, which is the job we are supposed to execute.
 		$data = $this->find('first', [
 			'conditions' => [
 				'workerkey' => $key,
-				'completed' => null,
+				'completed IS' => null,
 			],
 			'order' => ['fetched' => 'DESC']
 		]);
-		debug($data);
 
 		if (!$data) {
 			return null;
@@ -257,8 +257,8 @@ class QueuedTasksTable extends Table {
 		if (in_array($data['id'], $wasFetched)) {
 			$data['failed']++;
 			$data['failure_message'] = 'Restart after timeout';
-			$this->id = $data['id'];
-			$this->saveArray($data, ['fieldList' => ['id', 'failed', 'failure_message']]);
+			//$this->id = $data['id'];
+			$this->save($data, ['fieldList' => ['id', 'failed', 'failure_message']]);
 		}
 		//save last fetch by type for Rate Limiting.
 		$this->rateHistory[$data['jobtype']] = time();
@@ -287,10 +287,30 @@ class QueuedTasksTable extends Table {
 	 */
 	public function markJobDone($id) {
 		$fields = [
-			$this->alias . '.completed' => "'" . date('Y-m-d H:i:s') . "'"
+			'completed' => "'" . date('Y-m-d H:i:s') . "'"
 		];
 		$conditions = [
-			$this->alias . '.id' => $id
+			'id' => $id
+		];
+		return $this->updateAll($fields, $conditions);
+	}
+
+	/**
+	 * Reset current jobs
+	 *
+	 * @return bool Success
+	 */
+	public function reset() {
+		$fields = [
+			'completed' => null,
+			'fetched' => null,
+			'progress' => 0,
+			'failed' => 0,
+			'workerkey' => null,
+			'failure_message' => null,
+		];
+		$conditions = [
+			'completed IS' => null
 		];
 		return $this->updateAll($fields, $conditions);
 	}
@@ -305,11 +325,11 @@ class QueuedTasksTable extends Table {
 	public function markJobFailed($id, $failureMessage = null) {
 		$db = $this->getDataSource();
 		$fields = [
-			$this->alias . '.failed' => $this->alias . '.failed + 1',
-			$this->alias . '.failure_message' => $db->value($failureMessage),
+			'failed' => 'failed + 1',
+			'failure_message' => $db->value($failureMessage),
 		];
 		$conditions = [
-			$this->alias . '.id' => $id
+			'id' => $id
 		];
 		return $this->updateAll($fields, $conditions);
 	}
@@ -332,7 +352,7 @@ class QueuedTasksTable extends Table {
 				'failure_message'
 			],
 			'conditions' => [
-				'completed' => null
+				'completed IS' => null
 			]
 		];
 		return $this->find('all', $findCond);
@@ -381,7 +401,7 @@ class QueuedTasksTable extends Table {
 		}
 		return [
 			'worker' => isset($worker) ? $worker : '',
-			'queue' => $this->field('completed', ['completed !=' => null], ['completed' => 'DESC']),
+			'queue' => $this->field('completed', ['completed IS NOT' => null], ['completed' => 'DESC']),
 		];
 	}
 
@@ -398,10 +418,10 @@ class QueuedTasksTable extends Table {
 	protected function _findProgress($state, $query = [], $results = []) {
 		if ($state === 'before') {
 			$query['fields'] = [
-				$this->alias . '.reference',
-				$this->alias . '.status',
-				$this->alias . '.progress',
-				$this->alias . '.failure_message'
+				'reference',
+				'status',
+				'progress',
+				'failure_message'
 			];
 			if (isset($query['conditions']['exclude'])) {
 				$exclude = $query['conditions']['exclude'];
@@ -415,7 +435,7 @@ class QueuedTasksTable extends Table {
 				];
 			}
 			if (isset($query['conditions']['group'])) {
-				$query['conditions'][][$this->alias . '.group'] = $query['conditions']['group'];
+				$query['conditions'][]['group'] = $query['conditions']['group'];
 				unset($query['conditions']['group']);
 			}
 			return $query;
@@ -443,7 +463,7 @@ class QueuedTasksTable extends Table {
 	 * @return void
 	 */
 	public function clearDoublettes() {
-		$x = $this->query('SELECT max(id) as id FROM `' . $this->table() . '`
+		$x = $this->_connection->query('SELECT max(id) as id FROM `' . $this->table() . '`
 	WHERE completed is NULL
 	GROUP BY data
 	HAVING COUNT(id) > 1');
@@ -473,18 +493,6 @@ class QueuedTasksTable extends Table {
 		}
 		$this->_key = sha1(microtime());
 		return $this->_key;
-	}
-
-	/**
-	 * Truncates table.
-	 *
-	 * @return array Query results
-	 */
-	public function truncate($table = null) {
-		if ($table === null) {
-			$table = $this->table();
-		}
-		return $this->query('TRUNCATE TABLE `' . $table . '`');
 	}
 
 }

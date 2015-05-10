@@ -256,6 +256,17 @@ class QueueShell extends Shell {
 	}
 
 	/**
+	 * Manually reset (failed) jobs for re-run.
+	 * Careful, this should not be done while a queue task is being run.
+	 *
+	 * @return void
+	 */
+	public function reset() {
+		$this->out('Resetting...');
+		$this->QueuedTasks->reset();
+	}
+
+	/**
 	 * Display current settings
 	 *
 	 * @return void
@@ -325,12 +336,12 @@ class QueueShell extends Shell {
 				/*
 				'dry-run'=> array(
 					'short' => 'd',
-					'help' => __d('cake_console', 'Dry run the update, no jobs will actually be added.'),
+					'help' => 'Dry run the update, no jobs will actually be added.',
 					'boolean' => true
 				),
 				'log'=> array(
 					'short' => 'l',
-					'help' => __d('cake_console', 'Log all ouput to file log.txt in TMP dir'),
+					'help' => 'Log all ouput to file log.txt in TMP dir'),
 					'boolean' => true
 				),
 				*/
@@ -339,34 +350,38 @@ class QueueShell extends Shell {
 		$subcommandParserFull = $subcommandParser;
 		$subcommandParserFull['options']['group'] = [
 			'short' => 'g',
-			'help' => __d('cake_console', 'Group'),
+			'help' => 'Group',
 			'default' => ''
 		];
 
 		return parent::getOptionParser()
-			->description(__d('cake_console', "Simple and minimalistic job queue (or deferred-task) system."))
+			->description("Simple and minimalistic job queue (or deferred-task) system.")
 			->addSubcommand('clean', [
-				'help' => __d('cake_console', 'Remove old jobs (cleanup)'),
+				'help' => 'Remove old jobs (cleanup)',
 				'parser' => $subcommandParser
 			])
 			->addSubcommand('add', [
-				'help' => __d('cake_console', 'Add Job'),
+				'help' => 'Add Job',
 				'parser' => $subcommandParser
 			])
 			->addSubcommand('install', [
-				'help' => __d('cake_console', 'Install info'),
+				'help' => 'Install info',
 				'parser' => $subcommandParser
 			])
 			->addSubcommand('uninstall', [
-				'help' => __d('cake_console', 'Uninstall info'),
+				'help' => 'Uninstall info',
 				'parser' => $subcommandParser
 			])
 			->addSubcommand('stats', [
-				'help' => __d('cake_console', 'Stats'),
+				'help' => 'Stats',
+				'parser' => $subcommandParserFull
+			])
+			->addSubcommand('reset', [
+				'help' => 'Stats',
 				'parser' => $subcommandParserFull
 			])
 			->addSubcommand('runworker', [
-				'help' => __d('cake_console', 'Run Worker'),
+				'help' => 'Run Worker',
 				'parser' => $subcommandParserFull
 			]);
 	}
@@ -387,7 +402,8 @@ class QueueShell extends Shell {
 			}
 
 			$message = $type . ' ' . $pid;
-			Log::write('queue', $message);
+			// skip for now
+			//Log::write('queue', $message);
 		}
 	}
 

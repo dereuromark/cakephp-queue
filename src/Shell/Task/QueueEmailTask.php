@@ -131,6 +131,7 @@ class QueueEmailTask extends QueueTask {
 			}
 			$config = array_merge($config, $log);
 		}
+		return; // for now
 		Log::write(
 			$config['level'],
 			PHP_EOL . $contents['headers'] . PHP_EOL . $contents['message'],
