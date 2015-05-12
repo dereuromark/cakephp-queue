@@ -8,6 +8,7 @@ use Cake\Core\Plugin;
 use Cake\Filesystem\Folder;
 use Cake\Log\Log;
 use Cake\Utility\Inflector;
+use Cake\I18n\Number;
 
 declare(ticks = 1);
 
@@ -299,9 +300,9 @@ class QueueShell extends Shell {
 		foreach ($data as $item) {
 			$this->out(" " . $item['jobtype'] . ": ");
 			$this->out("   Finished Jobs in Database: " . $item['num']);
-			$this->out("   Average Job existence    : " . $item['alltime'] . 's');
-			$this->out("   Average Execution delay  : " . $item['fetchdelay'] . 's');
-			$this->out("   Average Execution time   : " . $item['runtime'] . 's');
+			$this->out("   Average Job existence    : " . str_pad(Number::precision($item['alltime']), 8, ' ', STR_PAD_LEFT) . 's');
+			$this->out("   Average Execution delay  : " . str_pad(Number::precision($item['fetchdelay']), 8, ' ', STR_PAD_LEFT) . 's');
+			$this->out("   Average Execution time   : " . str_pad(Number::precision($item['runtime']), 8, ' ', STR_PAD_LEFT) . 's');
 		}
 	}
 
