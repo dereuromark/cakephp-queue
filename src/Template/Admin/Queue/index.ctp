@@ -43,10 +43,10 @@ foreach ($pendingDetails as $item) {
 foreach ($data as $item) {
 	echo '<li>'.$item['jobtype'] . ":";
 	echo '<ul>';
-		echo '<li>Finished Jobs in Database: '.$item[0]['num'].'</li>';
-		echo '<li>Average Job existence: '.$item[0]['alltime'].'s</li>';
-		echo '<li>Average Execution delay: '.$item[0]['fetchdelay'].'s</li>';
-		echo '<li>Average Execution time: '.$item[0]['runtime'].'s</li>';
+		echo '<li>Finished Jobs in Database: '.$item['num'].'</li>';
+		echo '<li>Average Job existence: '.$item['alltime'].'s</li>';
+		echo '<li>Average Execution delay: '.$item['fetchdelay'].'s</li>';
+		echo '<li>Average Execution time: '.$item['runtime'].'s</li>';
 	echo '</ul>';
 	echo '</li>';
 }

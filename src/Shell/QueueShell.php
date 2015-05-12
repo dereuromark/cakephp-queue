@@ -299,10 +299,10 @@ class QueueShell extends Shell {
 		$data = $this->QueuedTasks->getStats();
 		foreach ($data as $item) {
 			$this->out(" " . $item['jobtype'] . ": ");
-			$this->out("   Finished Jobs in Database: " . $item[0]['num']);
-			$this->out("   Average Job existence    : " . $item[0]['alltime'] . 's');
-			$this->out("   Average Execution delay  : " . $item[0]['fetchdelay'] . 's');
-			$this->out("   Average Execution time   : " . $item[0]['runtime'] . 's');
+			$this->out("   Finished Jobs in Database: " . $item['num']);
+			$this->out("   Average Job existence    : " . $item['alltime'] . 's');
+			$this->out("   Average Execution delay  : " . $item['fetchdelay'] . 's');
+			$this->out("   Average Execution time   : " . $item['runtime'] . 's');
 		}
 	}
 
