@@ -44,8 +44,5 @@
 			"Cake\\Test\\": "vendor/cakephp/cakephp/tests"
 		}
 	},
-	"extra": {
-		"installer-name": "Queue"
-	},
 	"minimum-stability": "dev"
 }
