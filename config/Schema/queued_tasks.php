@@ -26,7 +26,7 @@ $t->addColumn('data', [
 	'null' => true,
 	'default' => null
 ]);
-$t->addColumn('group', [
+$t->addColumn('task_group', [
 	'type' => 'string',
 	'length' => 255,
 	'null' => true,
@@ -56,6 +56,12 @@ $t->addColumn('fetched', [
 $t->addColumn('progress', [
 	'type' => 'float',
 	'length' => '3,2',
+	'null' => true,
+	'default' => null
+]);
+$t->addColumn('status', [
+	'type' => 'string',
+	'length' => 255,
 	'null' => true,
 	'default' => null
 ]);
