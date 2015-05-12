@@ -75,7 +75,7 @@ class QueueLongExampleTask extends QueueTask {
 	 * @param array $data The array passed to QueuedTask->createJob()
 	 * @param int $id The id of the QueuedTask
 	 * @return bool Success
-	 * @throws RuntimeException when seconds are 0;
+	 * @throws \RuntimeException when seconds are 0;
 	 */
 	public function run($data, $id = null) {
 		$this->hr();

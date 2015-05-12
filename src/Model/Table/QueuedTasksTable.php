@@ -2,8 +2,8 @@
 namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\ORM\Table;
 use Cake\Utility\Hash;
-use Tools\Model\Table\Table;
 
 /**
  * QueuedTask for queued tasks.
@@ -24,6 +24,12 @@ class QueuedTasksTable extends Table {
 
 	protected $_key = null;
 
+	/**
+	 * initialize Table
+	 *
+	 * @param array $config Configuration
+	 * @return void
+	 */
 	public function initialize(array $config) {
 		parent::initialize($config);
 	}
@@ -62,16 +68,17 @@ class QueuedTasksTable extends Table {
 	 * @param string $group     Used to group similar QueuedTasks.
 	 * @param string $reference An optional reference string.
 	 * @return Cake\ORM\Entity Saved job entity
+	 * @throws Exception
 	 */
 	public function createJob($jobName, $data = null, $notBefore = null, $group = null, $reference = null) {
 		$data = [
 			'jobtype' => $jobName,
 			'data' => serialize($data),
-			'group' => $group,
+			'task_group' => $group,
 			'reference' => $reference
 		];
 		if ($notBefore !== null) {
-			$data['notbefore'] = date('Y-m-d H:i:s', strtotime($notBefore));
+			$data['notbefore'] = strtotime($notBefore);
 		}
 		$queuedTask = $this->newEntity($data);
 		if ($queuedTask->errors()) {
@@ -105,8 +112,8 @@ class QueuedTasksTable extends Table {
 		if ($type !== null) {
 			$findConf['conditions']['jobtype'] = $type;
 		}
-
-		return $this->find('count', $findConf);
+		$data = $this->find('all', $findConf);
+		return $data->count();
 	}
 
 	/**
@@ -188,7 +195,7 @@ class QueuedTasksTable extends Table {
 		];
 
 		if ($group !== null) {
-			$findCond['conditions']['group'] = $group;
+			$findCond['conditions']['task_group'] = $group;
 		}
 
 		// generate the task specific conditions.
@@ -199,13 +206,13 @@ class QueuedTasksTable extends Table {
 				'AND' => [
 					[
 						'OR' => [
-							'notbefore <' => date('Y-m-d H:i:s'),
+							'notbefore <' => time(),
 							'notbefore IS' => null
 						]
 					],
 					[
 						'OR' => [
-							'fetched <' => date('Y-m-d H:i:s', time() - $task['timeout']),
+							'fetched <' => time() - $task['timeout'],
 							'fetched IS' => null
 						]
 					]
@@ -213,7 +220,7 @@ class QueuedTasksTable extends Table {
 				'failed <' => ($task['retries'] + 1)
 			];
 			if (array_key_exists('rate', $task) && $tmp['jobtype'] && array_key_exists($tmp['jobtype'], $this->rateHistory)) {
-				$tmp['NOW() >='] = date('Y-m-d H:i:s', $this->rateHistory[$tmp['jobtype']] + $task['rate']);
+				$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['jobtype']] + $task['rate'];
 			}
 			$findCond['conditions']['OR'][] = $tmp;
 		}
@@ -241,13 +248,13 @@ class QueuedTasksTable extends Table {
 		$this->_connection->query('UPDATE ' . $this->table() . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE ' . implode(' OR ', $whereClause) . ' ORDER BY ' . $virtualFields['age'] . ' ASC, id ASC LIMIT 1');
 
 		// Read which one actually got updated, which is the job we are supposed to execute.
-		$data = $this->find('first', [
+		$data = $this->find('all', [
 			'conditions' => [
 				'workerkey' => $key,
 				'completed IS' => null,
 			],
 			'order' => ['fetched' => 'DESC']
-		]);
+		])->first();
 
 		if (!$data) {
 			return null;
@@ -323,10 +330,13 @@ class QueuedTasksTable extends Table {
 	 * @return bool Success
 	 */
 	public function markJobFailed($id, $failureMessage = null) {
-		$db = $this->getDataSource();
+		$db = $this->get($id);
+		if ($failureMessage === null) {
+			$failureMessage = $db->failure_message;
+		}
 		$fields = [
 			'failed' => 'failed + 1',
-			'failure_message' => $db->value($failureMessage),
+			'failure_message' => $failureMessage,
 		];
 		$conditions = [
 			'id' => $id
@@ -365,7 +375,7 @@ class QueuedTasksTable extends Table {
 	 */
 	public function cleanOldJobs() {
 		$this->deleteAll([
-			'completed <' => date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout'))
+			'completed <' => time() - Configure::read('Queue.cleanuptimeout')
 		]);
 		if (!($pidFilePath = Configure::read('Queue.pidfilepath'))) {
 			return;
@@ -434,9 +444,9 @@ class QueuedTasksTable extends Table {
 					]
 				];
 			}
-			if (isset($query['conditions']['group'])) {
-				$query['conditions'][]['group'] = $query['conditions']['group'];
-				unset($query['conditions']['group']);
+			if (isset($query['conditions']['task_group'])) {
+				$query['conditions'][]['task_group'] = $query['conditions']['task_group'];
+				unset($query['conditions']['task_group']);
 			}
 			return $query;
 		}
@@ -493,6 +503,15 @@ class QueuedTasksTable extends Table {
 		}
 		$this->_key = sha1(microtime());
 		return $this->_key;
+	}
+
+	/**
+	 * Resets worker Identifier
+	 *
+	 * @return void
+	 */
+	public function clearKey() {
+		$this->_key = null;
 	}
 
 }
