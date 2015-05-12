@@ -121,7 +121,9 @@ class QueuedTasksTable extends Table {
 			],
 			'group' => [
 				'jobtype'
-			]
+			],
+			'keyField' => 'jobtype',
+			'valueField' => 'jobtype',
 		];
 		return $this->find('list', $findCond);
 	}

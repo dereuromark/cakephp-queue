@@ -287,8 +287,7 @@ class QueueShell extends Shell {
 	public function stats() {
 		$this->out('Jobs currenty in the Queue:');
 
-		$types = $this->QueuedTasks->getTypes();
-
+		$types = $this->QueuedTasks->getTypes()->toArray();
 		foreach ($types as $type) {
 			$this->out("      " . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ": " . $this->QueuedTasks->getLength($type));
 		}
