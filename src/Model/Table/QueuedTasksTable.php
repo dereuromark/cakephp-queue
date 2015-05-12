@@ -32,11 +32,11 @@ class QueuedTasksTable extends Table {
 	 */
 	public function initialize(array $config) {
 		parent::initialize($config);
+
+		$this->initConfig();
 	}
 
 	/**
-	 * QueuedTask::initConfig()
-	 *
 	 * @return void
 	 */
 	public function initConfig() {
@@ -47,14 +47,7 @@ class QueuedTasksTable extends Table {
 		Configure::load('Queue.queue');
 		$defaultConf = (array)Configure::read('Queue');
 
-		// Local app config
-		if (file_exists(APP . 'Config' . DS . 'queue.php')) {
-			Configure::load('queue');
-			$conf += (array)Configure::read('Queue');
-		}
-
-		// BC comp:
-		$conf = array_merge($defaultConf, $conf, (array)Configure::read('queue'));
+		$conf = array_merge($defaultConf, $conf);
 
 		Configure::write('Queue', $conf);
 	}
@@ -283,7 +276,7 @@ class QueuedTasksTable extends Table {
 		if (!$id) {
 			return false;
 		}
-		return (bool)$this->saveField($id, 'progress', round($progress, 2));
+		return (bool)$this->updateAll(['progress' => round($progress, 2)], ['id' => $id]);
 	}
 
 	/**
