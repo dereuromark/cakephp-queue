@@ -1,8 +1,8 @@
 <?php
 namespace Queue\Shell\Task;
 
-use Queue\Shell\Task\QueueTask;
 use Cake\Log\Log;
+use Queue\Shell\Task\QueueTask;
 use Toos\Network\Email\Email;
 
 /**

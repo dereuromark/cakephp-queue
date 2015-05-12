@@ -4,10 +4,10 @@ namespace Queue\Test\TestCase\Network\Email;
 
 use App\Network\Email\AbstractTransport;
 use Cake\Core\Configure;
+use Cake\Network\Email\Email;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Queue\Network\Email\QueueTransport;
-use Tools\Network\Email\Email;
 
 /**
  * Test case
@@ -29,6 +29,11 @@ class QueueTransportTest extends TestCase {
 		$this->QueueTransport = new QueueTransport();
 	}
 
+	/**
+	 * Test configuration
+	 *
+	 * @return void
+	 */
 	public function testConfig() {
 		$Email = new Email();
 		$Email->transport('queue');

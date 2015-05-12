@@ -1,5 +1,4 @@
 <?php
-
 namespace Queue\Test\TestCase\Shell;
 
 use Cake\Console\Shell;
@@ -20,6 +19,11 @@ class QueueShellTest extends TestCase {
 		'plugin.Queue.QueuedTasks'
 	];
 
+	/**
+	 * Setup Defaults
+	 *
+	 * @return void
+	 */
 	public function setUp() {
 		parent::setUp();
 
@@ -120,10 +124,24 @@ class TestQueueShell extends QueueShell {
 
 	public $out = [];
 
+	/**
+	 * Output function for Test
+	 *
+	 * @param type $message Message.
+	 * @param type $newlines Newline.
+	 * @param type $level Output level.
+	 * 
+	 * @return void
+	 */
 	public function out($message = null, $newlines = 1, $level = Shell::NORMAL) {
 		$this->out[] = $message;
 	}
-
+	
+	/**
+	 * Get task configuration
+	 *
+	 * @return type Object
+	 */
 	protected function _getTaskConf() {
 		parent::_getTaskConf();
 		foreach ($this->_taskConf as &$conf) {
