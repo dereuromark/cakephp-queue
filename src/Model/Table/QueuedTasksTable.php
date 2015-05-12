@@ -291,7 +291,7 @@ class QueuedTasksTable extends Table {
 	 */
 	public function markJobDone($id) {
 		$fields = [
-			'completed' => "'" . date('Y-m-d H:i:s') . "'"
+			'completed' => time()
 		];
 		$conditions = [
 			'id' => $id
