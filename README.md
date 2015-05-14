@@ -1,13 +1,11 @@
-# CakePHP 3 Queue Plugin
-[![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.png?branch=3.0)](https://travis-ci.org/dereuromark/cakephp-queue)
+# CakePHP Queue Plugin
+[![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.svg)](https://travis-ci.org/dereuromark/cakephp-queue)
 [![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.4-8892BF.svg)](https://php.net/)
-[![License](https://poser.pugx.org/dereuromark/cakephp-queue/license.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
-[![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-queue/d/total.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
+[![License](https://poser.pugx.org/dereuromark/cakephp-queue/license)](https://packagist.org/packages/dereuromark/cakephp-queue)
+[![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-queue/d/total)](https://packagist.org/packages/dereuromark/cakephp-queue)
 [![Coding Standards](https://img.shields.io/badge/cs-PSR--2--R-yellow.svg)](https://github.com/php-fig-rectified/fig-rectified-standards)
 
-This `3.0` branch is for use with **CakePHP 3**.
-
-WARNING: NOT FULLY MIGRATED YET
+This branch is for use with **CakePHP 3**.
 
 ## Background:
 
