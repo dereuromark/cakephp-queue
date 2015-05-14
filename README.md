@@ -1,22 +1,10 @@
 # CakePHP Queue Plugin
-[![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.svg)](https://travis-ci.org/dereuromark/cakephp-queue)
+[![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.svg?branch=2.x)](https://travis-ci.org/dereuromark/cakephp-queue)
 [![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.4-8892BF.svg)](https://php.net/)
 [![License](https://poser.pugx.org/dereuromark/cakephp-queue/license)](https://packagist.org/packages/dereuromark/cakephp-queue)
 [![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-queue/d/total.png)](https://packagist.org/packages/dereuromark/cakephp-queue)
 
-Modified by Mark Scherer ([dereuromark](https://github.com/dereuromark))
-- CakePHP2.x support
-- Some minor fixes
-- Added crontasks (as a different approach on specific problems)
-- Possible (optional) Tools Plugin dependencies for frontend access via /admin/queue
-- Config key "queue" is now "Queue" ($config['Queue'][...])
-
-Added by Christian Charukiewicz ([charukiewicz](https://github.com/charukiewicz)):
-- Configuration option 'gcprop' is now 'gcprob'
-- Fixed typo in README and variable name (Propability -> Probability)
-- Added a few lines about createJob() usage to README
-- Added comments to queue.php explaining configuration options
-
+This branch is for use with **CakePHP 2**.
 
 ## Background:
 
@@ -164,3 +152,19 @@ Play around with it, but just don't shoot over the top.
 
 * Add priority
 * Cleanup and better test coverage
+
+### History
+
+Modified by Mark Scherer ([dereuromark](https://github.com/dereuromark))
+- CakePHP2.x support
+- Some minor fixes
+- Added crontasks (as a different approach on specific problems)
+- Possible (optional) Tools Plugin dependencies for frontend access via /admin/queue
+- Config key "queue" is now "Queue" ($config['Queue'][...])
+
+Added by Christian Charukiewicz ([charukiewicz](https://github.com/charukiewicz)):
+- Configuration option 'gcprop' is now 'gcprob'
+- Fixed typo in README and variable name (Propability -> Probability)
+- Added a few lines about createJob() usage to README
+- Added comments to queue.php explaining configuration options
+
