@@ -160,8 +160,10 @@ Play around with it, but just don't shoot over the top.
 * Cleanup and better test coverage
 
 ## History
+A huge thx to Max ([Dee-Fuse](https://github.com/Dee-Fuse)) for making the 3.x upgrade complete!
+
 Modified by David Yell ([davidyell](https://github.com/davidyell))
-- CakePHP 3.x support
+- Basic CakePHP 3.x support
 
 Modified by Mark Scherer ([dereuromark](https://github.com/dereuromark))
 - CakePHP 2.x support
@@ -175,4 +177,3 @@ Added by Christian Charukiewicz ([charukiewicz](https://github.com/charukiewicz)
 - Fixed typo in README and variable name (Propability -> Probability)
 - Added a few lines about createJob() usage to README
 - Added comments to queue.php explaining configuration options
-
