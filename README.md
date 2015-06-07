@@ -34,7 +34,7 @@ you should seriously consider using a more advanced system for high volume/high 
 
 ## Installation:
 
-* Install using composer and `require dereuromark/cakephp-queue:3.0`.
+* Install using composer and `require dereuromark/cakephp-queue:dev-master`.
 
 * Enable the plugin within your config/bootstrap.php (unless you use loadAll):
 
