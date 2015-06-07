@@ -40,11 +40,9 @@ you should seriously consider using a more advanced system for high volume/high 
 
 		Plugin::load('Queue');
 
-* Run the following command in the CakePHP console to create the tables:
+* Run the following command in the CakePHP console to create the tables using the Migrations plugin:
 
-		cake Schema create -p Queue
-
-//TODO: Use migrations plugin:  cake Migrations.Migration run
+		cake Migrations migrate
 
 ## Configuration:
 
