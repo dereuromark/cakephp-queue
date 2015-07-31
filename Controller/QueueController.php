@@ -43,7 +43,7 @@ class QueueController extends QueueAppController {
 	public function admin_reset() {
 		$this->request->allowMethod('post');
 		$res = $this->QueuedTask->truncate();
-		
+
 		if ($res) {
 			$message = __d('queue', 'OK');
 			$class = 'success';
@@ -51,9 +51,9 @@ class QueueController extends QueueAppController {
 			$message = __d('queue', 'Error');
 			$class = 'error';
 		}
-		
+
 		if (isset($this->Flash)) {
-			$this->Flash->message($message, $class);
+			$this->Flash->$class($message);
 		} else {
 			$this->Session->setFlash($message, 'default', ['class' => $class]);
 		}
