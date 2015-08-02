@@ -3,7 +3,7 @@ namespace Queue\Shell\Task;
 
 use Cake\Log\Log;
 use Queue\Shell\Task\QueueTask;
-use Toos\Network\Email\Email;
+use Tools\Network\Email\Email;
 
 /**
  * @author Mark Scherer
