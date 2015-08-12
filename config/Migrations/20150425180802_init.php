@@ -48,5 +48,6 @@ SQL;
 	 * @return void
 	 */
 	public function down() {
+		$this->query('DROP TABLE IF EXISTS `queued_tasks`;');
 	}
 }
