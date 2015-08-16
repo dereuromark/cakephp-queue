@@ -81,6 +81,16 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 
 Don't forget to load that config file: `Configure::load('app_queue');`
 
+Example `app_queue.php`:
+
+	<?php
+	return [
+		'Queue' => [
+			'workermaxruntime' => 60,
+			'sleeptime' => 15,
+		],
+	];
+
 You can also drop the configuration into an existing config file that is already been loaded.
 The values above are the default settings which apply, when no configuration is found.
 
