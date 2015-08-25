@@ -6,6 +6,7 @@
  */
 namespace Queue\Shell\Task;
 
+use Cake\ORM\TableRegistry;
 use Queue\Shell\Task\QueueTask;
 
 /**
