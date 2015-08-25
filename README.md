@@ -42,7 +42,7 @@ you should seriously consider using a more advanced system for high volume/high 
 
 * Run the following command in the CakePHP console to create the tables using the Migrations plugin:
 
-		cake Migrations migrate
+		cake Migrations migrate -p Queue
 
 ## Configuration:
 
