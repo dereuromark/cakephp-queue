@@ -12,14 +12,14 @@ env:
     - REQUIRE=""
 
   matrix:
-    - DB=mysql CAKE_VERSION=2.6
     - DB=mysql CAKE_VERSION=2.7
+    - DB=mysql CAKE_VERSION=2.8
 
 matrix:
   include:
     - php: 5.4
       env:
-        - DB=mysql CAKE_VERSION=2.6 COVERALLS=1
+        - DB=mysql CAKE_VERSION=2.7 COVERALLS=1
 
 before_script:
   - git clone -b master https://github.com/FriendsOfCake/travis.git --depth 1 ../travis
