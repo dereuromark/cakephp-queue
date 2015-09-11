@@ -42,7 +42,7 @@ you should seriously consider using a more advanced system for high volume/high 
 
 * Run the following command in the CakePHP console to create the tables using the Migrations plugin:
 
-		cake Migrations migrate
+		cake Migrations migrate -p Queue
 
 ## Configuration:
 
@@ -80,6 +80,17 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 		$config['Queue']['cleanuptimeout'] = 2592000; // 30 days
 
 Don't forget to load that config file: `Configure::load('app_queue');`
+
+Example `app_queue.php`:
+
+```php
+return [
+	'Queue' => [
+		'workermaxruntime' => 60,
+		'sleeptime' => 15,
+	],
+];
+```
 
 You can also drop the configuration into an existing config file that is already been loaded.
 The values above are the default settings which apply, when no configuration is found.
@@ -132,12 +143,14 @@ Important: Do not forget to set your [domain](http://book.cakephp.org/2.0/en/cor
 
 Also note that you dont need to add the type ("Task"): `cake Queue.Queue add SpecialExample` for QueueSpecialExampleTask.
 
-Custom tasks should be placed in APP/Console/Command/Task.
+Custom tasks should be placed in src/Shell/Task.
 Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact. Custom tasks should extend the `QueueTask` class (you will need to include this at the top of your custom task file: `use Queue\Shell\Task\QueueTask;`).
 
-Plugin tasks go in APP/Plugin/PluginName/Console/Command/Task.
+Plugin tasks go in plugins/PluginName/src/Shell/Task.
 
-A detailed Example task can be found in /Console/Command/Task/QueueExampleTask.php inside this folder.
+A detailed Example task can be found in src/Shell/Task/QueueExampleTask.php inside this folder.
+
+If you copy an example, do not forget to adapt the namespace!
 
 ## Setting up the trigger cronjob
 As outlined in the [book](http://book.cakephp.org/3.0/en/console-and-shells/cron-jobs.html) you can easily set up a cronjob

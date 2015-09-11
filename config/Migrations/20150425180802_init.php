@@ -12,41 +12,20 @@ class Init extends AbstractMigration {
 	 *
 	 * Uncomment this method if you would like to use it.
 	 */
-	//public function change() {
-	//}
-
-	/**
-	 * Migrate Up.
-	 *
-	 * @return void
-	 */
-	public function up() {
-		$sql = <<<SQL
-CREATE TABLE IF NOT EXISTS `queued_tasks` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `jobtype` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  `data` text COLLATE utf8_unicode_ci,
-  `group` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `reference` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `created` datetime DEFAULT NULL,
-  `notbefore` datetime DEFAULT NULL,
-  `fetched` datetime DEFAULT NULL,
-  `completed` datetime DEFAULT NULL,
-  `progress` float(3,2) unsigned DEFAULT NULL,
-  `failed` int(3) NOT NULL DEFAULT '0',
-  `failure_message` text COLLATE utf8_unicode_ci,
-  `workerkey` varchar(45) COLLATE utf8_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-SQL;
-		$this->query($sql);
-	}
-
-	/**
-	 * Migrate Down.
-	 *
-	 * @return void
-	 */
-	public function down() {
+	public function change() {
+		$table = $this->table('queued_tasks');
+		$table->addColumn('jobtype', 'string', ['length' => 45])
+			->addColumn('data', 'text', ['null' => true])
+			->addColumn('group', 'string', ['length' => 255, 'null' => true, 'default' => null])
+			->addColumn('reference', 'string', ['length' => 255, 'null' => true, 'default' => null])
+			->addColumn('created', 'datetime', ['null' => true, 'default' => null])
+			->addColumn('notbefore', 'datetime', ['null' => true, 'default' => null])
+			->addColumn('fetched', 'datetime', ['null' => true, 'default' => null])
+			->addColumn('completed', 'datetime', ['null' => true, 'default' => null])
+			->addColumn('progress', 'float', ['null' => true])
+			->addColumn('failed', 'integer', ['default' => 0])
+			->addColumn('failure_message', 'text', ['null' => true])
+			->addColumn('workerkey', 'string', ['length' => 45, 'null' => true, 'default' => null])
+			->create();
 	}
 }
