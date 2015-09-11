@@ -332,7 +332,7 @@ class QueuedTasksTable extends Table {
 			$failureMessage = $db->failure_message;
 		}
 		$fields = [
-			'failed' => 'failed + 1',
+			'failed = failed + 1',
 			'failure_message' => $failureMessage,
 		];
 		$conditions = [
