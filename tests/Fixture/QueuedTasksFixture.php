@@ -10,7 +10,6 @@ use Cake\TestSuite\Fixture\TestFixture;
 
 /**
  * QueuedTasksFixture
- *
  */
 class QueuedTasksFixture extends TestFixture {
 
@@ -21,11 +20,11 @@ class QueuedTasksFixture extends TestFixture {
 	 */
 	public $records = [];
 
-	/**
-	 * Fields
-	 *
-	 * @var array
-	 */
+/**
+ * Fields
+ *
+ * @var array
+ */
 	// @codingStandardsIgnoreStart
 	public $fields = [
 		'id' => ['type' => 'integer'],
@@ -47,7 +46,7 @@ class QueuedTasksFixture extends TestFixture {
 		],
 		'_options' => [
 			'engine' => 'InnoDB',
-			'collation' => 'utf8_unicode_ci'
+			'collation' => 'utf8_unicode_ci',
 		],
 	];
 	// @codingStandardsIgnoreEnd

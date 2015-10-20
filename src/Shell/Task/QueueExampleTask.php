@@ -6,11 +6,8 @@
  */
 namespace Queue\Shell\Task;
 
-use Queue\Shell\Task\QueueTask;
-
 /**
  * A Simple QueueTask example.
- *
  */
 class QueueExampleTask extends QueueTask {
 

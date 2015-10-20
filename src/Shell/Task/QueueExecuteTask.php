@@ -6,11 +6,8 @@
  */
 namespace Queue\Shell\Task;
 
-use Queue\Shell\Task\QueueTask;
-
 /**
  * Execute a Local command on the server.
- *
  */
 class QueueExecuteTask extends QueueTask {
 
@@ -60,7 +57,7 @@ class QueueExecuteTask extends QueueTask {
 
 			$data = [
 				'command' => $this->args[1],
-				'params' => array_slice($this->args, 2)
+				'params' => array_slice($this->args, 2),
 			];
 			if ($this->QueuedTasks->createJob('Execute', $data)) {
 				$this->out('Job created');

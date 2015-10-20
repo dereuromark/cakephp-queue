@@ -9,7 +9,6 @@ namespace Queue\Test\TestCase\Model\Table;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
-use Queue\Model\Table\QueuedTasksTable;
 
 /**
  * Queue\Model\Table\QueuedTasksTable Test Case
@@ -22,7 +21,7 @@ class QueuedTasksTableTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'plugin.queue.QueuedTasks'
+		'plugin.queue.QueuedTasks',
 	];
 
 	/**
@@ -68,7 +67,7 @@ class QueuedTasksTableTest extends TestCase {
 		// create a job
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('test1', [
 			'some' => 'random',
-			'test' => 'data'
+			'test' => 'data',
 		]));
 
 		// test if queue Length is 1 now.
@@ -77,15 +76,15 @@ class QueuedTasksTableTest extends TestCase {
 		//create some more jobs
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('test2', [
 			'some' => 'random',
-			'test' => 'data2'
+			'test' => 'data2',
 		]));
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('test2', [
 			'some' => 'random',
-			'test' => 'data3'
+			'test' => 'data3',
 		]));
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('test3', [
 			'some' => 'random',
-			'test' => 'data4'
+			'test' => 'data4',
 		]));
 
 		//overall queueLength shpould now be 4
@@ -108,14 +107,14 @@ class QueuedTasksTableTest extends TestCase {
 			'task1' => [
 				'name' => 'task1',
 				'timeout' => 100,
-				'retries' => 2
-			]
+				'retries' => 2,
+			],
 		];
 		$testData = [
 			'x1' => 'y1',
 			'x2' => 'y2',
 			'x3' => 'y3',
-			'x4' => 'y4'
+			'x4' => 'y4',
 		];
 
 		// start off empty.
@@ -161,15 +160,15 @@ class QueuedTasksTableTest extends TestCase {
 			'task1' => [
 				'name' => 'task1',
 				'timeout' => 100,
-				'retries' => 2
-			]
+				'retries' => 2,
+			],
 		];
 		// at first, the queue should contain 0 items.
 		$this->assertEquals(0, $this->QueuedTasks->getLength());
 		// create some more jobs
 		foreach (range(0, 9) as $num) {
 			$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', [
-				'tasknum' => $num
+				'tasknum' => $num,
 			]));
 		}
 		// 10 jobs in the queue.
@@ -227,13 +226,13 @@ class QueuedTasksTableTest extends TestCase {
 			'task1' => [
 				'name' => 'task1',
 				'timeout' => 100,
-				'retries' => 2
+				'retries' => 2,
 			],
 			'dummytask' => [
 				'name' => 'dummytask',
 				'timeout' => 100,
-				'retries' => 2
-			]
+				'retries' => 2,
+			],
 		];
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('dummytask'));
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('dummytask'));
@@ -246,24 +245,24 @@ class QueuedTasksTableTest extends TestCase {
 		$expected = [
 			[
 				'name' => 'task1',
-				'data' => 'one'
+				'data' => 'one',
 			],
 			[
 				'name' => 'task1',
-				'data' => 'two'
+				'data' => 'two',
 			],
 			[
 				'name' => 'task1',
-				'data' => 'three'
+				'data' => 'three',
 			],
 			[
 				'name' => 'dummytask',
-				'data' => ''
+				'data' => '',
 			],
 			[
 				'name' => 'dummytask',
-				'data' => ''
-			]
+				'data' => '',
+			],
 		];
 
 		foreach ($expected as $item) {
@@ -287,13 +286,13 @@ class QueuedTasksTableTest extends TestCase {
 				'name' => 'task1',
 				'timeout' => 101,
 				'retries' => 2,
-				'rate' => 1
+				'rate' => 1,
 			],
 			'dummytask' => [
 				'name' => 'dummytask',
 				'timeout' => 101,
-				'retries' => 2
-			]
+				'retries' => 2,
+			],
 		];
 
 		// clear out the rate history
@@ -318,7 +317,7 @@ class QueuedTasksTableTest extends TestCase {
 		$tmp = $this->QueuedTasks->requestJob($capabilities);
 		$this->assertEquals('dummytask', $tmp['jobtype']);
 		$this->assertNull(unserialize($tmp['data']));
-		
+
 		usleep(500000);
 		//and again.
 		$this->QueuedTasks->clearKey();
@@ -373,8 +372,8 @@ class QueuedTasksTableTest extends TestCase {
 				'name' => 'task1',
 				'timeout' => 1,
 				'retries' => 2,
-				'rate' => 0
-			]
+				'rate' => 0,
+			],
 		];
 
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', '1'));
@@ -406,14 +405,14 @@ class QueuedTasksTableTest extends TestCase {
 				'name' => 'task1',
 				'timeout' => 1,
 				'retries' => 2,
-				'rate' => 0
+				'rate' => 0,
 			],
 			'task2' => [
 				'name' => 'task2',
 				'timeout' => 100,
 				'retries' => 2,
-				'rate' => 0
-			]
+				'rate' => 0,
+			],
 		];
 
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', '1'));
@@ -444,8 +443,8 @@ class QueuedTasksTableTest extends TestCase {
 				'name' => 'task1',
 				'timeout' => 1,
 				'retries' => 2,
-				'rate' => 0
-			]
+				'rate' => 0,
+			],
 		];
 
 		// create an ungrouped task
@@ -487,8 +486,8 @@ class QueuedTasksTableTest extends TestCase {
 		// use FindProgress on the testgroup:
 		$progress = $this->QueuedTasks->find('all', [
 			'conditions' => [
-				'task_group' => 'testgroup'
-			]
+				'task_group' => 'testgroup',
+			],
 		])->toArray();
 
 		$this->assertEquals(3, count($progress));

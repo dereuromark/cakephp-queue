@@ -2,7 +2,6 @@
 namespace Queue\Shell\Task;
 
 use Cake\Log\Log;
-use Queue\Shell\Task\QueueTask;
 use Tools\Network\Email\Email;
 
 /**
@@ -46,11 +45,11 @@ class QueueEmailTask extends QueueTask {
 				'to' => 'email@example.com',
 				'subject' => 'Email Subject',
 				'from' => 'system@example.com',
-				'template' => 'sometemplate'
+				'template' => 'sometemplate',
 			],
 			'vars' => [
 				'content' => 'hello world',
-			]
+			],
 		], true));
 		$this->out('Alternativly, you can pass the whole EmailLib to directly use it.');
 	}
@@ -123,7 +122,7 @@ class QueueEmailTask extends QueueTask {
 	protected function _log($contents, $log) {
 		$config = [
 			'level' => LOG_DEBUG,
-			'scope' => 'email'
+			'scope' => 'email',
 		];
 		if ($log !== true) {
 			if (!is_array($log)) {

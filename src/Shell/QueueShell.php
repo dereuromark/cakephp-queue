@@ -6,9 +6,9 @@ use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Filesystem\Folder;
+use Cake\I18n\Number;
 use Cake\Log\Log;
 use Cake\Utility\Inflector;
-use Cake\I18n\Number;
 
 declare(ticks = 1);
 
@@ -159,7 +159,7 @@ class QueueShell extends Shell {
 				$pid = $this->QueuedTasks->key();
 			}
 			# global file
-			$fp = fopen($pidFilePath . 'queue.pid', "w");
+			$fp = fopen($pidFilePath . 'queue.pid', 'w');
 			fwrite($fp, $pid);
 			fclose($fp);
 			# specific pid file
@@ -169,7 +169,7 @@ class QueueShell extends Shell {
 				$pid = $this->QueuedTasks->key();
 			}
 			$pidFileName = 'queue_' . $pid . '.pid';
-			$fp = fopen($pidFilePath . $pidFileName, "w");
+			$fp = fopen($pidFilePath . $pidFileName, 'w');
 			fwrite($fp, $pid);
 			fclose($fp);
 		}
@@ -178,7 +178,7 @@ class QueueShell extends Shell {
 			gc_enable();
 		}
 		if (function_exists('pcntl_signal')) {
-			pcntl_signal(SIGTERM, [&$this, "_exit"]);
+			pcntl_signal(SIGTERM, [&$this, '_exit']);
 		}
 		$this->_exit = false;
 
@@ -290,7 +290,7 @@ class QueueShell extends Shell {
 
 		$types = $this->QueuedTasks->getTypes()->toArray();
 		foreach ($types as $type) {
-			$this->out("      " . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ": " . $this->QueuedTasks->getLength($type));
+			$this->out('      ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $this->QueuedTasks->getLength($type));
 		}
 		$this->hr();
 		$this->out('Total unfinished Jobs      : ' . $this->QueuedTasks->getLength());
@@ -298,11 +298,11 @@ class QueueShell extends Shell {
 		$this->out('Finished Job Statistics:');
 		$data = $this->QueuedTasks->getStats();
 		foreach ($data as $item) {
-			$this->out(" " . $item['jobtype'] . ": ");
-			$this->out("   Finished Jobs in Database: " . $item['num']);
-			$this->out("   Average Job existence    : " . str_pad(Number::precision($item['alltime']), 8, ' ', STR_PAD_LEFT) . 's');
-			$this->out("   Average Execution delay  : " . str_pad(Number::precision($item['fetchdelay']), 8, ' ', STR_PAD_LEFT) . 's');
-			$this->out("   Average Execution time   : " . str_pad(Number::precision($item['runtime']), 8, ' ', STR_PAD_LEFT) . 's');
+			$this->out(' ' . $item['jobtype'] . ': ');
+			$this->out('   Finished Jobs in Database: ' . $item['num']);
+			$this->out('   Average Job existence    : ' . str_pad(Number::precision($item['alltime']), 8, ' ', STR_PAD_LEFT) . 's');
+			$this->out('   Average Execution delay  : ' . str_pad(Number::precision($item['fetchdelay']), 8, ' ', STR_PAD_LEFT) . 's');
+			$this->out('   Average Execution time   : ' . str_pad(Number::precision($item['runtime']), 8, ' ', STR_PAD_LEFT) . 's');
 		}
 	}
 
@@ -345,44 +345,44 @@ class QueueShell extends Shell {
 					'boolean' => true
 				),
 				*/
-			]
+			],
 		];
 		$subcommandParserFull = $subcommandParser;
 		$subcommandParserFull['options']['group'] = [
 			'short' => 'g',
 			'help' => 'Group',
-			'default' => ''
+			'default' => '',
 		];
 
 		return parent::getOptionParser()
-			->description("Simple and minimalistic job queue (or deferred-task) system.")
+			->description('Simple and minimalistic job queue (or deferred-task) system.')
 			->addSubcommand('clean', [
 				'help' => 'Remove old jobs (cleanup)',
-				'parser' => $subcommandParser
+				'parser' => $subcommandParser,
 			])
 			->addSubcommand('add', [
 				'help' => 'Add Job',
-				'parser' => $subcommandParser
+				'parser' => $subcommandParser,
 			])
 			->addSubcommand('install', [
 				'help' => 'Install info',
-				'parser' => $subcommandParser
+				'parser' => $subcommandParser,
 			])
 			->addSubcommand('uninstall', [
 				'help' => 'Uninstall info',
-				'parser' => $subcommandParser
+				'parser' => $subcommandParser,
 			])
 			->addSubcommand('stats', [
 				'help' => 'Stats',
-				'parser' => $subcommandParserFull
+				'parser' => $subcommandParserFull,
 			])
 			->addSubcommand('reset', [
 				'help' => 'Stats',
-				'parser' => $subcommandParserFull
+				'parser' => $subcommandParserFull,
 			])
 			->addSubcommand('runworker', [
 				'help' => 'Run Worker',
-				'parser' => $subcommandParserFull
+				'parser' => $subcommandParserFull,
 			]);
 	}
 
@@ -464,7 +464,6 @@ class QueueShell extends Shell {
 
 	/**
 	 * Destructor, removes pid-file
-	 *
 	 */
 	public function __destruct() {
 		if ($pidFilePath = Configure::read('Queue.pidfilepath')) {

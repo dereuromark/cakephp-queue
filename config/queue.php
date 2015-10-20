@@ -3,7 +3,6 @@
  * This file configures default behavior for all workers
  *
  * To modify these parameters, copy this file into your own CakePHP APP/Config directory.
- *
  */
 return [
 	'Queue' => [
@@ -35,6 +34,6 @@ return [
 		'log' => true,
 
 		// set to false to disable (tmp = file in TMP dir)
-		'notify' => 'tmp'
-	]
+		'notify' => 'tmp',
+	],
 ];

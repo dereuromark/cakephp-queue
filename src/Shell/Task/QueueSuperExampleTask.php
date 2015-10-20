@@ -7,11 +7,9 @@
 namespace Queue\Shell\Task;
 
 use Cake\ORM\TableRegistry;
-use Queue\Shell\Task\QueueTask;
 
 /**
  * A Simple QueueTask example.
- *
  */
 class QueueSuperExampleTask extends QueueTask {
 

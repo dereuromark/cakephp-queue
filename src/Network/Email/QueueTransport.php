@@ -13,7 +13,6 @@ use Cake\ORM\TableRegistry;
 
 /**
  * Send mail using Queue plugin
- *
  */
 class QueueTransport extends AbstractTransport {
 

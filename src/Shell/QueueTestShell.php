@@ -33,7 +33,7 @@ class QueueTestShell extends Shell {
 			],
 			'vars' => [
 				'content' => 'I am a test',
-			]
+			],
 		];
 
 		if ($this->QueuedTasks->createJob('Email', $data)) {

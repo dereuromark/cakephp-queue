@@ -2,21 +2,17 @@
 
 namespace Queue\Test\TestCase\Network\Email;
 
-use App\Network\Email\AbstractTransport;
-use Cake\Core\Configure;
 use Cake\Network\Email\Email;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Queue\Network\Email\QueueTransport;
 
 /**
  * Test case
- *
  */
 class QueueTransportTest extends TestCase {
 
 	public $fixtures = [
-		'plugin.Queue.QueuedTasks'
+		'plugin.Queue.QueuedTasks',
 	];
 
 	/**

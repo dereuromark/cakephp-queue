@@ -19,7 +19,7 @@ class QueuedTasksTable extends Table {
 	public $exit = false;
 
 	public $findMethods = [
-		'progress' => true
+		'progress' => true,
 	];
 
 	protected $_key = null;
@@ -70,7 +70,7 @@ class QueuedTasksTable extends Table {
 			'jobtype' => $jobName,
 			'data' => serialize($data),
 			'task_group' => $group,
-			'reference' => $reference
+			'reference' => $reference,
 		];
 		if ($notBefore !== null) {
 			$data['notbefore'] = strtotime($notBefore);
@@ -101,8 +101,8 @@ class QueuedTasksTable extends Table {
 	public function getLength($type = null) {
 		$findConf = [
 			'conditions' => [
-				'completed IS' => null
-			]
+				'completed IS' => null,
+			],
 		];
 		if ($type !== null) {
 			$findConf['conditions']['jobtype'] = $type;
@@ -119,10 +119,10 @@ class QueuedTasksTable extends Table {
 	public function getTypes() {
 		$findCond = [
 			'fields' => [
-				'jobtype'
+				'jobtype',
 			],
 			'group' => [
-				'jobtype'
+				'jobtype',
 			],
 			'keyField' => 'jobtype',
 			'valueField' => 'jobtype',
@@ -148,11 +148,11 @@ class QueuedTasksTable extends Table {
 				];
 			},
 			'conditions' => [
-				'completed IS NOT' => null
+				'completed IS NOT' => null,
 			],
 			'group' => [
-				'jobtype'
-			]
+				'jobtype',
+			],
 		];
 		return $this->find('all', $options);
 	}
@@ -173,7 +173,7 @@ class QueuedTasksTable extends Table {
 		$findCond = [
 			'conditions' => [
 				'completed IS' => null,
-				'OR' => []
+				'OR' => [],
 			],
 			'fields' => function ($query) {
 				return [
@@ -186,9 +186,9 @@ class QueuedTasksTable extends Table {
 			},
 			'order' => [
 				'age ASC',
-				'id ASC'
+				'id ASC',
 			],
-			'limit' => 3
+			'limit' => 3,
 		];
 
 		if ($group !== null) {
@@ -204,17 +204,17 @@ class QueuedTasksTable extends Table {
 					[
 						'OR' => [
 							'notbefore <' => time(),
-							'notbefore IS' => null
-						]
+							'notbefore IS' => null,
+						],
 					],
 					[
 						'OR' => [
 							'fetched <' => time() - $task['timeout'],
-							'fetched IS' => null
-						]
-					]
+							'fetched IS' => null,
+						],
+					],
 				],
-				'failed <' => ($task['retries'] + 1)
+				'failed <' => ($task['retries'] + 1),
 			];
 			if (array_key_exists('rate', $task) && $tmp['jobtype'] && array_key_exists($tmp['jobtype'], $this->rateHistory)) {
 				$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['jobtype']] + $task['rate'];
@@ -250,7 +250,7 @@ class QueuedTasksTable extends Table {
 				'workerkey' => $key,
 				'completed IS' => null,
 			],
-			'order' => ['fetched' => 'DESC']
+			'order' => ['fetched' => 'DESC'],
 		])->first();
 
 		if (!$data) {
@@ -291,10 +291,10 @@ class QueuedTasksTable extends Table {
 	 */
 	public function markJobDone($id) {
 		$fields = [
-			'completed' => time()
+			'completed' => time(),
 		];
 		$conditions = [
-			'id' => $id
+			'id' => $id,
 		];
 		return $this->updateAll($fields, $conditions);
 	}
@@ -314,7 +314,7 @@ class QueuedTasksTable extends Table {
 			'failure_message' => null,
 		];
 		$conditions = [
-			'completed IS' => null
+			'completed IS' => null,
 		];
 		return $this->updateAll($fields, $conditions);
 	}
@@ -336,7 +336,7 @@ class QueuedTasksTable extends Table {
 			'failure_message' => $failureMessage,
 		];
 		$conditions = [
-			'id' => $id
+			'id' => $id,
 		];
 		return $this->updateAll($fields, $conditions);
 	}
@@ -356,11 +356,11 @@ class QueuedTasksTable extends Table {
 				'progress',
 				'reference',
 				'failed',
-				'failure_message'
+				'failure_message',
 			],
 			'conditions' => [
-				'completed IS' => null
-			]
+				'completed IS' => null,
+			],
 		];
 		return $this->find('all', $findCond);
 	}
@@ -372,7 +372,7 @@ class QueuedTasksTable extends Table {
 	 */
 	public function cleanOldJobs() {
 		$this->deleteAll([
-			'completed <' => time() - Configure::read('Queue.cleanuptimeout')
+			'completed <' => time() - Configure::read('Queue.cleanuptimeout'),
 		]);
 		if (!($pidFilePath = Configure::read('Queue.pidfilepath'))) {
 			return;
@@ -428,7 +428,7 @@ class QueuedTasksTable extends Table {
 				'reference',
 				'status',
 				'progress',
-				'failure_message'
+				'failure_message',
 			];
 			if (isset($query['conditions']['exclude'])) {
 				$exclude = $query['conditions']['exclude'];
@@ -437,8 +437,8 @@ class QueuedTasksTable extends Table {
 				$exclude = explode(',', $exclude);
 				$query['conditions'][] = [
 					'NOT' => [
-						'reference' => $exclude
-					]
+						'reference' => $exclude,
+					],
 				];
 			}
 			if (isset($query['conditions']['task_group'])) {
@@ -451,7 +451,7 @@ class QueuedTasksTable extends Table {
 		foreach ($results as $k => $result) {
 			$results[$k] = [
 				'reference' => $result['reference'],
-				'status' => $result['status']
+				'status' => $result['status'],
 			];
 			if (!empty($result['progress'])) {
 				$results[$k]['progress'] = $result['progress'];
@@ -480,9 +480,9 @@ class QueuedTasksTable extends Table {
 		$numX = count($x);
 		while ($start <= $numX) {
 			$this->deleteAll([
-				'id' => array_slice($x, $start, 10)
+				'id' => array_slice($x, $start, 10),
 			]);
-			debug(array_slice($x, $start, 10));
+			//debug(array_slice($x, $start, 10));
 			$start = $start + 100;
 		}
 	}

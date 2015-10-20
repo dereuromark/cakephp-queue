@@ -9,7 +9,7 @@
 <?php echo $this->Format->yesNo($running); ?> <?php echo $running ? __d('queue', 'Running') : __d('queue', 'Not running'); ?> (<?php echo __d('queue', 'last {0}', $this->Time->relLengthOfTime($status['time']))?>)
 
 <?php
-	echo '<div><small>Currently '.($status['workers']).' worker(s) total.</small></div>';
+	echo '<div><small>Currently ' . ($status['workers']) . ' worker(s) total.</small></div>';
 ?>
 <?php } else { ?>
 n/a
@@ -23,14 +23,14 @@ n/a
 <ol>
 <?php
 foreach ($pendingDetails as $item) {
-	echo '<li>'.$item['jobtype'] . " (" . $item['reference'] . "):";
+	echo '<li>' . $item['jobtype'] . ' (' . $item['reference'] . '):';
 	echo '<ul>';
-		echo '<li>Created: '.$item['created'].'</li>';
-		echo '<li>Fetched: '.$item['fetched'].'</li>';
-		echo '<li>Status: '.$item['status'].'</li>';
-		echo '<li>Progress: '.$this->Number->toPercentage($item['progress']).'</li>';
-		echo '<li>Failures: '.$item['failed'].'</li>';
-		echo '<li>Failure Message: '.$item['failure_message'].'</li>';
+		echo '<li>Created: ' . $item['created'] . '</li>';
+		echo '<li>Fetched: ' . $item['fetched'] . '</li>';
+		echo '<li>Status: ' . $item['status'] . '</li>';
+		echo '<li>Progress: ' . $this->Number->toPercentage($item['progress']) . '</li>';
+		echo '<li>Failures: ' . $item['failed'] . '</li>';
+		echo '<li>Failure Message: ' . $item['failure_message'] . '</li>';
 	echo '</ul>';
 	echo '</li>';
 }
@@ -41,12 +41,12 @@ foreach ($pendingDetails as $item) {
 <ul>
 <?php
 foreach ($data as $item) {
-	echo '<li>'.$item['jobtype'] . ":";
+	echo '<li>' . $item['jobtype'] . ':';
 	echo '<ul>';
-		echo '<li>Finished Jobs in Database: '.$item['num'].'</li>';
-		echo '<li>Average Job existence: '.$item['alltime'].'s</li>';
-		echo '<li>Average Execution delay: '.$item['fetchdelay'].'s</li>';
-		echo '<li>Average Execution time: '.$item['runtime'].'s</li>';
+		echo '<li>Finished Jobs in Database: ' . $item['num'] . '</li>';
+		echo '<li>Average Job existence: ' . $item['alltime'] . 's</li>';
+		echo '<li>Average Execution delay: ' . $item['fetchdelay'] . 's</li>';
+		echo '<li>Average Execution time: ' . $item['runtime'] . 's</li>';
 	echo '</ul>';
 	echo '</li>';
 }
@@ -68,7 +68,7 @@ if (empty($data)) {
 		} elseif (is_bool($configuration)) {
 			$configuration = $configuration ? 'true' : 'false';
 		}
-		echo h($key). ': ' . h($configuration);
+		echo h($key) . ': ' . h($configuration);
 		echo '</li>';
 	}
 

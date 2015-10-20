@@ -28,7 +28,7 @@ require CORE_PATH . 'config/bootstrap.php';
 
 Cake\Core\Configure::write('App', [
 		'namespace' => 'App',
-		'encoding' => 'UTF-8']);
+		'encoding' => 'UTF-8', ]);
 Cake\Core\Configure::write('debug', true);
 
 Cake\Core\Configure::write('EmailTransport', [
@@ -40,7 +40,7 @@ Cake\Core\Configure::write('Email', [
 		'default' => [
 			'transport' => 'default',
 			'from' => 'you@localhost',
-		]
+		],
 ]);
 
 mb_internal_encoding('UTF-8');
@@ -53,22 +53,22 @@ $Tmp->create(TMP . 'cache/views', 0770);
 $cache = [
 	'default' => [
 		'engine' => 'File',
-		'path' => CACHE
+		'path' => CACHE,
 	],
 	'_cake_core_' => [
 		'className' => 'File',
 		'prefix' => 'crud_myapp_cake_core_',
 		'path' => CACHE . 'persistent/',
 		'serialize' => true,
-		'duration' => '+10 seconds'
+		'duration' => '+10 seconds',
 	],
 	'_cake_model_' => [
 		'className' => 'File',
 		'prefix' => 'crud_my_app_cake_model_',
 		'path' => CACHE . 'models/',
 		'serialize' => 'File',
-		'duration' => '+10 seconds'
-	]
+		'duration' => '+10 seconds',
+	],
 ];
 
 Cake\Cache\Cache::config($cache);
@@ -77,13 +77,13 @@ Cake\Core\Plugin::load('Queue', ['path' => ROOT . DS]);
 Cake\Core\Plugin::load('Tools', ['path' => ROOT . DS . 'plugins' . DS . 'Tools' . DS]);
 
 Cake\Network\Email\Email::configTransport('default', [
-	'className' => 'Debug'
+	'className' => 'Debug',
 ]);
 Cake\Network\Email\Email::configTransport('queue', [
-	'className' => 'Queue.Queue'
+	'className' => 'Queue.Queue',
 ]);
 Cake\Network\Email\Email::config('default', [
-	'transport' => 'default'
+	'transport' => 'default',
 ]);
 
 // Ensure default test connection is defined
