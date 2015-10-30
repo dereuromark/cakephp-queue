@@ -22,8 +22,8 @@
 		"php": ">=5.4.16"
 	},
 	"require-dev": {
-		"dereuromark/cakephp-tools": "dev-cake3",
-		"cakephp/migrations": "dev-master"
+		"dereuromark/cakephp-tools": "dev-master",
+		"cakephp/migrations": "~1.0"
 	},
 	"suggest": {
 		"dereuromark/cakephp-tools": "For the Email lib and QueueEmailTask. Or write your own task here."
@@ -43,6 +43,5 @@
 			"TestApp\\": "tests/TestApp",
 			"Cake\\Test\\": "vendor/cakephp/cakephp/tests"
 		}
-	},
-	"minimum-stability": "dev"
+	}
 }
