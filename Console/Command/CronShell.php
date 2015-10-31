@@ -110,7 +110,7 @@ class CronShell extends AppShell {
 	}
 
 /**
- * Look for a Queue Task of hte passed name and try to call add() on it.
+ * Look for a Queue Task of the passed name and try to call add() on it.
  * A QueueTask may provide an add function to enable the user to create new jobs via commandline.
  *
  * @return void
