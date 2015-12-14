@@ -20,7 +20,6 @@ class CronTasksController extends QueueAppController {
  * @return void
  */
 	public function index() {
-		$this->CronTask->recursive = 0;
 		$cronTasks = $this->paginate();
 		$this->set(compact('cronTasks'));
 	}
@@ -111,7 +110,6 @@ class CronTasksController extends QueueAppController {
  * @return void
  */
 	public function admin_index() {
-		$this->CronTask->recursive = 0;
 		$cronTasks = $this->paginate();
 		$this->set(compact('cronTasks'));
 	}
