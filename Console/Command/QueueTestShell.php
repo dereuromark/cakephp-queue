@@ -1,5 +1,7 @@
 <?php
 App::uses('AppShell', 'Console/Command');
+App::uses('EmailLib', 'Tools.Lib');
+
 if (!defined('FORMAT_DB_DATE')) {
 	define('FORMAT_DB_DATETIME', 'Y-m-d H:i:s');
 }
@@ -45,8 +47,6 @@ class QueueTestShell extends AppShell {
  * @return void
  */
 	public function complete_email() {
-		App::uses('EmailLib', 'Tools.Lib');
-
 		Configure::write('debug', 0);
 		$Email = new EmailLib();
 		$Email->to('markscherer@gmx.de', 'Mark Test');
