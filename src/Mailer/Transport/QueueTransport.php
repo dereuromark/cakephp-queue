@@ -1,14 +1,12 @@
 <?php
 /**
- * PHP 5
- *
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace Queue\Network\Email;
+namespace Queue\Mailer\Transport;
 
-use Cake\Network\Email\AbstractTransport;
-use Cake\Network\Email\Email;
+use Cake\Mailer\AbstractTransport;
+use Cake\Mailer\Email;
 use Cake\ORM\TableRegistry;
 
 /**
