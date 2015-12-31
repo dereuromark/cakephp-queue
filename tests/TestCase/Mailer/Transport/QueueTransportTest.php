@@ -1,10 +1,10 @@
 <?php
 
-namespace Queue\Test\TestCase\Network\Email;
+namespace Queue\Test\TestCase\Mailer\Transport;
 
-use Cake\Network\Email\Email;
+use Cake\Mailer\Email;
 use Cake\TestSuite\TestCase;
-use Queue\Network\Email\QueueTransport;
+use Queue\Mailer\Transport\QueueTransport;
 
 /**
  * Test case
@@ -14,6 +14,8 @@ class QueueTransportTest extends TestCase {
 	public $fixtures = [
 		'plugin.Queue.QueuedTasks',
 	];
+
+	protected $QueueTransport;
 
 	/**
 	 * Setup

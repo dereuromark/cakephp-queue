@@ -76,13 +76,13 @@ Cake\Cache\Cache::config($cache);
 Cake\Core\Plugin::load('Queue', ['path' => ROOT . DS]);
 Cake\Core\Plugin::load('Tools', ['path' => ROOT . DS . 'plugins' . DS . 'Tools' . DS]);
 
-Cake\Network\Email\Email::configTransport('default', [
+Cake\Mailer\Email::configTransport('default', [
 	'className' => 'Debug',
 ]);
-Cake\Network\Email\Email::configTransport('queue', [
+Cake\Mailer\Email::configTransport('queue', [
 	'className' => 'Queue.Queue',
 ]);
-Cake\Network\Email\Email::config('default', [
+Cake\Mailer\Email::config('default', [
 	'transport' => 'default',
 ]);
 

@@ -4,7 +4,7 @@ namespace Queue\Shell;
 
 use Cake\Console\Shell;
 use Cake\Core\Configure;
-use Tools\Network\Email\Email;
+use Tools\Mailer\Email;
 
 if (!defined('FORMAT_DB_DATE')) {
 	define('FORMAT_DB_DATETIME', 'Y-m-d H:i:s');
