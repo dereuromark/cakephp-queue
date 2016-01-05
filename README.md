@@ -21,7 +21,7 @@ CakePHP and also simplifying the creation of worker scripts.
 
 ### Why use deferred execution?
 
-Deferred execution makes sense (especially in PHP) when your page wants' to execute tasks, which are not directly related to rendering the current page.
+Deferred execution makes sense (especially in PHP) when your page wants to execute tasks, which are not directly related to rendering the current page.
 For instance, in a BBS-type system, a new users post might require the creation of multiple personalized email messages,
 notifying other users of the new content.
 Creating and sending these emails is completely irrelevant to the currently active user, and should not increase page response time.
