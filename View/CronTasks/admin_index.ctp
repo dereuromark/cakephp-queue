@@ -42,7 +42,7 @@ foreach ($cronTasks as $cronTask):
 			<br />
 			<?php
 				if ($cronTask['CronTask']['notbefore'] > date(FORMAT_DB_DATETIME)) {
-					echo $this->Format->cIcon(ICON_WARNING, 'Achtung');
+					echo $this->Format->cIcon(ICON_WARNING, ['title' => __('Warning')]);
 				}
 		 	?>
 		</td>
