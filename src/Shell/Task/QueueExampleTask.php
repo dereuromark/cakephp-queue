@@ -6,15 +6,15 @@
  */
 namespace Queue\Shell\Task;
 
+use Queue\Model\Table\QueuedTasksTable;
+
 /**
  * A Simple QueueTask example.
  */
 class QueueExampleTask extends QueueTask {
 
 	/**
-	 * ZendStudio Codecomplete Hint
-	 *
-	 * @var QueuedTask
+	 * @var \Queue\Model\Table\QueuedTasksTable
 	 */
 	public $QueuedTask;
 

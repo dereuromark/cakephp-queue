@@ -1,6 +1,7 @@
 <?php
 namespace Queue\Shell;
 
+use Cake\Console\ConsoleOptionParser;
 use Cake\Console\Shell;
 use Cake\Core\App;
 use Cake\Core\Configure;
@@ -329,7 +330,7 @@ class QueueShell extends Shell {
 	/**
 	 * Get option parser method to parse commandline options
 	 *
-	 * @return OptionParser
+	 * @return \Cake\Console\ConsoleOptionParser
 	 */
 	public function getOptionParser() {
 		$subcommandParser = [

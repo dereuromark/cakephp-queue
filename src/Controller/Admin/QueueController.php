@@ -3,6 +3,7 @@ namespace Queue\Controller\Admin;
 
 use Cake\Core\Configure;
 use Cake\Event\Event;
+use Cake\Network\Exception\MethodNotAllowedException;
 use Queue\Controller\AppController;
 
 class QueueController extends AppController {
@@ -41,8 +42,8 @@ class QueueController extends AppController {
 	/**
 	 * Truncate the queue list / table.
 	 *
-	 * @return void
-	 * @throws MethodNotAllowedException when not posted
+	 * @return \Cake\Network\Response
+	 * @throws \Cake\Network\Exception\MethodNotAllowedException when not posted
 	 */
 	public function reset() {
 		$this->request->allowMethod('post');

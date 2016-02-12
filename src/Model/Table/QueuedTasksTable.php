@@ -62,8 +62,8 @@ class QueuedTasksTable extends Table {
 	 * @param array  $notBefore optional date which must not be preceded
 	 * @param string $group     Used to group similar QueuedTasks.
 	 * @param string $reference An optional reference string.
-	 * @return Cake\ORM\Entity Saved job entity
-	 * @throws Exception
+	 * @return \Cake\ORM\Entity Saved job entity
+	 * @throws \Exception
 	 */
 	public function createJob($jobName, $data = null, $notBefore = null, $group = null, $reference = null) {
 		$data = [

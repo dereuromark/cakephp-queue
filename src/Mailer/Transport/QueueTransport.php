@@ -17,7 +17,7 @@ class QueueTransport extends AbstractTransport {
 	/**
 	 * Send mail
 	 *
-	 * @param Email $email Email
+	 * @param \Cake\Mailer\Email $email Email
 	 * @return array
 	 */
 	public function send(Email $email) {

@@ -6,15 +6,17 @@
  */
 namespace Queue\Shell\Task;
 
+use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleIo;
+use Queue\Model\Table\QueuedTasksTable;
+
 /**
  * A Simple QueueTask example.
  */
 class QueueRetryExampleTask extends QueueTask {
 
 	/**
-	 * ZendStudio Codecomplete Hint
-	 *
-	 * @var QueuedTask
+	 * @var \Queue\Model\Table\QueuedTasksTable
 	 */
 	public $QueuedTasks;
 
@@ -40,14 +42,12 @@ class QueueRetryExampleTask extends QueueTask {
 	public $failureMessage = '';
 
 	/**
-	 *  Constructs this Shell instance.
+	 * Constructs this Shell instance.
 	 *
-	 * @param ConsoleOutput $stdout A ConsoleOutput object for stdout.
-	 * @param ConsoleOutput $stderr A ConsoleOutput object for stderr.
-	 * @param ConsoleInput $stdin A ConsoleInput object for stdin.
+	 * @param \Cake\Console\ConsoleIo $io IO
 	 */
-	public function __construct($stdout = null, $stderr = null, $stdin = null) {
-		parent::__construct($stdout, $stderr, $stdin);
+	public function __construct(ConsoleIo $io = null) {
+		parent::__construct($io);
 
 		$this->file = TMP . 'task_retry.txt';
 	}

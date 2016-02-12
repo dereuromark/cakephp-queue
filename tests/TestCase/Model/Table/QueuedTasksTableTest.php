@@ -16,6 +16,11 @@ use Cake\TestSuite\TestCase;
 class QueuedTasksTableTest extends TestCase {
 
 	/**
+	 * @var \Queue\Model\Table\QueuedTasksTable
+	 */
+	protected $QueuedTasks;
+
+	/**
 	 * Fixtures
 	 *
 	 * @var array
@@ -201,7 +206,7 @@ class QueuedTasksTableTest extends TestCase {
 
 	/**
 	 * Test creating Jobs to run close to a specified time, and strtotime parsing.
-	 * Using toUnixString() function to convert Time object to timestamp, instead of strtotime 
+	 * Using toUnixString() function to convert Time object to timestamp, instead of strtotime
 	 *
 	 * @return null
 	 */

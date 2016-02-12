@@ -6,13 +6,15 @@
  */
 namespace Queue\Shell\Task;
 
+use Queue\Model\Table\QueuedTasksTable;
+
 /**
  * Execute a Local command on the server.
  */
 class QueueExecuteTask extends QueueTask {
 
 	/**
-	 * @var QueuedTask
+	 * @var \Queue\Model\Table\QueuedTasksTable
 	 */
 	public $QueuedTask;
 

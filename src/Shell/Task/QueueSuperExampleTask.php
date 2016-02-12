@@ -7,6 +7,7 @@
 namespace Queue\Shell\Task;
 
 use Cake\ORM\TableRegistry;
+use Queue\Model\Table\QueuedTasksTable;
 
 /**
  * A Simple QueueTask example.
@@ -14,7 +15,7 @@ use Cake\ORM\TableRegistry;
 class QueueSuperExampleTask extends QueueTask {
 
 	/**
-	 * @var QueuedTask
+	 * @var \Queue\Model\Table\QueuedTasksTable
 	 */
 	public $QueuedTask;
 

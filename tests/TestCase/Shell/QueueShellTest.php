@@ -127,10 +127,10 @@ class TestQueueShell extends QueueShell {
 	/**
 	 * Output function for Test
 	 *
-	 * @param type $message Message.
-	 * @param type $newlines Newline.
-	 * @param type $level Output level.
-	 * 
+	 * @param string|null $message Message.
+	 * @param int $newlines Newline.
+	 * @param int $level Output level.
+	 *
 	 * @return void
 	 */
 	public function out($message = null, $newlines = 1, $level = Shell::NORMAL) {
@@ -140,7 +140,7 @@ class TestQueueShell extends QueueShell {
 	/**
 	 * Get task configuration
 	 *
-	 * @return type Object
+	 * @return array
 	 */
 	protected function _getTaskConf() {
 		parent::_getTaskConf();

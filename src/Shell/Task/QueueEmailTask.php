@@ -2,6 +2,7 @@
 namespace Queue\Shell\Task;
 
 use Cake\Log\Log;
+use Exception;
 use Tools\Mailer\Email;
 
 /**
@@ -58,7 +59,7 @@ class QueueEmailTask extends QueueTask {
 	 * QueueEmailTask::run()
 	 *
 	 * @param mixed $data Job data
-	 * @param int $id The id of the QueuedTask
+	 * @param int|null $id The id of the QueuedTask
 	 * @return bool Success
 	 */
 	public function run($data, $id = null) {
@@ -67,7 +68,9 @@ class QueueEmailTask extends QueueTask {
 			return false;
 		}
 
-		if (is_object($email = $data['settings']) && $email instanceof Email) {
+		/** @var \Cake\Mailer\Email $email */
+		$email = $data['settings'];
+		if (is_object($email) && $email instanceof Email) {
 			try {
 				$transport = $email->transportClass();
 				$config = $email->config();
@@ -130,12 +133,13 @@ class QueueEmailTask extends QueueTask {
 			}
 			$config = array_merge($config, $log);
 		}
-		return; // for now
+		/** for now
 		Log::write(
 			$config['level'],
 			PHP_EOL . $contents['headers'] . PHP_EOL . $contents['message'],
 			$config['scope']
 		);
+		*/
 	}
 
 }

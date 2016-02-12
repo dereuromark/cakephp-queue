@@ -2,15 +2,16 @@
 
 namespace Queue\Shell\Task;
 
+use Queue\Model\Entity\QueuedTask;
+use RuntimeException;
+
 /**
  * A Simple QueueTask example that runs for a while.
  */
 class QueueLongExampleTask extends QueueTask {
 
 	/**
-	 * ZendStudio Codecomplete Hint
-	 *
-	 * @var QueuedTask
+	 * @var \Queue\Model\Entity\QueuedTask
 	 */
 	public $QueuedTask;
 
