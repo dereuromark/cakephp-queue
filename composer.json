@@ -23,7 +23,8 @@
 	},
 	"require-dev": {
 		"dereuromark/cakephp-tools": "dev-master",
-		"cakephp/migrations": "~1.0"
+		"cakephp/migrations": "~1.0",
+		"fig-r/psr2r-sniffer": "dev-master"
 	},
 	"suggest": {
 		"dereuromark/cakephp-tools": "For the Email lib and QueueEmailTask. Or write your own task here."

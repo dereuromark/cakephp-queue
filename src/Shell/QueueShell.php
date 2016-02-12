@@ -199,8 +199,8 @@ class QueueShell extends Shell {
 			$this->_log('runworker', isset($pid) ? $pid : null);
 			$this->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
 
-			$data = $this->QueuedTask->requestJob($this->_getTaskConf(), $group);
-			if ($this->QueuedTask->exit === true) {
+			$data = $this->QueuedTasks->requestJob($this->_getTaskConf(), $group);
+			if ($this->QueuedTasks->exit === true) {
 				$this->_exit = true;
 			} else {
 				if ($data) {
