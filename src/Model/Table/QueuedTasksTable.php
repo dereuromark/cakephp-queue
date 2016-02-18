@@ -4,6 +4,7 @@ namespace Queue\Model\Table;
 use Cake\Core\Configure;
 use Cake\ORM\Table;
 use Cake\Utility\Hash;
+use Cake\I18n\Time;
 
 /**
  * QueuedTask for queued tasks.
@@ -73,7 +74,7 @@ class QueuedTasksTable extends Table {
 			'reference' => $reference,
 		];
 		if ($notBefore !== null) {
-			$data['notbefore'] = strtotime($notBefore);
+			$data['notbefore'] = new Time($notBefore);
 		}
 		$queuedTask = $this->newEntity($data);
 		if ($queuedTask->errors()) {

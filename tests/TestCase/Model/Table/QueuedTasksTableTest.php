@@ -9,6 +9,7 @@ namespace Queue\Test\TestCase\Model\Table;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
+use Cake\I18n\Time;
 
 /**
  * Queue\Model\Table\QueuedTasksTable Test Case
@@ -215,9 +216,9 @@ class QueuedTasksTableTest extends TestCase {
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', [], '+ 1 Day'));
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', [], '2009-07-01 12:00:00'));
 		$data = $this->QueuedTasks->find('all')->toArray();
-		$this->assertWithinRange(strtotime('+ 1 Min'), $data[0]['notbefore']->toUnixString(), 60);
-		$this->assertWithinRange(strtotime('+ 1 Day'), $data[1]['notbefore']->toUnixString(), 60);
-		$this->assertWithinRange(strtotime('2009-07-01 12:00:00'), $data[2]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new Time('+ 1 Min'))->toUnixString(), $data[0]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new Time('+ 1 Day'))->toUnixString(), $data[1]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new Time('2009-07-01 12:00:00'))->toUnixString(), $data[2]['notbefore']->toUnixString(), 60);
 	}
 
 	/**
