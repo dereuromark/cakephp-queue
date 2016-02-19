@@ -292,7 +292,7 @@ class QueuedTasksTableTest extends TestCase {
 				'name' => 'task1',
 				'timeout' => 101,
 				'retries' => 2,
-				'rate' => 1,
+				'rate' => 2,
 			],
 			'dummytask' => [
 				'name' => 'dummytask',
@@ -324,7 +324,7 @@ class QueuedTasksTableTest extends TestCase {
 		$this->assertEquals('dummytask', $tmp['jobtype']);
 		$this->assertNull(unserialize($tmp['data']));
 
-		usleep(500000);
+		usleep(100000);
 		//and again.
 		$this->QueuedTasks->clearKey();
 		$tmp = $this->QueuedTasks->requestJob($capabilities);
@@ -332,7 +332,7 @@ class QueuedTasksTableTest extends TestCase {
 		$this->assertNull(unserialize($tmp['data']));
 
 		//Then some time passes
-		sleep(1);
+		sleep(2);
 
 		//Now we should get task1-2
 		$this->QueuedTasks->clearKey();
@@ -347,7 +347,7 @@ class QueuedTasksTableTest extends TestCase {
 		$this->assertNull(unserialize($tmp['data']));
 
 		//Then some more time passes
-		sleep(1);
+		sleep(2);
 
 		//Now we should get task1-3
 		$this->QueuedTasks->clearKey();

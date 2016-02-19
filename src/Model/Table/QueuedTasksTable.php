@@ -266,7 +266,7 @@ class QueuedTasksTable extends Table {
 			$this->save($data, ['fieldList' => ['id', 'failed', 'failure_message']]);
 		}
 		//save last fetch by type for Rate Limiting.
-		$this->rateHistory[$data['jobtype']] = time();
+		$this->rateHistory[$data['jobtype']] = (new Time())->toUnixString() ;
 		return $data;
 	}
 
