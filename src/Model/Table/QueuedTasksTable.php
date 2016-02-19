@@ -204,13 +204,13 @@ class QueuedTasksTable extends Table {
 				'AND' => [
 					[
 						'OR' => [
-							'notbefore <' => time(),
+							'notbefore <' => new Time(),
 							'notbefore IS' => null,
 						],
 					],
 					[
 						'OR' => [
-							'fetched <' => time() - $task['timeout'],
+							'fetched <' => (new Time())->modify(sprintf('-%d seconds', $task['timeout'])),
 							'fetched IS' => null,
 						],
 					],
