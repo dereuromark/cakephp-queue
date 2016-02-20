@@ -116,4 +116,5 @@ class QueueRetryExampleTask extends QueueTask {
 		unlink($this->file);
 		return true;
 	}
+
 }

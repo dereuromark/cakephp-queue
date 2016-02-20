@@ -28,4 +28,5 @@ class Init extends AbstractMigration {
 			->addColumn('workerkey', 'string', ['length' => 45, 'null' => true, 'default' => null])
 			->create();
 	}
+
 }

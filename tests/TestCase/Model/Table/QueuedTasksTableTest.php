@@ -7,9 +7,9 @@
 namespace Queue\Test\TestCase\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
-use Cake\I18n\Time;
 
 /**
  * Queue\Model\Table\QueuedTasksTable Test Case

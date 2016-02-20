@@ -89,7 +89,7 @@ class QueueExecuteTask extends QueueTask {
 		exec($command, $output, $status);
 		$this->out(' ');
 		$this->out($output);
-		return (!$status);
+		return !$status;
 	}
 
 }

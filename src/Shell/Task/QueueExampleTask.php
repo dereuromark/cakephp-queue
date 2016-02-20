@@ -86,4 +86,5 @@ class QueueExampleTask extends QueueTask {
 		$this->out(' ');
 		return true;
 	}
+
 }

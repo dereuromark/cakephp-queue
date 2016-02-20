@@ -2,9 +2,9 @@
 namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\I18n\Time;
 use Cake\ORM\Table;
 use Cake\Utility\Hash;
-use Cake\I18n\Time;
 
 /**
  * QueuedTask for queued tasks.
@@ -266,7 +266,7 @@ class QueuedTasksTable extends Table {
 			$this->save($data, ['fieldList' => ['id', 'failed', 'failure_message']]);
 		}
 		//save last fetch by type for Rate Limiting.
-		$this->rateHistory[$data['jobtype']] = (new Time())->toUnixString() ;
+		$this->rateHistory[$data['jobtype']] = (new Time())->toUnixString();
 		return $data;
 	}
 
@@ -399,7 +399,7 @@ class QueuedTasksTable extends Table {
 	/**
 	 * QueuedTask::lastRun()
 	 *
-	 * @deprecated?
+	 * @deprecated ?
 	 * @return array
 	 */
 	public function lastRun() {

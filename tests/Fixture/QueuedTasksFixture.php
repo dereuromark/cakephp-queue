@@ -20,12 +20,11 @@ class QueuedTasksFixture extends TestFixture {
 	 */
 	public $records = [];
 
-/**
- * Fields
- *
- * @var array
- */
-	// @codingStandardsIgnoreStart
+	/**
+	 * Fields
+	 *
+	 * @var array
+	 */
 	public $fields = [
 		'id' => ['type' => 'integer'],
 		'jobtype' => ['type' => 'string', 'length' => 45, 'null' => false, 'default' => null],
@@ -49,5 +48,5 @@ class QueuedTasksFixture extends TestFixture {
 			'collation' => 'utf8_unicode_ci',
 		],
 	];
-	// @codingStandardsIgnoreEnd
+
 }
