@@ -4,6 +4,7 @@ namespace Queue\Model\Table;
 use Cake\Core\Configure;
 use Cake\ORM\Table;
 use Cake\Utility\Hash;
+use Cake\I18n\Time;
 
 /**
  * QueuedTask for queued tasks.
@@ -73,7 +74,7 @@ class QueuedTasksTable extends Table {
 			'reference' => $reference,
 		];
 		if ($notBefore !== null) {
-			$data['notbefore'] = strtotime($notBefore);
+			$data['notbefore'] = new Time($notBefore);
 		}
 		$queuedTask = $this->newEntity($data);
 		if ($queuedTask->errors()) {
@@ -203,13 +204,13 @@ class QueuedTasksTable extends Table {
 				'AND' => [
 					[
 						'OR' => [
-							'notbefore <' => time(),
+							'notbefore <' => new Time(),
 							'notbefore IS' => null,
 						],
 					],
 					[
 						'OR' => [
-							'fetched <' => time() - $task['timeout'],
+							'fetched <' => (new Time())->modify(sprintf('-%d seconds', $task['timeout'])),
 							'fetched IS' => null,
 						],
 					],
@@ -265,7 +266,7 @@ class QueuedTasksTable extends Table {
 			$this->save($data, ['fieldList' => ['id', 'failed', 'failure_message']]);
 		}
 		//save last fetch by type for Rate Limiting.
-		$this->rateHistory[$data['jobtype']] = time();
+		$this->rateHistory[$data['jobtype']] = (new Time())->toUnixString() ;
 		return $data;
 	}
 

@@ -9,6 +9,7 @@ namespace Queue\Test\TestCase\Model\Table;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
+use Cake\I18n\Time;
 
 /**
  * Queue\Model\Table\QueuedTasksTable Test Case
@@ -215,9 +216,9 @@ class QueuedTasksTableTest extends TestCase {
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', [], '+ 1 Day'));
 		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', [], '2009-07-01 12:00:00'));
 		$data = $this->QueuedTasks->find('all')->toArray();
-		$this->assertWithinRange(strtotime('+ 1 Min'), $data[0]['notbefore']->toUnixString(), 60);
-		$this->assertWithinRange(strtotime('+ 1 Day'), $data[1]['notbefore']->toUnixString(), 60);
-		$this->assertWithinRange(strtotime('2009-07-01 12:00:00'), $data[2]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new Time('+ 1 Min'))->toUnixString(), $data[0]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new Time('+ 1 Day'))->toUnixString(), $data[1]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new Time('2009-07-01 12:00:00'))->toUnixString(), $data[2]['notbefore']->toUnixString(), 60);
 	}
 
 	/**
@@ -291,7 +292,7 @@ class QueuedTasksTableTest extends TestCase {
 				'name' => 'task1',
 				'timeout' => 101,
 				'retries' => 2,
-				'rate' => 1,
+				'rate' => 2,
 			],
 			'dummytask' => [
 				'name' => 'dummytask',
@@ -323,7 +324,7 @@ class QueuedTasksTableTest extends TestCase {
 		$this->assertEquals('dummytask', $tmp['jobtype']);
 		$this->assertNull(unserialize($tmp['data']));
 
-		usleep(500000);
+		usleep(100000);
 		//and again.
 		$this->QueuedTasks->clearKey();
 		$tmp = $this->QueuedTasks->requestJob($capabilities);
@@ -331,7 +332,7 @@ class QueuedTasksTableTest extends TestCase {
 		$this->assertNull(unserialize($tmp['data']));
 
 		//Then some time passes
-		sleep(1);
+		sleep(2);
 
 		//Now we should get task1-2
 		$this->QueuedTasks->clearKey();
@@ -346,7 +347,7 @@ class QueuedTasksTableTest extends TestCase {
 		$this->assertNull(unserialize($tmp['data']));
 
 		//Then some more time passes
-		sleep(1);
+		sleep(2);
 
 		//Now we should get task1-3
 		$this->QueuedTasks->clearKey();
