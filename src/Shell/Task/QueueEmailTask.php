@@ -2,8 +2,8 @@
 namespace Queue\Shell\Task;
 
 use Cake\Log\Log;
+use Cake\Mailer\Email;
 use Exception;
-use Tools\Mailer\Email;
 
 /**
  * @author Mark Scherer
@@ -21,8 +21,14 @@ class QueueEmailTask extends QueueTask {
 		'from' => null,
 	];
 
+	/**
+	 * @var int
+	 */
 	public $timeout = 120;
 
+	/**
+	 * @var int
+	 */
 	public $retries = 1;
 
 	/**
@@ -30,6 +36,9 @@ class QueueEmailTask extends QueueTask {
 	 */
 	public $autoUnserialize = true;
 
+	/**
+	 * @var \Cake\Network\Email
+	 */
 	public $Email;
 
 	/**
@@ -100,7 +109,12 @@ class QueueEmailTask extends QueueTask {
 			}
 		}
 
-		$this->Email = new Email();
+		$class = 'Tools\Mailer\Email';
+		if (!class_exists($class)) {
+			$class = 'Cake\Mailer\Email';
+		}
+		$this->Email = new $class();
+
 		$settings = array_merge($this->defaults, $data['settings']);
 		foreach ($settings as $method => $setting) {
 			call_user_func_array([$this->Email, $method], (array)$setting);
