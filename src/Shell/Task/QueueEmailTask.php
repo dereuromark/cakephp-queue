@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Shell\Task;
 
 use Cake\Log\Log;

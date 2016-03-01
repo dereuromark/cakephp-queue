@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Shell;
 
 use Cake\Console\ConsoleOptionParser;
@@ -22,6 +23,9 @@ declare(ticks = 1);
  */
 class QueueShell extends Shell {
 
+	/**
+	 * @var string
+	 */
 	public $modelClass = 'Queue.QueuedTasks';
 
 	/**
@@ -29,6 +33,9 @@ class QueueShell extends Shell {
 	 */
 	protected $_taskConf;
 
+	/**
+	 * @var bool
+	 */
 	protected $_exit;
 
 	/**

@@ -6,6 +6,9 @@ use Queue\Model\Table\QueuedTasksTable as BaseQueuedTasksTable;
 
 class QueuedTasksTable extends BaseQueuedTasksTable {
 
+	/**
+	 * @var bool
+	 */
 	public $cacheSources = false;
 
 	/**

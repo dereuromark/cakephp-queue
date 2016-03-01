@@ -5,7 +5,6 @@
  * @author David Yell <neon1024@gmail.com>
  * @author MGriesbach@gmail.com
  */
-namespace Queue\config\schema;
 
 use Cake\Database\Schema\Table;
 

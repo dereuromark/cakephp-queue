@@ -3,6 +3,7 @@
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 namespace Queue\Mailer\Transport;
 
 use Cake\Mailer\AbstractTransport;

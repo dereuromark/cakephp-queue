@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Controller\Admin;
 
 use Cake\Core\Configure;
@@ -8,6 +9,9 @@ use Queue\Controller\AppController;
 
 class QueueController extends AppController {
 
+	/**
+	 * @var string
+	 */
 	public $modelClass = 'Queue.QueuedTask';
 
 	/**

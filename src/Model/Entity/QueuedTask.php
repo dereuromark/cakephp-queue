@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Model\Entity;
 
 use Cake\ORM\Entity;

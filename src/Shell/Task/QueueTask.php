@@ -3,6 +3,7 @@
  * @author Andy Carter
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
+
 namespace Queue\Shell\Task;
 
 use Cake\Console\Shell;
@@ -18,7 +19,7 @@ class QueueTask extends Shell {
 	/**
 	 * Adding the QueueTask Model
 	 *
-	 * @var array
+	 * @var string
 	 */
 	public $modelClass = 'Queue.QueuedTasks';
 

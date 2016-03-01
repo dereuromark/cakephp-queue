@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
@@ -15,14 +16,26 @@ use Cake\Utility\Hash;
  */
 class QueuedTasksTable extends Table {
 
+	/**
+	 * @var array
+	 */
 	public $rateHistory = [];
 
+	/**
+	 * @var bool
+	 */
 	public $exit = false;
 
+	/**
+	 * @var array
+	 */
 	public $findMethods = [
 		'progress' => true,
 	];
 
+	/**
+	 * @var string|null
+	 */
 	protected $_key = null;
 
 	/**

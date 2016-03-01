@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Test\TestCase\Shell;
 
 use Cake\Console\Shell;
@@ -8,6 +9,9 @@ use Queue\Shell\QueueShell;
 
 class QueueShellTest extends TestCase {
 
+	/**
+	 * @var \Queue\Shell\QueueShell
+	 */
 	public $QueueShell;
 
 	/**
@@ -122,6 +126,9 @@ class QueueShellTest extends TestCase {
 
 class TestQueueShell extends QueueShell {
 
+	/**
+	 * @var array
+	 */
 	public $out = [];
 
 	/**

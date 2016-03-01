@@ -17,6 +17,9 @@ if (!defined('FORMAT_DB_DATE')) {
  */
 class QueueTestShell extends Shell {
 
+	/**
+	 * @var string
+	 */
 	public $modelClass = 'Queue.QueuedTask';
 
 	/**
