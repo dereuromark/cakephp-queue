@@ -51,7 +51,7 @@ class QueueTestShell extends Shell {
 	public function complete_email() {
 		Configure::write('debug', 0);
 		$Email = new Email();
-		$Email->to('markscherer@gmx.de', 'Mark Test');
+		$Email->to('euromark@web.de', 'Mark Test');
 		$Email->subject('Testing Message');
 		$host = Configure::read('App.host');
 		if ($host) {
