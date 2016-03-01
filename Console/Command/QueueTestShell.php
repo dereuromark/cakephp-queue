@@ -49,7 +49,7 @@ class QueueTestShell extends AppShell {
 	public function complete_email() {
 		Configure::write('debug', 0);
 		$Email = new EmailLib();
-		$Email->to('markscherer@gmx.de', 'Mark Test');
+		$Email->to('euromark@web.de', 'Mark Test');
 		$Email->subject('Testing Message');
 		$host = Configure::read('App.host');
 		if ($host) {

@@ -60,7 +60,7 @@ class QueueTransportTest extends CakeTestCase {
 
 		Configure::write('debug', 0);
 		$Email = new EmailLib();
-		$Email->to('markscherer@gmx.de', 'Mark Test');
+		$Email->to('euromark@web.de', 'Mark Test');
 		$Email->subject('Testing Message');
 
 		$config = $Email->config();
