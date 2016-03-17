@@ -28,11 +28,31 @@ class QueueTransport extends AbstractTransport {
 			unset($this->_config['queue']);
 		}
 
-		$transport = $this->_config['transport'];
-		$email->transport($transport);
+		$settings = [
+			'from' => [$email->from()],
+			'to' => [$email->to()],
+			'cc' => [$email->cc()],
+			'bcc' => [$email->bcc()],
+			'charset' => [$email->charset()],
+			'replyTo' => [$email->replyTo()],
+			'readReceipt' => [$email->readReceipt()],
+			'returnPath' => [$email->returnPath()],
+			'messageId' => [$email->messageId()],
+			'domain' => [$email->domain()],
+			'getHeaders' => [$email->getHeaders()],
+			'headerCharset' => [$email->headerCharset()],
+			'theme' => [$email->theme()],
+			'profile' => [$email->profile()],
+			'emailFormat' => [$email->emailFormat()],
+			'subject' => [$email->subject()],
+			'transport' => [$this->_config['transport']],
+			'attachments' => [$email->attachments()],
+			'template' => $email->template(), //template() gives 2 values - template and layout
+			'viewVars' => [$email->viewVars()]
+		];
 
 		$QueuedTasks = TableRegistry::get('Queue.QueuedTasks');
-		$result = $QueuedTasks->createJob('Email', ['transport' => $transport, 'settings' => $email]);
+		$result = $QueuedTasks->createJob('Email', ['settings' => $settings]);
 		$result['headers'] = '';
 		$result['message'] = '';
 		return $result;
