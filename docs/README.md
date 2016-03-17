@@ -138,7 +138,7 @@ Play around with it, but just don't shoot over the top.
 ## Tips for Development
 
 ### Using QueueTransport
-Instead of manually adding job every time you want to send mail you can use existing code ond change only EmailTransport and Email configurations in ```app.php```
+Instead of manually adding job every time you want to send mail you can use existing code ond change only EmailTransport and Email configurations in `app.php`.
 ```PHP
 'EmailTransport' => [
         'default' => [
@@ -167,7 +167,7 @@ Instead of manually adding job every time you want to send mail you can use exis
         ],
     ],
 ```
-This way each time you will ```$email->send()``` it will use ```QueueTransport``` as main to create job and worker will use ```'transport'``` setting to send mail
+This way each time you will `$email->send()` it will use `QueueTransport` as main to create job and worker will use `'transport'` setting to send mail.
 
 ### Killing workers
 //TODO
