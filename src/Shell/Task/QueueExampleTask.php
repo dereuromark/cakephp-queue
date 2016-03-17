@@ -7,8 +7,6 @@
 
 namespace Queue\Shell\Task;
 
-use Queue\Model\Table\QueuedTasksTable;
-
 /**
  * A Simple QueueTask example.
  */
@@ -75,7 +73,7 @@ class QueueExampleTask extends QueueTask {
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
 	 * @param array $data The array passed to QueuedTask->createJob()
-	 * @param int $id The id of the QueuedTask
+	 * @param int|null $id The id of the QueuedTask
 	 * @return bool Success
 	 */
 	public function run($data, $id = null) {

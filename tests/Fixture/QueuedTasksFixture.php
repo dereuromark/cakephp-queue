@@ -36,7 +36,7 @@ class QueuedTasksFixture extends TestFixture {
 		'notbefore' => ['type' => 'datetime', 'null' => true],
 		'fetched' => ['type' => 'datetime', 'null' => true],
 		'completed' => ['type' => 'datetime', 'null' => true],
-		'progress' => ['type' => 'float', 'null' => true, ],
+		'progress' => ['type' => 'float', 'null' => true],
 		'status' => ['type' => 'string', 'length' => 255, 'null' => true, 'default' => null],
 		'failed' => ['type' => 'integer', 'length' => 3, 'null' => false, 'default' => '0'],
 		'failure_message' => ['type' => 'text', 'null' => true, 'default' => null],

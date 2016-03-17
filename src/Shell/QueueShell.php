@@ -2,14 +2,12 @@
 
 namespace Queue\Shell;
 
-use Cake\Console\ConsoleOptionParser;
 use Cake\Console\Shell;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Filesystem\Folder;
 use Cake\I18n\Number;
-use Cake\Log\Log;
 use Cake\Utility\Inflector;
 
 declare(ticks = 1);
@@ -399,7 +397,7 @@ class QueueShell extends Shell {
 	 * Timestamped log.
 	 *
 	 * @param string $type Log type
-	 * @param int $pid PID of the process
+	 * @param int|null $pid PID of the process
 	 * @return void
 	 */
 	protected function _log($type, $pid = null) {

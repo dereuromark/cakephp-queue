@@ -11,6 +11,7 @@ class Init extends AbstractMigration {
 	 * http://docs.phinx.org/en/latest/migrations.html#the-change-method
 	 *
 	 * Uncomment this method if you would like to use it.
+	 * @return void
 	 */
 	public function change() {
 		$table = $this->table('queued_tasks');

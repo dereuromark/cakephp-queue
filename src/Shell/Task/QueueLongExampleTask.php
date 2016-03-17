@@ -2,7 +2,6 @@
 
 namespace Queue\Shell\Task;
 
-use Queue\Model\Entity\QueuedTask;
 use RuntimeException;
 
 /**
@@ -71,7 +70,7 @@ class QueueLongExampleTask extends QueueTask {
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
 	 * @param array $data The array passed to QueuedTask->createJob()
-	 * @param int $id The id of the QueuedTask
+	 * @param int|null $id The id of the QueuedTask
 	 * @return bool Success
 	 * @throws \RuntimeException when seconds are 0;
 	 */

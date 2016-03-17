@@ -7,9 +7,7 @@
 
 namespace Queue\Shell\Task;
 
-use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleIo;
-use Queue\Model\Table\QueuedTasksTable;
 
 /**
  * A Simple QueueTask example.
@@ -45,7 +43,7 @@ class QueueRetryExampleTask extends QueueTask {
 	/**
 	 * Constructs this Shell instance.
 	 *
-	 * @param \Cake\Console\ConsoleIo $io IO
+	 * @param \Cake\Console\ConsoleIo|null $io IO
 	 */
 	public function __construct(ConsoleIo $io = null) {
 		parent::__construct($io);
@@ -91,7 +89,7 @@ class QueueRetryExampleTask extends QueueTask {
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
 	 * @param array $data The array passed to QueuedTask->createJob()
-	 * @param int $id The id of the QueuedTask
+	 * @param int|null $id The id of the QueuedTask
 	 * @return bool Success
 	 */
 	public function run($data, $id = null) {

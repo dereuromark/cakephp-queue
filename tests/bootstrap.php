@@ -28,7 +28,8 @@ require CORE_PATH . 'config/bootstrap.php';
 
 Cake\Core\Configure::write('App', [
 		'namespace' => 'App',
-		'encoding' => 'UTF-8', ]);
+		'encoding' => 'UTF-8',
+]);
 Cake\Core\Configure::write('debug', true);
 
 Cake\Core\Configure::write('EmailTransport', [

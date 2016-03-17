@@ -4,7 +4,6 @@ namespace Queue\Controller\Admin;
 
 use Cake\Core\Configure;
 use Cake\Event\Event;
-use Cake\Network\Exception\MethodNotAllowedException;
 use Queue\Controller\AppController;
 
 class QueueController extends AppController {
@@ -17,6 +16,7 @@ class QueueController extends AppController {
 	/**
 	 * QueueController::beforeFilter()
 	 *
+	 * @param \Cake\Event\Event $event
 	 * @return void
 	 */
 	public function beforeFilter(Event $event) {

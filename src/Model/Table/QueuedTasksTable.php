@@ -6,6 +6,10 @@ use Cake\Core\Configure;
 use Cake\I18n\Time;
 use Cake\ORM\Table;
 use Cake\Utility\Hash;
+use Exception;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RegexIterator;
 
 /**
  * QueuedTask for queued tasks.
@@ -72,10 +76,10 @@ class QueuedTasksTable extends Table {
 	 * Add a new Job to the Queue.
 	 *
 	 * @param string $jobName   QueueTask name
-	 * @param array  $data      any array
-	 * @param array  $notBefore optional date which must not be preceded
-	 * @param string $group     Used to group similar QueuedTasks.
-	 * @param string $reference An optional reference string.
+	 * @param array|null $data      any array
+	 * @param array|null $notBefore optional date which must not be preceded
+	 * @param string|null $group     Used to group similar QueuedTasks.
+	 * @param string|null $reference An optional reference string.
 	 * @return \Cake\ORM\Entity Saved job entity
 	 * @throws \Exception
 	 */
@@ -91,7 +95,7 @@ class QueuedTasksTable extends Table {
 		}
 		$queuedTask = $this->newEntity($data);
 		if ($queuedTask->errors()) {
-			throw new \Exception('Invalid entity data');
+			throw new Exception('Invalid entity data');
 		}
 		return $this->save($queuedTask);
 	}
@@ -109,7 +113,7 @@ class QueuedTasksTable extends Table {
 	 * Returns the number of items in the Queue.
 	 * Either returns the number of ALL pending tasks, or the number of pending tasks of the passed Type
 	 *
-	 * @param string $type jobType to Count
+	 * @param string|null $type jobType to Count
 	 * @return int
 	 */
 	public function getLength($type = null) {
@@ -176,7 +180,7 @@ class QueuedTasksTable extends Table {
 	 * from the specified group (or any if null).
 	 *
 	 * @param array $capabilities Available QueueWorkerTasks.
-	 * @param string $group Request a job from this group, (from any group if null)
+	 * @param string|null $group Request a job from this group, (from any group if null)
 	 * @return array Taskdata.
 	 */
 	public function requestJob(array $capabilities, $group = null) {
@@ -337,7 +341,7 @@ class QueuedTasksTable extends Table {
 	 * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
 	 *
 	 * @param int $id ID of task
-	 * @param string $failureMessage Optional message to append to the failure_message field.
+	 * @param string|null $failureMessage Optional message to append to the failure_message field.
 	 * @return bool Success
 	 */
 	public function markJobFailed($id, $failureMessage = null) {
@@ -393,10 +397,10 @@ class QueuedTasksTable extends Table {
 		}
 		// Remove all old pid files left over
 		$timeout = time() - 2 * Configure::read('Queue.cleanuptimeout');
-		$Iterator = new \RegexIterator(
-			new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($pidFilePath)),
+		$Iterator = new RegexIterator(
+			new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pidFilePath)),
 			'/^.+\_.+\.(pid)$/i',
-			\RegexIterator::MATCH
+			RegexIterator::MATCH
 		);
 		foreach ($Iterator as $file) {
 			if ($file->isFile()) {
