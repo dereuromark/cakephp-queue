@@ -137,5 +137,38 @@ Play around with it, but just don't shoot over the top.
 
 ## Tips for Development
 
+### Using QueueTransport
+Instead of manually adding job every time you want to send mail you can use existing code ond change only EmailTransport and Email configurations in `app.php`.
+```PHP
+'EmailTransport' => [
+        'default' => [
+            'className' => 'Smtp',
+            // The following keys are used in SMTP transports
+            'host' => 'host@gmail.com',
+            'port' => 587,
+            'timeout' => 30,
+            'username' => 'username',
+            'password' => 'password',
+            //'client' => null,
+            'tls' => true,
+        ],
+        'queue' => [
+            'className' => 'Queue.Queue',
+            'transport' => 'default'
+        ]
+    ],
+
+    'Email' => [
+        'default' => [
+            'transport' => 'queue',
+            'from' => 'no-reply@host.com',
+            'charset' => 'utf-8',
+            'headerCharset' => 'utf-8',
+        ],
+    ],
+```
+This way each time you will `$email->send()` it will use `QueueTransport` as main to create job and worker will use `'transport'` setting to send mail.
+
 ### Killing workers
 //TODO
+
