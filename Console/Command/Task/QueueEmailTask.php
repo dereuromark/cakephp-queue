@@ -3,6 +3,7 @@
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
+App::uses('CakeEmail', 'Network/Email');
 App::uses('EmailLib', 'Tools.Lib');
 App::uses('AppShell', 'Console/Command');
 
