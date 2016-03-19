@@ -11,6 +11,7 @@ class IncreaseDataSize extends AbstractMigration {
 	 *
 	 * More information on writing migrations is available here:
 	 * http://docs.phinx.org/en/latest/migrations.html#the-abstractmigration-class
+	 *
 	 * @return void
 	 */
 	public function change() {
