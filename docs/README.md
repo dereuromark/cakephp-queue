@@ -171,7 +171,7 @@ This way each time you will `$email->send()` it will use `QueueTransport` as mai
 
 #### Difference between QueueTransport and SimpleQueueTransport
 
-* `QueueTransport` serialize whole email into the database and is useful when you have custom `Email` class.
+* `QueueTransport` serializes whole email into the database and is useful when you have custom `Email` class.
 * `SimpleQueueTransport` extracts all data from email (to, bcc, template etc.) and then uses this to recreate email inside task, this
 is useful when dealing with emails which serialization would overflow database `data` field length.
 
