@@ -169,6 +169,12 @@ Instead of manually adding job every time you want to send mail you can use exis
 ```
 This way each time you will `$email->send()` it will use `QueueTransport` as main to create job and worker will use `'transport'` setting to send mail.
 
+#### Difference between QueueTransport and SimpleQueueTransport
+
+* `QueueTransport` serializes whole email into the database and is useful when you have custom `Email` class.
+* `SimpleQueueTransport` extracts all data from email (to, bcc, template etc.) and then uses this to recreate email inside task, this
+is useful when dealing with emails which serialization would overflow database `data` field length.
+
 ### Killing workers
 //TODO
 
