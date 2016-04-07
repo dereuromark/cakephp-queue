@@ -11,6 +11,8 @@ App::uses('Hash', 'Utility');
  */
 class QueuedTask extends QueueAppModel {
 
+	public $_next_priority = 5;
+
 	public $rateHistory = [];
 
 	public $exit = false;
@@ -61,6 +63,12 @@ class QueuedTask extends QueueAppModel {
 		Configure::write('Queue', $conf);
 	}
 
+	public function nextPriority($priority)
+	{
+		$this->_next_priority = $priority;
+		return $this;
+	}
+
 /**
  * Add a new Job to the Queue.
  *
@@ -76,8 +84,10 @@ class QueuedTask extends QueueAppModel {
 			'jobtype' => $jobName,
 			'data' => serialize($data),
 			'group' => $group,
-			'reference' => $reference
+			'reference' => $reference,
+			'priority' => $this->_next_priority
 		];
+		$this->_next_priority = 5; // reset to default;
 		if ($notBefore !== null) {
 			$data['notbefore'] = date('Y-m-d H:i:s', strtotime($notBefore));
 		}
@@ -119,6 +129,7 @@ class QueuedTask extends QueueAppModel {
 				'age',
 			],
 			'order' => [
+				'priority ASC',
 				'age ASC',
 				'id ASC'
 			],
@@ -175,7 +186,7 @@ class QueuedTask extends QueueAppModel {
 		//debug($key);ob_flush();
 
 		// try to update one of the found tasks with the key of this worker.
-		$this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE ' . implode(' OR ', $whereClause) . ' ORDER BY ' . $this->virtualFields['age'] . ' ASC, id ASC LIMIT 1');
+		$this->query('UPDATE ' . $this->tablePrefix . $this->table . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE ' . implode(' OR ', $whereClause) . ' ORDER BY priority ASC, ' . $this->virtualFields['age'] . ' ASC, id ASC LIMIT 1');
 
 		// Read which one actually got updated, which is the job we are supposed to execute.
 		$data = $this->find('first', [

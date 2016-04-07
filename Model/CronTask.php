@@ -132,6 +132,7 @@ class CronTask extends QueueAppModel {
 				'timediff(NOW(),notbefore) AS age'
 			],
 			'order' => [
+				'priority ASC',
 				'age DESC',
 				'id ASC'
 			],
