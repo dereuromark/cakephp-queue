@@ -82,9 +82,9 @@ class QueueEmailTask extends QueueTask {
 		$email = $data['settings'];
 		if (is_object($email) && $email instanceof Email) {
 			try {
-				$transportClassName = $email->configuredTransport()[0];
-				$result = $email->transport($transportClassName)->send();
-				
+				$transportClassNames = $email->configuredTransport();
+				$result = $email->transport($transportClassNames[0])->send();
+
 				if (!isset($config['log']) || !empty($config['logTrace']) && $config['logTrace'] === true) {
 					$config['log'] = 'email_trace';
 				} elseif (!empty($config['logTrace'])) {
