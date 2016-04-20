@@ -11,7 +11,6 @@ use Cake\I18n\Number;
 use Cake\Log\Log;
 use Cake\Utility\Inflector;
 
-
 declare(ticks = 1);
 
 /**
@@ -44,7 +43,7 @@ class QueueShell extends Shell
      *
      * @return void
      */
-    public function initialize() 
+    public function initialize()
     {
         $paths = App::path('Shell/Task');
 
@@ -74,10 +73,11 @@ class QueueShell extends Shell
             Log::drop('debug');
             Log::drop('error');
             Log::config(
-                'queue', function () {
+                'queue',
+                function () {
                     return new \Cake\Log\Engine\FileLog(
                         [
-                        'path' => LOGS, 
+                        'path' => LOGS,
                         'file' => 'queue'
                         ]
                     );
@@ -95,7 +95,7 @@ class QueueShell extends Shell
      *
      * @return void
      */
-    public function main() 
+    public function main()
     {
         $this->out('CakePHP Queue Plugin:');
         $this->hr();
@@ -128,7 +128,7 @@ class QueueShell extends Shell
      *
      * @return void
      */
-    public function add() 
+    public function add()
     {
         if (count($this->args) < 1) {
             $this->out('Please call like this:');
@@ -137,7 +137,6 @@ class QueueShell extends Shell
             foreach ($this->taskNames as $loadedTask) {
                 $this->out(' * ' . $this->_taskName($loadedTask));
             }
-
         } else {
             $name = Inflector::camelize($this->args[0]);
 
@@ -162,7 +161,7 @@ class QueueShell extends Shell
      * @param  string $task Taskname
      * @return string Cleaned task name
      */
-    protected function _taskName($task) 
+    protected function _taskName($task)
     {
         if (strpos($task, 'Queue') === 0) {
             return substr($task, 5);
@@ -177,7 +176,7 @@ class QueueShell extends Shell
      *
      * @return void
      */
-    public function runworker() 
+    public function runworker()
     {
         if ($pidFilePath = Configure::read('Queue.pidfilepath')) {
             if (!file_exists($pidFilePath)) {
@@ -282,7 +281,7 @@ class QueueShell extends Shell
      *
      * @return void
      */
-    public function clean() 
+    public function clean()
     {
         $this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout')));
         $this->QueuedTasks->cleanOldJobs();
@@ -294,7 +293,7 @@ class QueueShell extends Shell
      *
      * @return void
      */
-    public function reset() 
+    public function reset()
     {
         $this->out('Resetting...');
         $this->QueuedTasks->reset();
@@ -305,7 +304,7 @@ class QueueShell extends Shell
      *
      * @return void
      */
-    public function settings() 
+    public function settings()
     {
         $this->out('Current Settings:');
         $conf = (array)Configure::read('Queue');
@@ -319,7 +318,7 @@ class QueueShell extends Shell
      *
      * @return void
      */
-    public function stats() 
+    public function stats()
     {
         $this->out('Jobs currenty in the Queue:');
 
@@ -347,7 +346,7 @@ class QueueShell extends Shell
      * @see    readme
      * @return void
      */
-    public function install() 
+    public function install()
     {
         $this->out('Run `cake Schema create -p Queue`');
     }
@@ -357,7 +356,7 @@ class QueueShell extends Shell
      *
      * @return void
      */
-    public function uninstall() 
+    public function uninstall()
     {
         $this->out('Remove all workers and then delete the two tables.');
     }
@@ -367,7 +366,7 @@ class QueueShell extends Shell
      *
      * @return \Cake\Console\ConsoleOptionParser
      */
-    public function getOptionParser() 
+    public function getOptionParser()
     {
         $subcommandParser = [
          'options' => [
@@ -395,43 +394,50 @@ class QueueShell extends Shell
         return parent::getOptionParser()
          ->description('Simple and minimalistic job queue (or deferred-task) system.')
          ->addSubcommand(
-             'clean', [
+             'clean',
+             [
              'help' => 'Remove old jobs (cleanup)',
              'parser' => $subcommandParser,
              ]
          )
          ->addSubcommand(
-             'add', [
+             'add',
+             [
              'help' => 'Add Job',
              'parser' => $subcommandParser,
              ]
          )
          ->addSubcommand(
-             'install', [
+             'install',
+             [
              'help' => 'Install info',
              'parser' => $subcommandParser,
              ]
          )
          ->addSubcommand(
-             'uninstall', [
+             'uninstall',
+             [
              'help' => 'Uninstall info',
              'parser' => $subcommandParser,
              ]
          )
          ->addSubcommand(
-             'stats', [
+             'stats',
+             [
              'help' => 'Stats',
              'parser' => $subcommandParserFull,
              ]
          )
          ->addSubcommand(
-             'reset', [
+             'reset',
+             [
              'help' => 'Stats',
              'parser' => $subcommandParserFull,
              ]
          )
          ->addSubcommand(
-             'runworker', [
+             'runworker',
+             [
              'help' => 'Run Worker',
              'parser' => $subcommandParserFull,
              ]
@@ -445,12 +451,12 @@ class QueueShell extends Shell
      * @param  int|null $pid  PID of the process
      * @return void
      */
-    protected function _log($type, $pid = null) 
+    protected function _log($type, $pid = null)
     {
         // log?
         if (Configure::read('Queue.log')) {
             $message = $type . ' ' . $pid;
-            Log::write('debug', $message);        
+            Log::write('debug', $message);
         }
     }
 
@@ -459,7 +465,7 @@ class QueueShell extends Shell
      *
      * @return void
      */
-    protected function _notify() 
+    protected function _notify()
     {
         // log?
         if (Configure::read('Queue.notify')) {
@@ -474,7 +480,7 @@ class QueueShell extends Shell
      *
      * @return array
      */
-    protected function _getTaskConf() 
+    protected function _getTaskConf()
     {
         if (!is_array($this->_taskConf)) {
             $this->_taskConf = [];
@@ -507,7 +513,7 @@ class QueueShell extends Shell
      * @param  int $signal not used
      * @return void
      */
-    protected function _exit($signal) 
+    protected function _exit($signal)
     {
         $this->_exit = true;
     }
@@ -515,7 +521,7 @@ class QueueShell extends Shell
     /**
      * Destructor, removes pid-file
      */
-    public function __destruct() 
+    public function __destruct()
     {
         if ($pidFilePath = Configure::read('Queue.pidfilepath')) {
             if (function_exists('posix_getpid')) {
@@ -529,5 +535,4 @@ class QueueShell extends Shell
             }
         }
     }
-
 }
