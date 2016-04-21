@@ -17,9 +17,9 @@ declare(ticks = 1);
 /**
  * Main shell to init and run queue workers.
  *
- * @author  MGriesbach@gmail.com
+ * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
- * @link    http://github.com/MSeven/cakephp_queue
+ * @link http://github.com/MSeven/cakephp_queue
  */
 class QueueShell extends Shell {
 
@@ -67,7 +67,6 @@ class QueueShell extends Shell {
 			}
 		}
 
-		//configure the logger if it is set to true
 		if (Configure::read('Queue.log')) {
 			Log::drop('debug');
 			Log::drop('error');
@@ -134,6 +133,7 @@ class QueueShell extends Shell {
 			foreach ($this->taskNames as $loadedTask) {
 				$this->out(' * ' . $this->_taskName($loadedTask));
 			}
+
 		} else {
 			$name = Inflector::camelize($this->args[0]);
 
@@ -155,7 +155,7 @@ class QueueShell extends Shell {
 	 * Output the task without Queue or Task
 	 * example: QueueImageTask becomes Image on display
 	 *
-	 * @param  string $task Taskname
+	 * @param string $task Taskname
 	 * @return string Cleaned task name
 	 */
 	protected function _taskName($task) {
@@ -182,11 +182,11 @@ class QueueShell extends Shell {
 			} else {
 				$pid = $this->QueuedTasks->key();
 			}
-			// global file
+			# global file
 			$fp = fopen($pidFilePath . 'queue.pid', 'w');
 			fwrite($fp, $pid);
 			fclose($fp);
-			// specific pid file
+			# specific pid file
 			if (function_exists('posix_getpid')) {
 				$pid = posix_getpid();
 			} else {
@@ -334,7 +334,7 @@ class QueueShell extends Shell {
 	/**
 	 * Set up tables
 	 *
-	 * @see    readme
+	 * @see readme
 	 * @return void
 	 */
 	public function install() {
@@ -357,90 +357,68 @@ class QueueShell extends Shell {
 	 */
 	public function getOptionParser() {
 		$subcommandParser = [
-		 'options' => [
-		  /*
-          'dry-run'=> array(
-        'short' => 'd',
-        'help' => 'Dry run the update, no jobs will actually be added.',
-        'boolean' => true
-          ),
-          'log'=> array(
-        'short' => 'l',
-        'help' => 'Log all ouput to file log.txt in TMP dir'),
-        'boolean' => true
-          ),
-          */
-		 ],
+			'options' => [
+				/*
+				'dry-run'=> array(
+					'short' => 'd',
+					'help' => 'Dry run the update, no jobs will actually be added.',
+					'boolean' => true
+				),
+				'log'=> array(
+					'short' => 'l',
+					'help' => 'Log all ouput to file log.txt in TMP dir'),
+					'boolean' => true
+				),
+				*/
+			],
 		];
 		$subcommandParserFull = $subcommandParser;
 		$subcommandParserFull['options']['group'] = [
-		 'short' => 'g',
-		 'help' => 'Group',
-		 'default' => '',
+			'short' => 'g',
+			'help' => 'Group',
+			'default' => '',
 		];
 
 		return parent::getOptionParser()
-		 ->description('Simple and minimalistic job queue (or deferred-task) system.')
-		 ->addSubcommand(
-			 'clean',
-			 [
-			 'help' => 'Remove old jobs (cleanup)',
-			 'parser' => $subcommandParser,
-			 ]
-		 )
-		 ->addSubcommand(
-			 'add',
-			 [
-			 'help' => 'Add Job',
-			 'parser' => $subcommandParser,
-			 ]
-		 )
-		 ->addSubcommand(
-			 'install',
-			 [
-			 'help' => 'Install info',
-			 'parser' => $subcommandParser,
-			 ]
-		 )
-		 ->addSubcommand(
-			 'uninstall',
-			 [
-			 'help' => 'Uninstall info',
-			 'parser' => $subcommandParser,
-			 ]
-		 )
-		 ->addSubcommand(
-			 'stats',
-			 [
-			 'help' => 'Stats',
-			 'parser' => $subcommandParserFull,
-			 ]
-		 )
-		 ->addSubcommand(
-			 'reset',
-			 [
-			 'help' => 'Stats',
-			 'parser' => $subcommandParserFull,
-			 ]
-		 )
-		 ->addSubcommand(
-			 'runworker',
-			 [
-			 'help' => 'Run Worker',
-			 'parser' => $subcommandParserFull,
-			 ]
-		 );
+			->description('Simple and minimalistic job queue (or deferred-task) system.')
+			->addSubcommand('clean', [
+				'help' => 'Remove old jobs (cleanup)',
+				'parser' => $subcommandParser,
+			])
+			->addSubcommand('add', [
+				'help' => 'Add Job',
+				'parser' => $subcommandParser,
+			])
+			->addSubcommand('install', [
+				'help' => 'Install info',
+				'parser' => $subcommandParser,
+			])
+			->addSubcommand('uninstall', [
+				'help' => 'Uninstall info',
+				'parser' => $subcommandParser,
+			])
+			->addSubcommand('stats', [
+				'help' => 'Stats',
+				'parser' => $subcommandParserFull,
+			])
+			->addSubcommand('reset', [
+				'help' => 'Stats',
+				'parser' => $subcommandParserFull,
+			])
+			->addSubcommand('runworker', [
+				'help' => 'Run Worker',
+				'parser' => $subcommandParserFull,
+			]);
 	}
 
 	/**
 	 * Timestamped log.
 	 *
-	 * @param  string   $type Log type
-	 * @param  int|null $pid  PID of the process
+	 * @param string $type Log type
+	 * @param int|null $pid PID of the process
 	 * @return void
 	 */
 	protected function _log($type, $pid = null) {
-		// log?
 		if (Configure::read('Queue.log')) {
 			$message = $type . ' ' . $pid;
 			Log::write('debug', $message);
@@ -453,7 +431,7 @@ class QueueShell extends Shell {
 	 * @return void
 	 */
 	protected function _notify() {
-		// log?
+		# log?
 		if (Configure::read('Queue.notify')) {
 			$folder = TMP;
 			$file = $folder . 'queue_notification' . '.txt';
@@ -495,7 +473,7 @@ class QueueShell extends Shell {
 	/**
 	 * Signal handling to queue worker for clean shutdown
 	 *
-	 * @param  int $signal not used
+	 * @param int $signal not used
 	 * @return void
 	 */
 	protected function _exit($signal) {
