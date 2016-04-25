@@ -139,6 +139,11 @@ got a small overlap where two workers would run simultaneously. If you lower the
 get quite a few overlapping workers and thus more "parallel" processing power.
 Play around with it, but just don't shoot over the top.
 
+## Admin backend
+The plugin works completely without it, by just using the CLI shell commands.
+But if you want to browse the statistics via URL, you can enable the routing for it (see above) and then access `/admin/queue`
+to see how status of your queue, statistics and settings.
+Please note that this requires the Tools plugin to be loaded if you do not customize the view templates on project level.
 
 ## Tips for Development
 
