@@ -2,9 +2,9 @@
 
 namespace Queue\Controller\Admin;
 
+use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Event\Event;
-use App\Controller\AppController;
 
 class QueueController extends AppController {
 
