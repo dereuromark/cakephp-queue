@@ -103,11 +103,11 @@ For sending emails, for example:
 ```php
 // In your controller
 $this->loadModel('Queue.QueuedTasks');
-$this->QueuedTasks->createJob('Email', array('to' => 'user@example.org', ...)));
+$this->QueuedTasks->createJob('Email', ['to' => 'user@example.org', ...]);
 
-// Somewhere in the model
+// Somewhere in the model or lib
 TableRegistry::get('Queue.QueuedTasks')->createJob('Email',
-	array('to' => 'user@example.org', ...)));
+	['to' => 'user@example.org', ...]);
 ```
 
 It will use your custom APP `QueueEmailTask` to send out emails via CLI.
