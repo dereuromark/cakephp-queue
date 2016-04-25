@@ -8,6 +8,8 @@ use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Filesystem\Folder;
 use Cake\I18n\Number;
+use Cake\Log\Engine\FileLog;
+use Cake\Log\Log;
 use Cake\Utility\Inflector;
 
 declare(ticks = 1);
@@ -63,6 +65,22 @@ class QueueShell extends Shell {
 				}
 				$this->tasks = array_merge($this->tasks, $res);
 			}
+		}
+
+		if (Configure::read('Queue.log')) {
+			Log::drop('debug');
+			Log::drop('error');
+			Log::config(
+				'queue',
+				function () {
+					return new FileLog(
+						[
+						'path' => LOGS,
+						'file' => 'queue'
+						]
+					);
+				}
+			);
 		}
 
 		parent::initialize();
@@ -401,16 +419,9 @@ class QueueShell extends Shell {
 	 * @return void
 	 */
 	protected function _log($type, $pid = null) {
-		# log?
 		if (Configure::read('Queue.log')) {
-			$folder = LOGS . 'queue';
-			if (!file_exists($folder)) {
-				mkdir($folder, 0755, true);
-			}
-
 			$message = $type . ' ' . $pid;
-			// skip for now
-			//Log::write('queue', $message);
+			Log::write('debug', $message);
 		}
 	}
 
