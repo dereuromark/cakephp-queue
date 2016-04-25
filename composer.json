@@ -27,7 +27,7 @@
 		"fig-r/psr2r-sniffer": "dev-master"
 	},
 	"suggest": {
-		"dereuromark/cakephp-tools": "For the Email lib and QueueEmailTask. Or write your own task here."
+		"dereuromark/cakephp-tools": "For the Email lib and QueueEmailTask. Or write your own task here. Also for admin backend."
 	},
 	"support": {
 		"source": "https://github.com/dereuromark/cakephp-queue"

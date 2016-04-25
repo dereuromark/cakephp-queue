@@ -529,4 +529,16 @@ class QueuedTasksTable extends Table {
 		$this->_key = null;
 	}
 
+	/**
+	 * truncate()
+	 *
+	 * @return void
+	 */
+	public function truncate() {
+		$sql = $this->schema()->truncateSql($this->_connection);
+		foreach ($sql as $snippet) {
+			$this->_connection->execute($snippet);
+		}
+	}
+
 }

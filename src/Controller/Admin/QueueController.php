@@ -4,7 +4,7 @@ namespace Queue\Controller\Admin;
 
 use Cake\Core\Configure;
 use Cake\Event\Event;
-use Queue\Controller\AppController;
+use App\Controller\AppController;
 
 class QueueController extends AppController {
 
@@ -40,7 +40,6 @@ class QueueController extends AppController {
 
 		$this->set(compact('current', 'data', 'pendingDetails', 'status'));
 		$this->helpers[] = 'Tools.Format';
-		$this->helpers[] = 'Tools.Datetime';
 	}
 
 	/**
