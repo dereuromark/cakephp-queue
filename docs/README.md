@@ -6,14 +6,19 @@
 composer require dereuromark/cakephp-queue:dev-master
 ```
 
-* Enable the plugin within your config/bootstrap.php (unless you use loadAll):
+Enable the plugin within your config/bootstrap.php (unless you use loadAll):
+```php
+Plugin::load('Queue');
+```
+If you want to also access the backend controller (not just using CLI), you need to use
+```php
+Plugin::load('Queue', ['routes' => true]);
+```
 
-		Plugin::load('Queue');
-
-* Run the following command in the CakePHP console to create the tables using the Migrations plugin:
-
-		cake Migrations migrate -p Queue
-
+Run the following command in the CakePHP console to create the tables using the Migrations plugin:
+```php
+cake Migrations migrate -p Queue
+```
 
 ## Configuration:
 
@@ -63,7 +68,7 @@ return [
 ];
 ```
 
-You can also drop the configuration into an existing config file that is already been loaded.
+You can also drop the configuration into an existing config file (recommended) that is already been loaded.
 The values above are the default settings which apply, when no configuration is found.
 
 

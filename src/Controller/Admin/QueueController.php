@@ -11,7 +11,7 @@ class QueueController extends AppController {
 	/**
 	 * @var string
 	 */
-	public $modelClass = 'Queue.QueuedTask';
+	public $modelClass = 'Queue.QueuedTasks';
 
 	/**
 	 * QueueController::beforeFilter()
