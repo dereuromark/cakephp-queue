@@ -248,7 +248,7 @@ class QueueShell extends Shell {
 				$this->hr();
 			}
 		}
-		if (!empty($pidFilePath)) {
+		if (file_exists($pidFilePath . 'queue_' . $pid . '.pid')) {
 			unlink($pidFilePath . 'queue_' . $pid . '.pid');
 		}
 	}
