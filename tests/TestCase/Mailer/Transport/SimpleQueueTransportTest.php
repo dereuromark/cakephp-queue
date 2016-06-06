@@ -111,13 +111,14 @@ class SimpleQueueTransportTest extends TestCase {
 		$this->assertEquals($emailReconstructed->domain(), $Email->domain());
 		$this->assertEquals($emailReconstructed->theme(), $Email->theme());
 		$this->assertEquals($emailReconstructed->profile(), $Email->profile());
-		$this->assertEquals($emailReconstructed->viewVars(),$Email->viewVars());
-		$this->assertEquals($emailReconstructed->template(),$Email->template());
-		
+		$this->assertEquals($emailReconstructed->viewVars(), $Email->viewVars());
+		$this->assertEquals($emailReconstructed->template(), $Email->template());
+
 		//for now cannot be done 'data' is base64_encode on set but not decoded when get from $email
 		//$this->assertEquals($emailReconstructed->attachments(),$Email->attachments());
 
 		//debug($output);
 		//$this->assertEquals($Email, $output['settings']);
 	}
+
 }
