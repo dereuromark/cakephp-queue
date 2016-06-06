@@ -49,6 +49,12 @@ class SimpleQueueTransport extends AbstractTransport {
 			'template' => $email->template(), //template() gives 2 values - template and layout
 			'viewVars' => [$email->viewVars()]
 		];
+		
+		foreach ($settings as $setting => $value) {
+			if (empty($value) || array_key_exists(0, $value) && empty($value[0])) {
+				unset($settings[$setting]);
+			}
+		}
 
 		$QueuedTasks = TableRegistry::get('Queue.QueuedTasks');
 		$result = $QueuedTasks->createJob('Email', ['settings' => $settings]);
