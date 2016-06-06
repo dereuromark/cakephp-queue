@@ -51,7 +51,7 @@ class SimpleQueueTransport extends AbstractTransport {
 		];
 		
 		foreach ($settings as $setting => $value) {
-			if (empty($value) || array_key_exists(0, $value) && empty($value[0])) {
+			if (array_key_exists(0, $value) && ($value[0] === null || $value[0] === [])) {
 				unset($settings[$setting]);
 			}
 		}
