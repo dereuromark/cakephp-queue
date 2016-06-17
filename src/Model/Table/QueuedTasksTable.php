@@ -184,29 +184,22 @@ class QueuedTasksTable extends Table {
 	 * @return array Taskdata.
 	 */
 	public function requestJob(array $capabilities, $group = null) {
-		$whereClause = [];
-		$wasFetched = [];
+		$now = new FrozenTime();
+		$nowStr = $now->toDateTimeString();
 
-		//$this->virtualFields['age'] = 'IFNULL(TIMESTAMPDIFF(SECOND, NOW(),notbefore), 0)';
+		$query = $this->find();
 		$findCond = [
 			'conditions' => [
 				'completed IS' => null,
 				'OR' => [],
 			],
-			'fields' => function ($query) {
-				return [
-					'id',
-					'jobtype',
-					'fetched',
-					//'age' => $query->func('IFNULL(TIMESTAMPDIFF(SECOND, NOW(), notbefore), 0)'),
-					'age' => $query->newExpr()->add('IFNULL(TIMESTAMPDIFF(SECOND, NOW(), notbefore), 0)'),
-				];
-			},
+			'fields' => [
+				'age' => $query->newExpr()->add('IFNULL(TIMESTAMPDIFF(SECOND, "' . $nowStr . '", notbefore), 0)')
+			],
 			'order' => [
 				'age ASC',
 				'id ASC',
-			],
-			'limit' => 3,
+			]
 		];
 
 		if ($group !== null) {
@@ -221,13 +214,13 @@ class QueuedTasksTable extends Table {
 				'AND' => [
 					[
 						'OR' => [
-							'notbefore <' => new Time(),
+							'notbefore <' => $now,
 							'notbefore IS' => null,
 						],
 					],
 					[
 						'OR' => [
-							'fetched <' => (new Time())->modify(sprintf('-%d seconds', $task['timeout'])),
+							'fetched <' => $now->subSeconds($task['timeout']),
 							'fetched IS' => null,
 						],
 					],
@@ -240,51 +233,33 @@ class QueuedTasksTable extends Table {
 			$findCond['conditions']['OR'][] = $tmp;
 		}
 
-		// First, find a list of a few of the oldest unfinished tasks.
-		$data = $this->find('all', $findCond)->all()->toArray();
-		if (!$data) {
+		$job = $query->find('all', $findCond)
+			->autoFields(true)
+			->first();
+
+		if (!$job) {
 			return null;
 		}
 
-		// Generate a list of already fetched ID's and a where clause for the update statement
-		$capTimeout = Hash::combine($capabilities, '{s}.name', '{s}.timeout');
-		foreach ($data as $item) {
-			$whereClause[] = '(id = ' . $item['id'] . ' AND (workerkey IS NULL OR fetched <= "' . date('Y-m-d H:i:s', time() - $capTimeout[$item['jobtype']]) . '"))';
-			if (!empty($item['fetched'])) {
-				$wasFetched[] = $item['id'];
-			}
+		if ($job->fetched) {
+			$job = $this->patchEntity($job, [
+				'failed' => $job->failed+1,
+				'failure_message' => 'Restart after timeout'
+			]);
+
+			$this->save($job, ['fieldList' => ['id', 'failed', 'failure_message']]);
 		}
 
 		$key = $this->key();
-		//debug($key);ob_flush();
+		$job = $this->patchEntity($job, [
+			'workerkey' => $key,
+			'fetched' => $now
+		]);
 
-		// try to update one of the found tasks with the key of this worker.
-		$virtualFields['age'] = 'IFNULL(TIMESTAMPDIFF(SECOND, NOW(),notbefore), 0)';
-		$this->_connection->query('UPDATE ' . $this->table() . ' SET workerkey = "' . $key . '", fetched = "' . date('Y-m-d H:i:s') . '" WHERE ' . implode(' OR ', $whereClause) . ' ORDER BY ' . $virtualFields['age'] . ' ASC, id ASC LIMIT 1');
+		$this->save($job);
+		$this->rateHistory[$job['jobtype']] = $now->toUnixString();
 
-		// Read which one actually got updated, which is the job we are supposed to execute.
-		$data = $this->find('all', [
-			'conditions' => [
-				'workerkey' => $key,
-				'completed IS' => null,
-			],
-			'order' => ['fetched' => 'DESC'],
-		])->first();
-
-		if (!$data) {
-			return null;
-		}
-
-		// If the job had an existing fetched timestamp, increment the failure counter
-		if (in_array($data['id'], $wasFetched)) {
-			$data['failed']++;
-			$data['failure_message'] = 'Restart after timeout';
-			//$this->id = $data['id'];
-			$this->save($data, ['fieldList' => ['id', 'failed', 'failure_message']]);
-		}
-		//save last fetch by type for Rate Limiting.
-		$this->rateHistory[$data['jobtype']] = (new Time())->toUnixString();
-		return $data;
+		return $job;
 	}
 
 	/**
