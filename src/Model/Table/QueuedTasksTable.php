@@ -3,6 +3,7 @@
 namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\I18n\FrozenTime;
 use Cake\I18n\Time;
 use Cake\ORM\Table;
 use Cake\Utility\Hash;
