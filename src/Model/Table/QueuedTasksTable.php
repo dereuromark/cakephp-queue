@@ -3,7 +3,6 @@
 namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
-use Cake\I18n\FrozenTime;
 use Cake\I18n\Time;
 use Cake\ORM\Table;
 use Cake\Utility\Hash;
@@ -185,7 +184,7 @@ class QueuedTasksTable extends Table {
 	 * @return array Taskdata.
 	 */
 	public function requestJob(array $capabilities, $group = null) {
-		$now = new FrozenTime();
+		$now = new Time();
 		$nowStr = $now->toDateTimeString();
 
 		$query = $this->find();
@@ -210,6 +209,7 @@ class QueuedTasksTable extends Table {
 		// generate the task specific conditions.
 		foreach ($capabilities as $task) {
 			list($plugin, $name) = pluginSplit($task['name']);
+			$timeoutAt = $now->copy();
 			$tmp = [
 				'jobtype' => $name,
 				'AND' => [
@@ -221,7 +221,7 @@ class QueuedTasksTable extends Table {
 					],
 					[
 						'OR' => [
-							'fetched <' => $now->subSeconds($task['timeout']),
+							'fetched <' => $timeoutAt->subSeconds($task['timeout']),
 							'fetched IS' => null,
 						],
 					],
@@ -244,7 +244,7 @@ class QueuedTasksTable extends Table {
 
 		if ($job->fetched) {
 			$job = $this->patchEntity($job, [
-				'failed' => $job->failed+1,
+				'failed' => $job->failed + 1,
 				'failure_message' => 'Restart after timeout'
 			]);
 
