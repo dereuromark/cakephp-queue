@@ -155,7 +155,8 @@ class QueueShell extends Shell {
 	 * @return void
 	 */
 	public function runworker() {
-		if ($pidFilePath = Configure::read('Queue.pidfilepath')) {
+		$pidFilePath = Configure::read('Queue.pidfilepath');
+		if ($pidFilePath) {
 			if (!file_exists($pidFilePath)) {
 				mkdir($pidFilePath, 0755, true);
 			}
@@ -473,16 +474,19 @@ class QueueShell extends Shell {
 	 * Destructor, removes pid-file
 	 */
 	public function __destruct() {
-		if ($pidFilePath = Configure::read('Queue.pidfilepath')) {
-			if (function_exists('posix_getpid')) {
-				$pid = posix_getpid();
-			} else {
-				$pid = $this->QueuedTasks->key();
-			}
-			$file = $pidFilePath . 'queue_' . $pid . '.pid';
-			if (file_exists($file)) {
-				unlink($file);
-			}
+		$pidFilePath = Configure::read('Queue.pidfilepath');
+		if (!$pidFilePath) {
+			return;
+		}
+
+		if (function_exists('posix_getpid')) {
+			$pid = posix_getpid();
+		} else {
+			$pid = $this->QueuedTasks->key();
+		}
+		$file = $pidFilePath . 'queue_' . $pid . '.pid';
+		if (file_exists($file)) {
+			unlink($file);
 		}
 	}
 
