@@ -276,8 +276,14 @@ class QueuedTask extends QueueAppModel {
  * @return array
  */
 	public function getTypes() {
+		/*
+		 * 'jobtype' is intentionally duplicated in the 'fields' array.
+		 * Otherwise Cake auto-adds 'id' to the field list
+		 * which breaks MySql configured with sql_mode=only_full_group_by
+		 */
 		$findCond = [
 			'fields' => [
+				'jobtype',
 				'jobtype'
 			],
 			'group' => [
