@@ -74,7 +74,7 @@ class QueuedTask extends QueueAppModel {
 	public function createJob($jobName, $data = null, $notBefore = null, $group = null, $reference = null) {
 		$data = [
 			'jobtype' => $jobName,
-			'data' => serialize(addslashes($data)),
+			'data' => json_encode($data),
 			'group' => $group,
 			'reference' => $reference
 		];

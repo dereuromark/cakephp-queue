@@ -89,7 +89,7 @@ class CronTask extends QueueAppModel {
 	public function createJob($jobName, $data, $notBefore = null, $group = null, $reference = null) {
 		$data = [
 			'jobtype' => $jobName,
-			'data' => serialize(addslashes($data)),
+			'data' => json_encode($data),
 			'group' => $group,
 			'reference' => $reference
 		];
