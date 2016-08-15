@@ -211,7 +211,7 @@ class QueueShell extends AppShell {
 					$taskname = 'Queue' . $data['jobtype'];
 
 					if ($this->{$taskname}->autoUnserialize) {
-						$data['data'] = unserialize($data['data']);
+						$data['data'] = stripslashes(unserialize($data['data']));
 					}
 					$return = $this->{$taskname}->run($data['data'], $data['id']);
 					if ($return) {
