@@ -438,26 +438,28 @@ class QueuedTask extends QueueAppModel {
 
 /**
  * QueuedTask::clearDoublettes()
- * //FIXME
  *
  * @return void
  */
 	public function clearDoublettes() {
-		$x = $this->query('SELECT max(id) as id FROM `' . $this->tablePrefix . $this->table . '`
-	WHERE completed is null
-	GROUP BY data
-	HAVING COUNT(id) > 1');
+		$this->virtualFields['max_id'] = 'max(id)';
 
-		$start = 0;
-		$x = array_keys($x);
-		$numX = count($x);
-		while ($start <= $numX) {
-			$this->deleteAll([
-				'id' => array_slice($x, $start, 10)
-			]);
-			debug(array_slice($x, $start, 10));
-			$start = $start + 100;
-		}
+		$duplicateTasks = $this->find('list', [
+			'fields' => [
+				'max_id',
+				'max_id'
+			],
+			'group' => 'data, jobtype HAVING COUNT(id) > 1',
+			'conditions' => [
+				'completed' => null
+			]
+		]);
+
+		$this->deleteAll([
+			'id' => $duplicateTasks
+		]);
+
+		unset($this->virtualFields['max_id']);
 	}
 
 /**
