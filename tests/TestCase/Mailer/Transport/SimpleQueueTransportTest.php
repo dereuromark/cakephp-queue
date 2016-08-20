@@ -75,7 +75,7 @@ class SimpleQueueTransportTest extends TestCase {
 		]]);
 
 		$Email->template('test_template', 'test_layout');
-		$Email->subject('Testing Message');
+		$Email->subject("L'utilisateur n'a pas pu être enregistré");
 		$Email->replyTo('noreply@cakephp.org');
 		$Email->readReceipt('noreply2@cakephp.org');
 		$Email->returnPath('noreply3@cakephp.org');

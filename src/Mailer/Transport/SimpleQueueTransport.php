@@ -43,7 +43,7 @@ class SimpleQueueTransport extends AbstractTransport {
 			'theme' => [$email->theme()],
 			'profile' => [$email->profile()],
 			'emailFormat' => [$email->emailFormat()],
-			'subject' => [$email->subject()],
+			'subject' => [$email->getOriginalSubject()],
 			'transport' => [$this->_config['transport']],
 			'attachments' => [$email->attachments()],
 			'template' => $email->template(), //template() gives 2 values - template and layout
