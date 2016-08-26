@@ -55,7 +55,7 @@ class QueueShellTest extends TestCase {
 	 */
 	public function testObject() {
 		$this->assertTrue(is_object($this->QueueShell));
-		$this->assertInstanceOf('Queue\Shell\QueueShell', $this->QueueShell);
+		$this->assertInstanceOf(QueueShell::class, $this->QueueShell);
 	}
 
 	/**

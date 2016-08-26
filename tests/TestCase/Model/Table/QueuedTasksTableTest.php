@@ -11,6 +11,7 @@ use Cake\Core\Configure;
 use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
+use Queue\Model\Table\QueuedTasksTable;
 
 /**
  * Queue\Model\Table\QueuedTasksTable Test Case
@@ -49,7 +50,7 @@ class QueuedTasksTableTest extends TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$config = TableRegistry::exists('QueuedTasks') ? [] : ['className' => 'Queue\Model\Table\QueuedTasksTable'];
+		$config = TableRegistry::exists('QueuedTasks') ? [] : ['className' => QueuedTasksTable::class];
 		$this->QueuedTasks = TableRegistry::get('QueuedTasks', $config);
 	}
 
@@ -59,7 +60,7 @@ class QueuedTasksTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testQueueInstance() {
-		$this->assertInstanceOf('Queue\\Model\\Table\\QueuedTasksTable', $this->QueuedTasks);
+		$this->assertInstanceOf(QueuedTasksTable::class, $this->QueuedTasks);
 	}
 
 	/**
