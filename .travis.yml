@@ -39,5 +39,8 @@ script:
 
   - if [[ $PHPCS = 1 ]]; then vendor/bin/phpcs -p --extensions=php --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=config/Migrations --ignore=vendor --ignore=docs -v . ; fi
 
+after_success:
+  - if [[ $DEFAULT = 1 && $TRAVIS_PHP_VERSION = 7.0 ]]; then bash <(curl -s https://codecov.io/bash); fi
+
 notifications:
   email: false
