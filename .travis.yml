@@ -23,7 +23,7 @@ matrix:
     - php: 7.0
       env: DB=pgsql db_class='Cake\Database\Driver\Postgres' db_dsn='postgres://postgres@127.0.0.1/cakephp_test' db_database='cakephp_test' db_username='travis' db_password=''
 
-  allow_failure:
+  allow_failures:
     - php: 7.0
       env: DB=pgsql db_class='Cake\Database\Driver\Postgres' db_dsn='postgres://postgres@127.0.0.1/cakephp_test' db_database='cakephp_test' db_username='travis' db_password=''
 
