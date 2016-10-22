@@ -78,7 +78,7 @@ class QueueEmailTask extends QueueTask {
 			return false;
 		}
 
-		/** @var \Cake\Mailer\Email $email */
+		/* @var \Cake\Mailer\Email $email */
 		$email = $data['settings'];
 		if (is_object($email) && $email instanceof Email) {
 			try {
@@ -146,7 +146,7 @@ class QueueEmailTask extends QueueTask {
 			}
 			$config = array_merge($config, $log);
 		}
-		/** for now
+		/* for now
 		Log::write(
 			$config['level'],
 			PHP_EOL . $contents['headers'] . PHP_EOL . $contents['message'],
