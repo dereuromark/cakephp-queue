@@ -13,6 +13,7 @@ This branch is for use with **CakePHP 3**.
 ## Background:
 
 This is a very simple and minimalistic job queue (or deferred-task) system for CakePHP.
+It is mainly **for demo purposes** on how queues work and doesn't have any dependencies.
 
 Overall functionality is inspired by systems like Gearman, Beanstalk or dropr, but without
 any illusion to compete with these more advanced Systems.
@@ -20,6 +21,9 @@ any illusion to compete with these more advanced Systems.
 The plugin is an attempt to provide a basic, simple to use method to enable deferred job execution,
 without the hassle of setting up or running an extra queue daemon, while integrating nicely into
 CakePHP and also simplifying the creation of worker scripts.
+
+Please also read the [blog post](http://www.dereuromark.de/2013/12/22/queue-deferred-execution-in-cakephp/).
+For more robust and production use cases please see the [awesome list](https://github.com/FriendsOfCake/awesome-cakephp#queue).
 
 ### Why use deferred execution?
 
