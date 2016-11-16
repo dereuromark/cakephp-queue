@@ -1,6 +1,8 @@
 <?php
 
 use Phinx\Migration\AbstractMigration;
+use Phinx\Db\Adapter\MysqlAdapter;
+use Cake\Error\Debugger;
 
 class IncreaseDataSize extends AbstractMigration {
 
@@ -17,11 +19,19 @@ class IncreaseDataSize extends AbstractMigration {
 	public function change() {
 		$table = $this->table('queued_tasks');
 
-		$table->changeColumn('data', 'text', [
-			'length' => 4294967295,
-			'null' => true,
-			'default' => null,
-		]);
+		try {
+			if(MysqlAdapter::getSqlType('text', 'longtext')) {
+				$table->changeColumn('data', 'text', [
+					'limit' => MysqlAdapter::TEXT_LONG,
+					'null' => true,
+					'default' => null,
+				]);
+			}
+		} catch (Exception $e) {
+			Debugger::dump($e->getMessages());
+		} finally {
+			return true;
+		}
 	}
 
 }
