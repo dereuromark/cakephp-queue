@@ -4,6 +4,7 @@
  *
  * To modify these parameters, copy this file into your own CakePHP APP/Config directory.
  */
+
 return [
 	'Queue' => [
 		// seconds to sleep() when no executable job is found

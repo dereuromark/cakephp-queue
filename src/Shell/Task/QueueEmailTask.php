@@ -33,12 +33,7 @@ class QueueEmailTask extends QueueTask {
 	public $retries = 1;
 
 	/**
-	 * @var bool
-	 */
-	public $autoUnserialize = true;
-
-	/**
-	 * @var \Cake\Network\Email
+	 * @var \Cake\Mailer\Email
 	 */
 	public $Email;
 

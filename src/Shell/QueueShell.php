@@ -8,7 +8,9 @@ use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Filesystem\Folder;
 use Cake\I18n\Number;
+use Cake\Log\Log;
 use Cake\Utility\Inflector;
+use Exception;
 
 declare(ticks = 1);
 
@@ -18,6 +20,7 @@ declare(ticks = 1);
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
+ * @property \Queue\Model\Table\QueuedTasksTable $QueuedTasks
  */
 class QueueShell extends Shell {
 
@@ -214,18 +217,26 @@ class QueueShell extends Shell {
 					$this->out('Running Job of type "' . $data['jobtype'] . '"');
 					$taskname = 'Queue' . $data['jobtype'];
 
-					if ($this->{$taskname}->autoUnserialize) {
-						$data['data'] = unserialize($data['data']);
-					}
-					$return = $this->{$taskname}->run($data['data'], $data['id']);
-					if ($return) {
-						$this->QueuedTasks->markJobDone($data['id']);
-						$this->out('Job Finished.');
-					} else {
+					try {
+						$data['data'] = json_decode($data['data'], true);
+						$return = $this->{$taskname}->run($data['data'], $data['id']);
+
 						$failureMessage = null;
 						if (!empty($this->{$taskname}->failureMessage)) {
 							$failureMessage = $this->{$taskname}->failureMessage;
 						}
+					} catch (Exception $e) {
+						$return = false;
+
+						$failureMessage = get_class($e) . ': ' . $e->getMessage();
+						//log the exception
+						$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString());
+ 					}
+
+					if ($return) {
+						$this->QueuedTasks->markJobDone($data['id']);
+						$this->out('Job Finished.');
+					} else {
 						$this->QueuedTasks->markJobFailed($data['id'], $failureMessage);
 						$this->out('Job did not finish, requeued.');
 					}
@@ -249,8 +260,21 @@ class QueueShell extends Shell {
 				$this->hr();
 			}
 		}
-		if (file_exists($pidFilePath . 'queue_' . $pid . '.pid')) {
-			unlink($pidFilePath . 'queue_' . $pid . '.pid');
+
+		if (!empty($pid)) {
+			if (file_exists($pidFilePath . 'queue_' . $pid . '.pid')) {
+				unlink($pidFilePath . 'queue_' . $pid . '.pid');
+			}
+		}
+	}
+
+	/**
+	 * @param string $message
+	 * @return void
+	 */
+	protected function _logError($message) {
+		if (Configure::read('Queue.log')) {
+			Log::write('error', $message);
 		}
 	}
 

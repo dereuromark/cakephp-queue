@@ -20,7 +20,8 @@ class IncreaseDataSize extends AbstractMigration {
 		$table = $this->table('queued_tasks');
 
 		try {
-			if(MysqlAdapter::getSqlType('text', 'longtext')) {
+			$adapter = new MysqlAdapter([]);
+			if ($adapter->getSqlType('text', 'longtext')) {
 				$table->changeColumn('data', 'text', [
 					'limit' => MysqlAdapter::TEXT_LONG,
 					'null' => true,
@@ -28,9 +29,7 @@ class IncreaseDataSize extends AbstractMigration {
 				]);
 			}
 		} catch (Exception $e) {
-			Debugger::dump($e->getMessages());
-		} finally {
-			return true;
+			Debugger::dump($e->getMessage());
 		}
 	}
 

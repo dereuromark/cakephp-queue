@@ -2,3 +2,5 @@
 /vendor/
 /tmp/
 /composer.lock
+.idea/
+schema-dump-default.lock

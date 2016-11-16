@@ -1,4 +1,8 @@
 <?php
+use Cake\Datasource\ConnectionManager;
+use Cake\Routing\DispatcherFactory;
+use TestApp\Controller\AppController;
+
 define('DS', DIRECTORY_SEPARATOR);
 if (!defined('WINDOWS')) {
 	if (DS === '\\' || substr(PHP_OS, 0, 3) === 'WIN') {
@@ -27,9 +31,13 @@ require ROOT . '/vendor/autoload.php';
 require CORE_PATH . 'config/bootstrap.php';
 
 Cake\Core\Configure::write('App', [
-		'namespace' => 'App',
-		'encoding' => 'UTF-8',
+	'namespace' => 'TestApp',
+	'encoding' => 'UTF-8',
+	'paths' => [
+		'templates' => [ROOT . DS . 'tests' . DS . 'test_app' . DS . 'src' . DS . 'Template' . DS],
+	]
 ]);
+
 Cake\Core\Configure::write('debug', true);
 
 Cake\Core\Configure::write('EmailTransport', [
@@ -74,8 +82,12 @@ $cache = [
 
 Cake\Cache\Cache::config($cache);
 
-Cake\Core\Plugin::load('Queue', ['path' => ROOT . DS]);
-Cake\Core\Plugin::load('Tools', ['path' => ROOT . DS . 'plugins' . DS . 'Tools' . DS]);
+Cake\Core\Plugin::load('Queue', ['path' => ROOT . DS, 'autoload' => true, 'bootstrap' => false, 'routes' => true]);
+Cake\Core\Plugin::load('Tools', ['path' => ROOT . DS . 'vendor' . DS . 'deuromark' . DS . 'cakephp-tools' . DS]);
+
+DispatcherFactory::add('Routing');
+DispatcherFactory::add('ControllerFactory');
+class_alias(AppController::class, 'App\Controller\AppController');
 
 Cake\Mailer\Email::configTransport('default', [
 	'className' => 'Debug',
@@ -88,33 +100,9 @@ Cake\Mailer\Email::config('default', [
 ]);
 
 // Ensure default test connection is defined
-if (!getenv('db_class')) {
+if (!getenv('db_dsn')) {
 	putenv('db_class=Cake\Database\Driver\Sqlite');
 	putenv('db_dsn=sqlite::memory:');
 }
 
-if (WINDOWS) {
-	Cake\Datasource\ConnectionManager::config('test', [
-		'className' => 'Cake\Database\Connection',
-		'driver' => 'Cake\Database\Driver\Mysql',
-		'database' => 'cake_test',
-		'username' => 'root',
-		'password' => '',
-		'timezone' => 'UTC',
-		'quoteIdentifiers' => true,
-		'cacheMetadata' => true,
-	]);
-	return;
-}
-
-Cake\Datasource\ConnectionManager::config('test', [
-	'className' => 'Cake\Database\Connection',
-	'driver' => getenv('db_class'),
-	'dsn' => getenv('db_dsn'),
-	'database' => getenv('db_database'),
-	'username' => getenv('db_username'),
-	'password' => getenv('db_password'),
-	'timezone' => 'UTC',
-	'quoteIdentifiers' => true,
-	'cacheMetadata' => true,
-]);
+ConnectionManager::config('test', ['url' => getenv('db_dsn')]);

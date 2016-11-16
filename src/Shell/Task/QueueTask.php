@@ -38,11 +38,6 @@ class QueueTask extends Shell {
 	public $retries = 4;
 
 	/**
-	 * @var bool
-	 */
-	public $autoUnserialize = true;
-
-	/**
 	 * Add functionality.
 	 *
 	 * @return void

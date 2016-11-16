@@ -1,4 +1,7 @@
-<div class="page index">
+<?php
+use Cake\Core\Configure;
+?>
+<div class="page index col-xs-12">
 <h2><?php echo __d('queue', 'Queue');?></h2>
 
 <h3><?php echo __d('queue', 'Status'); ?></h3>

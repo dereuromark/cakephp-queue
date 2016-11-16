@@ -34,23 +34,6 @@ class SimpleQueueTransportTest extends TestCase {
 	}
 
 	/**
-	 * Test configuration
-	 *
-	 * @return void
-	 */
-	public function testConfig() {
-		$Email = new Email();
-		$Email->transport('queue');
-		$Email->config('default');
-
-		$res = $Email->transport()->config();
-		//debug($res);
-		//$this->assertTrue(isset($res['queue']));
-	}
-
-	/**
-	 * TestSend method
-	 *
 	 * @return void
 	 */
 	public function testSendWithEmail() {
@@ -89,7 +72,7 @@ class SimpleQueueTransportTest extends TestCase {
 		$this->assertEquals('Email', $result['jobtype']);
 		$this->assertTrue(strlen($result['data']) < 10000);
 
-		$output = unserialize($result['data']);
+		$output = json_decode($result['data'], true);
 		$emailReconstructed = new Email($config);
 
 		foreach ($output['settings'] as $method => $setting) {
@@ -117,7 +100,6 @@ class SimpleQueueTransportTest extends TestCase {
 		//for now cannot be done 'data' is base64_encode on set but not decoded when get from $email
 		//$this->assertEquals($emailReconstructed->attachments(),$Email->attachments());
 
-		//debug($output);
 		//$this->assertEquals($Email, $output['settings']);
 	}
 
