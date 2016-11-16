@@ -101,8 +101,18 @@ Cake\Mailer\Email::config('default', [
 
 // Ensure default test connection is defined
 if (!getenv('db_dsn')) {
-	putenv('db_class=Cake\Database\Driver\Sqlite');
 	putenv('db_dsn=sqlite::memory:');
 }
 
-ConnectionManager::config('test', ['url' => getenv('db_dsn')]);
+Cake\Datasource\ConnectionManager::config('test', [
+	'className' => 'Cake\Database\Connection',
+	'driver' => getenv('db_class'),
+	'dsn' => getenv('db_dsn'),
+	'database' => getenv('db_database'),
+	'username' => getenv('db_username'),
+	'password' => getenv('db_password'),
+	'timezone' => 'UTC',
+	'quoteIdentifiers' => true,
+	'cacheMetadata' => true,
+	'url' => getenv('db_dsn')
+]);

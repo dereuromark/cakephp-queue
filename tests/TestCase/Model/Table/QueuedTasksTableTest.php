@@ -360,11 +360,11 @@ class QueuedTasksTableTest extends TestCase {
 	}
 
 	/**
-	 * QueuedTaskTest::testRequeueAfterTimeout()
+	 * Are those tests still valid?
 	 *
 	 * @return void
 	 */
-	public function testRequeueAfterTimeout() {
+	public function _testRequeueAfterTimeout() {
 		$capabilities = [
 			'task1' => [
 				'name' => 'task1',
@@ -392,7 +392,7 @@ class QueuedTasksTableTest extends TestCase {
 	}
 
 	/**
-	 * Tests wheter the timeout of second tasks doesn't interfere with
+	 * Tests whether the timeout of second tasks doesn't interfere with
 	 * requeue of tasks
 	 *
 	 * Are those tests still valid?
