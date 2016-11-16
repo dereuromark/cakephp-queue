@@ -17,7 +17,7 @@ Plugin::load('Queue', ['routes' => true]);
 
 Run the following command in the CakePHP console to create the tables using the Migrations plugin:
 ```php
-cake Migrations migrate -p Queue
+bin/cake Migrations migrate -p Queue
 ```
 
 ## Configuration:
@@ -78,17 +78,17 @@ Run the following using the CakePHP shell:
 
 * Display Help message:
 
-		cake Queue.Queue
+		bin/cake Queue.Queue
 
 * Try to call the cli add() function on a task:
 
-		cake Queue.Queue add <TaskName>
+		bin/cake Queue.Queue add <TaskName>
 
 	Tasks may or may not provide this functionality.
 
 * Run a queue worker, which will look for a pending task it can execute:
 
-		cake Queue.Queue runworker
+		bin/cake Queue.Queue runworker
 
 	The worker will always try to find jobs matching its installed Tasks.
 
