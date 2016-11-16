@@ -1,6 +1,6 @@
 <?php
-use Cake\Routing\Route\DashedRoute;
 use Cake\Routing\Router;
+use Cake\Routing\Route\DashedRoute;
 
 Router::prefix('admin', function ($routes) {
 	$routes->plugin('Queue', function ($routes) {

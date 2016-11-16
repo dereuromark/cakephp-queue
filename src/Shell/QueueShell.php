@@ -209,56 +209,53 @@ class QueueShell extends Shell {
 			$this->_log('runworker', isset($pid) ? $pid : null);
 			$this->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
 
-			$data = $this->QueuedTasks->requestJob($this->_getTaskConf(), $group);
-			if ($this->QueuedTasks->exit === true) {
+			$queuedTask = $this->QueuedTasks->requestJob($this->_getTaskConf(), $group);
+
+			if ($queuedTask) {
+				$this->out('Running Job of type "' . $queuedTask['jobtype'] . '"');
+				$taskname = 'Queue' . $queuedTask['jobtype'];
+
+				try {
+					$data = json_decode($queuedTask['data'], true);
+					$return = $this->{$taskname}->run($data, $queuedTask['id']);
+
+					$failureMessage = null;
+					if (!empty($this->{$taskname}->failureMessage)) {
+						$failureMessage = $this->{$taskname}->failureMessage;
+					}
+				} catch (Exception $e) {
+					$return = false;
+
+					$failureMessage = get_class($e) . ': ' . $e->getMessage();
+					//log the exception
+					$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString());
+				}
+
+				if ($return) {
+					$this->QueuedTasks->markJobDone($queuedTask);
+					$this->out('Job Finished.');
+				} else {
+					$this->QueuedTasks->markJobFailed($queuedTask, $failureMessage);
+					$this->out('Job did not finish, requeued.');
+				}
+			} elseif (Configure::read('Queue.exitwhennothingtodo')) {
+				$this->out('nothing to do, exiting.');
 				$this->_exit = true;
 			} else {
-				if ($data) {
-					$this->out('Running Job of type "' . $data['jobtype'] . '"');
-					$taskname = 'Queue' . $data['jobtype'];
-
-					try {
-						$data['data'] = json_decode($data['data'], true);
-						$return = $this->{$taskname}->run($data['data'], $data['id']);
-
-						$failureMessage = null;
-						if (!empty($this->{$taskname}->failureMessage)) {
-							$failureMessage = $this->{$taskname}->failureMessage;
-						}
-					} catch (Exception $e) {
-						$return = false;
-
-						$failureMessage = get_class($e) . ': ' . $e->getMessage();
-						//log the exception
-						$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString());
- 					}
-
-					if ($return) {
-						$this->QueuedTasks->markJobDone($data['id']);
-						$this->out('Job Finished.');
-					} else {
-						$this->QueuedTasks->markJobFailed($data['id'], $failureMessage);
-						$this->out('Job did not finish, requeued.');
-					}
-				} elseif (Configure::read('Queue.exitwhennothingtodo')) {
-					$this->out('nothing to do, exiting.');
-					$this->_exit = true;
-				} else {
-					$this->out('nothing to do, sleeping.');
-					sleep(Configure::read('Queue.sleeptime'));
-				}
-
-				// check if we are over the maximum runtime and end processing if so.
-				if (Configure::read('Queue.workermaxruntime') && (time() - $starttime) >= Configure::read('Queue.workermaxruntime')) {
-					$this->_exit = true;
-					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('Queue.workermaxruntime') . '), terminating.');
-				}
-				if ($this->_exit || rand(0, 100) > (100 - Configure::read('Queue.gcprob'))) {
-					$this->out('Performing Old job cleanup.');
-					$this->QueuedTasks->cleanOldJobs();
-				}
-				$this->hr();
+				$this->out('nothing to do, sleeping.');
+				sleep(Configure::read('Queue.sleeptime'));
 			}
+
+			// check if we are over the maximum runtime and end processing if so.
+			if (Configure::read('Queue.workermaxruntime') && (time() - $starttime) >= Configure::read('Queue.workermaxruntime')) {
+				$this->_exit = true;
+				$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('Queue.workermaxruntime') . '), terminating.');
+			}
+			if ($this->_exit || rand(0, 100) > (100 - Configure::read('Queue.gcprob'))) {
+				$this->out('Performing Old job cleanup.');
+				$this->QueuedTasks->cleanOldJobs();
+			}
+			$this->hr();
 		}
 
 		if (!empty($pid)) {

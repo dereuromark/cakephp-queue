@@ -5,28 +5,26 @@ use Cake\TestSuite\IntegrationTestCase;
 
 /**
  */
-class QueueControllerTest extends IntegrationTestCase
-{
+class QueueControllerTest extends IntegrationTestCase {
 
-    /**
-     * Fixtures
-     *
-     * @var array
-     */
-    public $fixtures = [
-        'plugin.queue.queued_tasks'
-    ];
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'plugin.queue.queued_tasks'
+	];
 
-    /**
-     * Test index method
-     *
-     * @return void
-     */
-    public function testIndex()
-    {
-        $this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+	/**
+	 * Test index method
+	 *
+	 * @return void
+	 */
+	public function testIndex() {
+		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
 
 		$this->assertResponseCode(200);
-    }
+	}
 
 }

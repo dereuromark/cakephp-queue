@@ -10,6 +10,9 @@ class AppController extends Controller {
 	 */
 	public $components = ['Flash'];
 
+	/**
+	 * @var array
+	 */
 	public $helpers = ['Tools.Time'];
 
 }

@@ -6,6 +6,7 @@ use Cake\Core\Configure;
 use Cake\I18n\Time;
 use Cake\ORM\Table;
 use Exception;
+use Queue\Model\Entity\QueuedTask;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
@@ -23,11 +24,6 @@ class QueuedTasksTable extends Table {
 	 * @var array
 	 */
 	public $rateHistory = [];
-
-	/**
-	 * @var bool
-	 */
-	public $exit = false;
 
 	/**
 	 * @var array
@@ -97,15 +93,6 @@ class QueuedTasksTable extends Table {
 			throw new Exception('Invalid entity data');
 		}
 		return $this->save($queuedTask);
-	}
-
-	/**
-	 * Set exit to true on error
-	 *
-	 * @return void
-	 */
-	public function onError() {
-		$this->exit = true;
 	}
 
 	/**
@@ -180,7 +167,7 @@ class QueuedTasksTable extends Table {
 	 *
 	 * @param array $capabilities Available QueueWorkerTasks.
 	 * @param string|null $group Request a job from this group, (from any group if null)
-	 * @return array Taskdata.
+	 * @return \Queue\Model\Entity\QueuedTask|null
 	 */
 	public function requestJob(array $capabilities, $group = null) {
 		$now = new Time();
@@ -241,15 +228,6 @@ class QueuedTasksTable extends Table {
 			return null;
 		}
 
-		if ($job->fetched) {
-			$job = $this->patchEntity($job, [
-				'failed' => $job->failed + 1,
-				'failure_message' => 'Restart after timeout'
-			]);
-
-			$this->save($job, ['fieldList' => ['id', 'failed', 'failure_message']]);
-		}
-
 		$key = $this->key();
 		$job = $this->patchEntity($job, [
 			'workerkey' => $key,
@@ -279,17 +257,33 @@ class QueuedTasksTable extends Table {
 	/**
 	 * Mark a job as Completed, removing it from the queue.
 	 *
-	 * @param int $id ID of task
+	 * @param \Queue\Model\Entity\QueuedTask $task Task
 	 * @return bool Success
 	 */
-	public function markJobDone($id) {
+	public function markJobDone(QueuedTask $task) {
 		$fields = [
 			'completed' => date('Y-m-d H:i:s'),
 		];
-		$conditions = [
-			'id' => $id,
+		$task = $this->patchEntity($task, $fields);
+
+		return (bool)$this->save($task);
+	}
+
+	/**
+	 * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
+	 *
+	 * @param \Queue\Model\Entity\QueuedTask $task Task
+	 * @param string|null $failureMessage Optional message to append to the failure_message field.
+	 * @return bool Success
+	 */
+	public function markJobFailed(QueuedTask $task, $failureMessage = null) {
+		$fields = [
+			'failed' => $task->failed + 1,
+			'failure_message' => $failureMessage,
 		];
-		return $this->updateAll($fields, $conditions);
+		$task = $this->patchEntity($task, $fields);
+
+		return (bool)$this->save($task);
 	}
 
 	/**
@@ -308,28 +302,6 @@ class QueuedTasksTable extends Table {
 		];
 		$conditions = [
 			'completed IS' => null,
-		];
-		return $this->updateAll($fields, $conditions);
-	}
-
-	/**
-	 * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
-	 *
-	 * @param int $id ID of task
-	 * @param string|null $failureMessage Optional message to append to the failure_message field.
-	 * @return bool Success
-	 */
-	public function markJobFailed($id, $failureMessage = null) {
-		$db = $this->get($id);
-		if ($failureMessage === null) {
-			$failureMessage = $db->failure_message;
-		}
-		$fields = [
-			'failed = failed + 1',
-			'failure_message' => $failureMessage,
-		];
-		$conditions = [
-			'id' => $id,
 		];
 		return $this->updateAll($fields, $conditions);
 	}
