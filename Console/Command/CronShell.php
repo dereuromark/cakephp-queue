@@ -174,7 +174,7 @@ class CronShell extends AppShell {
 				if ($data) {
 					$this->out('Running Job of type "' . $data['jobtype'] . '"');
 					$taskname = 'queue_' . strtolower($data['jobtype']);
-					$return = $this->{$taskname}->run(unserialize($data['data']));
+					$return = $this->{$taskname}->run(json_decode($data['data'], true));
 					if ($return == true) {
 						$this->CronTask->markJobDone($data['id']);
 						$this->out('Job Finished.');
@@ -272,4 +272,3 @@ class CronShell extends AppShell {
 		return $this->_taskConf;
 	}
 }
-

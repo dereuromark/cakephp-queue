@@ -211,7 +211,7 @@ class QueueShell extends AppShell {
 					$taskname = 'Queue' . $data['jobtype'];
 
 					if ($this->{$taskname}->autoUnserialize) {
-						$data['data'] = unserialize($data['data']);
+						$data['data'] = json_decode($data['data'], true);
 					}
 					//prevent tasks that don't catch their own errors from killing this worker
 					try {

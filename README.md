@@ -1,3 +1,9 @@
+> Forked to fix issues with serialized date.
+
+**Still having problems with data? Change your data field to 'LONGTEXT' - cake doesnt support this in it's schemafile but it will recognise it.**
+
+--
+
 # CakePHP Queue Plugin
 [![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.svg?branch=2.x)](https://travis-ci.org/dereuromark/cakephp-queue)
 [![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.4-8892BF.svg)](https://php.net/)
@@ -167,4 +173,3 @@ Added by Christian Charukiewicz ([charukiewicz](https://github.com/charukiewicz)
 - Fixed typo in README and variable name (Propability -> Probability)
 - Added a few lines about createJob() usage to README
 - Added comments to queue.php explaining configuration options
-

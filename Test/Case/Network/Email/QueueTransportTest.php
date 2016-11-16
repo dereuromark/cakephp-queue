@@ -51,7 +51,7 @@ class QueueTransportTest extends CakeTestCase {
 		$this->assertEquals('Email', $result['QueuedTask']['jobtype']);
 		$this->assertTrue(strlen($result['QueuedTask']['data']) < 10000);
 
-		$output = unserialize($result['QueuedTask']['data']);
+		$output = json_decode($result['QueuedTask']['data'], true);
 		debug($output);
 	}
 
