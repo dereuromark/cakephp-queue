@@ -213,7 +213,18 @@ class QueueShell extends AppShell {
 					if ($this->{$taskname}->autoUnserialize) {
 						$data['data'] = unserialize($data['data']);
 					}
-					$return = $this->{$taskname}->run($data['data'], $data['id']);
+					//prevent tasks that don't catch their own errors from killing this worker
+					try {
+						$return = $this->{$taskname}->run($data['data'], $data['id']);
+					} catch ( Exception $e)
+					{
+						//assume job failed
+						$return = false;
+
+						//log the exception
+						$this->_logError( $taskname ."\n\n". $e->getMessage() ."\n\n". $e->getTraceAsString() );
+					}
+
 					if ($return) {
 						$this->QueuedTask->markJobDone($data['id']);
 						$this->out('Job Finished.');
@@ -390,6 +401,21 @@ class QueueShell extends AppShell {
 			//file_put_contents($file, date(FORMAT_DB_DATETIME));
 			$message = $type . ' ' . $pid;
 			CakeLog::write('queue', $message);
+		}
+	}
+
+	/**
+	 * Timestamped log.
+	 *
+	 * @param string $message
+	 *
+	 * @internal param string $type Log type
+	 * @internal param int $pid PID of the process
+	 */
+	protected function _logError($message = '') {
+		# log?
+		if (Configure::read('Queue.log')) {
+			CakeLog::write('queue-error', $message);
 		}
 	}
 
