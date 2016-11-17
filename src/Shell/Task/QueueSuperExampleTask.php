@@ -79,7 +79,7 @@ class QueueSuperExampleTask extends QueueTask {
 	 * @param int $id The id of the QueuedTask
 	 * @return bool Success
 	 */
-	public function run($data, $id) {
+	public function run(array $data, $id) {
 		$this->hr();
 		$this->out('CakePHP Queue SuperExample task.');
 		$this->hr();

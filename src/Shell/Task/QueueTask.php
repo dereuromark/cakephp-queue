@@ -6,6 +6,7 @@
 
 namespace Queue\Shell\Task;
 
+use Cake\Console\ConsoleIo;
 use Cake\Console\Shell;
 
 /**
@@ -17,11 +18,14 @@ use Cake\Console\Shell;
 class QueueTask extends Shell {
 
 	/**
-	 * Adding the QueueTask Model
-	 *
 	 * @var string
 	 */
-	public $modelClass = 'Queue.QueuedTasks';
+	public $queueModelClass = 'Queue.QueuedTasks';
+
+	/**
+	 * @var \Queue\Model\Table\QueuedTasksTable
+	 */
+	public $QueuedTasks;
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -36,6 +40,16 @@ class QueueTask extends Shell {
 	 * @var int
 	 */
 	public $retries = 4;
+
+	/**
+	 * @param \Cake\Console\ConsoleIo|null $io IO
+	 */
+	public function __construct(ConsoleIo $io = null) {
+		parent::__construct($io);
+
+		$this->loadModel($this->queueModelClass);
+	}
+
 
 	/**
 	 * Add functionality.

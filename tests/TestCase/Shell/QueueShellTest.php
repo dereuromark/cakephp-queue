@@ -23,6 +23,11 @@ class QueueShellTest extends TestCase {
 	public $out;
 
 	/**
+	 * @var \Tools\TestSuite\ConsoleOutput
+	 */
+	public $err;
+
+	/**
 	 * Fixtures to load
 	 *
 	 * @var array

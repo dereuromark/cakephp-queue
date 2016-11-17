@@ -70,25 +70,28 @@ class QueuedTasksTable extends Table {
 	/**
 	 * Add a new Job to the Queue.
 	 *
-	 * @param string $jobName   QueueTask name
-	 * @param array|null $data      any array
-	 * @param array|null $notBefore optional date which must not be preceded
-	 * @param string|null $group     Used to group similar QueuedTasks.
-	 * @param string|null $reference An optional reference string.
+	 *
+	 * Config
+	 * - priority: 1-10, defaults to 5
+	 * - notBefore: Optional date which must not be preceded
+	 * - group: Used to group similar QueuedTasks
+	 * - reference: An optional reference string
+	 *
+	 * @param string $jobName QueueTask name
+	 * @param array|null $data Array of data
+	 * @param array $config Config to save along with the task
 	 * @return \Cake\ORM\Entity Saved job entity
 	 * @throws \Exception
 	 */
-	public function createJob($jobName, $data = null, $notBefore = null, $group = null, $reference = null) {
-		$data = [
+	public function createJob($jobName, array $data = null, array $config = []) {
+		$queuedTask = [
 			'jobtype' => $jobName,
 			'data' => is_array($data) ? json_encode($data) : null,
-			'task_group' => $group,
-			'reference' => $reference,
-		];
-		if ($notBefore !== null) {
-			$data['notbefore'] = new Time($notBefore);
-		}
-		$queuedTask = $this->newEntity($data);
+			'task_group' => !empty($config['group']) ? $config['group'] : null,
+			'notbefore' => !empty($config['notBefore']) ? new Time($config['notBefore']) : null,
+		] + $config;
+
+		$queuedTask = $this->newEntity($queuedTask);
 		if ($queuedTask->errors()) {
 			throw new Exception('Invalid entity data');
 		}
@@ -183,8 +186,9 @@ class QueuedTasksTable extends Table {
 				'age' => $query->newExpr()->add('IFNULL(TIMESTAMPDIFF(SECOND, "' . $nowStr . '", notbefore), 0)')
 			],
 			'order' => [
-				'age ASC',
-				'id ASC',
+				'priority' => 'ASC',
+				'age' => 'ASC',
+				'id' =>  'ASC',
 			]
 		];
 
@@ -346,7 +350,8 @@ class QueuedTasksTable extends Table {
 		$this->deleteAll([
 			'completed <' => time() - Configure::read('Queue.cleanuptimeout'),
 		]);
-		if (!($pidFilePath = Configure::read('Queue.pidfilepath'))) {
+		$pidFilePath = Configure::read('Queue.pidfilepath');
+		if (!$pidFilePath) {
 			return;
 		}
 		// Remove all old pid files left over
@@ -462,7 +467,7 @@ class QueuedTasksTable extends Table {
 	/**
 	 * Generates a unique Identifier for the current worker thread.
 	 *
-	 * Useful to idendify the currently running processes for this thread.
+	 * Useful to identify the currently running processes for this thread.
 	 *
 	 * @return string Identifier
 	 */
