@@ -151,6 +151,14 @@ Please note that this requires the Tools plugin to be loaded if you do not custo
 
 ## Tips for Development
 
+### Only pass identification data if possible
+If you have larger data sets, or maybe even objects/entities, do not pass those.
+They would not survive the json_encode/decode part and will maybe even exceed the text field in the database.
+
+Instead, pass only the ID of the entity, and get your data in the Task itself.
+If you have other larger chunks of data, store them somewhere and pass the path to this file.
+
+
 ### Using QueueTransport
 Instead of manually adding job every time you want to send mail you can use existing code ond change only EmailTransport and Email configurations in `app.php`.
 ```PHP
