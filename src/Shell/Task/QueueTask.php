@@ -50,7 +50,6 @@ class QueueTask extends Shell {
 		$this->loadModel($this->queueModelClass);
 	}
 
-
 	/**
 	 * Add functionality.
 	 *

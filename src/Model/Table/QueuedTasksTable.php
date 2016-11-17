@@ -188,7 +188,7 @@ class QueuedTasksTable extends Table {
 			'order' => [
 				'priority' => 'ASC',
 				'age' => 'ASC',
-				'id' =>  'ASC',
+				'id' => 'ASC',
 			]
 		];
 

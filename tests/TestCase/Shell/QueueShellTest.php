@@ -3,11 +3,9 @@
 namespace Queue\Test\TestCase\Shell;
 
 use Cake\Console\ConsoleIo;
-use Cake\Console\Shell;
 use Cake\Core\Configure;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\QueueShell;
-use TestApp\Shell\TestQueueShell;
 use Tools\TestSuite\ConsoleOutput;
 
 class QueueShellTest extends TestCase {

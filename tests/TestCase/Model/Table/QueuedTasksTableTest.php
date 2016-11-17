@@ -535,4 +535,5 @@ class QueuedTasksTableTest extends TestCase {
 		$data = json_decode($tmp['data'], true);
 		$this->assertSame(['key' => 'k2'], $data);
 	}
+
 }

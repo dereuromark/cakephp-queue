@@ -506,8 +506,7 @@ class QueueShell extends Shell {
 	/**
 	 * @return void
 	 */
-	protected function _displayAvailableTasks()
-	{
+	protected function _displayAvailableTasks() {
 		$this->out('Available Tasks:');
 		foreach ($this->taskNames as $loadedTask) {
 			$this->out("\t" . '* ' . $this->_taskName($loadedTask));
