@@ -101,7 +101,7 @@ Cake\Mailer\Email::config('default', [
 
 // Ensure default test connection is defined
 if (!getenv('db_dsn')) {
-	putenv('db_dsn=sqlite::memory:');
+	//putenv('db_dsn=sqlite::memory:');
 }
 
 Cake\Datasource\ConnectionManager::config('test', [
