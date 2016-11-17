@@ -174,7 +174,7 @@ class QueuedTasksTable extends Table {
 		$nowStr = $now->toDateTimeString();
 
 		$query = $this->find();
-		$findCond = [
+		$options = [
 			'conditions' => [
 				'completed IS' => null,
 				'OR' => [],
@@ -189,7 +189,7 @@ class QueuedTasksTable extends Table {
 		];
 
 		if ($group !== null) {
-			$findCond['conditions']['task_group'] = $group;
+			$options['conditions']['task_group'] = $group;
 		}
 
 		// generate the task specific conditions.
@@ -217,24 +217,31 @@ class QueuedTasksTable extends Table {
 			if (array_key_exists('rate', $task) && $tmp['jobtype'] && array_key_exists($tmp['jobtype'], $this->rateHistory)) {
 				$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['jobtype']] + $task['rate'];
 			}
-			$findCond['conditions']['OR'][] = $tmp;
+			$options['conditions']['OR'][] = $tmp;
 		}
 
-		$job = $query->find('all', $findCond)
-			->autoFields(true)
-			->first();
+		$job = $this->connection()->transactional(function () use ($query, $options, $now) {
+			$job = $query->find('all', $options)
+				->autoFields(true)
+				->first();
+
+			if (!$job) {
+				return null;
+			}
+
+			$key = $this->key();
+			$job = $this->patchEntity($job, [
+				'workerkey' => $key,
+				'fetched' => $now
+			]);
+
+			return $this->save($job);
+		});
 
 		if (!$job) {
 			return null;
 		}
 
-		$key = $this->key();
-		$job = $this->patchEntity($job, [
-			'workerkey' => $key,
-			'fetched' => $now
-		]);
-
-		$this->save($job);
 		$this->rateHistory[$job['jobtype']] = $now->toUnixString();
 
 		return $job;
