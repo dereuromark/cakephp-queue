@@ -81,7 +81,7 @@ class QueuedTasksTable extends Table {
 	public function createJob($jobName, $data = null, $notBefore = null, $group = null, $reference = null) {
 		$data = [
 			'jobtype' => $jobName,
-			'data' => json_encode($data),
+			'data' => is_array($data) ? json_encode($data) : null,
 			'task_group' => $group,
 			'reference' => $reference,
 		];

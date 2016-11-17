@@ -61,13 +61,11 @@ class QueueEmailTask extends QueueTask {
 	}
 
 	/**
-	 * QueueEmailTask::run()
-	 *
 	 * @param mixed $data Job data
 	 * @param int|null $id The id of the QueuedTask
 	 * @return bool Success
 	 */
-	public function run($data, $id = null) {
+	public function run(array $data, $id) {
 		if (!isset($data['settings'])) {
 			$this->err('Queue Email task called without settings data.');
 			return false;
@@ -120,7 +118,8 @@ class QueueEmailTask extends QueueTask {
 			}
 			$this->Email->viewVars($data['vars']);
 		}
-		return $this->Email->send($message);
+
+		return (bool)$this->Email->send($message);
 	}
 
 	/**

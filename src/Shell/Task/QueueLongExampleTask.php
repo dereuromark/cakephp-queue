@@ -57,7 +57,10 @@ class QueueLongExampleTask extends QueueTask {
 		/*
 		 * Adding a task of type 'example' with no additionally passed data
 		 */
-		if ($this->QueuedTasks->createJob('LongExample', 2 * MINUTE)) {
+		$data = [
+			'duration' => 2 * MINUTE
+		];
+		if ($this->QueuedTasks->createJob('LongExample', $data)) {
 			$this->out('OK, job created, now run the worker');
 		} else {
 			$this->err('Could not create Job');
@@ -70,14 +73,14 @@ class QueueLongExampleTask extends QueueTask {
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
 	 * @param array $data The array passed to QueuedTask->createJob()
-	 * @param int|null $id The id of the QueuedTask
+	 * @param int $id The id of the QueuedTask
 	 * @return bool Success
 	 * @throws \RuntimeException when seconds are 0;
 	 */
-	public function run($data, $id = null) {
+	public function run(array $data, $id) {
 		$this->hr();
 		$this->out('CakePHP Queue LongExample task.');
-		$seconds = (int)$data;
+		$seconds = (int)$data['duration'];
 		if (!$seconds) {
 			throw new RuntimeException('Seconds need to be > 0');
 		}

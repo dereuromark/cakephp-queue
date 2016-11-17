@@ -15,7 +15,7 @@ class QueueExecuteTask extends QueueTask {
 	/**
 	 * @var \Queue\Model\Table\QueuedTasksTable
 	 */
-	public $QueuedTask;
+	public $QueuedTasks;
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -75,10 +75,10 @@ class QueueExecuteTask extends QueueTask {
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
 	 * @param array $data The array passed to QueuedTask->createJob()
-	 * @param int|null $id The id of the QueuedTask
+	 * @param int $id The id of the QueuedTask
 	 * @return bool Success
 	 */
-	public function run($data, $id = null) {
+	public function run(array $data, $id) {
 		$command = escapeshellcmd($data['command']);
 		if (!empty($data['params'])) {
 			$command .= ' ' . implode(' ', $data['params']);

@@ -51,10 +51,10 @@ class QueueTask extends Shell {
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
 	 * @param array $data The array passed to QueuedTask->createJob()
-	 * @param int|null $id The id of the QueuedTask
+	 * @param int $id The id of the QueuedTask
 	 * @return bool Success
 	 */
-	public function run($data, $id = null) {
+	public function run(array $data, $id) {
 		return true;
 	}
 

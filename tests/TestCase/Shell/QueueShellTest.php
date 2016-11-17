@@ -2,17 +2,25 @@
 
 namespace Queue\Test\TestCase\Shell;
 
+use Cake\Console\ConsoleIo;
 use Cake\Console\Shell;
 use Cake\Core\Configure;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\QueueShell;
+use TestApp\Shell\TestQueueShell;
+use Tools\TestSuite\ConsoleOutput;
 
 class QueueShellTest extends TestCase {
 
 	/**
-	 * @var \Queue\Shell\QueueShell
+	 * @var \Queue\Shell\QueueShell|\PHPUnit_Framework_MockObject_MockObject
 	 */
 	public $QueueShell;
+
+	/**
+	 * @var \Tools\TestSuite\ConsoleOutput
+	 */
+	public $out;
 
 	/**
 	 * Fixtures to load
@@ -31,7 +39,15 @@ class QueueShellTest extends TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->QueueShell = new TestQueueShell();
+		$this->out = new ConsoleOutput();
+		$this->err = new ConsoleOutput();
+		$io = new ConsoleIo($this->out, $this->err);
+
+		$this->QueueShell = $this->getMockBuilder(QueueShell::class)
+			->setMethods(['in', 'err', '_stop'])
+			->setConstructorArgs([$io])
+			->getMock();
+
 		$this->QueueShell->initialize();
 		$this->QueueShell->loadTasks();
 
@@ -64,9 +80,9 @@ class QueueShellTest extends TestCase {
 	 * @return void
 	 */
 	public function testStats() {
-		$result = $this->QueueShell->stats();
-		//debug($this->QueueShell->out);
-		$this->assertTrue(in_array('Total unfinished Jobs      : 0', $this->QueueShell->out));
+		$this->QueueShell->stats();
+		//debug($this->out->output());
+		$this->assertContains('Total unfinished Jobs      : 0', $this->out->output());
 	}
 
 	/**
@@ -75,8 +91,8 @@ class QueueShellTest extends TestCase {
 	 * @return void
 	 */
 	public function testSettings() {
-		$result = $this->QueueShell->settings();
-		$this->assertTrue(in_array('* cleanuptimeout: 10', $this->QueueShell->out));
+		$this->QueueShell->settings();
+		$this->assertContains('* cleanuptimeout: 10', $this->out->output());
 	}
 
 	/**
@@ -86,8 +102,8 @@ class QueueShellTest extends TestCase {
 	 */
 	public function testAddInexistent() {
 		$this->QueueShell->args[] = 'Foo';
-		$result = $this->QueueShell->add();
-		$this->assertTrue(in_array('Error: Task not Found: Foo', $this->QueueShell->out));
+		$this->QueueShell->add();
+		$this->assertContains('Error: Task not found: Foo', $this->out->output());
 	}
 
 	/**
@@ -97,14 +113,9 @@ class QueueShellTest extends TestCase {
 	 */
 	public function testAdd() {
 		$this->QueueShell->args[] = 'Example';
-		$result = $this->QueueShell->add();
-		//debug($this->QueueShell->out);
+		$this->QueueShell->add();
 
-		$this->assertEmpty($this->QueueShell->out);
-
-		$result = $this->QueueShell->runworker();
-		//debug($this->QueueShell->out);
-		$this->assertTrue(in_array('Running Job of type "Example"', $this->QueueShell->out));
+		$this->assertContains('OK, job created, now run the worker', $this->out->output(), print_r($this->out->output, true));
 	}
 
 	/**
@@ -114,49 +125,14 @@ class QueueShellTest extends TestCase {
 	 */
 	public function testRetry() {
 		$this->QueueShell->args[] = 'RetryExample';
-		$result = $this->QueueShell->add();
-		$this->assertEmpty($this->QueueShell->out);
+		$this->QueueShell->add();
 
-		$result = $this->QueueShell->runworker();
-		//debug($this->QueueShell->out);
-		$this->assertTrue(in_array('Job did not finish, requeued.', $this->QueueShell->out));
-	}
+		$expected = 'This is a very simple example of a QueueTask and how retries work';
+		$this->assertContains($expected, $this->out->output());
 
-}
+		$this->QueueShell->runworker();
 
-class TestQueueShell extends QueueShell {
-
-	/**
-	 * @var array
-	 */
-	public $out = [];
-
-	/**
-	 * Output function for Test
-	 *
-	 * @param string|null $message Message.
-	 * @param int $newlines Newline.
-	 * @param int $level Output level.
-	 *
-	 * @return void
-	 */
-	public function out($message = null, $newlines = 1, $level = Shell::NORMAL) {
-		$this->out[] = $message;
-	}
-
-	/**
-	 * Get task configuration
-	 *
-	 * @return array
-	 */
-	protected function _getTaskConf() {
-		parent::_getTaskConf();
-		foreach ($this->_taskConf as &$conf) {
-			$conf['timeout'] = 5;
-			$conf['retries'] = 1;
-		}
-
-		return $this->_taskConf;
+		$this->assertContains('Job did not finish, requeued.', $this->out->output());
 	}
 
 }

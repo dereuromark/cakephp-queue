@@ -17,7 +17,7 @@ class QueueSuperExampleTask extends QueueTask {
 	/**
 	 * @var \Queue\Model\Table\QueuedTasksTable
 	 */
-	public $QueuedTask;
+	public $QueuedTasks;
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -76,10 +76,10 @@ class QueueSuperExampleTask extends QueueTask {
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
 	 * @param array $data The array passed to QueuedTask->createJob()
-	 * @param int|null $id The id of the QueuedTask
+	 * @param int $id The id of the QueuedTask
 	 * @return bool Success
 	 */
-	public function run($data, $id = null) {
+	public function run($data, $id) {
 		$this->hr();
 		$this->out('CakePHP Queue SuperExample task.');
 		$this->hr();
@@ -88,7 +88,7 @@ class QueueSuperExampleTask extends QueueTask {
 		$this->out(' ');
 
 		// Lets create an Example task on successful execution
-		TableRegistry::get('Queue.QueuedTasks')->createJob('Example');
+		$this->QueuedTasks->createJob('Example');
 
 		return true;
 	}

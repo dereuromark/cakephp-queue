@@ -92,7 +92,7 @@ class QueueRetryExampleTask extends QueueTask {
 	 * @param int|null $id The id of the QueuedTask
 	 * @return bool Success
 	 */
-	public function run($data, $id = null) {
+	public function run(array $data, $id) {
 		$count = (int)file_get_contents($this->file);
 
 		$this->hr();

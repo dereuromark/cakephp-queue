@@ -15,7 +15,7 @@ class QueueExampleTask extends QueueTask {
 	/**
 	 * @var \Queue\Model\Table\QueuedTasksTable
 	 */
-	public $QueuedTask;
+	public $QueuedTasks;
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -76,7 +76,7 @@ class QueueExampleTask extends QueueTask {
 	 * @param int|null $id The id of the QueuedTask
 	 * @return bool Success
 	 */
-	public function run($data, $id = null) {
+	public function run(array $data, $id) {
 		$this->hr();
 		$this->out('CakePHP Queue Example task.');
 		$this->hr();

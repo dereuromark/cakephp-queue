@@ -96,12 +96,9 @@ class QueueShell extends Shell {
 		$this->out('	cake Queue.Queue clean');
 		$this->out('		-> Manually call cleanup function to delete task data of completed tasks.');
 		$this->out('Notes:');
-		$this->out('	<taskname> may either be the complete classname (eg. QueueExample)');
+		$this->out('	<taskname> may either be the complete class name (eg. QueueExample)');
 		$this->out('	or the shorthand without the leading "Queue" (eg. Example)');
-		$this->out('Available Tasks:');
-		foreach ($this->taskNames as $loadedTask) {
-			$this->out("\t" . '* ' . $this->_taskName($loadedTask));
-		}
+		$this->_displayAvailableTasks();
 	}
 
 	/**
@@ -114,25 +111,20 @@ class QueueShell extends Shell {
 		if (count($this->args) < 1) {
 			$this->out('Please call like this:');
 			$this->out('       cake Queue.Queue add <taskname>');
-			$this->out('Available Tasks:');
-			foreach ($this->taskNames as $loadedTask) {
-				$this->out(' * ' . $this->_taskName($loadedTask));
-			}
+			$this->_displayAvailableTasks();
 
+			return;
+		}
+
+		$name = Inflector::camelize($this->args[0]);
+
+		if (in_array($name, $this->taskNames)) {
+			$this->{$name}->add();
+		} elseif (in_array('Queue' . $name . '', $this->taskNames)) {
+			$this->{'Queue' . $name}->add();
 		} else {
-			$name = Inflector::camelize($this->args[0]);
-
-			if (in_array($name, $this->taskNames)) {
-				$this->{$name}->add();
-			} elseif (in_array('Queue' . $name . '', $this->taskNames)) {
-				$this->{'Queue' . $name}->add();
-			} else {
-				$this->out('Error: Task not Found: ' . $name);
-				$this->out('Available Tasks:');
-				foreach ($this->taskNames as $loadedTask) {
-					$this->out(' * ' . $this->_taskName($loadedTask));
-				}
-			}
+			$this->out('Error: Task not found: ' . $name);
+			$this->_displayAvailableTasks();
 		}
 	}
 
@@ -140,7 +132,7 @@ class QueueShell extends Shell {
 	 * Output the task without Queue or Task
 	 * example: QueueImageTask becomes Image on display
 	 *
-	 * @param string $task Taskname
+	 * @param string $task Task name
 	 * @return string Cleaned task name
 	 */
 	protected function _taskName($task) {
@@ -217,7 +209,7 @@ class QueueShell extends Shell {
 
 				try {
 					$data = json_decode($queuedTask['data'], true);
-					$return = $this->{$taskname}->run($data, $queuedTask['id']);
+					$return = $this->{$taskname}->run((array)$data, $queuedTask['id']);
 
 					$failureMessage = null;
 					if (!empty($this->{$taskname}->failureMessage)) {
@@ -508,6 +500,17 @@ class QueueShell extends Shell {
 		$file = $pidFilePath . 'queue_' . $pid . '.pid';
 		if (file_exists($file)) {
 			unlink($file);
+		}
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function _displayAvailableTasks()
+	{
+		$this->out('Available Tasks:');
+		foreach ($this->taskNames as $loadedTask) {
+			$this->out("\t" . '* ' . $this->_taskName($loadedTask));
 		}
 	}
 
