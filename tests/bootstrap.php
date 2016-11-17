@@ -99,11 +99,14 @@ Cake\Mailer\Email::config('default', [
 	'transport' => 'default',
 ]);
 
-// Ensure default test connection is defined
-if (!getenv('db_dsn')) {
+// Allow local overwrite
+if (!getenv('db_class')) {
 	//putenv('db_dsn=sqlite::memory:');
+	Cake\Datasource\ConnectionManager::config('test', ['url' => getenv('db_dsn')]);
+	return;
 }
 
+// Uses Travis config then (MySQL, Postgres, ...)
 Cake\Datasource\ConnectionManager::config('test', [
 	'className' => 'Cake\Database\Connection',
 	'driver' => getenv('db_class'),
@@ -114,5 +117,5 @@ Cake\Datasource\ConnectionManager::config('test', [
 	'timezone' => 'UTC',
 	'quoteIdentifiers' => true,
 	'cacheMetadata' => true,
-	'url' => getenv('db_dsn')
+
 ]);
