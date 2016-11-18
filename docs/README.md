@@ -96,7 +96,10 @@ Run the following using the CakePHP shell:
 Some tasks will not be triggered from the console, but from the APP code.
 You will need to use the model access for QueueTask and the createJob() function to do this.
 
-The `createJob()` function takes two arguments.  The first argument is the name of the type of job that you are creating.  The second argument can take any format and will be passed as a parameter to the `run()` function of the worker.
+The `createJob()` function takes three arguments.
+- The first argument is the name of the type of job that you are creating.
+- The second argument is optional, but if set must be an array of data and will be passed as a parameter to the `run()` function of the worker.
+- The third argument is options (`'notBefore'`, `'priority'`, `'group'`). 
 
 For sending emails, for example:
 
@@ -113,6 +116,28 @@ TableRegistry::get('Queue.QueuedTasks')->createJob('Email',
 It will use your custom APP `QueueEmailTask` to send out emails via CLI.
 
 Important: Do not forget to set your [domain](http://book.cakephp.org/2.0/en/core-utility-libraries/email.html#sending-emails-from-cli) when sending from CLI.
+
+### Updating status
+The createJob() method returns the entity. So you can store the ID and at any time ask the queue about the status of this job.
+```php
+// Inside your website
+$job = $this->QueuedTasks->createJob(...);
+$id = $job->id;
+// Store
+
+// Inside your Queue task, if you know the total records:
+$totalRecords = count($records);
+foreach ($records as $i => $record) {
+	$this->processImageRendering($record);
+	$this->QueuedTasks->updateProgress($id, ($i + 1) / $totalRecords);
+}
+
+// Get status in web site
+$job = $this->QueuedTasks->get($id);
+$status = $job->status; // A float from 0 to 1
+echo number_format($status * 100, 0) . '%'; // Outputs 87% for example
+```
+
 
 ### Notes
 `<TaskName>` may either be the complete classname (eg. QueueExample) or the shorthand without the leading "Queue" (e.g. Example).
