@@ -34,21 +34,6 @@ class QueueTransportTest extends TestCase {
 	}
 
 	/**
-	 * Test configuration
-	 *
-	 * @return void
-	 */
-	public function testConfig() {
-		$Email = new Email();
-		$Email->transport('queue');
-		$Email->config('default');
-
-		$res = $Email->transport()->config();
-		//debug($res);
-		//$this->assertTrue(isset($res['queue']));
-	}
-
-	/**
 	 * TestSend method
 	 *
 	 * @return void
