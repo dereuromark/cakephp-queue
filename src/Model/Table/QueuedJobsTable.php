@@ -6,14 +6,12 @@ use Cake\Core\Configure;
 use Cake\I18n\Time;
 use Cake\ORM\Table;
 use Exception;
-use Queue\Model\Entity\QueuedTask;
+use Queue\Model\Entity\QueuedJob;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
 
 /**
- * QueuedTask for queued tasks.
- *
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
@@ -79,7 +77,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @param string $jobName Job name
 	 * @param array|null $data Array of data
-	 * @param array $config Config to save along with the task
+	 * @param array $config Config to save along with the job
 	 * @return \Cake\ORM\Entity Saved job entity
 	 * @throws \Exception
 	 */
@@ -99,8 +97,8 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * Returns the number of items in the Queue.
-	 * Either returns the number of ALL pending tasks, or the number of pending tasks of the passed Type
+	 * Returns the number of items in the queue.
+	 * Either returns the number of ALL pending jobs, or the number of pending jobs of the passed type.
 	 *
 	 * @param string|null $type Job type to Count
 	 * @return int
@@ -170,7 +168,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @param array $capabilities Available QueueWorkerTasks.
 	 * @param string|null $group Request a job from this group, (from any group if null)
-	 * @return \Queue\Model\Entity\QueuedTask|null
+	 * @return \Queue\Model\Entity\QueuedJob|null
 	 */
 	public function requestJob(array $capabilities, $group = null) {
 		$now = new Time();
@@ -252,9 +250,7 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * QueuedTask::updateProgress()
-	 *
-	 * @param int $id ID of task
+	 * @param int $id ID of job
 	 * @param float $progress Value from 0 to 1
 	 * @return bool Success
 	 */
@@ -268,33 +264,33 @@ class QueuedJobsTable extends Table {
 	/**
 	 * Mark a job as Completed, removing it from the queue.
 	 *
-	 * @param \Queue\Model\Entity\QueuedTask $task Task
+	 * @param \Queue\Model\Entity\QueuedJob $job Job
 	 * @return bool Success
 	 */
-	public function markJobDone(QueuedTask $task) {
+	public function markJobDone(QueuedJob $job) {
 		$fields = [
 			'completed' => date('Y-m-d H:i:s'),
 		];
-		$task = $this->patchEntity($task, $fields);
+		$job = $this->patchEntity($job, $fields);
 
-		return (bool)$this->save($task);
+		return (bool)$this->save($job);
 	}
 
 	/**
-	 * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
+	 * Mark a job as Failed, incrementing the failed-counter and Requeueing it.
 	 *
-	 * @param \Queue\Model\Entity\QueuedTask $task Task
+	 * @param \Queue\Model\Entity\QueuedJob $job Job
 	 * @param string|null $failureMessage Optional message to append to the failure_message field.
 	 * @return bool Success
 	 */
-	public function markJobFailed(QueuedTask $task, $failureMessage = null) {
+	public function markJobFailed(QueuedJob $job, $failureMessage = null) {
 		$fields = [
-			'failed' => $task->failed + 1,
+			'failed' => $job->failed + 1,
 			'failure_message' => $failureMessage,
 		];
-		$task = $this->patchEntity($task, $fields);
+		$job = $this->patchEntity($job, $fields);
 
-		return (bool)$this->save($task);
+		return (bool)$this->save($job);
 	}
 
 	/**
@@ -373,8 +369,6 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * QueuedTask::lastRun()
-	 *
 	 * @deprecated ?
 	 * @return array
 	 */
@@ -390,8 +384,6 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * QueuedTask::_findProgress()
-	 *
 	 * Custom find method, as in `find('progress', ...)`.
 	 *
 	 * @param string $state Current state
@@ -441,7 +433,6 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * QueuedTask::clearDoublettes()
 	 * //FIXME
 	 *
 	 * @return void

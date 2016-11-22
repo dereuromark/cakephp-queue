@@ -15,12 +15,12 @@ use Queue\Model\Table\QueuedJobsTable;
 /**
  * Queue\Model\Table\QueuedJobsTable Test Case
  */
-class QueuedTasksTableTest extends TestCase {
+class QueuedJobsTableTest extends TestCase {
 
 	/**
 	 * @var \Queue\Model\Table\QueuedJobsTable
 	 */
-	protected $QueuedTasks;
+	protected $QueuedJobs;
 
 	/**
 	 * Fixtures
@@ -39,8 +39,8 @@ class QueuedTasksTableTest extends TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$config = TableRegistry::exists('QueuedTasks') ? [] : ['className' => QueuedJobsTable::class];
-		$this->QueuedTasks = TableRegistry::get('QueuedTasks', $config);
+		$config = TableRegistry::exists('QueuedJobs') ? [] : ['className' => QueuedJobsTable::class];
+		$this->QueuedJobs = TableRegistry::get('QueuedJobs', $config);
 	}
 
 	/**
@@ -49,7 +49,7 @@ class QueuedTasksTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testQueueInstance() {
-		$this->assertInstanceOf(QueuedJobsTable::class, $this->QueuedTasks);
+		$this->assertInstanceOf(QueuedJobsTable::class, $this->QueuedJobs);
 	}
 
 	/**
@@ -124,13 +124,12 @@ class QueuedTasksTableTest extends TestCase {
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $testData));
 
 		// fetch and check the first job.
-		$task = $this->QueuedJobs->requestJob($capabilities);
-		#debug($data);
-		$this->assertEquals(1, $task['id']);
-		$this->assertEquals('task1', $task['job_type']);
-		$this->assertEquals(0, $task['failed']);
-		$this->assertNull($task['completed']);
-		$this->assertEquals($testData, json_decode($task['data'], true));
+		$job = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertEquals(1, $job['id']);
+		$this->assertEquals('task1', $job['job_type']);
+		$this->assertEquals(0, $job['failed']);
+		$this->assertNull($job['completed']);
+		$this->assertEquals($testData, json_decode($job['data'], true));
 
 		// after this job has been fetched, it may not be reassigned.
 		$result = $this->QueuedJobs->requestJob($capabilities);
@@ -141,7 +140,7 @@ class QueuedTasksTableTest extends TestCase {
 		$this->assertEquals(1, $this->QueuedJobs->getLength());
 
 		// Now mark Task1 as done
-		$this->assertEquals(1, $this->QueuedJobs->markJobDone($task));
+		$this->assertEquals(1, $this->QueuedJobs->markJobDone($job));
 		// Should be 0 again.
 		$this->assertEquals(0, $this->QueuedJobs->getLength());
 	}
