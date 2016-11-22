@@ -15,7 +15,7 @@ $t->addColumn('id', [
 	'null' => false,
 	'default' => null,
 ]);
-$t->addColumn('jobtype', [
+$t->addColumn('job_type', [
 	'type' => 'string',
 	'null' => false,
 	'length' => 45,
@@ -25,7 +25,7 @@ $t->addColumn('data', [
 	'null' => true,
 	'default' => null,
 ]);
-$t->addColumn('task_group', [
+$t->addColumn('job_group', [
 	'type' => 'string',
 	'length' => 255,
 	'null' => true,

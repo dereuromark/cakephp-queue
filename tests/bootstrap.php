@@ -101,10 +101,13 @@ Cake\Mailer\Email::config('default', [
 
 // Allow local overwrite
 // E.g. in your console: export db_dsn="mysql://root:secret@127.0.0.1/cake_test"
-if (!getenv('db_class')) {
-	//putenv('db_dsn=sqlite::memory:');
+if (!getenv('db_class') && getenv('db_dsn')) {
 	ConnectionManager::config('test', ['url' => getenv('db_dsn')]);
 	return;
+}
+if (!getenv('db_class')) {
+	putenv('db_class=Cake\Database\Driver\Sqlite');
+	putenv('db_dsn=sqlite::memory:');
 }
 
 // Uses Travis config then (MySQL, Postgres, ...)

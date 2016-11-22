@@ -10,15 +10,15 @@ namespace Queue\Test\TestCase\Model\Table;
 use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
-use Queue\Model\Table\QueuedTasksTable;
+use Queue\Model\Table\QueuedJobsTable;
 
 /**
- * Queue\Model\Table\QueuedTasksTable Test Case
+ * Queue\Model\Table\QueuedJobsTable Test Case
  */
 class QueuedTasksTableTest extends TestCase {
 
 	/**
-	 * @var \Queue\Model\Table\QueuedTasksTable
+	 * @var \Queue\Model\Table\QueuedJobsTable
 	 */
 	protected $QueuedTasks;
 
@@ -28,7 +28,7 @@ class QueuedTasksTableTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'plugin.queue.QueuedTasks',
+		'plugin.queue.QueuedJobs',
 	];
 
 	/**
@@ -39,7 +39,7 @@ class QueuedTasksTableTest extends TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$config = TableRegistry::exists('QueuedTasks') ? [] : ['className' => QueuedTasksTable::class];
+		$config = TableRegistry::exists('QueuedTasks') ? [] : ['className' => QueuedJobsTable::class];
 		$this->QueuedTasks = TableRegistry::get('QueuedTasks', $config);
 	}
 
@@ -49,7 +49,7 @@ class QueuedTasksTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testQueueInstance() {
-		$this->assertInstanceOf(QueuedTasksTable::class, $this->QueuedTasks);
+		$this->assertInstanceOf(QueuedJobsTable::class, $this->QueuedTasks);
 	}
 
 	/**
@@ -59,38 +59,38 @@ class QueuedTasksTableTest extends TestCase {
 	 */
 	public function testCreateAndCount() {
 		// at first, the queue should contain 0 items.
-		$this->assertEquals(0, $this->QueuedTasks->getLength());
+		$this->assertEquals(0, $this->QueuedJobs->getLength());
 
 		// create a job
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('test1', [
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('test1', [
 			'some' => 'random',
 			'test' => 'data',
 		]));
 
 		// test if queue Length is 1 now.
-		$this->assertEquals(1, $this->QueuedTasks->getLength());
+		$this->assertEquals(1, $this->QueuedJobs->getLength());
 
 		//create some more jobs
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('test2', [
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('test2', [
 			'some' => 'random',
 			'test' => 'data2',
 		]));
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('test2', [
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('test2', [
 			'some' => 'random',
 			'test' => 'data3',
 		]));
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('test3', [
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('test3', [
 			'some' => 'random',
 			'test' => 'data4',
 		]));
 
 		//overall queueLength shpould now be 4
-		$this->assertEquals(4, $this->QueuedTasks->getLength());
+		$this->assertEquals(4, $this->QueuedJobs->getLength());
 
 		// there should be 1 task of type 'test1', one of type 'test3' and 2 of type 'test2'
-		$this->assertEquals(1, $this->QueuedTasks->getLength('test1'));
-		$this->assertEquals(2, $this->QueuedTasks->getLength('test2'));
-		$this->assertEquals(1, $this->QueuedTasks->getLength('test3'));
+		$this->assertEquals(1, $this->QueuedJobs->getLength('test1'));
+		$this->assertEquals(2, $this->QueuedJobs->getLength('test2'));
+		$this->assertEquals(1, $this->QueuedJobs->getLength('test3'));
 	}
 
 	/**
@@ -115,35 +115,35 @@ class QueuedTasksTableTest extends TestCase {
 		];
 
 		// start off empty.
-		$this->assertEquals([], $this->QueuedTasks->find()->toArray());
+		$this->assertEquals([], $this->QueuedJobs->find()->toArray());
 		// at first, the queue should contain 0 items.
-		$this->assertEquals(0, $this->QueuedTasks->getLength());
+		$this->assertEquals(0, $this->QueuedJobs->getLength());
 		// there are no jobs, so we cant fetch any.
-		$this->assertNull($this->QueuedTasks->requestJob($capabilities));
+		$this->assertNull($this->QueuedJobs->requestJob($capabilities));
 		// insert one job.
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $testData));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $testData));
 
 		// fetch and check the first job.
-		$task = $this->QueuedTasks->requestJob($capabilities);
+		$task = $this->QueuedJobs->requestJob($capabilities);
 		#debug($data);
 		$this->assertEquals(1, $task['id']);
-		$this->assertEquals('task1', $task['jobtype']);
+		$this->assertEquals('task1', $task['job_type']);
 		$this->assertEquals(0, $task['failed']);
 		$this->assertNull($task['completed']);
 		$this->assertEquals($testData, json_decode($task['data'], true));
 
 		// after this job has been fetched, it may not be reassigned.
-		$result = $this->QueuedTasks->requestJob($capabilities);
+		$result = $this->QueuedJobs->requestJob($capabilities);
 		#debug($result);ob_flush();
 		$this->assertNull($result);
 
 		// queue length is still 1 since the first job did not finish.
-		$this->assertEquals(1, $this->QueuedTasks->getLength());
+		$this->assertEquals(1, $this->QueuedJobs->getLength());
 
 		// Now mark Task1 as done
-		$this->assertEquals(1, $this->QueuedTasks->markJobDone($task));
+		$this->assertEquals(1, $this->QueuedJobs->markJobDone($task));
 		// Should be 0 again.
-		$this->assertEquals(0, $this->QueuedTasks->getLength());
+		$this->assertEquals(0, $this->QueuedJobs->getLength());
 	}
 
 	/**
@@ -161,21 +161,21 @@ class QueuedTasksTableTest extends TestCase {
 			],
 		];
 		// at first, the queue should contain 0 items.
-		$this->assertEquals(0, $this->QueuedTasks->getLength());
+		$this->assertEquals(0, $this->QueuedJobs->getLength());
 		// create some more jobs
 		foreach (range(0, 9) as $num) {
-			$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', [
+			$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', [
 				'tasknum' => $num,
 			]));
 		}
 		// 10 jobs in the queue.
-		$this->assertEquals(10, $this->QueuedTasks->getLength());
+		$this->assertEquals(10, $this->QueuedJobs->getLength());
 
 		// jobs should be fetched in the original sequence.
 		$array = [];
 		foreach (range(0, 4) as $num) {
-			$this->QueuedTasks->clearKey();
-			$array[$num] = $this->QueuedTasks->requestJob($capabilities);
+			$this->QueuedJobs->clearKey();
+			$array[$num] = $this->QueuedJobs->requestJob($capabilities);
 			//debug($job);ob_flush();
 			$jobData = json_decode($array[$num]['data'], true);
 			//debug($jobData);ob_flush();
@@ -183,17 +183,17 @@ class QueuedTasksTableTest extends TestCase {
 		}
 		// now mark them as done
 		foreach (range(0, 4) as $num) {
-			$this->assertTrue($this->QueuedTasks->markJobDone($array[$num]));
-			$this->assertEquals(9 - $num, $this->QueuedTasks->getLength());
+			$this->assertTrue($this->QueuedJobs->markJobDone($array[$num]));
+			$this->assertEquals(9 - $num, $this->QueuedJobs->getLength());
 		}
 
 		// jobs should be fetched in the original sequence.
 		foreach (range(5, 9) as $num) {
-			$job = $this->QueuedTasks->requestJob($capabilities);
+			$job = $this->QueuedJobs->requestJob($capabilities);
 			$jobData = json_decode($job['data'], true);
 			$this->assertEquals($num, $jobData['tasknum']);
-			$this->assertTrue($this->QueuedTasks->markJobDone($job));
-			$this->assertEquals(9 - $num, $this->QueuedTasks->getLength());
+			$this->assertTrue($this->QueuedJobs->markJobDone($job));
+			$this->assertEquals(9 - $num, $this->QueuedJobs->getLength());
 		}
 	}
 
@@ -204,10 +204,10 @@ class QueuedTasksTableTest extends TestCase {
 	 * @return null
 	 */
 	public function testNotBefore() {
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', null, ['notBefore' => '+ 1 Min']));
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', null, ['notBefore' => '+ 1 Day']));
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', null, ['notBefore' => '2009-07-01 12:00:00']));
-		$data = $this->QueuedTasks->find('all')->toArray();
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', null, ['notBefore' => '+ 1 Min']));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', null, ['notBefore' => '+ 1 Day']));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', null, ['notBefore' => '2009-07-01 12:00:00']));
+		$data = $this->QueuedJobs->find('all')->toArray();
 		$this->assertWithinRange((new Time('+ 1 Min'))->toUnixString(), $data[0]['notbefore']->toUnixString(), 60);
 		$this->assertWithinRange((new Time('+ 1 Day'))->toUnixString(), $data[1]['notbefore']->toUnixString(), 60);
 		$this->assertWithinRange((new Time('2009-07-01 12:00:00'))->toUnixString(), $data[2]['notbefore']->toUnixString(), 60);
@@ -232,12 +232,12 @@ class QueuedTasksTableTest extends TestCase {
 				'retries' => 2,
 			],
 		];
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('dummytask'));
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('dummytask'));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('dummytask'));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('dummytask'));
 		// create a task with it's execution target some seconds in the past, so it should jump to the top of the list.
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', ['three'], ['notBefore' => '- 3 Seconds']));
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', ['two'], ['notBefore' => '- 5 Seconds']));
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', ['one'], ['notBefore' => '- 7 Seconds']));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', ['three'], ['notBefore' => '- 3 Seconds']));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', ['two'], ['notBefore' => '- 5 Seconds']));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', ['one'], ['notBefore' => '- 7 Seconds']));
 
 		// when using requestJob, the jobs we just created should be delivered in this order, NOT the order in which they where created.
 		$expected = [
@@ -264,10 +264,10 @@ class QueuedTasksTableTest extends TestCase {
 		];
 
 		foreach ($expected as $item) {
-			$this->QueuedTasks->clearKey();
-			$tmp = $this->QueuedTasks->requestJob($capabilities);
+			$this->QueuedJobs->clearKey();
+			$tmp = $this->QueuedJobs->requestJob($capabilities);
 
-			$this->assertEquals($item['name'], $tmp['jobtype']);
+			$this->assertEquals($item['name'], $tmp['job_type']);
 			$this->assertEquals($item['data'], json_decode($tmp['data'], true));
 		}
 	}
@@ -294,71 +294,71 @@ class QueuedTasksTableTest extends TestCase {
 		];
 
 		// clear out the rate history
-		$this->QueuedTasks->rateHistory = [];
+		$this->QueuedJobs->rateHistory = [];
 
 		$data1 = ['key' => 1];
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $data1));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data1));
 		$data2 = ['key' => 2];
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $data2));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data2));
 		$data3 = ['key' => 3];
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $data3));
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('dummytask'));
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('dummytask'));
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('dummytask'));
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('dummytask'));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data3));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('dummytask'));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('dummytask'));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('dummytask'));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('dummytask'));
 
 		//At first we get task1-1.
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
-		$this->assertEquals('task1', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertEquals('task1', $tmp['job_type']);
 		$this->assertEquals($data1, json_decode($tmp['data'], true));
 
 		//The rate limit should now skip over task1-2 and fetch a dummytask.
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
-		$this->assertEquals('dummytask', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertEquals('dummytask', $tmp['job_type']);
 		$this->assertNull(json_decode($tmp['data'], true));
 
 		usleep(100000);
 		//and again.
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
-		$this->assertEquals('dummytask', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertEquals('dummytask', $tmp['job_type']);
 		$this->assertNull(json_decode($tmp['data'], true));
 
 		//Then some time passes
 		sleep(2);
 
 		//Now we should get task1-2
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
-		$this->assertEquals('task1', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertEquals('task1', $tmp['job_type']);
 		$this->assertEquals($data2, json_decode($tmp['data'], true));
 
 		//and again rate limit to dummytask.
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
-		$this->assertEquals('dummytask', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertEquals('dummytask', $tmp['job_type']);
 		$this->assertNull(json_decode($tmp['data'], true));
 
 		//Then some more time passes
 		sleep(2);
 
 		//Now we should get task1-3
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
-		$this->assertEquals('task1', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertEquals('task1', $tmp['job_type']);
 		$this->assertEquals($data3, json_decode($tmp['data'], true));
 
 		//and again rate limit to dummytask.
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
-		$this->assertEquals('dummytask', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertEquals('dummytask', $tmp['job_type']);
 		$this->assertNull(json_decode($tmp['data'], true));
 
 		//and now the queue is empty
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertNull($tmp);
 	}
 
@@ -380,18 +380,18 @@ class QueuedTasksTableTest extends TestCase {
 		$data = [
 			'key' => '1'
 		];
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $data));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data));
 
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
-		$this->assertEquals('task1', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertEquals('task1', $tmp['job_type']);
 		$this->assertEquals($data, json_decode($tmp['data'], true));
 		$this->assertEquals('0', $tmp['failed']);
 		sleep(2);
 
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
-		$this->assertEquals('task1', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertEquals('task1', $tmp['job_type']);
 		$this->assertEquals($data, json_decode($tmp['data'], true));
 		$this->assertEquals('1', $tmp['failed']);
 		$this->assertEquals('Restart after timeout', $tmp['failure_message']);
@@ -421,18 +421,18 @@ class QueuedTasksTableTest extends TestCase {
 			],
 		];
 
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', ['1']));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', ['1']));
 
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
-		$this->assertEquals('task1', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertEquals('task1', $tmp['job_type']);
 		$this->assertEquals(['1'], json_decode($tmp['data'], true));
 		$this->assertEquals('0', $tmp['failed']);
 		sleep(2);
 
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
-		$this->assertEquals('task1', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertEquals('task1', $tmp['job_type']);
 		$this->assertEquals(['1'], json_decode($tmp['data'], true));
 		$this->assertEquals('1', $tmp['failed']);
 		$this->assertEquals('Restart after timeout', $tmp['failure_message']);
@@ -455,50 +455,50 @@ class QueuedTasksTableTest extends TestCase {
 
 		// create an ungrouped task
 		$data = ['key' => 1];
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $data));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data));
 		//create a Grouped Task
 		$data2 = ['key' => 2];
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $data2, ['group' => 'testgroup']));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data2, ['group' => 'testgroup']));
 
 		// Fetching without group should completely ignore the Group field.
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
-		$this->assertEquals('task1', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertEquals('task1', $tmp['job_type']);
 		$this->assertEquals($data, json_decode($tmp['data'], true));
 
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
-		$this->assertEquals('task1', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertEquals('task1', $tmp['job_type']);
 
 		$this->assertEquals($data2, json_decode($tmp['data'], true));
 
 		// well, lets try that Again, while limiting by Group
 		// create an ungrouped task
 		$data3 = ['key' => 3];
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $data3));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data3));
 		//create a Grouped Task
 		$data4 = ['key' => 4];
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $data4, ['group' => 'testgroup', 'reference' => 'Job number 4']));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data4, ['group' => 'testgroup', 'reference' => 'Job number 4']));
 		$data5 = ['key' => 5];
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $data5, ['reference' => 'Job number 5']));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data5, ['reference' => 'Job number 5']));
 		$data6 = ['key' => 6];
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $data6, ['group' => 'testgroup', 'reference' => 'Job number 6']));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data6, ['group' => 'testgroup', 'reference' => 'Job number 6']));
 
 		// we should only get tasks 4 and 6, in that order, when requesting inside the group
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities, 'testgroup');
-		$this->assertEquals('task1', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities, 'testgroup');
+		$this->assertEquals('task1', $tmp['job_type']);
 		$this->assertEquals($data4, json_decode($tmp['data'], true));
 
-		$this->QueuedTasks->clearKey();
-		$tmp = $this->QueuedTasks->requestJob($capabilities, 'testgroup');
-		$this->assertEquals('task1', $tmp['jobtype']);
+		$this->QueuedJobs->clearKey();
+		$tmp = $this->QueuedJobs->requestJob($capabilities, 'testgroup');
+		$this->assertEquals('task1', $tmp['job_type']);
 		$this->assertEquals($data6, json_decode($tmp['data'], true));
 
 		// use FindProgress on the testgroup:
-		$progress = $this->QueuedTasks->find('all', [
+		$progress = $this->QueuedJobs->find('all', [
 			'conditions' => [
-				'task_group' => 'testgroup',
+				'job_group' => 'testgroup',
 			],
 		])->toArray();
 
@@ -523,15 +523,15 @@ class QueuedTasksTableTest extends TestCase {
 		];
 
 		$data = ['key' => 'k1'];
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $data));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data));
 
 		$data = ['key' => 'k2'];
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $data, ['priority' => 1]));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data, ['priority' => 1]));
 
 		$data = ['key' => 'k3'];
-		$this->assertTrue((bool)$this->QueuedTasks->createJob('task1', $data, ['priority' => 6]));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data, ['priority' => 6]));
 
-		$tmp = $this->QueuedTasks->requestJob($capabilities);
+		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$data = json_decode($tmp['data'], true);
 		$this->assertSame(['key' => 'k2'], $data);
 	}

@@ -1,6 +1,7 @@
 /phpunit.phar
 /vendor/
 /tmp/
-/composer.lock
 .idea/
+composer.lock
 schema-dump-default.lock
+composer.phar

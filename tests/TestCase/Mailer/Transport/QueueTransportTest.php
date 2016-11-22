@@ -15,7 +15,7 @@ class QueueTransportTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'plugin.Queue.QueuedTasks',
+		'plugin.Queue.QueuedJobs',
 	];
 
 	/**
@@ -65,7 +65,7 @@ class QueueTransportTest extends TestCase {
 		$this->QueueTransport->config($config);
 
 		$result = $this->QueueTransport->send($Email);
-		$this->assertEquals('Email', $result['jobtype']);
+		$this->assertEquals('Email', $result['job_type']);
 		$this->assertTrue(strlen($result['data']) < 10000);
 
 		$output = json_decode($result['data'], true);

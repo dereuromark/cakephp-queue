@@ -99,17 +99,17 @@ You will need to use the model access for QueueTask and the createJob() function
 The `createJob()` function takes three arguments.
 - The first argument is the name of the type of job that you are creating.
 - The second argument is optional, but if set must be an array of data and will be passed as a parameter to the `run()` function of the worker.
-- The third argument is options (`'notBefore'`, `'priority'`, `'group'`). 
+- The third argument is options (`'notBefore'`, `'priority'`, `'group'`).
 
 For sending emails, for example:
 
 ```php
 // In your controller
-$this->loadModel('Queue.QueuedTasks');
-$this->QueuedTasks->createJob('Email', ['to' => 'user@example.org', ...]);
+$this->loadModel('Queue.QueuedJobs');
+$this->QueuedJobs->createJob('Email', ['to' => 'user@example.org', ...]);
 
 // Somewhere in the model or lib
-TableRegistry::get('Queue.QueuedTasks')->createJob('Email',
+TableRegistry::get('Queue.QueuedJobs')->createJob('Email',
 	['to' => 'user@example.org', ...]);
 ```
 
@@ -121,7 +121,7 @@ Important: Do not forget to set your [domain](http://book.cakephp.org/2.0/en/cor
 The createJob() method returns the entity. So you can store the ID and at any time ask the queue about the status of this job.
 ```php
 // Inside your website
-$job = $this->QueuedTasks->createJob(...);
+$job = $this->QueuedJobs->createJob(...);
 $id = $job->id;
 // Store
 
@@ -129,11 +129,11 @@ $id = $job->id;
 $totalRecords = count($records);
 foreach ($records as $i => $record) {
 	$this->processImageRendering($record);
-	$this->QueuedTasks->updateProgress($id, ($i + 1) / $totalRecords);
+	$this->QueuedJobs->updateProgress($id, ($i + 1) / $totalRecords);
 }
 
 // Get status in web site
-$job = $this->QueuedTasks->get($id);
+$job = $this->QueuedJobs->get($id);
 $status = $job->status; // A float from 0 to 1
 echo number_format($status * 100, 0) . '%'; // Outputs 87% for example
 ```

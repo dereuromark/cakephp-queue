@@ -18,7 +18,7 @@ use RegexIterator;
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-class QueuedTasksTable extends Table {
+class QueuedJobsTable extends Table {
 
 	/**
 	 * @var array
@@ -74,35 +74,35 @@ class QueuedTasksTable extends Table {
 	 * Config
 	 * - priority: 1-10, defaults to 5
 	 * - notBefore: Optional date which must not be preceded
-	 * - group: Used to group similar QueuedTasks
+	 * - group: Used to group similar QueuedJobs
 	 * - reference: An optional reference string
 	 *
-	 * @param string $jobName QueueTask name
+	 * @param string $jobName Job name
 	 * @param array|null $data Array of data
 	 * @param array $config Config to save along with the task
 	 * @return \Cake\ORM\Entity Saved job entity
 	 * @throws \Exception
 	 */
 	public function createJob($jobName, array $data = null, array $config = []) {
-		$queuedTask = [
-			'jobtype' => $jobName,
+		$queuedJob = [
+			'job_type' => $jobName,
 			'data' => is_array($data) ? json_encode($data) : null,
-			'task_group' => !empty($config['group']) ? $config['group'] : null,
+			'job_group' => !empty($config['group']) ? $config['group'] : null,
 			'notbefore' => !empty($config['notBefore']) ? new Time($config['notBefore']) : null,
 		] + $config;
 
-		$queuedTask = $this->newEntity($queuedTask);
-		if ($queuedTask->errors()) {
+		$queuedJob = $this->newEntity($queuedJob);
+		if ($queuedJob->errors()) {
 			throw new Exception('Invalid entity data');
 		}
-		return $this->save($queuedTask);
+		return $this->save($queuedJob);
 	}
 
 	/**
 	 * Returns the number of items in the Queue.
 	 * Either returns the number of ALL pending tasks, or the number of pending tasks of the passed Type
 	 *
-	 * @param string|null $type jobType to Count
+	 * @param string|null $type Job type to Count
 	 * @return int
 	 */
 	public function getLength($type = null) {
@@ -112,27 +112,27 @@ class QueuedTasksTable extends Table {
 			],
 		];
 		if ($type !== null) {
-			$findConf['conditions']['jobtype'] = $type;
+			$findConf['conditions']['job_type'] = $type;
 		}
 		$data = $this->find('all', $findConf);
 		return $data->count();
 	}
 
 	/**
-	 * Return a list of all jobtypes in the Queue.
+	 * Return a list of all job types in the Queue.
 	 *
 	 * @return array
 	 */
 	public function getTypes() {
 		$findCond = [
 			'fields' => [
-				'jobtype',
+				'job_type',
 			],
 			'group' => [
-				'jobtype',
+				'job_type',
 			],
-			'keyField' => 'jobtype',
-			'valueField' => 'jobtype',
+			'keyField' => 'job_type',
+			'valueField' => 'job_type',
 		];
 		return $this->find('list', $findCond);
 	}
@@ -147,7 +147,7 @@ class QueuedTasksTable extends Table {
 		$options = [
 			'fields' => function ($query) {
 				return [
-					'jobtype',
+					'job_type',
 					'num' => $query->func()->count('*'),
 					'alltime' => $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(created)'),
 					'runtime' => $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)'),
@@ -158,7 +158,7 @@ class QueuedTasksTable extends Table {
 				'completed IS NOT' => null,
 			],
 			'group' => [
-				'jobtype',
+				'job_type',
 			],
 		];
 		return $this->find('all', $options);
@@ -193,7 +193,7 @@ class QueuedTasksTable extends Table {
 		];
 
 		if ($group !== null) {
-			$options['conditions']['task_group'] = $group;
+			$options['conditions']['job_group'] = $group;
 		}
 
 		// generate the task specific conditions.
@@ -201,7 +201,7 @@ class QueuedTasksTable extends Table {
 			list($plugin, $name) = pluginSplit($task['name']);
 			$timeoutAt = $now->copy();
 			$tmp = [
-				'jobtype' => $name,
+				'job_type' => $name,
 				'AND' => [
 					[
 						'OR' => [
@@ -218,8 +218,8 @@ class QueuedTasksTable extends Table {
 				],
 				'failed <' => ($task['retries'] + 1),
 			];
-			if (array_key_exists('rate', $task) && $tmp['jobtype'] && array_key_exists($tmp['jobtype'], $this->rateHistory)) {
-				$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['jobtype']] + $task['rate'];
+			if (array_key_exists('rate', $task) && $tmp['job_type'] && array_key_exists($tmp['job_type'], $this->rateHistory)) {
+				$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
 			}
 			$options['conditions']['OR'][] = $tmp;
 		}
@@ -246,7 +246,7 @@ class QueuedTasksTable extends Table {
 			return null;
 		}
 
-		$this->rateHistory[$job['jobtype']] = $now->toUnixString();
+		$this->rateHistory[$job['job_type']] = $now->toUnixString();
 
 		return $job;
 	}
@@ -325,7 +325,7 @@ class QueuedTasksTable extends Table {
 	public function getPendingStats() {
 		$findCond = [
 			'fields' => [
-				'jobtype',
+				'job_type',
 				'created',
 				'status',
 				'fetched',
@@ -418,9 +418,9 @@ class QueuedTasksTable extends Table {
 					],
 				];
 			}
-			if (isset($query['conditions']['task_group'])) {
-				$query['conditions'][]['task_group'] = $query['conditions']['task_group'];
-				unset($query['conditions']['task_group']);
+			if (isset($query['conditions']['job_group'])) {
+				$query['conditions'][]['job_group'] = $query['conditions']['job_group'];
+				unset($query['conditions']['job_group']);
 			}
 			return $query;
 		}

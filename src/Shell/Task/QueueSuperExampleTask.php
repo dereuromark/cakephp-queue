@@ -13,11 +13,6 @@ namespace Queue\Shell\Task;
 class QueueSuperExampleTask extends QueueTask {
 
 	/**
-	 * @var \Queue\Model\Table\QueuedTasksTable
-	 */
-	public $QueuedTasks;
-
-	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
 	 *
 	 * @var int
@@ -61,7 +56,7 @@ class QueueSuperExampleTask extends QueueTask {
 		/*
 		 * Adding a task of type 'example' with no additionally passed data
 		 */
-		if ($this->QueuedTasks->createJob('SuperExample', null)) {
+		if ($this->QueuedJobs->createJob('SuperExample', null)) {
 			$this->out('OK, job created, now run the worker');
 		} else {
 			$this->err('Could not create Job');
@@ -86,7 +81,7 @@ class QueueSuperExampleTask extends QueueTask {
 		$this->out(' ');
 
 		// Lets create an Example task on successful execution
-		$this->QueuedTasks->createJob('Example');
+		$this->QueuedJobs->createJob('Example');
 
 		return true;
 	}
