@@ -65,9 +65,8 @@ class SimpleQueueTransport extends AbstractTransport {
 
 	/**
 	 * @return \Queue\Model\Table\QueuedJobsTable
-     */
-	protected function getQueuedJobsModel()
-	{
+	 */
+	protected function getQueuedJobsModel() {
 		return TableRegistry::get('Queue.QueuedJobs');
 	}
 

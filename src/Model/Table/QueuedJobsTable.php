@@ -194,7 +194,7 @@ class QueuedJobsTable extends Table {
 			$options['conditions']['job_group'] = $group;
 		}
 
-		// generate the task specific conditions.
+		// Generate the task specific conditions.
 		foreach ($capabilities as $task) {
 			list($plugin, $name) = pluginSplit($task['name']);
 			$timeoutAt = $now->copy();
