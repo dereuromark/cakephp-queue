@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class Priority extends AbstractMigration {
+class Rename extends AbstractMigration {
 
 	/**
 	 * Change Method.
@@ -17,8 +17,8 @@ class Priority extends AbstractMigration {
 	public function change() {
 		$table = $this->table('queued_tasks');
 		$table->rename('queued_jobs')
-			->renameColumn('job_group', 'job_group')
-			->renameColumn('job_type', 'job_type')
+			->renameColumn('task_group', 'job_group')
+			->renameColumn('jobtype', 'job_type')
 			->update();
 	}
 
