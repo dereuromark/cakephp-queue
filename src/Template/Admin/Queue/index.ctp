@@ -18,7 +18,7 @@ use Cake\Core\Configure;
 n/a
 <?php } ?>
 
-<h3><?php echo __d('queue', 'Queued Tasks'); ?></h3>
+<h3><?php echo __d('queue', 'Queued Jobs'); ?></h3>
 <?php
  echo $current;
 ?> task(s) await processing
@@ -26,7 +26,7 @@ n/a
 <ol>
 <?php
 foreach ($pendingDetails as $item) {
-	echo '<li>' . $item['jobtype'] . ' (' . $item['reference'] . '):';
+	echo '<li>' . $item['job_type'] . ' (' . $item['reference'] . '):';
 	echo '<ul>';
 		echo '<li>Created: ' . $item['created'] . '</li>';
 		echo '<li>Fetched: ' . $item['fetched'] . '</li>';
@@ -44,7 +44,7 @@ foreach ($pendingDetails as $item) {
 <ul>
 <?php
 foreach ($data as $item) {
-	echo '<li>' . $item['jobtype'] . ':';
+	echo '<li>' . $item['job_type'] . ':';
 	echo '<ul>';
 		echo '<li>Finished Jobs in Database: ' . $item['num'] . '</li>';
 		echo '<li>Average Job existence: ' . $item['alltime'] . 's</li>';
@@ -81,6 +81,6 @@ if (empty($data)) {
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Form->postLink(__d('queue', 'Reset {0}', __d('queue', 'Queue Tasks')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will completely reset the queue.')]); ?></li>
+		<li><?php echo $this->Form->postLink(__d('queue', 'Reset {0}', __d('queue', 'Queued Jobs')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will completely reset the queue.')]); ?></li>
 	</ul>
 </div>

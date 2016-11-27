@@ -43,7 +43,7 @@ class SimpleQueueTransport extends AbstractTransport {
 			'theme' => [$email->theme()],
 			'profile' => [$email->profile()],
 			'emailFormat' => [$email->emailFormat()],
-			'subject' => [$email->getOriginalSubject()],
+			'subject' => method_exists($email, 'getOriginalSubject') ? [$email->getOriginalSubject()] : [$email->subject()],
 			'transport' => [$this->_config['transport']],
 			'attachments' => [$email->attachments()],
 			'template' => $email->template(), //template() gives 2 values - template and layout
@@ -56,11 +56,18 @@ class SimpleQueueTransport extends AbstractTransport {
 			}
 		}
 
-		$QueuedTasks = TableRegistry::get('Queue.QueuedTasks');
-		$result = $QueuedTasks->createJob('Email', ['settings' => $settings]);
+		$QueuedJobs = $this->getQueuedJobsModel();
+		$result = $QueuedJobs->createJob('Email', ['settings' => $settings]);
 		$result['headers'] = '';
 		$result['message'] = '';
 		return $result;
+	}
+
+	/**
+	 * @return \Queue\Model\Table\QueuedJobsTable
+	 */
+	protected function getQueuedJobsModel() {
+		return TableRegistry::get('Queue.QueuedJobs');
 	}
 
 }

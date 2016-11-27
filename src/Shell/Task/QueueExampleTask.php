@@ -13,11 +13,6 @@ namespace Queue\Shell\Task;
 class QueueExampleTask extends QueueTask {
 
 	/**
-	 * @var \Queue\Model\Table\QueuedTasksTable
-	 */
-	public $QueuedTasks;
-
-	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
 	 *
 	 * @var int
@@ -60,7 +55,7 @@ class QueueExampleTask extends QueueTask {
 		/*
 		 * Adding a task of type 'example' with no additionally passed data
 		 */
-		if ($this->QueuedTasks->createJob('Example', null)) {
+		if ($this->QueuedJobs->createJob('Example', null)) {
 			$this->out('OK, job created, now run the worker');
 		} else {
 			$this->err('Could not create Job');

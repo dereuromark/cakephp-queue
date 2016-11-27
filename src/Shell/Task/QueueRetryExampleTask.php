@@ -15,11 +15,6 @@ use Cake\Console\ConsoleIo;
 class QueueRetryExampleTask extends QueueTask {
 
 	/**
-	 * @var \Queue\Model\Table\QueuedTasksTable
-	 */
-	public $QueuedTasks;
-
-	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
 	 *
 	 * @var int
@@ -76,7 +71,7 @@ class QueueRetryExampleTask extends QueueTask {
 		/*
 		 * Adding a task of type 'example' with no additionally passed data
 		 */
-		if ($this->QueuedTasks->createJob('RetryExample', null)) {
+		if ($this->QueuedJobs->createJob('RetryExample', null)) {
 			$this->out('OK, job created, now run the worker');
 		} else {
 			$this->err('Could not create Job');

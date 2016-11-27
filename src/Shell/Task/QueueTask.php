@@ -20,12 +20,12 @@ class QueueTask extends Shell {
 	/**
 	 * @var string
 	 */
-	public $queueModelClass = 'Queue.QueuedTasks';
+	public $queueModelClass = 'Queue.QueuedJobs';
 
 	/**
-	 * @var \Queue\Model\Table\QueuedTasksTable
+	 * @var \Queue\Model\Table\QueuedJobsTable
 	 */
-	public $QueuedTasks;
+	public $QueuedJobs;
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.

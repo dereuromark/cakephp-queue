@@ -13,7 +13,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'plugin.queue.queued_tasks'
+		'plugin.queue.queued_jobs'
 	];
 
 	/**

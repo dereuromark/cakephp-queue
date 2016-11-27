@@ -20,14 +20,14 @@ declare(ticks = 1);
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
- * @property \Queue\Model\Table\QueuedTasksTable $QueuedTasks
+ * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  */
 class QueueShell extends Shell {
 
 	/**
 	 * @var string
 	 */
-	public $modelClass = 'Queue.QueuedTasks';
+	public $modelClass = 'Queue.QueuedJobs';
 
 	/**
 	 * @var array
@@ -70,7 +70,7 @@ class QueueShell extends Shell {
 
 		parent::initialize();
 
-		$this->QueuedTasks->initConfig();
+		$this->QueuedJobs->initConfig();
 	}
 
 	/**
@@ -158,7 +158,7 @@ class QueueShell extends Shell {
 			if (function_exists('posix_getpid')) {
 				$pid = posix_getpid();
 			} else {
-				$pid = $this->QueuedTasks->key();
+				$pid = $this->QueuedJobs->key();
 			}
 			# global file
 			$fp = fopen($pidFilePath . 'queue.pid', 'w');
@@ -168,7 +168,7 @@ class QueueShell extends Shell {
 			if (function_exists('posix_getpid')) {
 				$pid = posix_getpid();
 			} else {
-				$pid = $this->QueuedTasks->key();
+				$pid = $this->QueuedJobs->key();
 			}
 			$pidFileName = 'queue_' . $pid . '.pid';
 			$fp = fopen($pidFilePath . $pidFileName, 'w');
@@ -201,11 +201,11 @@ class QueueShell extends Shell {
 			$this->_log('runworker', isset($pid) ? $pid : null);
 			$this->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
 
-			$queuedTask = $this->QueuedTasks->requestJob($this->_getTaskConf(), $group);
+			$queuedTask = $this->QueuedJobs->requestJob($this->_getTaskConf(), $group);
 
 			if ($queuedTask) {
-				$this->out('Running Job of type "' . $queuedTask['jobtype'] . '"');
-				$taskname = 'Queue' . $queuedTask['jobtype'];
+				$this->out('Running Job of type "' . $queuedTask['job_type'] . '"');
+				$taskname = 'Queue' . $queuedTask['job_type'];
 
 				try {
 					$data = json_decode($queuedTask['data'], true);
@@ -224,10 +224,10 @@ class QueueShell extends Shell {
 				}
 
 				if ($return) {
-					$this->QueuedTasks->markJobDone($queuedTask);
+					$this->QueuedJobs->markJobDone($queuedTask);
 					$this->out('Job Finished.');
 				} else {
-					$this->QueuedTasks->markJobFailed($queuedTask, $failureMessage);
+					$this->QueuedJobs->markJobFailed($queuedTask, $failureMessage);
 					$this->out('Job did not finish, requeued.');
 				}
 			} elseif (Configure::read('Queue.exitwhennothingtodo')) {
@@ -245,7 +245,7 @@ class QueueShell extends Shell {
 			}
 			if ($this->_exit || rand(0, 100) > (100 - Configure::read('Queue.gcprob'))) {
 				$this->out('Performing Old job cleanup.');
-				$this->QueuedTasks->cleanOldJobs();
+				$this->QueuedJobs->cleanOldJobs();
 			}
 			$this->hr();
 		}
@@ -274,7 +274,7 @@ class QueueShell extends Shell {
 	 */
 	public function clean() {
 		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout')));
-		$this->QueuedTasks->cleanOldJobs();
+		$this->QueuedJobs->cleanOldJobs();
 	}
 
 	/**
@@ -285,7 +285,7 @@ class QueueShell extends Shell {
 	 */
 	public function reset() {
 		$this->out('Resetting...');
-		$this->QueuedTasks->reset();
+		$this->QueuedJobs->reset();
 	}
 
 	/**
@@ -309,17 +309,17 @@ class QueueShell extends Shell {
 	public function stats() {
 		$this->out('Jobs currenty in the Queue:');
 
-		$types = $this->QueuedTasks->getTypes()->toArray();
+		$types = $this->QueuedJobs->getTypes()->toArray();
 		foreach ($types as $type) {
-			$this->out('      ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $this->QueuedTasks->getLength($type));
+			$this->out('      ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $this->QueuedJobs->getLength($type));
 		}
 		$this->hr();
-		$this->out('Total unfinished Jobs      : ' . $this->QueuedTasks->getLength());
+		$this->out('Total unfinished Jobs      : ' . $this->QueuedJobs->getLength());
 		$this->hr();
 		$this->out('Finished Job Statistics:');
-		$data = $this->QueuedTasks->getStats();
+		$data = $this->QueuedJobs->getStats();
 		foreach ($data as $item) {
-			$this->out(' ' . $item['jobtype'] . ': ');
+			$this->out(' ' . $item['job_type'] . ': ');
 			$this->out('   Finished Jobs in Database: ' . $item['num']);
 			$this->out('   Average Job existence    : ' . str_pad(Number::precision($item['alltime']), 8, ' ', STR_PAD_LEFT) . 's');
 			$this->out('   Average Execution delay  : ' . str_pad(Number::precision($item['fetchdelay']), 8, ' ', STR_PAD_LEFT) . 's');
@@ -495,7 +495,7 @@ class QueueShell extends Shell {
 		if (function_exists('posix_getpid')) {
 			$pid = posix_getpid();
 		} else {
-			$pid = $this->QueuedTasks->key();
+			$pid = $this->QueuedJobs->key();
 		}
 		$file = $pidFilePath . 'queue_' . $pid . '.pid';
 		if (file_exists($file)) {

@@ -13,11 +13,6 @@ namespace Queue\Shell\Task;
 class QueueExecuteTask extends QueueTask {
 
 	/**
-	 * @var \Queue\Model\Table\QueuedTasksTable
-	 */
-	public $QueuedTasks;
-
-	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
 	 *
 	 * @var int
@@ -60,7 +55,7 @@ class QueueExecuteTask extends QueueTask {
 				'command' => $this->args[1],
 				'params' => array_slice($this->args, 2),
 			];
-			if ($this->QueuedTasks->createJob('Execute', $data)) {
+			if ($this->QueuedJobs->createJob('Execute', $data)) {
 				$this->out('Job created');
 			} else {
 				$this->err('Could not create Job');

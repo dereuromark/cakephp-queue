@@ -6,19 +6,17 @@ use Cake\Core\Configure;
 use Cake\I18n\Time;
 use Cake\ORM\Table;
 use Exception;
-use Queue\Model\Entity\QueuedTask;
+use Queue\Model\Entity\QueuedJob;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
 
 /**
- * QueuedTask for queued tasks.
- *
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-class QueuedTasksTable extends Table {
+class QueuedJobsTable extends Table {
 
 	/**
 	 * @var array
@@ -74,35 +72,35 @@ class QueuedTasksTable extends Table {
 	 * Config
 	 * - priority: 1-10, defaults to 5
 	 * - notBefore: Optional date which must not be preceded
-	 * - group: Used to group similar QueuedTasks
+	 * - group: Used to group similar QueuedJobs
 	 * - reference: An optional reference string
 	 *
-	 * @param string $jobName QueueTask name
+	 * @param string $jobName Job name
 	 * @param array|null $data Array of data
-	 * @param array $config Config to save along with the task
+	 * @param array $config Config to save along with the job
 	 * @return \Cake\ORM\Entity Saved job entity
 	 * @throws \Exception
 	 */
 	public function createJob($jobName, array $data = null, array $config = []) {
-		$queuedTask = [
-			'jobtype' => $jobName,
+		$queuedJob = [
+			'job_type' => $jobName,
 			'data' => is_array($data) ? json_encode($data) : null,
-			'task_group' => !empty($config['group']) ? $config['group'] : null,
+			'job_group' => !empty($config['group']) ? $config['group'] : null,
 			'notbefore' => !empty($config['notBefore']) ? new Time($config['notBefore']) : null,
 		] + $config;
 
-		$queuedTask = $this->newEntity($queuedTask);
-		if ($queuedTask->errors()) {
+		$queuedJob = $this->newEntity($queuedJob);
+		if ($queuedJob->errors()) {
 			throw new Exception('Invalid entity data');
 		}
-		return $this->save($queuedTask);
+		return $this->save($queuedJob);
 	}
 
 	/**
-	 * Returns the number of items in the Queue.
-	 * Either returns the number of ALL pending tasks, or the number of pending tasks of the passed Type
+	 * Returns the number of items in the queue.
+	 * Either returns the number of ALL pending jobs, or the number of pending jobs of the passed type.
 	 *
-	 * @param string|null $type jobType to Count
+	 * @param string|null $type Job type to Count
 	 * @return int
 	 */
 	public function getLength($type = null) {
@@ -112,27 +110,27 @@ class QueuedTasksTable extends Table {
 			],
 		];
 		if ($type !== null) {
-			$findConf['conditions']['jobtype'] = $type;
+			$findConf['conditions']['job_type'] = $type;
 		}
 		$data = $this->find('all', $findConf);
 		return $data->count();
 	}
 
 	/**
-	 * Return a list of all jobtypes in the Queue.
+	 * Return a list of all job types in the Queue.
 	 *
 	 * @return array
 	 */
 	public function getTypes() {
 		$findCond = [
 			'fields' => [
-				'jobtype',
+				'job_type',
 			],
 			'group' => [
-				'jobtype',
+				'job_type',
 			],
-			'keyField' => 'jobtype',
-			'valueField' => 'jobtype',
+			'keyField' => 'job_type',
+			'valueField' => 'job_type',
 		];
 		return $this->find('list', $findCond);
 	}
@@ -147,7 +145,7 @@ class QueuedTasksTable extends Table {
 		$options = [
 			'fields' => function ($query) {
 				return [
-					'jobtype',
+					'job_type',
 					'num' => $query->func()->count('*'),
 					'alltime' => $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(created)'),
 					'runtime' => $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)'),
@@ -158,7 +156,7 @@ class QueuedTasksTable extends Table {
 				'completed IS NOT' => null,
 			],
 			'group' => [
-				'jobtype',
+				'job_type',
 			],
 		];
 		return $this->find('all', $options);
@@ -170,7 +168,7 @@ class QueuedTasksTable extends Table {
 	 *
 	 * @param array $capabilities Available QueueWorkerTasks.
 	 * @param string|null $group Request a job from this group, (from any group if null)
-	 * @return \Queue\Model\Entity\QueuedTask|null
+	 * @return \Queue\Model\Entity\QueuedJob|null
 	 */
 	public function requestJob(array $capabilities, $group = null) {
 		$now = new Time();
@@ -193,15 +191,15 @@ class QueuedTasksTable extends Table {
 		];
 
 		if ($group !== null) {
-			$options['conditions']['task_group'] = $group;
+			$options['conditions']['job_group'] = $group;
 		}
 
-		// generate the task specific conditions.
+		// Generate the task specific conditions.
 		foreach ($capabilities as $task) {
 			list($plugin, $name) = pluginSplit($task['name']);
 			$timeoutAt = $now->copy();
 			$tmp = [
-				'jobtype' => $name,
+				'job_type' => $name,
 				'AND' => [
 					[
 						'OR' => [
@@ -218,8 +216,8 @@ class QueuedTasksTable extends Table {
 				],
 				'failed <' => ($task['retries'] + 1),
 			];
-			if (array_key_exists('rate', $task) && $tmp['jobtype'] && array_key_exists($tmp['jobtype'], $this->rateHistory)) {
-				$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['jobtype']] + $task['rate'];
+			if (array_key_exists('rate', $task) && $tmp['job_type'] && array_key_exists($tmp['job_type'], $this->rateHistory)) {
+				$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
 			}
 			$options['conditions']['OR'][] = $tmp;
 		}
@@ -246,15 +244,13 @@ class QueuedTasksTable extends Table {
 			return null;
 		}
 
-		$this->rateHistory[$job['jobtype']] = $now->toUnixString();
+		$this->rateHistory[$job['job_type']] = $now->toUnixString();
 
 		return $job;
 	}
 
 	/**
-	 * QueuedTask::updateProgress()
-	 *
-	 * @param int $id ID of task
+	 * @param int $id ID of job
 	 * @param float $progress Value from 0 to 1
 	 * @return bool Success
 	 */
@@ -268,33 +264,33 @@ class QueuedTasksTable extends Table {
 	/**
 	 * Mark a job as Completed, removing it from the queue.
 	 *
-	 * @param \Queue\Model\Entity\QueuedTask $task Task
+	 * @param \Queue\Model\Entity\QueuedJob $job Job
 	 * @return bool Success
 	 */
-	public function markJobDone(QueuedTask $task) {
+	public function markJobDone(QueuedJob $job) {
 		$fields = [
 			'completed' => date('Y-m-d H:i:s'),
 		];
-		$task = $this->patchEntity($task, $fields);
+		$job = $this->patchEntity($job, $fields);
 
-		return (bool)$this->save($task);
+		return (bool)$this->save($job);
 	}
 
 	/**
-	 * Mark a job as Failed, Incrementing the failed-counter and Requeueing it.
+	 * Mark a job as Failed, incrementing the failed-counter and Requeueing it.
 	 *
-	 * @param \Queue\Model\Entity\QueuedTask $task Task
+	 * @param \Queue\Model\Entity\QueuedJob $job Job
 	 * @param string|null $failureMessage Optional message to append to the failure_message field.
 	 * @return bool Success
 	 */
-	public function markJobFailed(QueuedTask $task, $failureMessage = null) {
+	public function markJobFailed(QueuedJob $job, $failureMessage = null) {
 		$fields = [
-			'failed' => $task->failed + 1,
+			'failed' => $job->failed + 1,
 			'failure_message' => $failureMessage,
 		];
-		$task = $this->patchEntity($task, $fields);
+		$job = $this->patchEntity($job, $fields);
 
-		return (bool)$this->save($task);
+		return (bool)$this->save($job);
 	}
 
 	/**
@@ -325,7 +321,7 @@ class QueuedTasksTable extends Table {
 	public function getPendingStats() {
 		$findCond = [
 			'fields' => [
-				'jobtype',
+				'job_type',
 				'created',
 				'status',
 				'fetched',
@@ -373,8 +369,6 @@ class QueuedTasksTable extends Table {
 	}
 
 	/**
-	 * QueuedTask::lastRun()
-	 *
 	 * @deprecated ?
 	 * @return array
 	 */
@@ -390,8 +384,6 @@ class QueuedTasksTable extends Table {
 	}
 
 	/**
-	 * QueuedTask::_findProgress()
-	 *
 	 * Custom find method, as in `find('progress', ...)`.
 	 *
 	 * @param string $state Current state
@@ -418,9 +410,9 @@ class QueuedTasksTable extends Table {
 					],
 				];
 			}
-			if (isset($query['conditions']['task_group'])) {
-				$query['conditions'][]['task_group'] = $query['conditions']['task_group'];
-				unset($query['conditions']['task_group']);
+			if (isset($query['conditions']['job_group'])) {
+				$query['conditions'][]['job_group'] = $query['conditions']['job_group'];
+				unset($query['conditions']['job_group']);
 			}
 			return $query;
 		}
@@ -441,7 +433,6 @@ class QueuedTasksTable extends Table {
 	}
 
 	/**
-	 * QueuedTask::clearDoublettes()
 	 * //FIXME
 	 *
 	 * @return void

@@ -31,7 +31,7 @@ class QueueShellTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'plugin.Queue.QueuedTasks',
+		'plugin.Queue.QueuedJobs',
 	];
 
 	/**

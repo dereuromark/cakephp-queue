@@ -11,7 +11,7 @@ class QueueController extends AppController {
 	/**
 	 * @var string
 	 */
-	public $modelClass = 'Queue.QueuedTasks';
+	public $modelClass = 'Queue.QueuedJobs';
 
 	/**
 	 * QueueController::beforeFilter()
@@ -20,7 +20,7 @@ class QueueController extends AppController {
 	 * @return void
 	 */
 	public function beforeFilter(Event $event) {
-		$this->QueuedTasks->initConfig();
+		$this->QueuedJobs->initConfig();
 
 		parent::beforeFilter($event);
 	}
@@ -34,9 +34,9 @@ class QueueController extends AppController {
 	public function index() {
 		$status = $this->_status();
 
-		$current = $this->QueuedTasks->getLength();
-		$pendingDetails = $this->QueuedTasks->getPendingStats();
-		$data = $this->QueuedTasks->getStats();
+		$current = $this->QueuedJobs->getLength();
+		$pendingDetails = $this->QueuedJobs->getPendingStats();
+		$data = $this->QueuedJobs->getStats();
 
 		$this->set(compact('current', 'data', 'pendingDetails', 'status'));
 		$this->helpers[] = 'Tools.Format';
@@ -50,7 +50,7 @@ class QueueController extends AppController {
 	 */
 	public function reset() {
 		$this->request->allowMethod('post');
-		$res = $this->QueuedTasks->truncate();
+		$res = $this->QueuedJobs->truncate();
 
 		if ($res) {
 			$message = __d('queue', 'OK');

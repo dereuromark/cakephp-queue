@@ -60,7 +60,7 @@ class QueueLongExampleTask extends QueueTask {
 		$data = [
 			'duration' => 2 * MINUTE
 		];
-		if ($this->QueuedTasks->createJob('LongExample', $data)) {
+		if ($this->QueuedJobs->createJob('LongExample', $data)) {
 			$this->out('OK, job created, now run the worker');
 		} else {
 			$this->err('Could not create Job');
@@ -87,7 +87,7 @@ class QueueLongExampleTask extends QueueTask {
 		$this->out('A total of ' . $seconds . ' seconds need to pass...');
 		for ($i = 0; $i < $seconds; $i++) {
 			sleep(1);
-			$this->QueuedTasks->updateProgress($id, ($i + 1) / $seconds);
+			$this->QueuedJobs->updateProgress($id, ($i + 1) / $seconds);
 		}
 		$this->hr();
 		$this->out(' ->Success, the LongExample Job was run.<-');

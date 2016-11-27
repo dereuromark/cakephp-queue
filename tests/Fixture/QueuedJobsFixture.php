@@ -10,9 +10,8 @@ namespace Queue\Test\Fixture;
 use Cake\TestSuite\Fixture\TestFixture;
 
 /**
- * QueuedTasksFixture
  */
-class QueuedTasksFixture extends TestFixture {
+class QueuedJobsFixture extends TestFixture {
 
 	/**
 	 * Records
@@ -28,10 +27,10 @@ class QueuedTasksFixture extends TestFixture {
 	 */
 	public $fields = [
 		'id' => ['type' => 'integer'],
-		'jobtype' => ['type' => 'string', 'length' => 45, 'null' => false, 'default' => null],
+		'job_type' => ['type' => 'string', 'length' => 45, 'null' => false, 'default' => null],
 		'data' => ['type' => 'text', 'null' => true, 'default' => null],
 		'priority' => ['type' => 'integer', 'length' => 3, 'null' => false, 'default' => 5],
-		'task_group' => ['type' => 'string', 'length' => 255, 'null' => true],
+		'job_group' => ['type' => 'string', 'length' => 255, 'null' => true],
 		'reference' => ['type' => 'string', 'length' => 255, 'null' => true],
 		'created' => ['type' => 'datetime', 'null' => true],
 		'notbefore' => ['type' => 'datetime', 'null' => true],
