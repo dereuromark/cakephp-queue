@@ -44,13 +44,17 @@ you should seriously consider using a more advanced system for high volume/high 
 See [Documentation](docs).
 
 
-## TODO
-
-* Add priority
-* Cleanup and better test coverage
-
-
 ## History
+
+### New Improvements
+- QueuedJobs table instead of QueuedTasks (Tasks are the implementing classes only)
+- json_encode/decode instead of serialize
+- Priority for tasks
+- Transactions on getting a new job if supported from the database
+- Code improvements
+
+### And...
+
 A huge thx to Max ([Dee-Fuse](https://github.com/Dee-Fuse)) for making the 3.x upgrade complete!
 
 Modified by David Yell ([davidyell](https://github.com/davidyell))
