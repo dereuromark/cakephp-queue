@@ -46,12 +46,12 @@ See [Documentation](docs).
 
 ## History
 
-### New Improvements
+### Recent Improvements
 - QueuedJobs table instead of QueuedTasks (Tasks are the implementing classes only)
 - json_encode/decode instead of serialize
-- Priority for tasks
+- Priority for jobs
 - Transactions on getting a new job if supported from the database
-- Code improvements
+- Code improvements, stricter typehinting
 
 ### And...
 
