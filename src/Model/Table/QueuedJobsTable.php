@@ -269,7 +269,7 @@ class QueuedJobsTable extends Table {
 	 */
 	public function markJobDone(QueuedJob $job) {
 		$fields = [
-			'completed' => date('Y-m-d H:i:s'),
+			'completed' => new Time(),
 		];
 		$job = $this->patchEntity($job, $fields);
 
