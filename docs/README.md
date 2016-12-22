@@ -78,17 +78,17 @@ Run the following using the CakePHP shell:
 
 * Display Help message:
 
-		bin/cake Queue.Queue
+		bin/cake queue
 
 * Try to call the cli add() function on a task:
 
-		bin/cake Queue.Queue add <TaskName>
+		bin/cake queue add <TaskName>
 
 	Tasks may or may not provide this functionality.
 
 * Run a queue worker, which will look for a pending task it can execute:
 
-		bin/cake Queue.Queue runworker
+		bin/cake queue runworker
 
 	The worker will always try to find jobs matching its installed Tasks.
 
@@ -159,7 +159,7 @@ to start a new worker.
 
 The following example uses "crontab":
 
-	*/10  *    *    *    *  cd /full/path/to/app && bin/cake Queue.Queue runworker
+	*/10  *    *    *    *  cd /full/path/to/app && bin/cake queue runworker
 
 Make sure you use `crontab -e -u www-data` to set it up as `www-data` user, and not as root etc.
 
@@ -225,3 +225,9 @@ is useful when dealing with emails which serialization would overflow database `
 ### Killing workers
 //TODO
 
+## Contributing
+I am looking forward to your contributions.
+
+There are a few guidelines that I need contributors to follow:
+* Coding standards (`./sniff` to check and `./sniff -f` to fix)
+* Passing tests (`php phpunit.phar`)

@@ -30,14 +30,14 @@ class QueueShell extends Shell {
 	public $modelClass = 'Queue.QueuedJobs';
 
 	/**
-	 * @var array
+	 * @var array|null
 	 */
 	protected $_taskConf;
 
 	/**
 	 * @var bool
 	 */
-	protected $_exit;
+	protected $_exit = false;
 
 	/**
 	 * Overwrite shell initialize to dynamically load all Queue Related Tasks.
@@ -74,31 +74,22 @@ class QueueShell extends Shell {
 	}
 
 	/**
-	 * Output some basic usage Info.
-	 *
-	 * @return void
+	 * @return string
 	 */
-	public function main() {
-		$this->out('CakePHP Queue Plugin:');
-		$this->hr();
-		$this->out('Usage:');
-		$this->out('	cake Queue.Queue help');
-		$this->out('		-> Display this Help message');
-		$this->out('	cake Queue.Queue add <taskname>');
-		$this->out('		-> Try to call the cli add() function on a task');
-		$this->out('		-> tasks may or may not provide this functionality.');
-		$this->out('	cake Queue.Queue runworker');
-		$this->out('		-> run a queue worker, which will look for a pending task it can execute.');
-		$this->out('		-> the worker will always try to find jobs matching its installed Tasks');
-		$this->out('		-> see "Available Tasks" below.');
-		$this->out('	cake Queue.Queue stats');
-		$this->out('		-> Display some general Statistics.');
-		$this->out('	cake Queue.Queue clean');
-		$this->out('		-> Manually call cleanup function to delete task data of completed tasks.');
-		$this->out('Notes:');
-		$this->out('	<taskname> may either be the complete class name (eg. QueueExample)');
-		$this->out('	or the shorthand without the leading "Queue" (eg. Example)');
-		$this->_displayAvailableTasks();
+	public function _getDescription() {
+		$tasks = [];
+		foreach ($this->taskNames as $loadedTask) {
+			$tasks[] = "\t" . '* ' . $this->_taskName($loadedTask);
+		}
+		$tasks = implode(PHP_EOL, $tasks);
+
+		$text = <<<TEXT
+Simple and minimalistic job queue (or deferred-task) system.
+
+Available Tasks:
+$tasks
+TEXT;
+		return $text;
 	}
 
 	/**
@@ -110,7 +101,7 @@ class QueueShell extends Shell {
 	public function add() {
 		if (count($this->args) < 1) {
 			$this->out('Please call like this:');
-			$this->out('       cake Queue.Queue add <taskname>');
+			$this->out('       bin/cake queue add <taskname>');
 			$this->_displayAvailableTasks();
 
 			return;
@@ -209,11 +200,13 @@ class QueueShell extends Shell {
 
 				try {
 					$data = json_decode($queuedTask['data'], true);
-					$return = $this->{$taskname}->run((array)$data, $queuedTask['id']);
+					/* @var \Queue\Shell\Task\QueueTask $task */
+					$task = $this->{$taskname};
+					$return = $task->run((array)$data, $queuedTask['id']);
 
 					$failureMessage = null;
-					if (!empty($this->{$taskname}->failureMessage)) {
-						$failureMessage = $this->{$taskname}->failureMessage;
+					if ($task->failureMessage) {
+						$failureMessage = $task->failureMessage;
 					}
 				} catch (Exception $e) {
 					$return = false;
@@ -297,6 +290,12 @@ class QueueShell extends Shell {
 		$this->out('Current Settings:');
 		$conf = (array)Configure::read('Queue');
 		foreach ($conf as $key => $val) {
+			if ($val === false) {
+				$val = 'no';
+			}
+			if ($val === true) {
+				$val = 'yes';
+			}
 			$this->out('* ' . $key . ': ' . print_r($val, true));
 		}
 	}
@@ -334,7 +333,7 @@ class QueueShell extends Shell {
 	 * @return void
 	 */
 	public function install() {
-		$this->out('Run `cake Schema create -p Queue`');
+		$this->out('Run `cake Migrations.migrate -p Queue`');
 	}
 
 	/**
@@ -343,7 +342,7 @@ class QueueShell extends Shell {
 	 * @return void
 	 */
 	public function uninstall() {
-		$this->out('Remove all workers and then delete the two tables.');
+		$this->out('Remove all workers and cronjobs and then delete the Queue plugin tables.');
 	}
 
 	/**
@@ -376,7 +375,7 @@ class QueueShell extends Shell {
 		];
 
 		return parent::getOptionParser()
-			->description('Simple and minimalistic job queue (or deferred-task) system.')
+			->description($this->_getDescription())
 			->addSubcommand('clean', [
 				'help' => 'Remove old jobs (cleanup)',
 				'parser' => $subcommandParser,
@@ -397,8 +396,12 @@ class QueueShell extends Shell {
 				'help' => 'Stats',
 				'parser' => $subcommandParserFull,
 			])
+			->addSubcommand('settings', [
+				'help' => 'Settings',
+				'parser' => $subcommandParserFull,
+			])
 			->addSubcommand('reset', [
-				'help' => 'Stats',
+				'help' => 'Manually reset (failed) jobs for re-run.',
 				'parser' => $subcommandParserFull,
 			])
 			->addSubcommand('runworker', [

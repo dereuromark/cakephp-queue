@@ -42,6 +42,13 @@ class QueueTask extends Shell {
 	public $retries = 4;
 
 	/**
+	 * Stores any failure messages triggered during run()
+	 *
+	 * @var string|null
+	 */
+	public $failureMessage = null;
+
+	/**
 	 * @param \Cake\Console\ConsoleIo|null $io IO
 	 */
 	public function __construct(ConsoleIo $io = null) {

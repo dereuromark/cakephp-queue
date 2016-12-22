@@ -27,13 +27,6 @@ class QueueSuperExampleTask extends QueueTask {
 	public $retries = 1;
 
 	/**
-	 * Stores any failure messages triggered during run()
-	 *
-	 * @var string
-	 */
-	public $failureMessage = '';
-
-	/**
 	 * SuperExample add functionality.
 	 * Will create one example job in the queue, which later will be executed using run();
 	 *
@@ -48,7 +41,7 @@ class QueueSuperExampleTask extends QueueTask {
 		$this->out('This job will only produce some console output on the worker that it runs on.');
 		$this->out(' ');
 		$this->out('To run a Worker use:');
-		$this->out('	cake Queue.Queue runworker');
+		$this->out('	bin/cake queue runworker');
 		$this->out(' ');
 		$this->out('You can find the sourcecode of this task in: ');
 		$this->out(__FILE__);

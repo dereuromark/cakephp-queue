@@ -27,13 +27,6 @@ class QueueExecuteTask extends QueueTask {
 	public $retries = 1;
 
 	/**
-	 * Stores any failure messages triggered during run()
-	 *
-	 * @var string
-	 */
-	public $failureMessage = '';
-
-	/**
 	 * Add functionality.
 	 * Will create one example job in the queue, which later will be executed using run();
 	 *
