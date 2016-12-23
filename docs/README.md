@@ -277,6 +277,11 @@ This way all the generation is in the specific task and template and can be test
 First of all: Make sure you don't run workers with `workermaxruntime` of `0`.
 Then they would at least not run forever, and might pile up only if you start them faster then they terminate.
 
+#### Via tool
+You can kill workers from the backend or the command line.
+Make sure you have set up the workers with the same user (www-data usually) as the user that triesto kill them, or it will not work.
+
+#### Manually
 Manually killing workers can be done using `kill -15 PID`. Replace PID with the PID number (e.g. `kill -15 21212`).
 
 To find out what queue processes are currently running, use

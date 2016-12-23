@@ -48,13 +48,12 @@ class QueueController extends AppController {
 	/**
 	 * @return \Cake\Network\Response|null|void
 	 */
-	public function processes()
-	{
+	public function processes() {
 		$processes = $this->QueuedJobs->getProcesses();
 
 		if ($this->request->is('post') && $this->request->query('kill')) {
 			$pid = $this->request->query('kill');
-			$this->QueuedJobs->terminateProcess($pid);
+			$this->QueuedJobs->terminateProcess($pid, 9);
 
 			return $this->redirect(['action' => 'processes']);
 		}

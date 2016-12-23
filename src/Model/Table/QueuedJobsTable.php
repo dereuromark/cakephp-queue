@@ -519,8 +519,7 @@ class QueuedJobsTable extends Table {
 	 * @param int $sig Signal (defaults to graceful SIGTERM = 15)
 	 * @return void
 	 */
-	public function terminateProcess($pid, $sig = SIGTERM)
-	{
+	public function terminateProcess($pid, $sig = SIGTERM) {
 		$pidFilePath = Configure::read('Queue.pidfilepath');
 		if (!$pidFilePath || !$pid) {
 			return;
