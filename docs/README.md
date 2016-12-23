@@ -258,13 +258,13 @@ And your `QueueAdminEmailTask::run()` method:
 	}
 
 	return (bool)$this->Email->send();
-```php
+```
 
 Make sure you got the template for it then, e.g.:
 ```
 <?php echo $comment['name'] ?> ( <?php echo $comment['email']; ?> ) wrote:
 
-<?php echo $comment['report']; ?>
+<?php echo $comment['message']; ?>
 
 
 <?php echo $this->Url->build(['prefix' => 'admin', 'controller' => 'Comments', 'action'=> 'view', $comment['id']], true); ?>
