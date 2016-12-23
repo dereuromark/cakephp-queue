@@ -274,7 +274,16 @@ Make sure you got the template for it then, e.g.:
 This way all the generation is in the specific task and template and can be tested separaretly.
 
 ### Killing workers
-//TODO
+First of all: Make sure you don't run workers with `workermaxruntime` of `0`.
+Then they would at least not run forever, and might pile up only if you start them faster then they terminate.
+
+Manually killing workers can be done using `kill -15 PID`. Replace PID with the PID number (e.g. 2121).
+
+To find out what queue processes are currently running, use
+
+    ps aux | grep php
+    
+Then you can kill them gracefully with `-15` (or forcefully with `-9`, not recommended).
 
 
 ## Contributing
