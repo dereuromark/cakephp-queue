@@ -277,7 +277,7 @@ This way all the generation is in the specific task and template and can be test
 First of all: Make sure you don't run workers with `workermaxruntime` of `0`.
 Then they would at least not run forever, and might pile up only if you start them faster then they terminate.
 
-Manually killing workers can be done using `kill -15 PID`. Replace PID with the PID number (e.g. 2121).
+Manually killing workers can be done using `kill -15 PID`. Replace PID with the PID number (e.g. `kill -15 21212`).
 
 To find out what queue processes are currently running, use
 
@@ -285,6 +285,8 @@ To find out what queue processes are currently running, use
     
 Then you can kill them gracefully with `-15` (or forcefully with `-9`, not recommended).
 
+Locally, if you want to kill them all, usually `killapp -15 php` does the trick. 
+Do not run this with production ones, though.
 
 ## Contributing
 I am looking forward to your contributions.
