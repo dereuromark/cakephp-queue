@@ -8,6 +8,7 @@ use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Filesystem\Folder;
 use Cake\I18n\Number;
+use Cake\I18n\Time;
 use Cake\Log\Log;
 use Cake\Utility\Inflector;
 use Exception;
@@ -271,6 +272,37 @@ TEXT;
 	}
 
 	/**
+	 * @return void
+	 */
+	public function kill() {
+		$processes = $this->QueuedJobs->getProcesses();
+		if (!$processes) {
+			$this->out('No processed found');
+
+			return;
+		}
+
+		$this->out(count($processes) . ' processes:');
+		foreach ($processes as $process => $timestamp) {
+			$this->out(' - ' . $process . ' (last run @ ' . (new Time($timestamp)) . ')');
+		}
+
+		$options = array_keys($processes);
+		$options[] = 'all';
+		$in = $this->in('Process', $options);
+
+		if ($in === 'all') {
+			foreach ($processes as $process => $timestamp) {
+				$this->QueuedJobs->terminateProcess((int)$process);
+			}
+
+			return;
+		}
+
+		$this->QueuedJobs->terminateProcess((int)$in);
+	}
+
+	/**
 	 * Manually reset (failed) jobs for re-run.
 	 * Careful, this should not be done while a queue task is being run.
 	 *
@@ -327,13 +359,26 @@ TEXT;
 	}
 
 	/**
+	 * Truncates the queue table
+	 *
+	 * @return void
+	 */
+	public function hardReset() {
+		$this->QueuedJobs->truncate();
+		$message = __d('queue', 'OK');
+
+		$this->out($message);
+	}
+
+	/**
 	 * Set up tables
 	 *
-	 * @see readme
+	 * @see README
 	 * @return void
 	 */
 	public function install() {
 		$this->out('Run `cake Migrations.migrate -p Queue`');
+		$this->out('Set up cronjob, e.g. via `crontab -e -u www-data`');
 	}
 
 	/**
@@ -402,6 +447,14 @@ TEXT;
 			])
 			->addSubcommand('reset', [
 				'help' => 'Manually reset (failed) jobs for re-run.',
+				'parser' => $subcommandParserFull,
+			])
+			->addSubcommand('hard_reset', [
+				'help' => 'Hard reset queue (remove all jobs)',
+				'parser' => $subcommandParserFull,
+			])
+			->addSubcommand('kill', [
+				'help' => 'Manually kill a worker.',
 				'parser' => $subcommandParserFull,
 			])
 			->addSubcommand('runworker', [

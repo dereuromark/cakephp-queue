@@ -46,31 +46,20 @@ class QueueController extends AppController {
 	}
 
 	/**
-	 * Admin center.
-	 * Manage queues from admin backend (without the need to open ssh console window).
-	 *
-	 * @return void
+	 * @return \Cake\Network\Response|null|void
 	 */
 	public function processes()
 	{
+		$processes = $this->QueuedJobs->getProcesses();
 
+		if ($this->request->is('post') && $this->request->query('kill')) {
+			$pid = $this->request->query('kill');
+			$this->QueuedJobs->terminateProcess($pid);
 
-	}
-
-	protected function _getProcesses() {
-		if (!($pidFilePath = Configure::read('Queue.pidfilepath'))) {
-			return [];
+			return $this->redirect(['action' => 'processes']);
 		}
 
-		$processes = [];
-		foreach (glob($pidFilePath . 'queue_*.pid') as $filename) {
-			$time = filemtime($filename);
-			preg_match('/^queue_(\d+)\.pid$/', $filename, $matches);
-
-			$processes[] = $time;
-		}
-
-		return $processes;
+		$this->set(compact('processes'));
 	}
 
 	/**
@@ -81,15 +70,10 @@ class QueueController extends AppController {
 	 */
 	public function reset() {
 		$this->request->allowMethod('post');
-		$res = $this->QueuedJobs->truncate();
+		$this->QueuedJobs->truncate();
 
-		if ($res) {
-			$message = __d('queue', 'OK');
-			$class = 'success';
-		} else {
-			$message = __d('queue', 'Error');
-			$class = 'error';
-		}
+		$message = __d('queue', 'OK');
+		$class = 'success';
 
 		$this->Flash->message($message, $class);
 

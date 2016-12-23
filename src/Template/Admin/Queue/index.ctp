@@ -12,7 +12,7 @@ use Cake\Core\Configure;
 <?php echo $this->Format->yesNo($running); ?> <?php echo $running ? __d('queue', 'Running') : __d('queue', 'Not running'); ?> (<?php echo __d('queue', 'last {0}', $this->Time->relLengthOfTime($status['time']))?>)
 
 <?php
-	echo '<div><small>Currently ' . ($status['workers']) . ' worker(s) total.</small></div>';
+	echo '<div><small>Currently ' . $this->Html->link($status['workers'] . ' worker(s)', ['action' => 'processes']) . ' total.</small></div>';
 ?>
 <?php } else { ?>
 n/a
@@ -66,7 +66,7 @@ if (empty($data)) {
 	foreach ($configurations as $key => $configuration) {
 		echo '<li>';
 		if (is_dir($configuration)) {
-			$configuration = str_replace(APP, 'APP' . DS, $configuration);
+			$configuration = str_replace(ROOT . DS, 'ROOT' . DS, $configuration);
 			$configuration = str_replace(DS, '/', $configuration);
 		} elseif (is_bool($configuration)) {
 			$configuration = $configuration ? 'true' : 'false';
@@ -81,6 +81,6 @@ if (empty($data)) {
 
 <div class="actions">
 	<ul>
-		<li><?php echo $this->Form->postLink(__d('queue', 'Reset {0}', __d('queue', 'Queued Jobs')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will completely reset the queue.')]); ?></li>
+		<li><?php echo $this->Form->postLink(__d('queue', 'Hard Reset {0}', __d('queue', 'Queued Jobs')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will completely reset the queue.')]); ?></li>
 	</ul>
 </div>

@@ -11,6 +11,11 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
 
+// PHP 7.1+ has this defined
+if (!defined('SIGTERM')) {
+	define('SIGTERM', 15);
+}
+
 /**
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
@@ -488,6 +493,44 @@ class QueuedJobsTable extends Table {
 		$sql = $this->schema()->truncateSql($this->_connection);
 		foreach ($sql as $snippet) {
 			$this->_connection->execute($snippet);
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getProcesses() {
+		if (!($pidFilePath = Configure::read('Queue.pidfilepath'))) {
+			return [];
+		}
+
+		$processes = [];
+		foreach (glob($pidFilePath . 'queue_*.pid') as $filename) {
+			$time = filemtime($filename);
+			preg_match('/\bqueue_(\d+)\.pid$/', $filename, $matches);
+			$processes[$matches[1]] = $time;
+		}
+
+		return $processes;
+	}
+
+	/**
+	 * @param int $pid
+	 * @param int $sig Signal (defaults to graceful SIGTERM = 15)
+	 * @return void
+	 */
+	public function terminateProcess($pid, $sig = SIGTERM)
+	{
+		$pidFilePath = Configure::read('Queue.pidfilepath');
+		if (!$pidFilePath || !$pid) {
+			return;
+		}
+
+		posix_kill($pid, $sig);
+		sleep(1);
+		$file = $pidFilePath . 'queue_' . $pid . '.pid';
+		if (file_exists($file)) {
+			unlink($file);
 		}
 	}
 
