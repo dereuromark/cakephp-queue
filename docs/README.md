@@ -142,7 +142,7 @@ echo number_format($status * 100, 0) . '%'; // Outputs 87% for example
 ### Notes
 `<TaskName>` may either be the complete classname (eg. QueueExample) or the shorthand without the leading "Queue" (e.g. Example).
 
-Also note that you dont need to add the type ("Task"): `cake Queue.Queue add SpecialExample` for QueueSpecialExampleTask.
+Also note that you dont need to add the type ("Task"): `bin/cake queue add SpecialExample` for QueueSpecialExampleTask.
 
 Custom tasks should be placed in src/Shell/Task.
 Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact. Custom tasks should extend the `QueueTask` class (you will need to include this at the top of your custom task file: `use Queue\Shell\Task\QueueTask;`).
@@ -159,7 +159,7 @@ to start a new worker.
 
 The following example uses "crontab":
 
-	*/10  *    *    *    *  cd /full/path/to/app && bin/cake queue runworker
+	*/10  *	*	*	*  cd /full/path/to/app && bin/cake queue runworker -q
 
 Make sure you use `crontab -e -u www-data` to set it up as `www-data` user, and not as root etc.
 
@@ -188,31 +188,31 @@ If you have other larger chunks of data, store them somewhere and pass the path 
 Instead of manually adding job every time you want to send mail you can use existing code ond change only EmailTransport and Email configurations in `app.php`.
 ```PHP
 'EmailTransport' => [
-        'default' => [
-            'className' => 'Smtp',
-            // The following keys are used in SMTP transports
-            'host' => 'host@gmail.com',
-            'port' => 587,
-            'timeout' => 30,
-            'username' => 'username',
-            'password' => 'password',
-            //'client' => null,
-            'tls' => true,
-        ],
-        'queue' => [
-            'className' => 'Queue.Queue',
-            'transport' => 'default'
-        ]
-    ],
+		'default' => [
+			'className' => 'Smtp',
+			// The following keys are used in SMTP transports
+			'host' => 'host@gmail.com',
+			'port' => 587,
+			'timeout' => 30,
+			'username' => 'username',
+			'password' => 'password',
+			//'client' => null,
+			'tls' => true,
+		],
+		'queue' => [
+			'className' => 'Queue.Queue',
+			'transport' => 'default'
+		]
+	],
 
-    'Email' => [
-        'default' => [
-            'transport' => 'queue',
-            'from' => 'no-reply@host.com',
-            'charset' => 'utf-8',
-            'headerCharset' => 'utf-8',
-        ],
-    ],
+	'Email' => [
+		'default' => [
+			'transport' => 'queue',
+			'from' => 'no-reply@host.com',
+			'charset' => 'utf-8',
+			'headerCharset' => 'utf-8',
+		],
+	],
 ```
 This way each time you will `$email->send()` it will use `QueueTransport` as main to create job and worker will use `'transport'` setting to send mail.
 
@@ -222,8 +222,59 @@ This way each time you will `$email->send()` it will use `QueueTransport` as mai
 * `SimpleQueueTransport` extracts all data from email (to, bcc, template etc.) and then uses this to recreate email inside task, this
 is useful when dealing with emails which serialization would overflow database `data` field length.
 
+### Manually assembling your emails
+This is the most advised way to generate your asynchronous emails.
+
+Don't generate them directly in your code and pass them to the queue, instead just pass the minimum requirements, like non persistent data needed and the primary keys of the records that need to be included.
+So let's say someone posted a comment and you want to get notified.
+
+Inside your CommentsTable class after saving the data you execute this hook:
+```php
+	/**
+	 * @param Comment $comment
+	 * @return void
+	 */
+	protected function _notifyAdmin(Comment $comment)
+	{
+		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+		$QueuedJobs = TableRegistry::get('Queue.QueuedJobs');
+		$data = [
+			'subject' => __('New comment submitted by {0}', $comment->name),
+			'vars' => [
+				'comment' => $comment->toArray()
+			]
+		];
+		$QueuedJobs->createJob('CommentNotification', $data);
+	}
+```
+
+And your `QueueAdminEmailTask::run()` method:
+```php
+	$this->Email = new Email();
+	$this->Email->template('comment_notification');
+	...
+	if (!empty($data['vars'])) {
+		$this->Email->viewVars($data['vars']);
+	}
+
+	return (bool)$this->Email->send();
+```php
+
+Make sure you got the template for it then, e.g.:
+```
+<?php echo $comment['name'] ?> ( <?php echo $comment['email']; ?> ) wrote:
+
+<?php echo $comment['report']; ?>
+
+
+<?php echo $this->Url->build(['prefix' => 'admin', 'controller' => 'Comments', 'action'=> 'view', $comment['id']], true); ?>
+```
+
+This way all the generation is in the specific task and template and can be tested separaretly.
+
 ### Killing workers
 //TODO
+
 
 ## Contributing
 I am looking forward to your contributions.
