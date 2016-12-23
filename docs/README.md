@@ -35,15 +35,15 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 
 - Default timeout after which a job is requeued if the worker doesn't report back:
 
-		$config['Queue']['defaultworkertimeout'] = 120;
+		$config['Queue']['defaultworkertimeout'] = 3600;
 
 - Default number of retries if a job fails or times out:
 
-		$config['Queue']['defaultworkerretries'] = 4;
+		$config['Queue']['defaultworkerretries'] = 3;
 
 - Seconds of running time after which the worker will terminate (0 = unlimited):
 
-		$config['Queue']['workermaxruntime'] = 0;
+		$config['Queue']['workermaxruntime'] = 60;
 
 	Warning: Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle.
 
@@ -55,7 +55,8 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 
 		$config['Queue']['cleanuptimeout'] = 2592000; // 30 days
 
-Don't forget to load that config file: `Configure::load('app_queue');`
+Don't forget to load that config file with `Configure::load('app_queue');` in your bootstrap.
+You can also use `Plugin::load('Queue', ['bootstrap' => true]);` which will load your `app_queue.php` config file automatically.
 
 Example `app_queue.php`:
 

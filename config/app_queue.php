@@ -14,16 +14,16 @@ return [
 		'gcprob' => 10,
 
 		// time (in seconds) after which a job is requeued if the worker doesn't report back
-		'defaultworkertimeout' => 120,
+		'defaultworkertimeout' => 1800,
 
 		// number of retries if a job fails or times out.
-		'defaultworkerretries' => 4,
+		'defaultworkerretries' => 3,
 
 		// seconds of running time after which the worker will terminate (0 = unlimited)
-		'workermaxruntime' => 0,
+		'workermaxruntime' => 120,
 
 		// minimum time (in seconds) which a task remains in the database before being cleaned up.
-		'cleanuptimeout' => 2000,
+		'cleanuptimeout' => 3600,
 
 		// instruct a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running)
 		'exitwhennothingtodo' => false,

@@ -57,7 +57,7 @@ class QueuedJobsTable extends Table {
 		$conf = (array)Configure::read('Queue');
 
 		// Fallback to Plugin config which can be overwritten via local app config.
-		Configure::load('Queue.queue');
+		Configure::load('Queue.app_queue');
 		$defaultConf = (array)Configure::read('Queue');
 
 		$conf = array_merge($defaultConf, $conf);
@@ -316,7 +316,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * Return some statistics about unfinished jobs still in the Database.
 	 *
-	 * @return array
+	 * @return \Cake\ORM\Query
 	 */
 	public function getPendingStats() {
 		$findCond = [

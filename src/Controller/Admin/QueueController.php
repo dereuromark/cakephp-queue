@@ -6,6 +6,9 @@ use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Event\Event;
 
+/**
+ * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
+ */
 class QueueController extends AppController {
 
 	/**
@@ -40,6 +43,34 @@ class QueueController extends AppController {
 
 		$this->set(compact('current', 'data', 'pendingDetails', 'status'));
 		$this->helpers[] = 'Tools.Format';
+	}
+
+	/**
+	 * Admin center.
+	 * Manage queues from admin backend (without the need to open ssh console window).
+	 *
+	 * @return void
+	 */
+	public function processes()
+	{
+
+
+	}
+
+	protected function _getProcesses() {
+		if (!($pidFilePath = Configure::read('Queue.pidfilepath'))) {
+			return [];
+		}
+
+		$processes = [];
+		foreach (glob($pidFilePath . 'queue_*.pid') as $filename) {
+			$time = filemtime($filename);
+			preg_match('/^queue_(\d+)\.pid$/', $filename, $matches);
+
+			$processes[] = $time;
+		}
+
+		return $processes;
 	}
 
 	/**
