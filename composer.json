@@ -18,12 +18,12 @@
 		}
 	],
 	"require": {
-		"cakephp/cakephp": "~3.2",
+		"cakephp/cakephp": "^3.2",
 		"php": ">=5.5"
 	},
 	"require-dev": {
-		"dereuromark/cakephp-tools": "dev-master",
-		"cakephp/migrations": "~1.0",
+		"cakephp/migrations": "^1.0",
+		"dereuromark/cakephp-tools": "^1.2",
 		"fig-r/psr2r-sniffer": "dev-master"
 	},
 	"suggest": {
