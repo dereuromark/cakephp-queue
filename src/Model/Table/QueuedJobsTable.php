@@ -20,6 +20,14 @@ if (!defined('SIGTERM')) {
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
+ * @method \Queue\Model\Entity\QueuedJob get($primaryKey, $options = [])
+ * @method \Queue\Model\Entity\QueuedJob newEntity($data = null, array $options = [])
+ * @method \Queue\Model\Entity\QueuedJob[] newEntities(array $data, array $options = [])
+ * @method \Queue\Model\Entity\QueuedJob|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \Queue\Model\Entity\QueuedJob patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
+ * @method \Queue\Model\Entity\QueuedJob[] patchEntities($entities, array $data, array $options = [])
+ * @method \Queue\Model\Entity\QueuedJob findOrCreate($search, callable $callback = null, $options = [])
+ * @mixin \Cake\ORM\Behavior\TimestampBehavior
  */
 class QueuedJobsTable extends Table {
 

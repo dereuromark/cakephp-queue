@@ -1,4 +1,7 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
 use Cake\Core\Configure;
 ?>
 <div class="page index col-xs-12">
