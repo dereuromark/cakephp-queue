@@ -297,5 +297,5 @@ Do not run this with production ones, though.
 I am looking forward to your contributions.
 
 There are a few guidelines that I need contributors to follow:
-* Coding standards (`./sniff` to check and `./sniff -f` to fix)
+* Coding standards (`composer cs-check` to check and `composer cs-fix` to fix)
 * Passing tests (`php phpunit.phar`)
