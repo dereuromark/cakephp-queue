@@ -240,7 +240,9 @@ Inside your CommentsTable class after saving the data you execute this hook:
 		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
 		$QueuedJobs = TableRegistry::get('Queue.QueuedJobs');
 		$data = [
-			'subject' => __('New comment submitted by {0}', $comment->name),
+			'settings' => [
+				'subject' => __('New comment submitted by {0}', $comment->name)
+			],
 			'vars' => [
 				'comment' => $comment->toArray()
 			]
