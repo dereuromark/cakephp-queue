@@ -46,7 +46,7 @@ class QueueController extends AppController {
 	}
 
 	/**
-	 * @return \Cake\Network\Response|null|void
+	 * @return \Cake\Http\Response|null
 	 */
 	public function processes() {
 		$processes = $this->QueuedJobs->getProcesses();
@@ -64,7 +64,7 @@ class QueueController extends AppController {
 	/**
 	 * Truncate the queue list / table.
 	 *
-	 * @return \Cake\Network\Response
+	 * @return \Cake\Http\Response
 	 * @throws \Cake\Network\Exception\MethodNotAllowedException when not posted
 	 */
 	public function reset() {
