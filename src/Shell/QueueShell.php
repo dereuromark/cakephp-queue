@@ -46,17 +46,8 @@ class QueueShell extends Shell {
 	 * @return void
 	 */
 	public function initialize() {
-		$paths = App::path('Shell/Task');
-
-		foreach ($paths as $path) {
-			$Folder = new Folder($path);
-			$res = array_merge($this->tasks, $Folder->find('Queue.+\.php'));
-			foreach ($res as &$r) {
-				$r = basename($r, 'Task.php');
-			}
-			$this->tasks = $res;
-		}
 		$plugins = Plugin::loaded();
+		
 		foreach ($plugins as $plugin) {
 			$pluginPaths = App::path('Shell/Task', $plugin);
 			foreach ($pluginPaths as $pluginPath) {
@@ -67,6 +58,17 @@ class QueueShell extends Shell {
 				}
 				$this->tasks = array_merge($this->tasks, $res);
 			}
+		}
+
+		$paths = App::path('Shell/Task');
+
+		foreach ($paths as $path) {
+			$Folder = new Folder($path);
+			$res = array_merge($this->tasks, $Folder->find('Queue.+\.php'));
+			foreach ($res as &$r) {
+				$r = basename($r, 'Task.php');
+			}
+			$this->tasks = $res;
 		}
 
 		parent::initialize();
