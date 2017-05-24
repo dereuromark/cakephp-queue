@@ -160,7 +160,7 @@ to start a new worker.
 
 The following example uses "crontab":
 
-	*/10  *	*	*	*  cd /full/path/to/app && bin/cake queue runworker -q
+	*/10  *  *  *  *  cd /full/path/to/app && bin/cake queue runworker -q
 
 Make sure you use `crontab -e -u www-data` to set it up as `www-data` user, and not as root etc.
 
