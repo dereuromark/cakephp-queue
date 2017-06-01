@@ -102,7 +102,7 @@ class QueueEmailTask extends QueueTask {
 			}
 		}
 
-		$this->Email = $this->_setMailerClass();
+		$this->Email = $this->_getMailer();
 
 		$settings = array_merge($this->defaults, $data['settings']);
 		foreach ($settings as $method => $setting) {
@@ -128,10 +128,10 @@ class QueueEmailTask extends QueueTask {
 	/**
 	 * Check if Mail class exists and create instance
 	 *
-	 * @return mixed
+	 * @return \Cake\Mailer\Email
 	 * @throws \Exception
 	 */
-	protected function _setMailerClass() {
+	protected function _getMailer() {
 		$class = Configure::read('Queue.mailerClass');
 		if (!class_exists($class)) {
 			throw new Exception(sprintf('Configured mailer class `%s` in `%s` not found.', $class, get_class($this)));
