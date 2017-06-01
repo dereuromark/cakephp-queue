@@ -3,8 +3,6 @@
  * @var \App\View\AppView $this
  */
 use Cake\Core\Configure;
-use Tools\Utility\Time;
-
 ?>
 <div class="page index col-xs-12">
 <h2><?php echo __d('queue', 'Queue');?></h2>
@@ -14,7 +12,7 @@ use Tools\Utility\Time;
 <?php
 	$running = (time() - $status['time']) < MINUTE;
 ?>
-<?php echo $this->Format->yesNo($running); ?> <?php echo $running ? __d('queue', 'Running') : __d('queue', 'Not running'); ?> (<?php echo __d('queue', 'last {0}', Time::relLengthOfTime($status['time']))?>)
+<?php echo $this->Format->yesNo($running); ?> <?php echo $running ? __d('queue', 'Running') : __d('queue', 'Not running'); ?> (<?php echo __d('queue', 'last {0}', $this->Time->relLengthOfTime($status['time']))?>)
 
 <?php
 	echo '<div><small>Currently ' . $this->Html->link($status['workers'] . ' worker(s)', ['action' => 'processes']) . ' total.</small></div>';
