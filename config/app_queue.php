@@ -36,5 +36,8 @@ return [
 
 		// set to false to disable (tmp = file in TMP dir)
 		'notify' => 'tmp',
+
+		// set default Mailer class
+		'mailerClass' => 'Cake\Mailer\Email',
 	],
 ];
