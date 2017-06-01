@@ -133,6 +133,12 @@ class QueueEmailTask extends QueueTask {
 	 */
 	protected function _getMailer() {
 		$class = Configure::read('Queue.mailerClass');
+		if (!$class) {
+			$class = 'Tools\Mailer\Email';
+			if (!class_exists($class)) {
+				$class = 'Cake\Mailer\Email';
+			}
+		}
 		if (!class_exists($class)) {
 			throw new Exception(sprintf('Configured mailer class `%s` in `%s` not found.', $class, get_class($this)));
 		}
