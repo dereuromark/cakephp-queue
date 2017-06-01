@@ -115,6 +115,12 @@ class QueueEmailTask extends QueueTask {
 			}
 			$this->Email->viewVars($data['vars']);
 		}
+		if (!empty($data['headers'])) {
+			if (!is_array($data['headers'])) {
+				throw new Exception('please provide headers as array');
+			}
+			$this->Email->setHeaders($data['headers']);
+		}
 
 		return (bool)$this->Email->send($message);
 	}
