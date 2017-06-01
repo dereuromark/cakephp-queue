@@ -41,7 +41,7 @@ class QueueController extends QueueAppController {
  * @throws MethodNotAllowedException when not posted
  */
 	public function admin_reset() {
-		$this->request->allowMethod('post');
+		$this->request->onlyAllow('post');
 		$res = $this->QueuedTask->truncate();
 
 		if ($res) {
