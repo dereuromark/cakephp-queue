@@ -2,6 +2,7 @@
 
 namespace Queue\Shell\Task;
 
+use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Mailer\Email;
 use Exception;
@@ -101,11 +102,7 @@ class QueueEmailTask extends QueueTask {
 			}
 		}
 
-		$class = 'Tools\Mailer\Email';
-		if (!class_exists($class)) {
-			$class = 'Cake\Mailer\Email';
-		}
-		$this->Email = new $class();
+		$this->Email = $this->_getMailer();
 
 		$settings = array_merge($this->defaults, $data['settings']);
 		foreach ($settings as $method => $setting) {
@@ -126,6 +123,21 @@ class QueueEmailTask extends QueueTask {
 		}
 
 		return (bool)$this->Email->send($message);
+	}
+
+	/**
+	 * Check if Mail class exists and create instance
+	 *
+	 * @return \Cake\Mailer\Email
+	 * @throws \Exception
+	 */
+	protected function _getMailer() {
+		$class = Configure::read('Queue.mailerClass');
+		if (!class_exists($class)) {
+			throw new Exception(sprintf('Configured mailer class `%s` in `%s` not found.', $class, get_class($this)));
+		}
+
+		return new $class();
 	}
 
 	/**
