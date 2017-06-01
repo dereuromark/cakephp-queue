@@ -125,7 +125,7 @@ class QueueEmailTask extends QueueTask {
 	 * @return mixed
 	 * @throws \Exception
 	 */
-	protected function setMailerClass() {
+	protected function _setMailerClass() {
 		$class = Configure::read('Queue.mailerClass');
 		if (!class_exists($class)) {
 			throw new Exception(sprintf('Configured mailer class `%s` in `%s` not found.', $class, get_class($this)));
