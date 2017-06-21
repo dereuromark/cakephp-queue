@@ -10,7 +10,7 @@
 This branch is for use with **CakePHP 3**.
 
 
-## Background:
+## Background
 
 This is a very simple and minimalistic job queue (or deferred-task) system for CakePHP.
 It is mainly **for demo purposes** on how queues work and doesn't have any dependencies.
@@ -43,6 +43,9 @@ you should seriously consider using a more advanced system for high volume/high 
 ## Installation and Usage
 See [Documentation](docs).
 
+## Limitation
+If you want to use multiple workers, please use only one per type.
+Currently it would otherwise risk the jobs being run multiple times!
 
 ## History
 
