@@ -132,7 +132,7 @@ foreach ($records as $i => $record) {
 	$this->processImageRendering($record);
 	$this->QueuedJobs->updateProgress($id, ($i + 1) / $totalRecords);
 }
-
+ 
 // Get progress status in web site
 $job = $this->QueuedJobs->get($id);
 $progress = $job->progress; // A float from 0 to 1
