@@ -132,11 +132,11 @@ foreach ($records as $i => $record) {
 	$this->processImageRendering($record);
 	$this->QueuedJobs->updateProgress($id, ($i + 1) / $totalRecords);
 }
-
-// Get status in web site
+ 
+// Get progress status in web site
 $job = $this->QueuedJobs->get($id);
-$status = $job->status; // A float from 0 to 1
-echo number_format($status * 100, 0) . '%'; // Outputs 87% for example
+$progress = $job->progress; // A float from 0 to 1
+echo number_format($progress * 100, 0) . '%'; // Outputs 87% for example
 ```
 
 
@@ -289,10 +289,10 @@ Manually killing workers can be done using `kill -15 PID`. Replace PID with the 
 To find out what queue processes are currently running, use
 
     ps aux | grep php
-    
+
 Then you can kill them gracefully with `-15` (or forcefully with `-9`, not recommended).
 
-Locally, if you want to kill them all, usually `killapp -15 php` does the trick. 
+Locally, if you want to kill them all, usually `killapp -15 php` does the trick.
 Do not run this with production ones, though.
 
 ## Contributing
