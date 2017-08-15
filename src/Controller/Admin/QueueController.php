@@ -112,9 +112,7 @@ class QueueController extends AppController {
 		$this->QueuedJobs->truncate();
 
 		$message = __d('queue', 'OK');
-		$class = 'success';
-
-		$this->Flash->message($message, $class);
+		$this->Flash->success($message);
 
 		return $this->redirect(['action' => 'index']);
 	}

@@ -18,7 +18,7 @@
 		}
 	],
 	"require": {
-		"cakephp/cakephp": "^3.2",
+		"cakephp/cakephp": "^3.4",
 		"php": ">=5.5"
 	},
 	"require-dev": {
