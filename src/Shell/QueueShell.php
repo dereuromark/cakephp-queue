@@ -211,7 +211,7 @@ TEXT;
 	 * @return void
 	 */
 	protected function _logError($message) {
-		Log::write('error', $message, ['scope' => 'queue']);
+		Log::write('error', $message);
 	}
 
 	/**

@@ -96,7 +96,7 @@ class QueueEmailTask extends QueueTask {
 
 				$error = $e->getMessage();
 				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
-				Log::write('email_error', $error);
+				Log::write('error', $error);
 
 				return false;
 			}
