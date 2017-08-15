@@ -142,13 +142,16 @@ TEXT;
 			set_time_limit(0);
 
 			$this->_updatePid($pid);
-			$this->_log('runworker', $pid);
+			if ($this->param('verbose')) {
+				$this->_log('runworker', $pid);
+			}
 			$this->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
 
 			$queuedTask = $this->QueuedJobs->requestJob($this->_getTaskConf(), $group);
 
 			if ($queuedTask) {
 				$this->out('Running Job of type "' . $queuedTask['job_type'] . '"');
+				$this->_log('job ' . $queuedTask['job_type'], $pid);
 				$taskname = 'Queue' . $queuedTask['job_type'];
 
 				try {
@@ -197,6 +200,10 @@ TEXT;
 		}
 
 		$this->_deletePid($pid);
+
+		if ($this->param('verbose')) {
+			$this->_log('endworker', $pid);
+		}
 	}
 
 	/**
@@ -204,10 +211,6 @@ TEXT;
 	 * @return void
 	 */
 	protected function _logError($message) {
-		if (!Configure::read('Queue.log')) {
-			return;
-		}
-
 		Log::write('error', $message, ['scope' => 'queue']);
 	}
 
@@ -421,27 +424,8 @@ TEXT;
 			return;
 		}
 
-		$folder = LOGS . 'queue';
-		if (!file_exists($folder)) {
-			mkdir($folder, 0755, true);
-		}
-
 		$message = $type . ' ' . $pid;
 		Log::write('info', $message, ['scope' => 'queue']);
-	}
-
-	/**
-	 * Timestamped notification.
-	 *
-	 * @return void
-	 */
-	protected function _notify() {
-		# log?
-		if (Configure::read('Queue.notify')) {
-			$folder = TMP;
-			$file = $folder . 'queue_notification' . '.txt';
-			touch($file);
-		}
 	}
 
 	/**
