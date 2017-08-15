@@ -35,6 +35,8 @@ class QueueProcessesTableTest extends TestCase {
 		parent::setUp();
 		$config = TableRegistry::exists('QueueProcesses') ? [] : ['className' => QueueProcessesTable::class];
 		$this->QueueProcesses = TableRegistry::get('QueueProcesses', $config);
+		
+		$this->QueueProcesses->find()->first();
 	}
 
 	/**

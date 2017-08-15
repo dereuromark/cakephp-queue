@@ -98,9 +98,6 @@ class QueueProcessesTable extends Table {
 	 * @return void
 	 */
 	public function remove($pid) {
-		// Bugfix
-		$this->find()->first();
-
 		$this->deleteAll(['pid' => $pid]);
 	}
 
