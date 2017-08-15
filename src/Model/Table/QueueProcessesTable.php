@@ -98,6 +98,9 @@ class QueueProcessesTable extends Table {
 	 * @return void
 	 */
 	public function remove($pid) {
+		// Bugfix
+		$this->getConnection()->getDriver();
+
 		$this->deleteAll(['pid' => $pid]);
 	}
 
