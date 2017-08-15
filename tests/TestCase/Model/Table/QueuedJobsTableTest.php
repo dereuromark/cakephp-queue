@@ -29,6 +29,7 @@ class QueuedJobsTableTest extends TestCase {
 	 */
 	public $fixtures = [
 		'plugin.queue.QueuedJobs',
+		'plugin.queue.queue_processes'
 	];
 
 	/**
