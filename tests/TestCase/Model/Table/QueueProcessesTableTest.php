@@ -49,21 +49,36 @@ class QueueProcessesTableTest extends TestCase {
 	}
 
 	/**
-	 * Test initialize method
-	 *
 	 * @return void
 	 */
-	public function testInitialize() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAdd() {
+		$pid = '123';
+		$id = $this->QueueProcesses->add($pid);
+		$this->assertNotEmpty($id);
 	}
 
 	/**
-	 * Test validationDefault method
-	 *
 	 * @return void
 	 */
-	public function testValidationDefault() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testUpdate() {
+		$pid = '123';
+		$id = $this->QueueProcesses->add($pid);
+		$this->assertNotEmpty($id);
+
+		$this->QueueProcesses->update($pid);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testRemove() {
+		$pid = '123';
+		$queueProcess = $this->QueueProcesses->newEntity([
+			'pid' => $pid
+		]);
+		$this->QueueProcesses->saveOrFail($queueProcess);
+
+		$this->QueueProcesses->remove($pid);
 	}
 
 }
