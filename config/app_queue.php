@@ -28,8 +28,8 @@ return [
 		// instruct a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running)
 		'exitwhennothingtodo' => false,
 
-		// pid file path directory (by default goes to the app/tmp/queue folder)
-		'pidfilepath' => TMP . 'queue' . DS,
+		// false for DB, or deprecated string pid file path directory (by default goes to the app/tmp/queue folder)
+		'pidfilepath' => false, // Deprecated: TMP . 'queue' . DS,
 
 		// determine whether logging is enabled
 		'log' => true,

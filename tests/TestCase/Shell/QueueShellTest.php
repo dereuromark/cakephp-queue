@@ -62,14 +62,12 @@ class QueueShellTest extends TestCase {
 			'workermaxruntime' => 5,
 			'cleanuptimeout' => 10,
 			'exitwhennothingtodo' => false,
-			'pidfilepath' => TMP . 'queue' . DS,
+			'pidfilepath' => false, // TMP . 'queue' . DS,
 			'log' => false,
 		]);
 	}
 
 	/**
-	 * QueueShellTest::testObject()
-	 *
 	 * @return void
 	 */
 	public function testObject() {

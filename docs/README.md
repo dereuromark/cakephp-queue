@@ -72,6 +72,9 @@ return [
 You can also drop the configuration into an existing config file (recommended) that is already been loaded.
 The values above are the default settings which apply, when no configuration is found.
 
+Finally, make sure you allow the configured `pidfilepath` to be creatable and writable.
+Especially on deployment some `mkdir` command might be necessary.
+Set it to false to use the DB here instead, as well.
 
 ## Usage:
 

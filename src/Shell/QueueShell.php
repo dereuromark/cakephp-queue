@@ -3,15 +3,13 @@
 namespace Queue\Shell;
 
 use Cake\Console\Shell;
-use Cake\Core\App;
 use Cake\Core\Configure;
-use Cake\Core\Plugin;
-use Cake\Filesystem\Folder;
 use Cake\I18n\Number;
 use Cake\I18n\Time;
 use Cake\Log\Log;
 use Cake\Utility\Inflector;
 use Exception;
+use Queue\Queue\TaskFinder;
 
 declare(ticks = 1);
 
@@ -22,6 +20,7 @@ declare(ticks = 1);
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
+ * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
  */
 class QueueShell extends Shell {
 
@@ -46,32 +45,13 @@ class QueueShell extends Shell {
 	 * @return void
 	 */
 	public function initialize() {
-		$paths = App::path('Shell/Task');
-
-		foreach ($paths as $path) {
-			$Folder = new Folder($path);
-			$res = array_merge($this->tasks, $Folder->find('Queue.+\.php'));
-			foreach ($res as &$r) {
-				$r = basename($r, 'Task.php');
-			}
-			$this->tasks = $res;
-		}
-		$plugins = Plugin::loaded();
-		foreach ($plugins as $plugin) {
-			$pluginPaths = App::path('Shell/Task', $plugin);
-			foreach ($pluginPaths as $pluginPath) {
-				$Folder = new Folder($pluginPath);
-				$res = $Folder->find('Queue.+Task\.php');
-				foreach ($res as &$r) {
-					$r = $plugin . '.' . basename($r, 'Task.php');
-				}
-				$this->tasks = array_merge($this->tasks, $res);
-			}
-		}
+		$taskFinder = new TaskFinder();
+		$this->tasks = $taskFinder->allAppAndPluginTasks();
 
 		parent::initialize();
 
 		$this->QueuedJobs->initConfig();
+		$this->loadModel('Queue.QueueProcesses');
 	}
 
 	/**
@@ -142,31 +122,7 @@ TEXT;
 	 * @return void
 	 */
 	public function runworker() {
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-		if ($pidFilePath) {
-			if (!file_exists($pidFilePath)) {
-				mkdir($pidFilePath, 0755, true);
-			}
-			if (function_exists('posix_getpid')) {
-				$pid = posix_getpid();
-			} else {
-				$pid = $this->QueuedJobs->key();
-			}
-			# global file
-			$fp = fopen($pidFilePath . 'queue.pid', 'w');
-			fwrite($fp, $pid);
-			fclose($fp);
-			# specific pid file
-			if (function_exists('posix_getpid')) {
-				$pid = posix_getpid();
-			} else {
-				$pid = $this->QueuedJobs->key();
-			}
-			$pidFileName = 'queue_' . $pid . '.pid';
-			$fp = fopen($pidFilePath . $pidFileName, 'w');
-			fwrite($fp, $pid);
-			fclose($fp);
-		}
+		$pid = $this->_initPid();
 		// Enable Garbage Collector (PHP >= 5.3)
 		if (function_exists('gc_enable')) {
 			gc_enable();
@@ -184,13 +140,9 @@ TEXT;
 		while (!$this->_exit) {
 			// make sure accidental overriding isnt possible
 			set_time_limit(0);
-			if (!empty($pidFilePath)) {
-				touch($pidFilePath . 'queue.pid');
-			}
-			if (!empty($pidFileName)) {
-				touch($pidFilePath . $pidFileName);
-			}
-			$this->_log('runworker', isset($pid) ? $pid : null);
+
+			$this->_updatePid($pid);
+			$this->_log('runworker', $pid);
 			$this->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
 
 			$queuedTask = $this->QueuedJobs->requestJob($this->_getTaskConf(), $group);
@@ -244,11 +196,7 @@ TEXT;
 			$this->hr();
 		}
 
-		if (!empty($pid)) {
-			if (file_exists($pidFilePath . 'queue_' . $pid . '.pid')) {
-				unlink($pidFilePath . 'queue_' . $pid . '.pid');
-			}
-		}
+		$this->_deletePid($pid);
 	}
 
 	/**
@@ -256,9 +204,11 @@ TEXT;
 	 * @return void
 	 */
 	protected function _logError($message) {
-		if (Configure::read('Queue.log')) {
-			Log::write('error', $message);
+		if (!Configure::read('Queue.log')) {
+			return;
 		}
+
+		Log::write('error', $message, ['scope' => 'queue']);
 	}
 
 	/**
@@ -269,6 +219,7 @@ TEXT;
 	public function clean() {
 		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout')));
 		$this->QueuedJobs->cleanOldJobs();
+		$this->QueueProcesses->cleanKilledProcesses();
 	}
 
 	/**
@@ -404,11 +355,6 @@ TEXT;
 					'help' => 'Dry run the update, no jobs will actually be added.',
 					'boolean' => true
 				),
-				'log'=> array(
-					'short' => 'l',
-					'help' => 'Log all ouput to file log.txt in TMP dir'),
-					'boolean' => true
-				),
 				*/
 			],
 		];
@@ -471,17 +417,17 @@ TEXT;
 	 * @return void
 	 */
 	protected function _log($type, $pid = null) {
-		# log?
-		if (Configure::read('Queue.log')) {
-			$folder = LOGS . 'queue';
-			if (!file_exists($folder)) {
-				mkdir($folder, 0755, true);
-			}
-
-			$message = $type . ' ' . $pid;
-			// skip for now
-			//Log::write('queue', $message);
+		if (!Configure::read('Queue.log')) {
+			return;
 		}
+
+		$folder = LOGS . 'queue';
+		if (!file_exists($folder)) {
+			mkdir($folder, 0755, true);
+		}
+
+		$message = $type . ' ' . $pid;
+		Log::write('info', $message, ['scope' => 'queue']);
 	}
 
 	/**
@@ -544,15 +490,13 @@ TEXT;
 	 */
 	public function __destruct() {
 		$pidFilePath = Configure::read('Queue.pidfilepath');
+
+		$pid = $this->_retrievePid();
 		if (!$pidFilePath) {
+			$this->QueueProcesses->remove($pid);
 			return;
 		}
 
-		if (function_exists('posix_getpid')) {
-			$pid = posix_getpid();
-		} else {
-			$pid = $this->QueuedJobs->key();
-		}
 		$file = $pidFilePath . 'queue_' . $pid . '.pid';
 		if (file_exists($file)) {
 			unlink($file);
@@ -566,6 +510,89 @@ TEXT;
 		$this->out('Available Tasks:');
 		foreach ($this->taskNames as $loadedTask) {
 			$this->out("\t" . '* ' . $this->_taskName($loadedTask));
+		}
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function _initPid() {
+		$pidFilePath = Configure::read('Queue.pidfilepath');
+		if (!$pidFilePath) {
+			$pid = $this->_retrievePid();
+			$this->QueueProcesses->add($pid);
+
+			return $pid;
+		}
+
+		// Deprecated
+		if (!file_exists($pidFilePath)) {
+			mkdir($pidFilePath, 0755, true);
+		}
+		$pid = $this->_retrievePid();
+		# global file
+		$fp = fopen($pidFilePath . 'queue.pid', 'w');
+		fwrite($fp, $pid);
+		fclose($fp);
+		# specific pid file
+		$pidFileName = 'queue_' . $pid . '.pid';
+		$fp = fopen($pidFilePath . $pidFileName, 'w');
+		fwrite($fp, $pid);
+		fclose($fp);
+
+		return $pid;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function _retrievePid() {
+		if (function_exists('posix_getpid')) {
+			$pid = (string)posix_getpid();
+		} else {
+			$pid = $this->QueuedJobs->key();
+		}
+
+		return $pid;
+	}
+
+	/**
+	 * @param string $pid
+	 *
+	 * @return void
+	 */
+	protected function _updatePid($pid) {
+		$pidFilePath = Configure::read('Queue.pidfilepath');
+		if (!$pidFilePath) {
+			$this->QueueProcesses->update($pid);
+			return;
+		}
+
+		// Deprecated
+		$pidFileName = 'queue_' . $pid . '.pid';
+		if (!empty($pidFilePath)) {
+			touch($pidFilePath . 'queue.pid');
+		}
+		if (!empty($pidFileName)) {
+			touch($pidFilePath . $pidFileName);
+		}
+	}
+
+	/**
+	 * @param string $pid
+	 *
+	 * @return void
+	 */
+	protected function _deletePid($pid) {
+		$pidFilePath = Configure::read('Queue.pidfilepath');
+		if (!$pidFilePath) {
+			$this->QueueProcesses->remove($pid);
+			return;
+		}
+
+		// Deprecated
+		if (file_exists($pidFilePath . 'queue_' . $pid . '.pid')) {
+			unlink($pidFilePath . 'queue_' . $pid . '.pid');
 		}
 	}
 

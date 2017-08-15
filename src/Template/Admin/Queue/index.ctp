@@ -31,12 +31,18 @@ n/a
 foreach ($pendingDetails as $item) {
 	echo '<li>' . $item['job_type'] . ' (' . $item['reference'] . '):';
 	echo '<ul>';
-		echo '<li>Created: ' . $item['created'] . '</li>';
-		echo '<li>Fetched: ' . $item['fetched'] . '</li>';
-		echo '<li>Status: ' . $item['status'] . '</li>';
-		echo '<li>Progress: ' . $this->Number->toPercentage($item['progress']) . '</li>';
-		echo '<li>Failures: ' . $item['failed'] . '</li>';
-		echo '<li>Failure Message: ' . $item['failure_message'] . '</li>';
+
+	$reset = '';
+	if ($item['failed']) {
+		$reset = ' ' . $this->Form->postLink('Soft reset', ['action' => 'resetJob', $item['id']], ['confirm' => 'Sure?']);
+	}
+
+	echo '<li>Created: ' . $item['created'] . '</li>';
+	echo '<li>Fetched: ' . $item['fetched'] . '</li>';
+	echo '<li>Status: ' . $item['status'] . '</li>';
+	echo '<li>Progress: ' . $this->Number->toPercentage($item['progress'] * 100, 0) . '</li>';
+	echo '<li>Failures: ' . $item['failed'] . $reset . '</li>';
+	echo '<li>Failure Message: ' . $item['failure_message'] . '</li>';
 	echo '</ul>';
 	echo '</li>';
 }
@@ -80,6 +86,25 @@ if (empty($data)) {
 
 ?>
 </ul>
+
+	<h3>Trigger Test/Demo Jobs</h3>
+	<ul>
+		<?php
+		foreach ($tasks as $task) {
+			if (substr($task, 0, 11) !== 'Queue.Queue') {
+				continue;
+			}
+			if ($task === 'Queue.QueueExecute') {
+				continue;
+			}
+
+			echo '<li>';
+			echo $this->Form->postLink($task, ['action' => 'addJob', substr($task, 11)], ['confirm' => 'Sure?']);
+			echo '</li>';
+		}
+		?>
+
+	</ul>
 </div>
 
 <div class="actions">

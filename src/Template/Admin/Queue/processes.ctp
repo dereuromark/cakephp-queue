@@ -16,7 +16,7 @@ foreach ($processes as $process => $timestamp) {
 	echo '<li>' . $process . ':';
 	echo '<ul>';
 		echo '<li>Last run: ' . (new Time($timestamp)) . '</li>';
-		echo '<li>Kill: ' . $this->Form->postLink('Kill', ['action' => 'processes', '?' => ['kill' => $process]], ['confirm' => 'Sure?']) . '</li>';
+		echo '<li>Kill: ' . $this->Form->postLink('Soft kill', ['action' => 'processes', '?' => ['kill' => $process]], ['confirm' => 'Sure?']) . ' (next loop run)</li>';
 	echo '</ul>';
 	echo '</li>';
 }

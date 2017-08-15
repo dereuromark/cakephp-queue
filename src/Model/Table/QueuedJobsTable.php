@@ -5,6 +5,7 @@ namespace Queue\Model\Table;
 use Cake\Core\Configure;
 use Cake\I18n\Time;
 use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
 use Exception;
 use Queue\Model\Entity\QueuedJob;
 use RecursiveDirectoryIterator;
@@ -132,7 +133,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * Return a list of all job types in the Queue.
 	 *
-	 * @return array
+	 * @return \Cake\ORM\Query
 	 */
 	public function getTypes() {
 		$findCond = [
@@ -152,11 +153,12 @@ class QueuedJobsTable extends Table {
 	 * Return some statistics about finished jobs still in the Database.
 	 * TO-DO: rewrite as virtual field
 	 *
-	 * @return array
+	 * @return \Cake\ORM\Query
 	 */
 	public function getStats() {
 		$options = [
 			'fields' => function ($query) {
+			/* @var \Cake\ORM\Query $query */
 				return [
 					'job_type',
 					'num' => $query->func()->count('*'),
@@ -235,9 +237,9 @@ class QueuedJobsTable extends Table {
 			$options['conditions']['OR'][] = $tmp;
 		}
 
-		$job = $this->connection()->transactional(function () use ($query, $options, $now) {
+		$job = $this->getConnection()->transactional(function () use ($query, $options, $now) {
 			$job = $query->find('all', $options)
-				->autoFields(true)
+				->enableAutoFields(true)
 				->first();
 
 			if (!$job) {
@@ -250,7 +252,7 @@ class QueuedJobsTable extends Table {
 				'fetched' => $now
 			]);
 
-			return $this->save($job);
+			return $this->saveOrFail($job);
 		});
 
 		if (!$job) {
@@ -309,9 +311,11 @@ class QueuedJobsTable extends Table {
 	/**
 	 * Reset current jobs
 	 *
+	 * @param int|null $id
+	 *
 	 * @return bool Success
 	 */
-	public function reset() {
+	public function reset($id = null) {
 		$fields = [
 			'completed' => null,
 			'fetched' => null,
@@ -323,6 +327,10 @@ class QueuedJobsTable extends Table {
 		$conditions = [
 			'completed IS' => null,
 		];
+		if ($id) {
+			$conditions['id'] = $id;
+		}
+
 		return $this->updateAll($fields, $conditions);
 	}
 
@@ -334,6 +342,7 @@ class QueuedJobsTable extends Table {
 	public function getPendingStats() {
 		$findCond = [
 			'fields' => [
+				'id',
 				'job_type',
 				'created',
 				'status',
@@ -382,27 +391,12 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * @deprecated ?
-	 * @return array
-	 */
-	public function lastRun() {
-		$workerFileLog = LOGS . 'queue' . DS . 'runworker.txt';
-		if (file_exists($workerFileLog)) {
-			$worker = file_get_contents($workerFileLog);
-		}
-		return [
-			'worker' => isset($worker) ? $worker : '',
-			'queue' => $this->field('completed', ['completed IS NOT' => null], ['completed' => 'DESC']),
-		];
-	}
-
-	/**
 	 * Custom find method, as in `find('progress', ...)`.
 	 *
 	 * @param string $state Current state
 	 * @param array $query Parameters
 	 * @param array $results Results
-	 * @return array         Query/Results based on state
+	 * @return array Query/Results based on state
 	 */
 	protected function _findProgress($state, $query = [], $results = []) {
 		if ($state === 'before') {
@@ -508,8 +502,13 @@ class QueuedJobsTable extends Table {
 	 * @return array
 	 */
 	public function getProcesses() {
-		if (!($pidFilePath = Configure::read('Queue.pidfilepath'))) {
-			return [];
+		$pidFilePath = Configure::read('Queue.pidfilepath');
+		if (!$pidFilePath) {
+			/* @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
+			$QueueProcesses = TableRegistry::get('Queue.QueueProcesses');
+			$processes = $QueueProcesses->findActive()->hydrate(false)->find('list', ['keyField' => 'pid', 'valueField' => 'modified'])->all()->toArray();
+
+			return $processes;
 		}
 
 		$processes = [];
@@ -523,18 +522,31 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * Note this does not work from the web backend to kill CLI workers.
+	 * We might need to run some exec() kill command here instead.
+	 *
 	 * @param int $pid
 	 * @param int $sig Signal (defaults to graceful SIGTERM = 15)
 	 * @return void
 	 */
 	public function terminateProcess($pid, $sig = SIGTERM) {
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-		if (!$pidFilePath || !$pid) {
+		if (!$pid) {
 			return;
 		}
 
+		$pidFilePath = Configure::read('Queue.pidfilepath');
+
 		posix_kill($pid, $sig);
+		exec('kill -' . $sig . ' ' . $pid);
 		sleep(1);
+
+		if (!$pidFilePath) {
+			$QueueProcesses = TableRegistry::get('Queue.QueueProcesses');
+			$QueueProcesses->deleteAll(['pid' => $pid]);
+			return;
+		}
+
+		// Deprecated file system
 		$file = $pidFilePath . 'queue_' . $pid . '.pid';
 		if (file_exists($file)) {
 			unlink($file);
