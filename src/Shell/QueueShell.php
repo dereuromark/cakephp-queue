@@ -470,24 +470,6 @@ TEXT;
 	}
 
 	/**
-	 * Destructor, removes pid-file
-	 */
-	public function __destruct() {
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-
-		$pid = $this->_retrievePid();
-		if (!$pidFilePath) {
-			$this->QueueProcesses->remove($pid);
-			return;
-		}
-
-		$file = $pidFilePath . 'queue_' . $pid . '.pid';
-		if (file_exists($file)) {
-			unlink($file);
-		}
-	}
-
-	/**
 	 * @return void
 	 */
 	protected function _displayAvailableTasks() {

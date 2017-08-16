@@ -12,13 +12,6 @@ use Queue\Mailer\Transport\QueueTransport;
 class QueueTransportTest extends TestCase {
 
 	/**
-	 * @var array
-	 */
-	public $fixtures = [
-		'plugin.Queue.QueuedJobs',
-	];
-
-	/**
 	 * @var \Queue\Mailer\Transport\QueueTransport
 	 */
 	protected $QueueTransport;
