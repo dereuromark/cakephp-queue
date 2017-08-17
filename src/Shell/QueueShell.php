@@ -4,6 +4,7 @@ namespace Queue\Shell;
 
 use Cake\Console\Shell;
 use Cake\Core\Configure;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\Number;
 use Cake\I18n\Time;
 use Cake\Log\Log;
@@ -141,7 +142,14 @@ TEXT;
 			// make sure accidental overriding isnt possible
 			set_time_limit(0);
 
-			$this->_updatePid($pid);
+			try {
+				$this->_updatePid($pid);
+			} catch (RecordNotFoundException $exception) {
+				// Manually killed, e.g. during deploy update
+				$this->_exit = true;
+				continue;
+			}
+
 			if ($this->param('verbose')) {
 				$this->_log('runworker', $pid);
 			}
