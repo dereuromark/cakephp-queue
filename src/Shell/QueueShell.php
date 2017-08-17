@@ -159,7 +159,7 @@ TEXT;
 
 			if ($queuedTask) {
 				$this->out('Running Job of type "' . $queuedTask['job_type'] . '"');
-				$this->_log('job ' . $queuedTask['job_type'], $pid);
+				$this->_log('job ' . $queuedTask['job_type'] . ', id ' . $queuedTask['id'], $pid);
 				$taskname = 'Queue' . $queuedTask['job_type'];
 
 				try {
@@ -432,7 +432,7 @@ TEXT;
 			return;
 		}
 
-		$message = $type . ' ' . $pid;
+		$message = $type . ' (pid ' . $pid . ')';
 		Log::write('info', $message, ['scope' => 'queue']);
 	}
 
