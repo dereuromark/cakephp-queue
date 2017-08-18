@@ -60,11 +60,11 @@ class QueueProgressExampleTask extends QueueTask {
 	 *
 	 * Defaults to 120 seconds
 	 *
-	 * @param array $data The array passed to QueuedTask->createJob()
-	 * @param int $id The id of the QueuedTask
+	 * @param array $data The array passed to QueuedJobsTable::createJob()
+	 * @param int $jobId The id of the QueuedJob entity
 	 * @return bool Success
 	 */
-	public function run(array $data, $id) {
+	public function run(array $data, $jobId) {
 		$this->hr();
 		$this->out('CakePHP Queue ProgressExample task.');
 		$seconds = !empty($data['duration']) ? (int)$data['duration'] : 2 * MINUTE;
@@ -72,9 +72,9 @@ class QueueProgressExampleTask extends QueueTask {
 		$this->out('A total of ' . $seconds . ' seconds need to pass...');
 		for ($i = 0; $i < $seconds; $i++) {
 			sleep(1);
-			$this->QueuedJobs->updateProgress($id, ($i + 1) / $seconds);
+			$this->QueuedJobs->updateProgress($jobId, ($i + 1) / $seconds);
 		}
-		$this->QueuedJobs->updateProgress($id, 1);
+		$this->QueuedJobs->updateProgress($jobId, 1);
 
 		$this->hr();
 		$this->out(' ->Success, the ProgressExample Job was run.<-');

@@ -60,11 +60,11 @@ class QueueExampleTask extends QueueTask {
 	 * This function is executed, when a worker is executing a task.
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
-	 * @param array $data The array passed to QueuedTask->createJob()
-	 * @param int|null $id The id of the QueuedTask
+	 * @param array $data The array passed to QueuedJobsTable::createJob()
+	 * @param int $jobId The id of the QueuedJob entity
 	 * @return bool Success
 	 */
-	public function run(array $data, $id) {
+	public function run(array $data, $jobId) {
 		$this->hr();
 		$this->out('CakePHP Queue Example task.');
 		$this->hr();

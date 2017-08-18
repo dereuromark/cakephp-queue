@@ -62,11 +62,12 @@ class QueueEmailTask extends QueueTask {
 	}
 
 	/**
-	 * @param mixed $data Job data
-	 * @param int|null $id The id of the QueuedTask
+	 * @param array $data The array passed to QueuedJobsTable::createJob()
+	 * @param int $jobId The id of the QueuedJob entity
 	 * @return bool Success
+	 * @throws \Exception
 	 */
-	public function run(array $data, $id) {
+	public function run(array $data, $jobId) {
 		if (!isset($data['settings'])) {
 			$this->err('Queue Email task called without settings data.');
 			return false;
