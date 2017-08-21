@@ -240,6 +240,7 @@ class QueuedJobsTable extends Table {
 		$job = $this->getConnection()->transactional(function () use ($query, $options, $now) {
 			$job = $query->find('all', $options)
 				->enableAutoFields(true)
+				->epilog('FOR UPDATE')
 				->first();
 
 			if (!$job) {
