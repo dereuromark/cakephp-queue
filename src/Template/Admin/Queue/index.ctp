@@ -37,8 +37,8 @@ foreach ($pendingDetails as $item) {
 		$reset = ' ' . $this->Form->postLink('Soft reset', ['action' => 'resetJob', $item['id']], ['confirm' => 'Sure?']);
 	}
 
-	echo '<li>Created: ' . $item['created'] . '</li>';
-	echo '<li>Fetched: ' . $item['fetched'] . '</li>';
+	echo '<li>Created: ' . $this->Time->nice($item['created']) . '</li>';
+	echo '<li>Fetched: ' . $this->Time->nice($item['fetched']) . '</li>';
 	echo '<li>Status: ' . $item['status'] . '</li>';
 	echo '<li>Progress: ' . $this->Number->toPercentage($item['progress'] * 100, 0) . '</li>';
 	echo '<li>Failures: ' . $item['failed'] . $reset . '</li>';
