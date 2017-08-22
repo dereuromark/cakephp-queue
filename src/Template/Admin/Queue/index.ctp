@@ -42,7 +42,7 @@ foreach ($pendingDetails as $item) {
 	echo '<li>Status: ' . $item['status'] . '</li>';
 	echo '<li>Progress: ' . $this->Number->toPercentage($item['progress'] * 100, 0) . '</li>';
 	echo '<li>Failures: ' . $item['failed'] . $reset . '</li>';
-	echo '<li>Failure Message: ' . $item['failure_message'] . '</li>';
+	echo '<li>Failure Message: ' . h($item['failure_message']) . '</li>';
 	echo '</ul>';
 	echo '</li>';
 }
