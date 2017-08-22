@@ -185,6 +185,7 @@ TEXT;
 					$this->out('Job Finished.');
 				} else {
 					$this->QueuedJobs->markJobFailed($queuedTask, $failureMessage);
+					$this->_log('job ' . $queuedTask['job_type'] . ', id ' . $queuedTask['id'] . ' failed and requeued', $pid);
 					$this->out('Job did not finish, requeued.');
 				}
 			} elseif (Configure::read('Queue.exitwhennothingtodo')) {
