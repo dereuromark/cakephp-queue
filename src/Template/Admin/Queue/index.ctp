@@ -35,6 +35,7 @@ foreach ($pendingDetails as $item) {
 	$reset = '';
 	if ($item['failed']) {
 		$reset = ' ' . $this->Form->postLink('Soft reset', ['action' => 'resetJob', $item['id']], ['confirm' => 'Sure?']);
+		$reset .= ' ' . $this->Form->postLink('Remove', ['action' => 'removeJob', $item['id']], ['confirm' => 'Sure?']);
 	}
 
 	echo '<li>Created: ' . $this->Time->nice($item['created']) . '</li>';
