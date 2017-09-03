@@ -35,14 +35,15 @@ foreach ($pendingDetails as $item) {
 	$reset = '';
 	if ($item['failed']) {
 		$reset = ' ' . $this->Form->postLink('Soft reset', ['action' => 'resetJob', $item['id']], ['confirm' => 'Sure?']);
+		$reset .= ' ' . $this->Form->postLink('Remove', ['action' => 'removeJob', $item['id']], ['confirm' => 'Sure?']);
 	}
 
-	echo '<li>Created: ' . $item['created'] . '</li>';
-	echo '<li>Fetched: ' . $item['fetched'] . '</li>';
+	echo '<li>Created: ' . $this->Time->nice($item['created']) . '</li>';
+	echo '<li>Fetched: ' . $this->Time->nice($item['fetched']) . '</li>';
 	echo '<li>Status: ' . $item['status'] . '</li>';
 	echo '<li>Progress: ' . $this->Number->toPercentage($item['progress'] * 100, 0) . '</li>';
 	echo '<li>Failures: ' . $item['failed'] . $reset . '</li>';
-	echo '<li>Failure Message: ' . $item['failure_message'] . '</li>';
+	echo '<li>Failure Message: ' . h($item['failure_message']) . '</li>';
 	echo '</ul>';
 	echo '</li>';
 }

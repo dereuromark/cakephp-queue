@@ -80,7 +80,24 @@ class QueueController extends AppController {
 
 		$this->QueuedJobs->reset($id);
 
-		$this->Flash->success('Job # ' . $id . ' added');
+		$this->Flash->success('Job # ' . $id . ' re-added');
+
+		return $this->redirect(['action' => 'index']);
+	}
+
+	/**
+	 * @param string|null $id
+	 *
+	 * @return \Cake\Http\Response
+	 */
+	public function removeJob($id = null) {
+		if (!$id) {
+			throw new NotFoundException();
+		}
+
+		$this->QueuedJobs->delete($id);
+
+		$this->Flash->success('Job # ' . $id . ' deleted');
 
 		return $this->redirect(['action' => 'index']);
 	}
