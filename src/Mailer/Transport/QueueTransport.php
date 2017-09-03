@@ -31,7 +31,7 @@ class QueueTransport extends AbstractTransport {
 		$transport = $this->_config['transport'];
 		$email->transport($transport);
 
-		/* @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
 		$QueuedJobs = TableRegistry::get('Queue.QueuedJobs');
 		$result = $QueuedJobs->createJob('Email', ['transport' => $transport, 'settings' => $email]);
 		$result['headers'] = '';

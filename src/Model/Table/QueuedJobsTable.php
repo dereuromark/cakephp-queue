@@ -158,7 +158,9 @@ class QueuedJobsTable extends Table {
 	public function getStats() {
 		$options = [
 			'fields' => function ($query) {
-			/* @var \Cake\ORM\Query $query */
+					/**
+						 * @var \Cake\ORM\Query
+						 */
 				return [
 					'job_type',
 					'num' => $query->func()->count('*'),
@@ -505,7 +507,7 @@ class QueuedJobsTable extends Table {
 	public function getProcesses() {
 		$pidFilePath = Configure::read('Queue.pidfilepath');
 		if (!$pidFilePath) {
-			/* @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
+			/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 			$QueueProcesses = TableRegistry::get('Queue.QueueProcesses');
 			$processes = $QueueProcesses->findActive()->hydrate(false)->find('list', ['keyField' => 'pid', 'valueField' => 'modified'])->all()->toArray();
 

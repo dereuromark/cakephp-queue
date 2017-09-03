@@ -164,7 +164,7 @@ TEXT;
 
 				try {
 					$data = json_decode($queuedTask['data'], true);
-					/* @var \Queue\Shell\Task\QueueTask $task */
+					/** @var \Queue\Shell\Task\QueueTask $task */
 					$task = $this->{$taskname};
 					$return = $task->run((array)$data, $queuedTask['id']);
 

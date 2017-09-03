@@ -158,7 +158,7 @@ class QueueController extends AppController {
 
 			$count = count($results);
 			$record = array_shift($results);
-			/* @var \Cake\I18n\FrozenTime $time */
+			/** @var \Cake\I18n\FrozenTime $time */
 			$time = $record['modified'];
 
 			return [
