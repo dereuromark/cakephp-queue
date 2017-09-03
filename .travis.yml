@@ -9,7 +9,7 @@ php:
 
 env:
   matrix:
-    - DB=mysql db_class='Cake\Database\Driver\Mysql' db_dsn='mysql:host=0.0.0.0;dbname=cakephp_test' db_database='cakephp_test' db_username='travis' db_password=''
+    - DB=mysql db_dsn='mysql://root@127.0.0.1/cakephp_test'
   global:
     - DEFAULT=1
 
@@ -33,7 +33,7 @@ before_script:
 
   - if [[ $PHPCS != 1 ]]; then composer require phpunit/phpunit:"^4.8|^5.7|^6.0"; fi
 
-  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'CREATE DATABASE cakephp_test;'; fi"
+  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -u root -e 'CREATE DATABASE cakephp_test;'; fi"
   - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'CREATE DATABASE cakephp_test;' -U postgres; fi"
 
   - phpenv rehash
