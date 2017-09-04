@@ -91,11 +91,9 @@ class QueueController extends AppController {
 	 * @return \Cake\Http\Response
 	 */
 	public function removeJob($id = null) {
-		if (!$id) {
-			throw new NotFoundException();
-		}
+		$queuedJob = $this->QueuedJobs->get($id);
 
-		$this->QueuedJobs->delete($id);
+		$this->QueuedJobs->delete($queuedJob);
 
 		$this->Flash->success('Job # ' . $id . ' deleted');
 
