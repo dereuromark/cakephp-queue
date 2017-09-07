@@ -46,32 +46,3 @@ See [Documentation](docs).
 ## Limitation
 If you want to use multiple workers, please use only one per type.
 Currently it would otherwise risk the jobs being run multiple times!
-
-## History
-
-### Recent Improvements
-- QueuedJobs table instead of QueuedTasks (Tasks are the implementing classes only)
-- json_encode/decode instead of serialize
-- Priority for jobs
-- Transactions on getting a new job if supported from the database
-- Code improvements, stricter typehinting
-
-### And...
-
-A huge thx to Max ([Dee-Fuse](https://github.com/Dee-Fuse)) for making the 3.x upgrade complete!
-
-Modified by David Yell ([davidyell](https://github.com/davidyell))
-- Basic CakePHP 3.x support
-
-Modified by Mark Scherer ([dereuromark](https://github.com/dereuromark))
-- CakePHP 2.x support
-- Some minor fixes
-- Added crontasks (as a different approach on specific problems)
-- Possible (optional) Tools Plugin dependencies for frontend access via /admin/queue
-- Config key "queue" is now "Queue" ($config['Queue'][...])
-
-Added by Christian Charukiewicz ([charukiewicz](https://github.com/charukiewicz)):
-- Configuration option 'gcprop' is now 'gcprob'
-- Fixed typo in README and variable name (Propability -> Probability)
-- Added a few lines about createJob() usage to README
-- Added comments to queue.php explaining configuration options
