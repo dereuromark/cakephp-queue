@@ -44,5 +44,5 @@ you should seriously consider using a more advanced system for high volume/high 
 See [Documentation](docs).
 
 ## Limitation
-If you want to use multiple workers, please use only one per type.
+If you want to use multiple workers, please use only one per type or double check that all jobs have a high enough timeout (>> 2x max possible execution time of a job).
 Currently it would otherwise risk the jobs being run multiple times!
