@@ -24,10 +24,12 @@
 	"require-dev": {
 		"cakephp/migrations": "^1.0",
 		"dereuromark/cakephp-tools": "^1.2",
+		"dereuromark/cakephp-ide-helper": "@stable",
 		"fig-r/psr2r-sniffer": "dev-master"
 	},
 	"suggest": {
-		"dereuromark/cakephp-tools": "For the Email lib and QueueEmailTask. Or write your own task here. Also for admin backend."
+		"dereuromark/cakephp-tools": "For the Email lib and QueueEmailTask. Or write your own task here. Also for admin backend.",
+		"dereuromark/cakephp-ide-helper": "For maximum IDE support, especially around createJob() usage."
 	},
 	"support": {
 		"source": "https://github.com/dereuromark/cakephp-queue"
