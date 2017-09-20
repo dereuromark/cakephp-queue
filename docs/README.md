@@ -318,6 +318,27 @@ Then you can kill them gracefully with `-15` (or forcefully with `-9`, not recom
 Locally, if you want to kill them all, usually `killapp -15 php` does the trick.
 Do not run this with production ones, though.
 
+## IDE support
+With [IdeHelper](https://github.com/dereuromark/cakephp-ide-helper/) plugin you can get typehinting and autocomplete for your createJob() calls.
+Especially if you use PHPStorm, this will make it possible to get support here.
+
+Include that plugin, set up your generator config and run e.g. `bin/cake phpstorm generate`.
+
+If you use `Plugin::load('Queue', ['bootstrap' => true, ...])`, the necessary config is already auto-included (recommended).
+Otherwise you can manually include the Queue plugin generator tasks in your `config/app.php` on project level:
+```php
+use Queue\Generator\Task\QueuedJobTask;
+
+return [
+	...
+	'IdeHelper' => [
+		'generatorTasks' => [
+			QueuedJobTask::class
+		],
+	],
+];
+```
+
 ## Contributing
 I am looking forward to your contributions.
 
