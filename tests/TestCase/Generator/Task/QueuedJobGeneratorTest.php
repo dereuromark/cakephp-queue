@@ -8,7 +8,7 @@ use Queue\Generator\Task\QueuedJobTask;
 class QueuedJobGeneratorTest extends TestCase {
 
 	/**
-	 * @var QueuedJobTask
+	 * @var \Queue\Generator\Task\QueuedJobTask
 	 */
 	protected $task;
 
