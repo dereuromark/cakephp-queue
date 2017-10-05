@@ -98,17 +98,17 @@ Run the following using the CakePHP shell:
 
 * Display Help message:
 
-        bin/cake queue
+        bin/cake Queue.queue
 
 * Try to call the cli add() function on a task:
 
-        bin/cake queue add <TaskName>
+        bin/cake Queue.queue add <TaskName>
 
     Tasks may or may not provide this functionality.
 
 * Run a queue worker, which will look for a pending task it can execute:
 
-        bin/cake queue runworker
+        bin/cake Queue.queue runworker
 
     The worker will always try to find jobs matching its installed Tasks.
 
@@ -187,7 +187,7 @@ You can disable info logging by setting `Queue.log` to `false` in your config.
 
 `<TaskName>` may either be the complete classname (eg. QueueExample) or the shorthand without the leading "Queue" (e.g. Example).
 
-Also note that you dont need to add the type ("Task"): `bin/cake queue add SpecialExample` for QueueSpecialExampleTask.
+Also note that you dont need to add the type ("Task"): `bin/cake Queue.queue add SpecialExample` for QueueSpecialExampleTask.
 
 Custom tasks should be placed in src/Shell/Task.
 Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact. Custom tasks should extend the `QueueTask` class (you will need to include this at the top of your custom task file: `use Queue\Shell\Task\QueueTask;`).
@@ -206,7 +206,7 @@ to start a new worker.
 
 The following example uses "crontab":
 
-    */10  *  *  *  *  cd /full/path/to/app && bin/cake queue runworker -q
+    */10  *  *  *  *  cd /full/path/to/app && bin/cake Queue.queue runworker -q
 
 Make sure you use `crontab -e -u www-data` to set it up as `www-data` user, and not as root etc.
 
