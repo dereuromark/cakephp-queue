@@ -318,6 +318,12 @@ Then you can kill them gracefully with `-15` (or forcefully with `-9`, not recom
 Locally, if you want to kill them all, usually `killapp -15 php` does the trick.
 Do not run this with production ones, though.
 
+### Known Limitations
+
+#### Concurrent workers may execute the same job multiple times
+
+If you want to use multiple workers, please use only one per type or double check that all jobs have a high enough timeout (>> 2x max possible execution time of a job). Currently it would otherwise risk the jobs being run multiple times!
+
 ## IDE support
 With [IdeHelper](https://github.com/dereuromark/cakephp-ide-helper/) plugin you can get typehinting and autocomplete for your createJob() calls.
 Especially if you use PHPStorm, this will make it possible to get support here.
