@@ -119,7 +119,7 @@ TableRegistry::get('Queue.QueuedJobs')->createJob('Email',
 
 It will use your custom APP `QueueEmailTask` to send out emails via CLI.
 
-Important: Do not forget to set your [domain](http://book.cakephp.org/2.0/en/core-utility-libraries/email.html#sending-emails-from-cli) when sending from CLI.
+Important: Do not forget to set your [domain](https://book.cakephp.org/3.0/en/core-libraries/email.html#sending-emails-from-cli) when sending from CLI.
 
 ### Updating status
 The createJob() method returns the entity. So you can store the ID and at any time ask the queue about the status of this job.
