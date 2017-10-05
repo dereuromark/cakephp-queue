@@ -20,6 +20,7 @@ Run the following command in the CakePHP console to create the tables using the 
 bin/cake Migrations migrate -p Queue
 ```
 
+
 ## Configuration
 
 The plugin allows some simple runtime configuration.
@@ -27,33 +28,47 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 
 - Seconds to sleep() when no executable job is found:
 
-		$config['Queue']['sleeptime'] = 10;
+    ```php
+    $config['Queue']['sleeptime'] = 10;
+    ```
 
 - Probability in percent of an old job cleanup happening:
 
-		$config['Queue']['gcprob'] = 10;
+    ```php
+    $config['Queue']['gcprob'] = 10;
+    ```
 
 - Default timeout after which a job is requeued if the worker doesn't report back:
 
-		$config['Queue']['defaultworkertimeout'] = 3600;
+    ```php
+    $config['Queue']['defaultworkertimeout'] = 3600;
+    ```
 
 - Default number of retries if a job fails or times out:
 
-		$config['Queue']['defaultworkerretries'] = 3;
+    ```php
+    $config['Queue']['defaultworkerretries'] = 3;
+    ```
 
 - Seconds of running time after which the worker will terminate (0 = unlimited):
 
-		$config['Queue']['workermaxruntime'] = 60;
+    ```php
+    $config['Queue']['workermaxruntime'] = 60;
+    ```
 
-	Warning: Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle.
+    Warning: Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle.
 
 - Should a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running):
 
-		$config['Queue']['exitwhennothingtodo'] = false;
+    ```php
+    $config['Queue']['exitwhennothingtodo'] = false;
+    ```
 
 - Minimum number of seconds before a cleanup run will remove a completed task; defaults to 0 for the Queue worker, or 2592000 for the Cron worker:
 
-		$config['Queue']['cleanuptimeout'] = 2592000; // 30 days
+    ```php
+    $config['Queue']['cleanuptimeout'] = 2592000; // 30 days
+    ```
 
 Don't forget to load that config file with `Configure::load('app_queue');` in your bootstrap.
 You can also use `Plugin::load('Queue', ['bootstrap' => true]);` which will load your `app_queue.php` config file automatically.
@@ -62,10 +77,10 @@ Example `app_queue.php`:
 
 ```php
 return [
-	'Queue' => [
-		'workermaxruntime' => 60,
-		'sleeptime' => 15,
-	],
+    'Queue' => [
+        'workermaxruntime' => 60,
+        'sleeptime' => 15,
+    ],
 ];
 ```
 
@@ -76,25 +91,26 @@ Finally, make sure you allow the configured `pidfilepath` to be creatable and wr
 Especially on deployment some `mkdir` command might be necessary.
 Set it to false to use the DB here instead, as well.
 
+
 ## Usage
 
 Run the following using the CakePHP shell:
 
 * Display Help message:
 
-		bin/cake queue
+        bin/cake queue
 
 * Try to call the cli add() function on a task:
 
-		bin/cake queue add <TaskName>
+        bin/cake queue add <TaskName>
 
-	Tasks may or may not provide this functionality.
+    Tasks may or may not provide this functionality.
 
 * Run a queue worker, which will look for a pending task it can execute:
 
-		bin/cake queue runworker
+        bin/cake queue runworker
 
-	The worker will always try to find jobs matching its installed Tasks.
+    The worker will always try to find jobs matching its installed Tasks.
 
 
 Some tasks will not be triggered from the console, but from the APP code.
@@ -114,17 +130,20 @@ $this->QueuedJobs->createJob('Email', ['to' => 'user@example.org', ...]);
 
 // Somewhere in the model or lib
 TableRegistry::get('Queue.QueuedJobs')->createJob('Email',
-	['to' => 'user@example.org', ...]);
+    ['to' => 'user@example.org', ...]);
 ```
 
 It will use your custom APP `QueueEmailTask` to send out emails via CLI.
 
 Important: Do not forget to set your [domain](https://book.cakephp.org/3.0/en/core-libraries/email.html#sending-emails-from-cli) when sending from CLI.
 
+
 ### Updating status
+
 The createJob() method returns the entity. So you can store the ID and at any time ask the queue about the status of this job.
+
 ```php
-// Inside your website
+// Within your regular web application
 $job = $this->QueuedJobs->createJob(...);
 $id = $job->id;
 // Store
@@ -132,8 +151,8 @@ $id = $job->id;
 // Inside your Queue task, if you know the total records:
 $totalRecords = count($records);
 foreach ($records as $i => $record) {
-	$this->processImageRendering($record);
-	$this->QueuedJobs->updateProgress($id, ($i + 1) / $totalRecords);
+    $this->processImageRendering($record);
+    $this->QueuedJobs->updateProgress($id, ($i + 1) / $totalRecords);
 }
 
 // Get progress status in web site
@@ -144,6 +163,7 @@ echo number_format($progress * 100, 0) . '%'; // Outputs 87% for example
 
 
 ### Logging
+
 By default errors are always logged, and with log enabled also the execution of a job.
 Make sure you add this to your config:
 ```php
@@ -164,6 +184,7 @@ You can disable info logging by setting `Queue.log` to `false` in your config.
 
 
 ### Notes
+
 `<TaskName>` may either be the complete classname (eg. QueueExample) or the shorthand without the leading "Queue" (e.g. Example).
 
 Also note that you dont need to add the type ("Task"): `bin/cake queue add SpecialExample` for QueueSpecialExampleTask.
@@ -177,13 +198,15 @@ A detailed Example task can be found in src/Shell/Task/QueueExampleTask.php insi
 
 If you copy an example, do not forget to adapt the namespace!
 
+
 ## Setting up the trigger cronjob
+
 As outlined in the [book](http://book.cakephp.org/3.0/en/console-and-shells/cron-jobs.html) you can easily set up a cronjob
 to start a new worker.
 
 The following example uses "crontab":
 
-	*/10  *  *  *  *  cd /full/path/to/app && bin/cake queue runworker -q
+    */10  *  *  *  *  cd /full/path/to/app && bin/cake queue runworker -q
 
 Make sure you use `crontab -e -u www-data` to set it up as `www-data` user, and not as root etc.
 
@@ -192,15 +215,20 @@ got a small overlap where two workers would run simultaneously. If you lower the
 get quite a few overlapping workers and thus more "parallel" processing power.
 Play around with it, but just don't shoot over the top.
 
+
 ## Admin backend
+
 The plugin works completely without it, by just using the CLI shell commands.
 But if you want to browse the statistics via URL, you can enable the routing for it (see above) and then access `/admin/queue`
 to see how status of your queue, statistics and settings.
 Please note that this requires the Tools plugin to be loaded if you do not customize the view templates on project level.
 
+
 ## Tips for Development
 
+
 ### Only pass identification data if possible
+
 If you have larger data sets, or maybe even objects/entities, do not pass those.
 They would not survive the json_encode/decode part and will maybe even exceed the text field in the database.
 
@@ -209,36 +237,40 @@ If you have other larger chunks of data, store them somewhere and pass the path 
 
 
 ### Using QueueTransport
-Instead of manually adding job every time you want to send mail you can use existing code ond change only EmailTransport and Email configurations in `app.php`.
-```PHP
-'EmailTransport' => [
-		'default' => [
-			'className' => 'Smtp',
-			// The following keys are used in SMTP transports
-			'host' => 'host@gmail.com',
-			'port' => 587,
-			'timeout' => 30,
-			'username' => 'username',
-			'password' => 'password',
-			//'client' => null,
-			'tls' => true,
-		],
-		'queue' => [
-			'className' => 'Queue.Queue',
-			'transport' => 'default'
-		]
-	],
 
-	'Email' => [
-		'default' => [
-			'transport' => 'queue',
-			'from' => 'no-reply@host.com',
-			'charset' => 'utf-8',
-			'headerCharset' => 'utf-8',
-		],
-	],
+Instead of manually adding job every time you want to send mail you can use existing code ond change only EmailTransport and Email configurations in `app.php`.
+
+```php
+'EmailTransport' => [
+        'default' => [
+            'className' => 'Smtp',
+            // The following keys are used in SMTP transports
+            'host' => 'host@gmail.com',
+            'port' => 587,
+            'timeout' => 30,
+            'username' => 'username',
+            'password' => 'password',
+            //'client' => null,
+            'tls' => true,
+        ],
+        'queue' => [
+            'className' => 'Queue.Queue',
+            'transport' => 'default'
+        ]
+    ],
+
+    'Email' => [
+        'default' => [
+            'transport' => 'queue',
+            'from' => 'no-reply@host.com',
+            'charset' => 'utf-8',
+            'headerCharset' => 'utf-8',
+        ],
+    ],
 ```
+
 This way each time you will `$email->send()` it will use `QueueTransport` as main to create job and worker will use `'transport'` setting to send mail.
+
 
 #### Difference between QueueTransport and SimpleQueueTransport
 
@@ -246,67 +278,77 @@ This way each time you will `$email->send()` it will use `QueueTransport` as mai
 * `SimpleQueueTransport` extracts all data from email (to, bcc, template etc.) and then uses this to recreate email inside task, this
 is useful when dealing with emails which serialization would overflow database `data` field length.
 
+
 ### Manually assembling your emails
+
 This is the most advised way to generate your asynchronous emails.
 
 Don't generate them directly in your code and pass them to the queue, instead just pass the minimum requirements, like non persistent data needed and the primary keys of the records that need to be included.
 So let's say someone posted a comment and you want to get notified.
 
 Inside your CommentsTable class after saving the data you execute this hook:
+
 ```php
-	/**
-	 * @param Comment $comment
-	 * @return void
-	 */
-	protected function _notifyAdmin(Comment $comment)
-	{
-		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
-		$QueuedJobs = TableRegistry::get('Queue.QueuedJobs');
-		$data = [
-			'settings' => [
-				'subject' => __('New comment submitted by {0}', $comment->name)
-			],
-			'vars' => [
-				'comment' => $comment->toArray()
-			]
-		];
-		$QueuedJobs->createJob('CommentNotification', $data);
-	}
+/**
+ * @param Comment $comment
+ * @return void
+ */
+protected function _notifyAdmin(Comment $comment)
+{
+    /** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+    $QueuedJobs = TableRegistry::get('Queue.QueuedJobs');
+    $data = [
+        'settings' => [
+            'subject' => __('New comment submitted by {0}', $comment->name)
+        ],
+        'vars' => [
+            'comment' => $comment->toArray()
+        ]
+    ];
+    $QueuedJobs->createJob('CommentNotification', $data);
+}
 ```
 
 And your `QueueAdminEmailTask::run()` method:
-```php
-	$this->Email = new Email();
-	$this->Email->template('comment_notification');
-	...
-	if (!empty($data['vars'])) {
-		$this->Email->viewVars($data['vars']);
-	}
 
-	return (bool)$this->Email->send();
+```php
+$this->Email = new Email();
+$this->Email->template('comment_notification');
+// ...
+if (!empty($data['vars'])) {
+    $this->Email->viewVars($data['vars']);
+}
+
+return (bool)$this->Email->send();
 ```
 
 Make sure you got the template for it then, e.g.:
-```
-<?php echo $comment['name'] ?> ( <?php echo $comment['email']; ?> ) wrote:
 
-<?php echo $comment['message']; ?>
+```php
+<?= $comment['name'] ?> ( <?= $comment['email'] ?> ) wrote:
 
+<?= $comment['message'] ?>
 
-<?php echo $this->Url->build(['prefix' => 'admin', 'controller' => 'Comments', 'action'=> 'view', $comment['id']], true); ?>
+<?= $this->Url->build(['prefix' => 'admin', 'controller' => 'Comments', 'action'=> 'view', $comment['id']], true) ?>
 ```
 
 This way all the generation is in the specific task and template and can be tested separaretly.
 
+
 ### Killing workers
+
 First of all: Make sure you don't run workers with `workermaxruntime` of `0`.
 Then they would at least not run forever, and might pile up only if you start them faster then they terminate.
 
+
 #### Via tool
+
 You can kill workers from the backend or the command line.
 Make sure you have set up the workers with the same user (www-data usually) as the user that tries to kill them, or it will not work.
 
+
 #### Manually
+
 Manually killing workers can be done using `kill -15 PID`. Replace PID with the PID number (e.g. `kill -15 21212`).
 
 To find out what queue processes are currently running, use
@@ -318,7 +360,9 @@ Then you can kill them gracefully with `-15` (or forcefully with `-9`, not recom
 Locally, if you want to kill them all, usually `killapp -15 php` does the trick.
 Do not run this with production ones, though.
 
+
 ## IDE support
+
 With [IdeHelper](https://github.com/dereuromark/cakephp-ide-helper/) plugin you can get typehinting and autocomplete for your createJob() calls.
 Especially if you use PHPStorm, this will make it possible to get support here.
 
@@ -326,20 +370,23 @@ Include that plugin, set up your generator config and run e.g. `bin/cake phpstor
 
 If you use `Plugin::load('Queue', ['bootstrap' => true, ...])`, the necessary config is already auto-included (recommended).
 Otherwise you can manually include the Queue plugin generator tasks in your `config/app.php` on project level:
+
 ```php
 use Queue\Generator\Task\QueuedJobTask;
 
 return [
-	...
-	'IdeHelper' => [
-		'generatorTasks' => [
-			QueuedJobTask::class
-		],
-	],
+    ...
+    'IdeHelper' => [
+        'generatorTasks' => [
+            QueuedJobTask::class
+        ],
+    ],
 ];
 ```
 
+
 ## Contributing
+
 I am looking forward to your contributions.
 
 There are a few guidelines that I need contributors to follow:
