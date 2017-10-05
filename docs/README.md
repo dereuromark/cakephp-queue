@@ -16,7 +16,7 @@ Plugin::load('Queue', ['routes' => true]);
 ```
 
 Run the following command in the CakePHP console to create the tables using the Migrations plugin:
-```php
+```sh
 bin/cake Migrations migrate -p Queue
 ```
 
@@ -140,7 +140,7 @@ Important: Do not forget to set your [domain](https://book.cakephp.org/3.0/en/co
 
 ### Updating status
 
-The createJob() method returns the entity. So you can store the ID and at any time ask the queue about the status of this job.
+The `createJob()` method returns the entity. So you can store the ID and at any time ask the queue about the status of this job.
 
 ```php
 // Within your regular web application
