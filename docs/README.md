@@ -167,15 +167,15 @@ echo number_format($progress * 100, 0) . '%'; // Outputs 87% for example
 By default errors are always logged, and with log enabled also the execution of a job.
 Make sure you add this to your config:
 ```php
-    'Log' => [
-        ...
-        'queue' => [
-            'className' => ...,
-            'type' => 'queue',
-            'levels' => ['info'],
-            'scopes' => ['queue'],
-        ],
-    ],
+'Log' => [
+	...
+	'queue' => [
+		'className' => ...,
+		'type' => 'queue',
+		'levels' => ['info'],
+		'scopes' => ['queue'],
+	],
+],
 ```
 
 When debugging (using -v) on the runworker, it will also log the worker run and end.
