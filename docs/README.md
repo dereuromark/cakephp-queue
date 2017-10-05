@@ -56,7 +56,7 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     $config['Queue']['workermaxruntime'] = 60;
     ```
 
-    Warning: Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle.
+    *Warning:* Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle.
 
 - Should a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running):
 
