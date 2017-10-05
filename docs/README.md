@@ -20,7 +20,7 @@ Run the following command in the CakePHP console to create the tables using the 
 bin/cake Migrations migrate -p Queue
 ```
 
-## Configuration:
+## Configuration
 
 The plugin allows some simple runtime configuration.
 You may create a file called `app_queue.php` inside your `config` folder (NOT the plugins config folder) to set the following values:
@@ -76,7 +76,7 @@ Finally, make sure you allow the configured `pidfilepath` to be creatable and wr
 Especially on deployment some `mkdir` command might be necessary.
 Set it to false to use the DB here instead, as well.
 
-## Usage:
+## Usage
 
 Run the following using the CakePHP shell:
 
