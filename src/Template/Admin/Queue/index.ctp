@@ -72,7 +72,7 @@ if (empty($data)) {
 <h3>Settings</h3>
 <ul>
 <?php
-	$configurations = Configure::read('Queue');
+	$configurations = Configure::readOrFail('Queue');
 	foreach ($configurations as $key => $configuration) {
 		echo '<li>';
 		if (is_dir($configuration)) {

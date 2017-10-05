@@ -188,20 +188,20 @@ TEXT;
 					$this->_log('job ' . $queuedTask['job_type'] . ', id ' . $queuedTask['id'] . ' failed and requeued', $pid);
 					$this->out('Job did not finish, requeued.');
 				}
-			} elseif (Configure::read('Queue.exitwhennothingtodo')) {
+			} elseif (Configure::readOrFail('Queue.exitwhennothingtodo')) {
 				$this->out('nothing to do, exiting.');
 				$this->_exit = true;
 			} else {
 				$this->out('nothing to do, sleeping.');
-				sleep(Configure::read('Queue.sleeptime'));
+				sleep(Configure::readOrFail('Queue.sleeptime'));
 			}
 
 			// check if we are over the maximum runtime and end processing if so.
-			if (Configure::read('Queue.workermaxruntime') && (time() - $starttime) >= Configure::read('Queue.workermaxruntime')) {
+			if (Configure::readOrFail('Queue.workermaxruntime') && (time() - $starttime) >= Configure::readOrFail('Queue.workermaxruntime')) {
 				$this->_exit = true;
-				$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('Queue.workermaxruntime') . '), terminating.');
+				$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::readOrFail('Queue.workermaxruntime') . '), terminating.');
 			}
-			if ($this->_exit || rand(0, 100) > (100 - Configure::read('Queue.gcprob'))) {
+			if ($this->_exit || rand(0, 100) > (100 - Configure::readOrFail('Queue.gcprob'))) {
 				$this->out('Performing Old job cleanup.');
 				$this->QueuedJobs->cleanOldJobs();
 			}
@@ -229,7 +229,7 @@ TEXT;
 	 * @return void
 	 */
 	public function clean() {
-		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout')));
+		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::readOrFail('Queue.cleanuptimeout')));
 		$this->QueuedJobs->cleanOldJobs();
 		$this->QueueProcesses->cleanKilledProcesses();
 	}
@@ -283,7 +283,7 @@ TEXT;
 	 */
 	public function settings() {
 		$this->out('Current Settings:');
-		$conf = (array)Configure::read('Queue');
+		$conf = (array)Configure::readOrFail('Queue');
 		foreach ($conf as $key => $val) {
 			if ($val === false) {
 				$val = 'no';
@@ -429,7 +429,7 @@ TEXT;
 	 * @return void
 	 */
 	protected function _log($type, $pid = null) {
-		if (!Configure::read('Queue.log')) {
+		if (!Configure::readOrFail('Queue.log')) {
 			return;
 		}
 
@@ -453,12 +453,12 @@ TEXT;
 				if (property_exists($this->{$taskName}, 'timeout')) {
 					$this->_taskConf[$taskName]['timeout'] = $this->{$taskName}->timeout;
 				} else {
-					$this->_taskConf[$taskName]['timeout'] = Configure::read('Queue.defaultworkertimeout');
+					$this->_taskConf[$taskName]['timeout'] = Configure::readOrFail('Queue.defaultworkertimeout');
 				}
 				if (property_exists($this->{$taskName}, 'retries')) {
 					$this->_taskConf[$taskName]['retries'] = $this->{$taskName}->retries;
 				} else {
-					$this->_taskConf[$taskName]['retries'] = Configure::read('Queue.defaultworkerretries');
+					$this->_taskConf[$taskName]['retries'] = Configure::readOrFail('Queue.defaultworkerretries');
 				}
 				if (property_exists($this->{$taskName}, 'rate')) {
 					$this->_taskConf[$taskName]['rate'] = $this->{$taskName}->rate;

@@ -59,7 +59,7 @@ class QueueProcessesTable extends Table {
 	 * @return \Cake\Orm\Query
 	 */
 	public function findActive() {
-		$timeout = Configure::read('Queue.defaultworkertimeout');
+		$timeout = Configure::readOrFail('Queue.defaultworkertimeout');
 		$thresholdTime = time() - $timeout;
 
 		$query = $this->find()->where(['modified > ' => $thresholdTime]);
@@ -105,7 +105,7 @@ class QueueProcessesTable extends Table {
 	 * @return void
 	 */
 	public function cleanKilledProcesses() {
-		$timeout = Configure::read('Queue.defaultworkertimeout');
+		$timeout = Configure::readOrFail('Queue.defaultworkertimeout');
 		$thresholdTime = time() - $timeout;
 
 		$this->deleteAll(['modified <' => time() - $thresholdTime]);

@@ -142,10 +142,10 @@ class QueueController extends AppController {
 	 * @return array Status array
 	 */
 	protected function _status() {
-		$timeout = Configure::read('Queue.defaultworkertimeout');
+		$timeout = Configure::readOrFail('Queue.defaultworkertimeout');
 		$thresholdTime = time() - $timeout;
 
-		$pidFilePath = Configure::read('Queue.pidfilepath');
+		$pidFilePath = Configure::readOrFail('Queue.pidfilepath');
 		if (!$pidFilePath) {
 			$this->loadModel('Queue.QueueProcesses');
 			$results = $this->QueueProcesses->find()->where(['modified >' => $thresholdTime])->orderDesc('modified')->hydrate(false)->all()->toArray();

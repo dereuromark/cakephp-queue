@@ -72,7 +72,7 @@ class QueuedJobsTable extends Table {
 
 		// Fallback to Plugin config which can be overwritten via local app config.
 		Configure::load('Queue.app_queue');
-		$defaultConf = (array)Configure::read('Queue');
+		$defaultConf = (array)Configure::readOrFail('Queue');
 
 		$conf = array_merge($defaultConf, $conf);
 
@@ -369,14 +369,14 @@ class QueuedJobsTable extends Table {
 	 */
 	public function cleanOldJobs() {
 		$this->deleteAll([
-			'completed <' => time() - Configure::read('Queue.cleanuptimeout'),
+			'completed <' => time() - Configure::readOrFail('Queue.cleanuptimeout'),
 		]);
 		$pidFilePath = Configure::read('Queue.pidfilepath');
 		if (!$pidFilePath) {
 			return;
 		}
 		// Remove all old pid files left over
-		$timeout = time() - 2 * Configure::read('Queue.cleanuptimeout');
+		$timeout = time() - 2 * Configure::readOrFail('Queue.cleanuptimeout');
 		$Iterator = new RegexIterator(
 			new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pidFilePath)),
 			'/^.+\_.+\.(pid)$/i',
