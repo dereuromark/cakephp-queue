@@ -20,37 +20,37 @@ class Utf8mb4Fix extends AbstractMigration {
 		$table = $this->table('queue_processes');
 		$table->changeColumn('pid', 'text', [
 			'encoding' => 'ascii',
-			'collation' => 'ascii_bin',
+			'collation' => 'ascii_general_ci',
 		]);
 
 		$table = $this->table('queued_jobs');
 		$table->changeColumn('job_type', 'text', [
 			'encoding' => 'utf8mb4',
-			'collation' => 'utf8mb4_bin',
+			'collation' => 'utf8mb4_unicode_ci',
 		]);
 		$table->changeColumn('data', 'text', [
 			'encoding' => 'utf8mb4',
-			'collation' => 'utf8mb4_bin',
+			'collation' => 'utf8mb4_unicode_ci',
 		]);
 		$table->changeColumn('job_group', 'text', [
 			'encoding' => 'utf8mb4',
-			'collation' => 'utf8mb4_bin',
+			'collation' => 'utf8mb4_unicode_ci',
 		]);
 		$table->changeColumn('reference', 'text', [
 			'encoding' => 'utf8mb4',
-			'collation' => 'utf8mb4_bin',
+			'collation' => 'utf8mb4_unicode_ci',
 		]);
 		$table->changeColumn('failure_message', 'text', [
 			'encoding' => 'utf8mb4',
-			'collation' => 'utf8mb4_bin',
+			'collation' => 'utf8mb4_unicode_ci',
 		]);
 		$table->changeColumn('workerkey', 'text', [
 			'encoding' => 'utf8mb4',
-			'collation' => 'utf8mb4_bin',
+			'collation' => 'utf8mb4_unicode_ci',
 		]);
 		$table->changeColumn('status', 'text', [
 			'encoding' => 'utf8mb4',
-			'collation' => 'utf8mb4_bin',
+			'collation' => 'utf8mb4_unicode_ci',
 		]);
 	}
 
