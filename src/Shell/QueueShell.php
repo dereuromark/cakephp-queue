@@ -340,7 +340,7 @@ TEXT;
 	 * @return void
 	 */
 	public function install() {
-		$this->out('Run `cake Migrations.migrate -p Queue`');
+		$this->out('Run `bin/cake migrations migrate -p Queue`');
 		$this->out('Set up cronjob, e.g. via `crontab -e -u www-data`');
 	}
 
