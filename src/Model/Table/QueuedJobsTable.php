@@ -590,7 +590,7 @@ class QueuedJobsTable extends Table {
 
 	/**
 	 * get the name of the driver
-     *
+	 *
 	 * @return string
 	 */
 	protected function _getDriverName() {
