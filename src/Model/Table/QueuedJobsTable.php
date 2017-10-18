@@ -156,7 +156,7 @@ class QueuedJobsTable extends Table {
 	 * @return \Cake\ORM\Query
 	 */
 	public function getStats() {
-        $driverName = $this->_getDriverName();
+		$driverName = $this->_getDriverName();
 		$options = [
 			'fields' => function ($query) use ($driverName) {
 				$alltime = $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(created)');
@@ -172,9 +172,9 @@ class QueuedJobsTable extends Table {
 						$fetchdelay = $query->func()->avg("DATEDIFF(s, '1970-01-01 00:00:00', fetched) - (IF notbefore IS NULL THEN DATEDIFF(s, '1970-01-01 00:00:00', created) ELSE DATEDIFF(s, '1970-01-01 00:00:00', notbefore) END)");
 						break;
 				}
-				/**
-				 * @var \Cake\ORM\Query
-				 */
+					/**
+						 * @var \Cake\ORM\Query
+						 */
 				return [
 					'job_type',
 					'num' => $query->func()->count('*'),
@@ -590,13 +590,14 @@ class QueuedJobsTable extends Table {
 
 	/**
 	 * get the name of the driver
+     *
 	 * @return string
 	 */
-	protected function _getDriverName()
-	{
-		$className = explode("\\", $this->connection()->config()['driver']);
+	protected function _getDriverName() {
+		$className = explode('\\', $this->connection()->config()['driver']);
 		$name = end($className);
 
 		return $name;
 	}
+
 }
