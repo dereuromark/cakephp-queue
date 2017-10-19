@@ -32,6 +32,10 @@ if (!defined('SIGTERM')) {
  */
 class QueuedJobsTable extends Table {
 
+	const DRIVER_MYSQL = 'Mysql';
+	const DRIVER_POSTGRES = 'Postgres';
+	const DRIVER_SQLSERVER = 'Sqlserver';
+
 	/**
 	 * @var array
 	 */
@@ -163,13 +167,10 @@ class QueuedJobsTable extends Table {
 				$runtime = $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)');
 				$fetchdelay = $query->func()->avg('UNIX_TIMESTAMP(fetched) - IF(notbefore is NULL, UNIX_TIMESTAMP(created), UNIX_TIMESTAMP(notbefore))');
 				switch ($driverName) {
-					case 'Postgres':
-					case 'Mysql':
-						break;
-					case 'Sqlserver':
+					case self::DRIVER_SQLSERVER:
 						$alltime = $query->func()->avg("DATEDIFF(s, '1970-01-01 00:00:00', completed) - DATEDIFF(s, '1970-01-01 00:00:00', created)");
 						$runtime = $query->func()->avg("DATEDIFF(s, '1970-01-01 00:00:00', completed) - DATEDIFF(s, '1970-01-01 00:00:00', fetched)");
-						$fetchdelay = $query->func()->avg("DATEDIFF(s, '1970-01-01 00:00:00', fetched) - (IF notbefore IS NULL THEN DATEDIFF(s, '1970-01-01 00:00:00', created) ELSE DATEDIFF(s, '1970-01-01 00:00:00', notbefore) END)");
+						$fetchdelay = $query->func()->avg("DATEDIFF(s, '1970-01-01 00:00:00', fetched) - (CASE WHEN notbefore IS NULL THEN DATEDIFF(s, '1970-01-01 00:00:00', created) ELSE DATEDIFF(s, '1970-01-01 00:00:00', notbefore) END)");
 						break;
 				}
 					/**
@@ -209,10 +210,7 @@ class QueuedJobsTable extends Table {
 		$query = $this->find();
 		$age = $query->newExpr()->add('IFNULL(TIMESTAMPDIFF(SECOND, "' . $nowStr . '", notbefore), 0)');
 		switch ($driverName) {
-			case 'Postgres':
-			case 'Mysql':
-				break;
-			case 'Sqlserver':
+			case self::DRIVER_SQLSERVER:
 				$age = $query->newExpr()->add('ISNULL(DATEDIFF(SECOND, GETDATE(), notbefore), 0)');
 				break;
 		}
@@ -259,11 +257,11 @@ class QueuedJobsTable extends Table {
 			];
 			if (array_key_exists('rate', $task) && $tmp['job_type'] && array_key_exists($tmp['job_type'], $this->rateHistory)) {
 				switch ($driverName) {
-					case 'Postgres':
-					case 'Mysql':
+					case self::DRIVER_POSTGRES:
+					case self::DRIVER_MYSQL:
 						$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
 						break;
-					case 'Sqlserver':
+					case self::DRIVER_SQLSERVER:
 						$tmp["DATEDIFF(s, '1970-01-01 00:00:00', GETDATE()) >="] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
 						break;
 				}
