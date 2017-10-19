@@ -32,6 +32,10 @@ if (!defined('SIGTERM')) {
  */
 class QueuedJobsTable extends Table {
 
+	const DRIVER_MYSQL = 'Mysql';
+	const DRIVER_POSTGRES = 'Postgres';
+	const DRIVER_SQLSERVER = 'Sqlserver';
+
 	/**
 	 * @var array
 	 */
@@ -156,17 +160,28 @@ class QueuedJobsTable extends Table {
 	 * @return \Cake\ORM\Query
 	 */
 	public function getStats() {
+		$driverName = $this->_getDriverName();
 		$options = [
-			'fields' => function ($query) {
+			'fields' => function ($query) use ($driverName) {
+				$alltime = $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(created)');
+				$runtime = $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)');
+				$fetchdelay = $query->func()->avg('UNIX_TIMESTAMP(fetched) - IF(notbefore is NULL, UNIX_TIMESTAMP(created), UNIX_TIMESTAMP(notbefore))');
+				switch ($driverName) {
+					case static::DRIVER_SQLSERVER:
+						$alltime = $query->func()->avg("DATEDIFF(s, '1970-01-01 00:00:00', completed) - DATEDIFF(s, '1970-01-01 00:00:00', created)");
+						$runtime = $query->func()->avg("DATEDIFF(s, '1970-01-01 00:00:00', completed) - DATEDIFF(s, '1970-01-01 00:00:00', fetched)");
+						$fetchdelay = $query->func()->avg("DATEDIFF(s, '1970-01-01 00:00:00', fetched) - (CASE WHEN notbefore IS NULL THEN DATEDIFF(s, '1970-01-01 00:00:00', created) ELSE DATEDIFF(s, '1970-01-01 00:00:00', notbefore) END)");
+						break;
+				}
 					/**
 						 * @var \Cake\ORM\Query
 						 */
 				return [
 					'job_type',
 					'num' => $query->func()->count('*'),
-					'alltime' => $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(created)'),
-					'runtime' => $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)'),
-					'fetchdelay' => $query->func()->avg('UNIX_TIMESTAMP(fetched) - IF(notbefore is NULL, UNIX_TIMESTAMP(created), UNIX_TIMESTAMP(notbefore))'),
+					'alltime' => $alltime,
+					'runtime' => $runtime,
+					'fetchdelay' => $fetchdelay,
 				];
 			},
 			'conditions' => [
@@ -190,15 +205,22 @@ class QueuedJobsTable extends Table {
 	public function requestJob(array $capabilities, $group = null) {
 		$now = new Time();
 		$nowStr = $now->toDateTimeString();
+		$driverName = $this->_getDriverName();
 
 		$query = $this->find();
+		$age = $query->newExpr()->add('IFNULL(TIMESTAMPDIFF(SECOND, "' . $nowStr . '", notbefore), 0)');
+		switch ($driverName) {
+			case static::DRIVER_SQLSERVER:
+				$age = $query->newExpr()->add('ISNULL(DATEDIFF(SECOND, GETDATE(), notbefore), 0)');
+				break;
+		}
 		$options = [
 			'conditions' => [
 				'completed IS' => null,
 				'OR' => [],
 			],
 			'fields' => [
-				'age' => $query->newExpr()->add('IFNULL(TIMESTAMPDIFF(SECOND, "' . $nowStr . '", notbefore), 0)')
+				'age' => $age
 			],
 			'order' => [
 				'priority' => 'ASC',
@@ -234,7 +256,15 @@ class QueuedJobsTable extends Table {
 				'failed <' => ($task['retries'] + 1),
 			];
 			if (array_key_exists('rate', $task) && $tmp['job_type'] && array_key_exists($tmp['job_type'], $this->rateHistory)) {
-				$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
+				switch ($driverName) {
+					case static::DRIVER_POSTGRES:
+					case static::DRIVER_MYSQL:
+						$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
+						break;
+					case static::DRIVER_SQLSERVER:
+						$tmp["DATEDIFF(s, '1970-01-01 00:00:00', GETDATE()) >="] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
+						break;
+				}
 			}
 			$options['conditions']['OR'][] = $tmp;
 		}
@@ -554,6 +584,18 @@ class QueuedJobsTable extends Table {
 		if (file_exists($file)) {
 			unlink($file);
 		}
+	}
+
+	/**
+	 * get the name of the driver
+	 *
+	 * @return string
+	 */
+	protected function _getDriverName() {
+		$className = explode('\\', $this->connection()->config()['driver']);
+		$name = end($className);
+
+		return $name;
 	}
 
 }
