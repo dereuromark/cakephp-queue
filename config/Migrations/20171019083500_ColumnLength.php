@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class ImprovementsForMysql extends AbstractMigration {
+class ColumnLength extends AbstractMigration {
 
 	/**
 	 * Change Method.
@@ -18,7 +18,7 @@ class ImprovementsForMysql extends AbstractMigration {
 		$table = $this->table('queue_processes');
 
 		$table->changeColumn('pid', 'string', [
-		   'length' => 40,
+			'length' => 40,
 			'null' => false,
 			'default' => null,
 		]);
