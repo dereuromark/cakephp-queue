@@ -102,7 +102,7 @@ class QueuedJobsTable extends Table {
 	public function createJob($jobName, array $data = null, array $config = []) {
 		$queuedJob = [
 			'job_type' => $jobName,
-			'data' => is_array($data) ? json_encode($data) : null,
+			'data' => is_array($data) ? serialize($data) : null,
 			'job_group' => !empty($config['group']) ? $config['group'] : null,
 			'notbefore' => !empty($config['notBefore']) ? new Time($config['notBefore']) : null,
 		] + $config;

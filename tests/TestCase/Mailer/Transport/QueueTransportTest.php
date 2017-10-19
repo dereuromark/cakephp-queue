@@ -46,7 +46,7 @@ class QueueTransportTest extends TestCase {
 		$this->assertEquals('Email', $result['job_type']);
 		$this->assertTrue(strlen($result['data']) < 10000);
 
-		$output = json_decode($result['data'], true);
+		$output = unserialize($result['data'], true);
 		$this->assertEquals('Testing Message', $output['settings']['_subject']);
 	}
 
