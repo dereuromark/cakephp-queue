@@ -19,15 +19,18 @@ class Utf8mb4Fix extends AbstractMigration {
 	public function change() {
 		$table = $this->table('queue_processes');
 		$table->changeColumn('pid', 'string', [
-			'encoding' => 'ascii',
-			'collation' => 'ascii_general_ci',
 			'length' => 40,
 			'null' => false,
 			'default' => null,
+			'encoding' => 'ascii',
+			'collation' => 'ascii_general_ci',
 		]);
 
 		$table = $this->table('queued_jobs');
 		$table->changeColumn('job_type', 'string', [
+			'length' => 45,
+			'null' => false,
+			'default' => null,
 			'encoding' => 'utf8mb4',
 			'collation' => 'utf8mb4_unicode_ci',
 		]);
@@ -39,12 +42,14 @@ class Utf8mb4Fix extends AbstractMigration {
 			'collation' => 'utf8mb4_unicode_ci',
 		]);
 		$table->changeColumn('job_group', 'string', [
+			'length' => 255,
 			'null' => true,
 			'default' => null,
 			'encoding' => 'utf8mb4',
 			'collation' => 'utf8mb4_unicode_ci',
 		]);
 		$table->changeColumn('reference', 'string', [
+			'length' => 255,
 			'null' => true,
 			'default' => null,
 			'encoding' => 'utf8mb4',
@@ -58,12 +63,14 @@ class Utf8mb4Fix extends AbstractMigration {
 			'collation' => 'utf8mb4_unicode_ci',
 		]);
 		$table->changeColumn('workerkey', 'string', [
+			'length' => 45,
 			'null' => true,
 			'default' => null,
 			'encoding' => 'utf8mb4',
 			'collation' => 'utf8mb4_unicode_ci',
 		]);
 		$table->changeColumn('status', 'string', [
+			'length' => 255,
 			'null' => true,
 			'default' => null,
 			'encoding' => 'utf8mb4',
