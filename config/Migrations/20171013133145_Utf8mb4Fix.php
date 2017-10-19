@@ -21,6 +21,9 @@ class Utf8mb4Fix extends AbstractMigration {
 		$table->changeColumn('pid', 'string', [
 			'encoding' => 'ascii',
 			'collation' => 'ascii_general_ci',
+			'length' => 40,
+			'null' => false,
+			'default' => null,
 		]);
 
 		$table = $this->table('queued_jobs');
