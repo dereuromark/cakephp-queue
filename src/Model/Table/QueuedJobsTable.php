@@ -54,6 +54,20 @@ class QueuedJobsTable extends Table {
 	protected $_key = null;
 
 	/**
+	 * set connection name
+	 *
+	 * @return string
+	 */
+	public static function defaultConnectionName() {
+		$connection = Configure::read('Queue.connection');
+		if (!empty($connection)) {
+			return $connection;
+		};
+
+		return parent::defaultConnectionName();
+	}
+
+	/**
 	 * initialize Table
 	 *
 	 * @param array $config Configuration
