@@ -35,7 +35,6 @@ class QueueProcessesTable extends Table {
 		return parent::defaultConnectionName();
 	}
 
-
 	/**
 	 * Initialize method
 	 *
