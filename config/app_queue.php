@@ -36,5 +36,8 @@ return [
 
 		// set default Mailer class
 		'mailerClass' => 'Cake\Mailer\Email',
+
+		// set default datasource connection
+		'datasourceconnection' => 'default',
 	],
 ];

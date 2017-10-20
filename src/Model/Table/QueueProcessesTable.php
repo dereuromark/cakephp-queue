@@ -22,6 +22,15 @@ use Cake\Validation\Validator;
 class QueueProcessesTable extends Table {
 
 	/**
+	 * set connection name
+	 *
+	 * @return string
+	 */
+	public static function defaultConnectionName() {
+		return Configure::read('Queue.datasourceconnection');
+	}
+
+	/**
 	 * Initialize method
 	 *
 	 * @param array $config The configuration for the Table.
