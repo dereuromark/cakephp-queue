@@ -69,6 +69,12 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     ```php
     $config['Queue']['cleanuptimeout'] = 2592000; // 30 days
     ```
+	
+- Use a different connection:
+
+    ```php
+    $config['Queue']['connection'] = 'custom'; // Defaults to 'default'
+    ```
 
 Don't forget to load that config file with `Configure::load('app_queue');` in your bootstrap.
 You can also use `Plugin::load('Queue', ['bootstrap' => true]);` which will load your `app_queue.php` config file automatically.
