@@ -67,7 +67,6 @@ class QueuedJobsTable extends Table {
 		return parent::defaultConnectionName();
 	}
 
-
 	/**
 	 * initialize Table
 	 *
