@@ -59,8 +59,13 @@ class QueuedJobsTable extends Table {
 	 * @return string
 	 */
 	public static function defaultConnectionName() {
-		return Configure::read('Queue.datasourceconnection');
+		if (!empty(Configure::read('Queue.connection'))) {
+			return Configure::read('Queue.connection');
+		};
+
+		return parent::defaultConnectionName();
 	}
+
 
 	/**
 	 * initialize Table

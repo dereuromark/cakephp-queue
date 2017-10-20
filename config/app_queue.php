@@ -38,6 +38,6 @@ return [
 		'mailerClass' => 'Cake\Mailer\Email',
 
 		// set default datasource connection
-		'datasourceconnection' => 'default',
+		'connection' => null,
 	],
 ];
