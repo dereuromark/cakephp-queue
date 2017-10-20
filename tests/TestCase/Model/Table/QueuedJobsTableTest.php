@@ -317,14 +317,14 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertEquals('dummytask', $tmp['job_type']);
-		$this->assertNull(unserialize($tmp['data']));
+		$this->assertFalse(unserialize($tmp['data']));
 
 		usleep(100000);
 		//and again.
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertEquals('dummytask', $tmp['job_type']);
-		$this->assertNull(unserialize($tmp['data']));
+		$this->assertFalse(unserialize($tmp['data']));
 
 		//Then some time passes
 		sleep(2);
@@ -339,7 +339,7 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertEquals('dummytask', $tmp['job_type']);
-		$this->assertNull(unserialize($tmp['data']));
+		$this->assertFalse(unserialize($tmp['data']));
 
 		//Then some more time passes
 		sleep(2);
@@ -354,7 +354,7 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertEquals('dummytask', $tmp['job_type']);
-		$this->assertNull(unserialize($tmp['data']));
+		$this->assertFalse(unserialize($tmp['data']));
 
 		//and now the queue is empty
 		$this->QueuedJobs->clearKey();
