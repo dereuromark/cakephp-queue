@@ -561,7 +561,7 @@ class QueuedJobsTable extends Table {
 		$processes = [];
 		foreach (glob($pidFilePath . 'queue_*.pid') as $filename) {
 			$time = filemtime($filename);
-			preg_match('/\bqueue_(\d+)\.pid$/', $filename, $matches);
+			preg_match('/\bqueue_([0-9a-z]+)\.pid$/', $filename, $matches);
 			$processes[$matches[1]] = $time;
 		}
 
