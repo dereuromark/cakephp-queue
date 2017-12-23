@@ -7,9 +7,9 @@ use Cake\I18n\Time;
 
 ?>
 <div class="page index col-xs-12">
-<h2><?php echo __d('queue', 'Queue');?></h2>
+<h1><?php echo __d('queue', 'Queue');?></h1>
 
-<h3><?php echo __d('queue', 'Current Queue Processes'); ?></h3>
+<h2><?php echo __d('queue', 'Current Queue Processes'); ?></h2>
 <ul>
 <?php
 foreach ($processes as $process => $timestamp) {

@@ -1,5 +1,5 @@
 <?php
-namespace TestApp\Shell;
+namespace App\Shell;
 
 use Cake\Console\Shell;
 use Queue\Shell\QueueShell;

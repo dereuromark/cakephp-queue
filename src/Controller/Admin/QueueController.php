@@ -23,7 +23,7 @@ class QueueController extends AppController {
 	 * QueueController::beforeFilter()
 	 *
 	 * @param \Cake\Event\Event $event
-	 * @return void
+	 * @return \Cake\Http\Response|null
 	 */
 	public function beforeFilter(Event $event) {
 		$this->QueuedJobs->initConfig();
@@ -35,7 +35,7 @@ class QueueController extends AppController {
 	 * Admin center.
 	 * Manage queues from admin backend (without the need to open ssh console window).
 	 *
-	 * @return void
+	 * @return \Cake\Http\Response|null
 	 */
 	public function index() {
 		$status = $this->_status();

@@ -33,7 +33,7 @@ require ROOT . '/vendor/autoload.php';
 require CORE_PATH . 'config/bootstrap.php';
 
 Cake\Core\Configure::write('App', [
-	'namespace' => 'TestApp',
+	'namespace' => 'App',
 	'encoding' => 'UTF-8',
 	'paths' => [
 		'templates' => [ROOT . DS . 'tests' . DS . 'test_app' . DS . 'src' . DS . 'Template' . DS],
@@ -89,7 +89,6 @@ Cake\Core\Plugin::load('Tools', ['path' => ROOT . DS . 'vendor' . DS . 'deuromar
 
 DispatcherFactory::add('Routing');
 DispatcherFactory::add('ControllerFactory');
-class_alias(AppController::class, 'App\Controller\AppController');
 
 Cake\Mailer\Email::configTransport('default', [
 	'className' => 'Debug',

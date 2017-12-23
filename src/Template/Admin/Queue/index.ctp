@@ -5,9 +5,9 @@
 use Cake\Core\Configure;
 ?>
 <div class="page index col-xs-12">
-<h2><?php echo __d('queue', 'Queue');?></h2>
+<h1><?php echo __d('queue', 'Queue');?></h1>
 
-<h3><?php echo __d('queue', 'Status'); ?></h3>
+<h2><?php echo __d('queue', 'Status'); ?></h2>
 <?php if ($status) { ?>
 <?php
 	$running = (time() - $status['time']) < MINUTE;
@@ -21,7 +21,7 @@ use Cake\Core\Configure;
 n/a
 <?php } ?>
 
-<h3><?php echo __d('queue', 'Queued Jobs'); ?></h3>
+<h2><?php echo __d('queue', 'Queued Jobs'); ?></h2>
 <?php
  echo $current;
 ?> task(s) await processing
@@ -50,7 +50,7 @@ foreach ($pendingDetails as $item) {
 ?>
 </ol>
 
-<h3><?php echo __d('queue', 'Statistics'); ?></h3>
+<h2><?php echo __d('queue', 'Statistics'); ?></h2>
 <ul>
 <?php
 foreach ($data as $item) {
@@ -69,7 +69,7 @@ if (empty($data)) {
 ?>
 </ul>
 
-<h3>Settings</h3>
+<h2>Settings</h2>
 <ul>
 <?php
 	$configurations = Configure::read('Queue');
@@ -88,7 +88,7 @@ if (empty($data)) {
 ?>
 </ul>
 
-	<h3>Trigger Test/Demo Jobs</h3>
+	<h2>Trigger Test/Demo Jobs</h2>
 	<ul>
 		<?php
 		foreach ($tasks as $task) {

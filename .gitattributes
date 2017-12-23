@@ -33,3 +33,11 @@
 *.ico binary
 *.mo binary
 *.pdf binary
+
+# Remove files for archives generated using `git archive`
+phpunit.xml.dist export-ignore
+.travis.yml export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore
+.editorconfig export-ignore
+tests/test_app export-ignore
