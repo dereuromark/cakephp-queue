@@ -28,26 +28,25 @@ matrix:
       env: DB=pgsql db_dsn='postgres://postgres@127.0.0.1/cakephp_test'
 
 before_script:
-  - composer self-update
   - composer install --prefer-source --no-interaction
 
-  - if [[ $PHPCS != 1 ]]; then composer require phpunit/phpunit:"^4.8|^5.7|^6.0"; fi
+  - if [[ $PHPCS != 1 ]]; then composer require phpunit/phpunit:"^4.8|^5.7|^6.0" ; fi
 
-  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -u root -e 'CREATE DATABASE cakephp_test;'; fi"
-  - sh -c "if [ '$DB' = 'pgsql' ]; then psql -c 'CREATE DATABASE cakephp_test;' -U postgres; fi"
+  - if [[ $DB == 'mysql' ]]; then mysql -u root -e 'CREATE DATABASE cakephp_test;' ; fi
+  - if [[ $DB == 'pgsql' ]]; then psql -c 'CREATE DATABASE cakephp_test;' -U postgres ; fi
 
   - phpenv rehash
   - set +H
   - cp phpunit.xml.dist phpunit.xml
 
 script:
-  - if [[ $DEFAULT == 1 && $TRAVIS_PHP_VERSION == 7.0 ]]; then export CODECOVERAGE=1; vendor/bin/phpunit --coverage-clover=clover.xml; fi
-  - if [[ $DEFAULT == 1 && $TRAVIS_PHP_VERSION != 7.0 ]]; then vendor/bin/phpunit; fi
+  - if [[ $DEFAULT == 1 && $TRAVIS_PHP_VERSION == 7.0 ]]; then export CODECOVERAGE=1; vendor/bin/phpunit --coverage-clover=clover.xml ; fi
+  - if [[ $DEFAULT == 1 && $TRAVIS_PHP_VERSION != 7.0 ]]; then vendor/bin/phpunit ; fi
 
   - if [[ $PHPCS == 1 ]]; then vendor/bin/phpcs -p --extensions=php --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=/vendor/,/tmp/,/logs/,/config/Migrations/ -v . ; fi
 
 after_success:
-  - if [[ $DEFAULT == 1 && $TRAVIS_PHP_VERSION == 7.0 ]]; then bash <(curl -s https://codecov.io/bash); fi
+  - if [[ $DEFAULT == 1 && $TRAVIS_PHP_VERSION == 7.0 ]]; then bash <(curl -s https://codecov.io/bash) ; fi
 
 notifications:
   email: false
