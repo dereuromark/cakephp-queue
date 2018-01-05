@@ -14,6 +14,10 @@ class TaskFinder {
 	protected $tasks;
 
 	/**
+	 * Returns all possible Queue tasks.
+	 *
+	 * Makes sure that app tasks are prioritized over plugin ones.
+	 *
 	 * @return array
 	 */
 	public function allAppAndPluginTasks() {
@@ -26,26 +30,53 @@ class TaskFinder {
 
 		foreach ($paths as $path) {
 			$Folder = new Folder($path);
-			$res = array_merge($this->tasks, $Folder->find('Queue.+\.php'));
-			foreach ($res as &$r) {
-				$r = basename($r, 'Task.php');
-			}
-			$this->tasks = $res;
+			$this->tasks = $this->getAppPaths($Folder);
 		}
 		$plugins = Plugin::loaded();
 		foreach ($plugins as $plugin) {
 			$pluginPaths = App::path('Shell/Task', $plugin);
 			foreach ($pluginPaths as $pluginPath) {
 				$Folder = new Folder($pluginPath);
-				$res = $Folder->find('Queue.+Task\.php');
-				foreach ($res as &$r) {
-					$r = $plugin . '.' . basename($r, 'Task.php');
-				}
-				$this->tasks = array_merge($this->tasks, $res);
+				$pluginTasks = $this->getPluginPaths($Folder, $plugin);
+				$this->tasks = array_merge($this->tasks, $pluginTasks);
 			}
 		}
 
 		return $this->tasks;
+	}
+
+	/**
+	 * @param \Cake\Filesystem\Folder $Folder
+	 *
+	 * @return array
+	 */
+	protected function getAppPaths(Folder $Folder) {
+		$res = array_merge($this->tasks, $Folder->find('Queue.+\.php'));
+		foreach ($res as &$r) {
+			$r = basename($r, 'Task.php');
+		}
+
+		return $res;
+	}
+
+	/**
+	 * @param \Cake\Filesystem\Folder $Folder
+	 * @param string $plugin
+	 *
+	 * @return array
+	 */
+	protected function getPluginPaths(Folder $Folder, $plugin) {
+		$res = $Folder->find('Queue.+Task\.php');
+		foreach ($res as $key => $r) {
+			$name = basename($r, 'Task.php');
+			if (in_array($name, $this->tasks)) {
+				unset($res[$key]);
+				continue;
+			}
+			$res[$key] = $plugin . '.' . $name;
+		}
+
+		return $res;
 	}
 
 }

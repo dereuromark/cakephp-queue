@@ -4,6 +4,7 @@ namespace Queue\Test\TestCase\Shell;
 
 use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
+use Cake\Datasource\ConnectionManager;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\QueueShell;
 use Tools\TestSuite\ConsoleOutput;
@@ -53,7 +54,6 @@ class QueueShellTest extends TestCase {
 			->getMock();
 
 		$this->QueueShell->initialize();
-		$this->QueueShell->loadTasks();
 
 		Configure::write('Queue', [
 			'sleeptime' => 2,
@@ -77,19 +77,16 @@ class QueueShellTest extends TestCase {
 	}
 
 	/**
-	 * QueueShellTest::testStats()
-	 *
 	 * @return void
 	 */
 	public function testStats() {
+		$this->_needsConnection();
+
 		$this->QueueShell->stats();
-		//debug($this->out->output());
 		$this->assertContains('Total unfinished Jobs      : 0', $this->out->output());
 	}
 
 	/**
-	 * QueueShellTest::testSettings()
-	 *
 	 * @return void
 	 */
 	public function testSettings() {
@@ -98,19 +95,15 @@ class QueueShellTest extends TestCase {
 	}
 
 	/**
-	 * QueueShellTest::testAddInexistent()
-	 *
 	 * @return void
 	 */
 	public function testAddInexistent() {
-		$this->QueueShell->args[] = 'Foo';
+		$this->QueueShell->args[] = 'FooBar';
 		$this->QueueShell->add();
-		$this->assertContains('Error: Task not found: Foo', $this->out->output());
+		$this->assertContains('Error: Task not found: FooBar', $this->out->output());
 	}
 
 	/**
-	 * QueueShellTest::testAdd()
-	 *
 	 * @return void
 	 */
 	public function testAdd() {
@@ -121,11 +114,11 @@ class QueueShellTest extends TestCase {
 	}
 
 	/**
-	 * QueueShellTest::testRetry()
-	 *
 	 * @return void
 	 */
 	public function testRetry() {
+		$this->_needsConnection();
+
 		$this->QueueShell->args[] = 'RetryExample';
 		$this->QueueShell->add();
 
@@ -135,6 +128,16 @@ class QueueShellTest extends TestCase {
 		$this->QueueShell->runworker();
 
 		$this->assertContains('Job did not finish, requeued.', $this->out->output());
+	}
+
+	/**
+	 * Helper method for skipping tests that need a real connection.
+	 *
+	 * @return void
+	 */
+	protected function _needsConnection() {
+		$config = ConnectionManager::config('test');
+		$this->skipIf(strpos($config['driver'], 'Mysql') === false, 'Only Mysql is working yet for this.');
 	}
 
 }

@@ -17,7 +17,7 @@ define('ROOT', dirname(__DIR__));
 define('TMP', ROOT . DS . 'tmp' . DS);
 define('LOGS', TMP . 'logs' . DS);
 define('CACHE', TMP . 'cache' . DS);
-define('APP', sys_get_temp_dir());
+define('APP', ROOT . DS . 'tests' . DS . 'test_app' . DS . 'src' . DS);
 define('APP_DIR', 'src');
 define('CAKE_CORE_INCLUDE_PATH', ROOT . '/vendor/cakephp/cakephp');
 define('CORE_PATH', CAKE_CORE_INCLUDE_PATH . DS);
@@ -84,6 +84,7 @@ $cache = [
 Cake\Cache\Cache::config($cache);
 
 Cake\Core\Plugin::load('Queue', ['path' => ROOT . DS, 'autoload' => true, 'bootstrap' => false, 'routes' => true]);
+Cake\Core\Plugin::load('Foo', ['path' => ROOT . DS . 'tests' . DS . 'test_app' . DS . 'plugins' . DS . 'Foo' . DS]);
 Cake\Core\Plugin::load('Tools', ['path' => ROOT . DS . 'vendor' . DS . 'deuromark' . DS . 'cakephp-tools' . DS]);
 
 DispatcherFactory::add('Routing');

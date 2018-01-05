@@ -7,6 +7,7 @@
 
 namespace Queue\Test\TestCase\Model\Table;
 
+use Cake\Datasource\ConnectionManager;
 use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
@@ -100,6 +101,8 @@ class QueuedJobsTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testCreateAndFetch() {
+		$this->_needsConnection();
+
 		//$capabilities is a list of tasks the worker can run.
 		$capabilities = [
 			'task1' => [
@@ -152,6 +155,8 @@ class QueuedJobsTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testSequence() {
+		$this->_needsConnection();
+
 		//$capabilities is a list of tasks the worker can run.
 		$capabilities = [
 			'task1' => [
@@ -176,9 +181,7 @@ class QueuedJobsTableTest extends TestCase {
 		foreach (range(0, 4) as $num) {
 			$this->QueuedJobs->clearKey();
 			$array[$num] = $this->QueuedJobs->requestJob($capabilities);
-			//debug($job);ob_flush();
 			$jobData = unserialize($array[$num]['data']);
-			//debug($jobData);ob_flush();
 			$this->assertEquals($num, $jobData['tasknum']);
 		}
 		// now mark them as done
@@ -217,9 +220,11 @@ class QueuedJobsTableTest extends TestCase {
 	 * Test Job reordering depending on 'notBefore' field.
 	 * Jobs with an expired notbefore field should be executed before any other job without specific timing info.
 	 *
-	 * @return null
+	 * @return void
 	 */
 	public function testNotBeforeOrder() {
+		$this->_needsConnection();
+
 		$capabilities = [
 			'task1' => [
 				'name' => 'task1',
@@ -279,6 +284,8 @@ class QueuedJobsTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testRateLimit() {
+		$this->_needsConnection();
+
 		$capabilities = [
 			'task1' => [
 				'name' => 'task1',
@@ -363,7 +370,7 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
-	 * Are those tests still valid?
+	 * Are those tests still valid? //FIXME
 	 *
 	 * @return void
 	 */
@@ -401,7 +408,7 @@ class QueuedJobsTableTest extends TestCase {
 	 * Tests whether the timeout of second tasks doesn't interfere with
 	 * requeue of tasks
 	 *
-	 * Are those tests still valid?
+	 * Are those tests still valid? //FIXME
 	 *
 	 * @return void
 	 */
@@ -444,6 +451,8 @@ class QueuedJobsTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testRequestGroup() {
+		$this->_needsConnection();
+
 		$capabilities = [
 			'task1' => [
 				'name' => 'task1',
@@ -513,6 +522,8 @@ class QueuedJobsTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testPriority() {
+		$this->_needsConnection();
+
 		$capabilities = [
 			'task1' => [
 				'name' => 'task1',
@@ -534,6 +545,16 @@ class QueuedJobsTableTest extends TestCase {
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$data = unserialize($tmp['data']);
 		$this->assertSame(['key' => 'k2'], $data);
+	}
+
+	/**
+	 * Helper method for skipping tests that need a real connection.
+	 *
+	 * @return void
+	 */
+	protected function _needsConnection() {
+		$config = ConnectionManager::config('test');
+		$this->skipIf(strpos($config['driver'], 'Mysql') === false, 'Only Mysql is working yet for this.');
 	}
 
 }

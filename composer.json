@@ -44,6 +44,7 @@
 		"psr-4": {
 			"Queue\\Test\\": "tests/",
 			"App\\": "tests/test_app/src/",
+			"Foo\\": "tests/test_app/plugins/Foo/src/",
 			"Cake\\Test\\": "vendor/cakephp/cakephp/tests/"
 		}
 	},

@@ -28,12 +28,13 @@ class QueuedJobGeneratorTest extends TestCase {
 
 		$expected = [
 			'\Queue\Model\Table\QueuedJobsTable::createJob(0)' => [
-				'Queue.Email' => '\Queue\Shell\Task\QueueEmailTask::class',
-				'Queue.Example' => '\Queue\Shell\Task\QueueExampleTask::class',
-				'Queue.Execute' => '\Queue\Shell\Task\QueueExecuteTask::class',
-				'Queue.ProgressExample' => '\Queue\Shell\Task\QueueProgressExampleTask::class',
-				'Queue.RetryExample' => '\Queue\Shell\Task\QueueRetryExampleTask::class',
-				'Queue.SuperExample' => '\Queue\Shell\Task\QueueSuperExampleTask::class',
+				'Email' => '\Queue\Shell\Task\QueueEmailTask::class',
+				'Example' => '\Queue\Shell\Task\QueueExampleTask::class',
+				'Execute' => '\Queue\Shell\Task\QueueExecuteTask::class',
+				'ProgressExample' => '\Queue\Shell\Task\QueueProgressExampleTask::class',
+				'RetryExample' => '\Queue\Shell\Task\QueueRetryExampleTask::class',
+				'SuperExample' => '\Queue\Shell\Task\QueueSuperExampleTask::class',
+				'Foo' => '\App\Shell\Task\QueueFooTask::class',
 			],
 		];
 		$this->assertSame($expected, $result);

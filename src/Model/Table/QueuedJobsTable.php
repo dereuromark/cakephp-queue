@@ -504,7 +504,6 @@ class QueuedJobsTable extends Table {
 			$this->deleteAll([
 				'id' => array_slice($x, $start, 10),
 			]);
-			//debug(array_slice($x, $start, 10));
 			$start = $start + 100;
 		}
 	}
