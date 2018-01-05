@@ -229,6 +229,10 @@ TEXT;
 	 * @return void
 	 */
 	public function clean() {
+		if (!Configure::read('Queue.cleanuptimeout')) {
+			$this->abort('You disabled cleanuptimout in config. Aborting.');
+		}
+
 		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout')));
 		$this->QueuedJobs->cleanOldJobs();
 		$this->QueueProcesses->cleanKilledProcesses();
