@@ -586,8 +586,13 @@ class QueuedJobsTable extends Table {
 
 		$pidFilePath = Configure::read('Queue.pidfilepath');
 
-		posix_kill($pid, $sig);
-		exec('kill -' . $sig . ' ' . $pid);
+		$killed = false;
+		if (function_exists('posix_kill')) {
+			$killed = posix_kill($pid, $sig);
+		} 
+		if (!$killed) {
+			exec('kill -' . $sig . ' ' . $pid);
+		}
 		sleep(1);
 
 		if (!$pidFilePath) {

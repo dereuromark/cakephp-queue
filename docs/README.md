@@ -20,6 +20,8 @@ Run the following command in the CakePHP console to create the tables using the 
 bin/cake Migrations migrate -p Queue
 ```
 
+It is also advised to have the `posix` PHP extension enabled. 
+
 
 ## Configuration
 
