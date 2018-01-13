@@ -589,7 +589,7 @@ class QueuedJobsTable extends Table {
 		$killed = false;
 		if (function_exists('posix_kill')) {
 			$killed = posix_kill($pid, $sig);
-		} 
+		}
 		if (!$killed) {
 			exec('kill -' . $sig . ' ' . $pid);
 		}
