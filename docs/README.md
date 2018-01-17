@@ -231,6 +231,9 @@ But if you want to browse the statistics via URL, you can enable the routing for
 to see how status of your queue, statistics and settings.
 Please note that this requires the Tools plugin to be loaded if you do not customize the view templates on project level.
 
+By default the templates should work fine in both Foundation (v5+) and Boostrap (v3+).
+Copy-and-paste to project level for any customization here.
+
 
 ## Tips for Development
 
