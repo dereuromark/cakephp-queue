@@ -6,7 +6,15 @@ use Cake\Core\Configure;
 use Cake\I18n\Time;
 
 ?>
-<div class="page index col-xs-12">
+
+
+<nav class="col-md-3 col-xs-12 large-3 medium-4 columns" id="actions-sidebar">
+	<ul class="side-nav list-unstyled">
+		<li><?php echo $this->Html->link(__d('queue', 'Back'), ['action' => 'index']); ?></li>
+	</ul>
+</nav>
+
+<div class="col-md-9 col-xs-12 large-9 medium-8 columns">
 <h1><?php echo __d('queue', 'Queue');?></h1>
 
 <h2><?php echo __d('queue', 'Current Queue Processes'); ?></h2>
@@ -26,10 +34,4 @@ if (empty($processes)) {
 ?>
 </ul>
 
-</div>
-
-<div class="actions">
-	<ul>
-		<li><?php echo $this->Html->link(__d('queue', 'Back'), ['action' => 'index']); ?></li>
-	</ul>
 </div>

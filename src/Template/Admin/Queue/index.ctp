@@ -4,11 +4,20 @@
  */
 use Cake\Core\Configure;
 ?>
-<div class="page index col-xs-12">
+
+
+<nav class="col-md-3 col-xs-12 large-3 medium-4 columns" id="actions-sidebar">
+	<ul class="side-nav list-unstyled">
+		<li><?php echo $this->Form->postLink(__d('queue', 'Reset {0}', __d('queue', 'Queued Jobs')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will make all failed jobs ready for re-run.'), 'class' => 'btn btn-default']); ?></li>
+		<li><?php echo $this->Form->postLink(__d('queue', 'Hard Reset {0}', __d('queue', 'Queued Jobs')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will delete all jobs and completely reset the queue.'), 'class' => 'btn btn-warning']); ?></li>
+	</ul>
+</nav>
+
+<div class="col-md-9 col-xs-12 large-9 medium-8 columns">
 <h1><?php echo __d('queue', 'Queue');?></h1>
 
 <div class="row">
-	<div class="col-md-6 col-xs-12">
+	<div class="col-md-6 col-xs-12 medium-6 columns">
 
 		<h2><?php echo __d('queue', 'Status'); ?></h2>
 		<?php if ($status) { ?>
@@ -75,7 +84,7 @@ use Cake\Core\Configure;
 
 	</div>
 
-	<div class="col-md-6 col-xs-12">
+	<div class="col-md-6 col-xs-12 medium-6 columns">
 
 		<h2>Settings</h2>
 		Server:
@@ -126,11 +135,4 @@ use Cake\Core\Configure;
 	</div>
 </div>
 
-</div>
-
-<div class="actions">
-	<ul class="list-unstyled">
-		<li><?php echo $this->Form->postLink(__d('queue', 'Reset {0}', __d('queue', 'Queued Jobs')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will make all failed jobs ready for re-run.'), 'class' => 'btn btn-default']); ?></li>
-		<li><?php echo $this->Form->postLink(__d('queue', 'Hard Reset {0}', __d('queue', 'Queued Jobs')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will delete all jobs and completely reset the queue.'), 'class' => 'btn btn-warning']); ?></li>
-	</ul>
 </div>
