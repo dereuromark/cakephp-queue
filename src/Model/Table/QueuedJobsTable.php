@@ -442,7 +442,7 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * @param QueuedJob $queuedTask
+	 * @param \Queue\Model\Entity\QueuedJob $queuedTask
 	 * @param array $taskConfiguration
 	 * @return string
 	 */
