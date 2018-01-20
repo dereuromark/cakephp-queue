@@ -127,7 +127,7 @@ class QueueShellTest extends TestCase {
 
 		$this->QueueShell->runworker();
 
-		$this->assertContains('Job did not finish, requeued.', $this->out->output());
+		$this->assertContains('Job did not finish, requeued after try 1.', $this->out->output());
 	}
 
 	/**
