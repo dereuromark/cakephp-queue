@@ -39,10 +39,12 @@ class QueueTask extends Shell {
 	 *
 	 * @var int
 	 */
-	public $retries = 4;
+	public $retries = 1;
 
 	/**
 	 * Stores any failure messages triggered during run()
+	 *
+	 * @deprecated Use Exception throwing with a clear message instead.
 	 *
 	 * @var string|null
 	 */

@@ -442,6 +442,26 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * @param QueuedJob $queuedTask
+	 * @param array $taskConfiguration
+	 * @return string
+	 */
+	public function getFailedStatus($queuedTask, array $taskConfiguration) {
+		$failureMessageRequeued = 'requeued';
+
+		$queuedTaskName = 'Queue' . $queuedTask->job_type;
+		if (empty($taskConfiguration[$queuedTaskName])) {
+			return $failureMessageRequeued;
+		}
+		$retries = $taskConfiguration[$queuedTaskName]['retries'];
+		if ($queuedTask->failed <= $retries) {
+			return $failureMessageRequeued;
+		}
+
+		return 'aborted';
+	}
+
+	/**
 	 * Custom find method, as in `find('progress', ...)`.
 	 *
 	 * @param string $state Current state

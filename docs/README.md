@@ -25,6 +25,7 @@ It is also advised to have the `posix` PHP extension enabled.
 
 ## Configuration
 
+### Global configuration
 The plugin allows some simple runtime configuration.
 You may create a file called `app_queue.php` inside your `config` folder (NOT the plugins config folder) to set the following values:
 
@@ -99,6 +100,69 @@ Finally, make sure you allow the configured `pidfilepath` to be creatable and wr
 Especially on deployment some `mkdir` command might be necessary.
 Set it to false to use the DB here instead, as well.
 
+### Task configuration
+
+You can set two main things on each task as property: timeout and retries.
+```php
+	/**
+	 * Timeout for run, after which the Task is reassigned to a new worker.
+	 *
+	 * @var int
+	 */
+	public $timeout = 120;
+	
+	/**
+	 * Number of times a failed instance of this task should be restarted before giving up.
+	 *
+	 * @var int
+	 */
+	public $retries = 1;
+```
+Make sure you set the timeout high enough so that it could never run longer than this, otherwise you risk it being re-run while still being run.
+I recommend setting it to at least 2x the maximum possible execution length.
+
+Set the retries to at least 1, otherwise it will never execute again after failure in the first run.
+
+## Writing your own task
+
+In most cases you wouldn't want to use the existing task, but just quickly build your own.
+Put it into `/src/Shell/Task/` as `Queue{YourNameForIt}Task.php`.
+
+You need to at least implement the run method:
+```php
+namespace App\Shell\Task;
+
+...
+
+class QueueYourNameForItTask extends QueueTask {
+
+	/**
+	 * @var int
+	 */
+	public $timeout = 20;
+
+	/**
+	 * @var int
+	 */
+	public $retries = 1;
+
+	/**
+	 * @param array $data The array passed to QueuedJobsTable::createJob()
+	 * @param int $jobId The id of the QueuedJob entity
+	 * @return bool Success
+	 */
+	public function run(array $data, $jobId) {
+		$this->loadModel('FooBars');
+		if (!$this->FooBars->doSth()) {
+			throw new RuntimeException('Couldnt do sth.');
+		}
+
+		return true;
+	}
+	
+}
+```
+Make sure it returns a boolean result (true ideally), or otherwise throws an exception with a clear error message.
 
 ## Usage
 

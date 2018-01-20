@@ -26,7 +26,7 @@ class QueueRetryExampleTask extends QueueTask {
 	 *
 	 * @var int
 	 */
-	public $retries = 5;
+	public $retries = 4;
 
 	/**
 	 * Constructs this Shell instance.
@@ -59,6 +59,10 @@ class QueueRetryExampleTask extends QueueTask {
 		$this->out(__FILE__);
 		$this->out(' ');
 
+		if (file_exists($this->file)) {
+			$this->warn('File seems to already exist. Make sure you run this task standalone. You cannot run it multiple times in parallel!');
+		}
+
 		file_put_contents($this->file, '0');
 
 		/*
@@ -87,6 +91,7 @@ class QueueRetryExampleTask extends QueueTask {
 		$this->out('CakePHP Queue Example task.');
 		$this->hr();
 
+		// Let's fake 3 fails before it actually runs successfully
 		if ($count < 3) {
 			$count++;
 			file_put_contents($this->file, (string)$count);
