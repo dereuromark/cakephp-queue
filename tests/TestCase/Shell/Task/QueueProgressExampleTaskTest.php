@@ -46,9 +46,7 @@ class QueueProgressExampleTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRun() {
-		$result = $this->Task->run(['duration' => 1], null);
-
-		$this->assertTrue($result);
+		$this->Task->run(['duration' => 1], null);
 
 		$this->assertTextContains('Success, the ProgressExample Job was run', $this->out->output());
 	}

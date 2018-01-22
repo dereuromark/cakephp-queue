@@ -60,7 +60,7 @@ class QueueSuperExampleTask extends QueueTask {
 	 *
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
+	 * @return void
 	 */
 	public function run(array $data, $jobId) {
 		$this->hr();
@@ -70,8 +70,6 @@ class QueueSuperExampleTask extends QueueTask {
 
 		// Lets create an Example task on successful execution
 		$this->QueuedJobs->createJob('Example');
-
-		return true;
 	}
 
 }

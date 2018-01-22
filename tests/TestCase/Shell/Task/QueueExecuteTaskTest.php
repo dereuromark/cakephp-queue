@@ -4,6 +4,7 @@ namespace Queue\Test\TestCase\Shell;
 
 use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
+use Exception;
 use Queue\Shell\Task\QueueExecuteTask;
 use Tools\TestSuite\ConsoleOutput;
 use Tools\TestSuite\ToolsTestTrait;
@@ -53,9 +54,7 @@ class QueueExecuteTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRun() {
-		$result = $this->Task->run(['command' => 'php -v'], null);
-
-		$this->assertTrue($result);
+		$this->Task->run(['command' => 'php -v'], null);
 
 		$this->assertTextContains('PHP ', $this->out->output());
 	}
@@ -64,9 +63,15 @@ class QueueExecuteTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRunFailureWithRedirect() {
-		$result = $this->Task->run(['command' => 'fooooobbbaraar -eeee'], null);
+		$exception = null;
+		try {
+			$this->Task->run(['command' => 'fooooobbbaraar -eeee'], null);
+		} catch (\Exception $e) {
+			$exception = $e;
+		}
 
-		$this->assertFalse($result);
+		$this->assertInstanceOf(Exception::class, $e);
+		$this->assertSame('Failed with error code 127: `fooooobbbaraar -eeee`', $e->getMessage());
 
 		$this->assertTextContains('Error (code 127)', $this->err->output());
 		$this->assertTextContains('fooooobbbaraar: not found', $this->out->output());
@@ -76,9 +81,7 @@ class QueueExecuteTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRunFailureWithRedirectAndIgnoreCode() {
-		$result = $this->Task->run(['command' => 'fooooobbbaraar -eeee', 'accepted' => []], null);
-
-		$this->assertTrue($result);
+		$this->Task->run(['command' => 'fooooobbbaraar -eeee', 'accepted' => []], null);
 
 		$this->assertTextContains('Success (code 127)', $this->out->output());
 		$this->assertTextContains('fooooobbbaraar: not found', $this->out->output());
@@ -86,16 +89,13 @@ class QueueExecuteTaskTest extends TestCase {
 
 	/**
 	 * @return void
+	 * @expectedException \RuntimeException
+	 * @expectedExceptionMessage Failed with error code 127: `fooooobbbaraar -eeee`
 	 */
 	public function testRunFailureWithoutRedirect() {
 		$this->skipIf((bool)getenv('TRAVIS'), 'Not redirecting stderr to stdout prints noise to the CLI output in between test runs.');
 
-		$result = $this->Task->run(['command' => 'fooooobbbaraar -eeee', 'redirect' => false], null);
-
-		$this->assertFalse($result);
-
-		$this->assertTextContains('Error (code 127)', $this->err->output());
-		$this->assertTextNotContains('fooooobbbaraar: not found', $this->err->output());
+		$this->Task->run(['command' => 'fooooobbbaraar -eeee', 'redirect' => false], null);
 	}
 
 }

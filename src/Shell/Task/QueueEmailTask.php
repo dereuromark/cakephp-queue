@@ -6,6 +6,7 @@ use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Mailer\Email;
 use Exception;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -63,13 +64,13 @@ class QueueEmailTask extends QueueTask {
 	/**
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
+	 * @return void
 	 * @throws \Exception
+	 * @throws \Throwable
 	 */
 	public function run(array $data, $jobId) {
 		if (!isset($data['settings'])) {
-			$this->err('Queue Email task called without settings data.');
-			return false;
+			throw new RuntimeException('Queue Email task called without settings data.');
 		}
 
 		/** @var \Cake\Mailer\Email|null $email */
@@ -77,6 +78,7 @@ class QueueEmailTask extends QueueTask {
 		if (is_object($email) && $email instanceof Email) {
 			$this->Email = $email;
 
+			$result = null;
 			try {
 				if (!empty($data['transport'])) {
 					$email->setTransport($data['transport']);
@@ -84,18 +86,26 @@ class QueueEmailTask extends QueueTask {
 				$content = isset($data['content']) ? $data['content'] : null;
 				$result = $email->send($content);
 
-				return (bool)$result;
 			} catch (Throwable $e) {
 				$error = $e->getMessage();
 				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
 				Log::write('error', $error);
+
+				throw $e;
+
 			} catch (Exception $e) {
 				$error = $e->getMessage();
 				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
 				Log::write('error', $error);
+
+				throw $e;
 			}
 
-			return false;
+			if (!$result) {
+				throw new RuntimeException('Could not send email.');
+			}
+
+			return;
 		}
 
 		$this->Email = $this->_getMailer();
@@ -123,7 +133,9 @@ class QueueEmailTask extends QueueTask {
 			$this->Email->setHeaders($data['headers']);
 		}
 
-		return (bool)$this->Email->send($message);
+		if (!$this->Email->send($message)) {
+			throw new RuntimeException('Could not send email.');
+		}
 	}
 
 	/**
@@ -165,6 +177,7 @@ class QueueEmailTask extends QueueTask {
 			}
 			$config = array_merge($config, $log);
 		}
+
 		Log::write(
 			$config['level'],
 			PHP_EOL . $contents['headers'] . PHP_EOL . $contents['message'],

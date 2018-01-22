@@ -2,7 +2,7 @@
 
 namespace Foo\Shell\Task;
 
-class QueueFooTask extends QueueTask {
+class QueueFooTask extends QueueTask implements QueueTaskInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.

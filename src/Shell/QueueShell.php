@@ -15,6 +15,8 @@ use Exception;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\ProcessEndingException;
 use Queue\Queue\TaskFinder;
+use Queue\Shell\Task\QueueTaskInterface;
+use RuntimeException;
 use Throwable;
 
 declare(ticks = 1);
@@ -244,12 +246,16 @@ TEXT;
 			$data = unserialize($queuedJob->data);
 			/** @var \Queue\Shell\Task\QueueTask $task */
 			$task = $this->{$taskName};
-			$return = $task->run((array)$data, $queuedJob->id);
-
-			$failureMessage = null;
-			if ($task->failureMessage) {
-				$failureMessage = $task->failureMessage;
+			if (!$task instanceof QueueTaskInterface) {
+				throw new RuntimeException('Task must implement ' . QueueTaskInterface::class);
 			}
+
+			$return = $task->run((array)$data, $queuedJob->id);
+			if ($return !== null) {
+				trigger_error(E_USER_DEPRECATED, 'run() should be void and throw exception in error case now.');
+			}
+			$failureMessage = $taskName . ' failed';
+
 		} catch (Throwable $e) {
 			$return = false;
 
@@ -262,15 +268,51 @@ TEXT;
 			$this->_logError($taskName . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
 		}
 
-		if ($return) {
-			$this->QueuedJobs->markJobDone($queuedJob);
-			$this->out('Job Finished.');
-		} else {
+		if (!$return) {
 			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
 			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->_getTaskConf());
 			$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
-			$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
+			$this->err('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
+			return;
 		}
+
+		$this->QueuedJobs->markJobDone($queuedJob);
+		$this->out('Job Finished.');
+	}
+
+	/**
+	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 * @param string $pid
+	 * @return void
+	 */
+	protected function _runJob(QueuedJob $queuedJob, $pid) {
+		$this->out('Running Job of type "' . $queuedJob['job_type'] . '"');
+		$this->_log('job ' . $queuedJob['job_type'] . ', id ' . $queuedJob['id'], $pid);
+		$taskname = 'Queue' . $queuedJob['job_type'];
+
+		try {
+			$data = unserialize($queuedJob['data']);
+			/** @var \Queue\Shell\Task\QueueTask $task */
+			$task = $this->{$taskname};
+			if (!$task instanceof QueueTaskInterface) {
+				throw new RuntimeException('Task must implement ' . QueueTaskInterface::class);
+			}
+
+			$task->run((array)$data, $queuedJob['id']);
+
+		} catch (Exception $e) {
+			$failureMessage = get_class($e) . ': ' . $e->getMessage();
+			$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString());
+
+			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
+			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->_getTaskConf());
+			$this->_log('job ' . $queuedJob['job_type'] . ', id ' . $queuedJob['id'] . ' failed and ' . $failedStatus, $pid);
+			$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
+			return;
+		}
+
+		$this->QueuedJobs->markJobDone($queuedJob);
+		$this->out('Job Finished.');
 	}
 
 	/**

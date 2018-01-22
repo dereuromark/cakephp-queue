@@ -59,7 +59,7 @@ class QueueProgressExampleTask extends QueueTask {
 	 *
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
+	 * @return void
 	 */
 	public function run(array $data, $jobId) {
 		$this->hr();
@@ -75,7 +75,6 @@ class QueueProgressExampleTask extends QueueTask {
 
 		$this->hr();
 		$this->success(' -> Success, the ProgressExample Job was run. <-');
-		return true;
 	}
 
 }

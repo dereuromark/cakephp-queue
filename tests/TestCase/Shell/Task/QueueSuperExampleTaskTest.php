@@ -53,9 +53,7 @@ class QueueSuperExampleTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRun() {
-		$result = $this->Task->run([], null);
-
-		$this->assertTrue($result);
+		$this->Task->run([], null);
 
 		$this->assertTextContains('Success, the SuperExample Job was run', $this->out->output());
 	}

@@ -59,14 +59,13 @@ class QueueExampleTask extends QueueTask {
 	 *
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
+	 * @return void
 	 */
 	public function run(array $data, $jobId) {
 		$this->hr();
 		$this->out('CakePHP Queue Example task.');
 		$this->hr();
 		$this->success(' -> Success, the Example Job was run. <-');
-		return true;
 	}
 
 }
