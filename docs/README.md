@@ -209,7 +209,7 @@ It will use your custom APP `QueueEmailTask` to send out emails via CLI.
 
 Important: Do not forget to set your [domain](https://book.cakephp.org/3.0/en/core-libraries/email.html#sending-emails-from-cli) when sending from CLI.
 
-### Avoid re-queuing
+### Avoiding parallel (re)queueing
 
 For some background-tasks you will want to make sure only a single instance of this type is currently run. 
 In your logic you can check on this using `isQueued()` and a unique reference:
@@ -229,10 +229,8 @@ In your logic you can check on this using `isQueued()` and a unique reference:
         }
 
         $this->QueuedJobs->createJob(
-            'Execute',
-            [
-                'command' => 'bin/cake importer run',
-            ],
+           'Execute',
+            ['command' => 'bin/cake importer run'],
             ['reference' => 'my-import', 'priority' => 2]
         );
 
@@ -245,6 +243,8 @@ So if someone clicks on the button again before the job is finished, he will not
 ```php
 <?= $this->Form->postLink(__('Trigger Import'), ['action' => 'triggerImport'], ['confirm' => 'Sure?']) ?>
 ```
+
+For more complex use cases, you can manually use `->find()->where()`, of course.
 
 ### Updating status
 
