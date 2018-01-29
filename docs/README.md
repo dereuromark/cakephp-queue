@@ -209,6 +209,42 @@ It will use your custom APP `QueueEmailTask` to send out emails via CLI.
 
 Important: Do not forget to set your [domain](https://book.cakephp.org/3.0/en/core-libraries/email.html#sending-emails-from-cli) when sending from CLI.
 
+### Avoid re-queuing
+
+For some background-tasks you will want to make sure only a single instance of this type is currently run. 
+In your logic you can check on this using `isQueued()` and a unique reference:
+```php
+    /**
+     * @return \Cake\Http\Response|null
+     */
+    public function triggerImport()
+    {
+        $this->request->allowMethod('post');
+
+        $this->loadModel('Queue.QueuedJobs');
+        if ($this->QueuedJobs->isQueued('my-import')) {
+            $this->Flash->error('Job already running');
+
+            return $this->redirect($this->referer(['action' => 'index']));
+        }
+
+        $this->QueuedJobs->createJob(
+            'Execute',
+            [
+                'command' => 'bin/cake importer run',
+            ],
+            ['reference' => 'my-import', 'priority' => 2]
+        );
+
+        $this->Flash->success('Job triggered, will only take few seconds :)');
+
+        return $this->redirect($this->referer(['action' => 'index']));
+    }
+```
+So if someone clicks on the button again before the job is finished, he will not be able to trigger a new run:
+```php
+<?= $this->Form->postLink(__('Trigger Import'), ['action' => 'triggerImport'], ['confirm' => 'Sure?']) ?>
+```
 
 ### Updating status
 
