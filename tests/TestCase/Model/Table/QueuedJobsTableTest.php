@@ -8,6 +8,7 @@
 namespace Queue\Test\TestCase\Model\Table;
 
 use Cake\Datasource\ConnectionManager;
+use Cake\I18n\FrozenTime;
 use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
@@ -545,6 +546,30 @@ class QueuedJobsTableTest extends TestCase {
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$data = unserialize($tmp['data']);
 		$this->assertSame(['key' => 'k2'], $data);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testIsQueued() {
+		$result = $this->QueuedJobs->isQueued('foo-bar');
+		$this->assertFalse($result);
+
+		$queuedJob = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_type' => 'FooBar',
+			'reference' => 'foo-bar',
+		]);
+		$this->QueuedJobs->saveOrFail($queuedJob);
+
+		$result = $this->QueuedJobs->isQueued('foo-bar');
+		$this->assertTrue($result);
+
+		$queuedJob->completed = new FrozenTime();
+		$this->QueuedJobs->saveOrFail($queuedJob);
+
+		$result = $this->QueuedJobs->isQueued('foo-bar');
+		$this->assertFalse($result);
 	}
 
 	/**

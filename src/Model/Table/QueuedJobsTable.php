@@ -7,6 +7,7 @@ use Cake\I18n\Time;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Exception;
+use InvalidArgumentException;
 use Queue\Model\Entity\QueuedJob;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -126,6 +127,19 @@ class QueuedJobsTable extends Table {
 			throw new Exception('Invalid entity data');
 		}
 		return $this->save($queuedJob);
+	}
+
+	/**
+	 * @param string $reference
+	 *
+	 * @return bool
+	 */
+	public function isQueued($reference) {
+		if (!$reference) {
+			throw new InvalidArgumentException('A reference is needed');
+		}
+
+		return (bool)$this->find()->where(['reference' => $reference, 'completed IS' => null])->select(['id'])->first();
 	}
 
 	/**
