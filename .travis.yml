@@ -32,10 +32,10 @@ matrix:
       env: DB=pgsql db_dsn='postgres://postgres@127.0.0.1/cakephp_test'
 
 before_script:
+  - if [[ $PHPCS != 1 ]]; then composer require phpunit/phpunit:"^5.7.14|^6.0" ; fi
+  
   - if [[ $PREFER_LOWEST != 1 ]]; then composer install --prefer-source --no-interaction ; fi
   - if [[ $PREFER_LOWEST == 1 ]]; then composer update --prefer-dist --no-interaction --prefer-lowest --prefer-stable ; fi
-
-  - if [[ $PHPCS != 1 ]]; then composer require phpunit/phpunit:"^5.7.14|^6.0" ; fi
 
   - if [[ $DB == 'mysql' ]]; then mysql -u root -e 'CREATE DATABASE cakephp_test;' ; fi
   - if [[ $DB == 'pgsql' ]]; then psql -c 'CREATE DATABASE cakephp_test;' -U postgres ; fi
