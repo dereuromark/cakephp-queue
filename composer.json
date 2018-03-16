@@ -19,12 +19,12 @@
 	],
 	"require": {
 		"php": ">=5.6",
-		"cakephp/cakephp": "^3.4"
+		"cakephp/cakephp": "^3.4.1"
 	},
 	"require-dev": {
 		"cakephp/migrations": "^1.0",
 		"dereuromark/cakephp-tools": "^1.2",
-		"dereuromark/cakephp-ide-helper": "@stable",
+		"dereuromark/cakephp-ide-helper": "^0.10.11",
 		"fig-r/psr2r-sniffer": "dev-master"
 	},
 	"suggest": {
