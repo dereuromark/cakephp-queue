@@ -79,6 +79,9 @@ class QueueProcessesTableTest extends TestCase {
 		$this->QueueProcesses->saveOrFail($queueProcess);
 
 		$this->QueueProcesses->remove($pid);
+
+		$result = $this->QueueProcesses->find()->where(['id' => $queueProcess->id])->first();
+		$this->assertNull($result);
 	}
 
 }
