@@ -18,7 +18,7 @@
 		<ini name="error_reporting" value="16383"/>
 	</php>
 	<testsuites>
-		<testsuite name="geo">
+		<testsuite name="queue">
 			<directory>tests/</directory>
 		</testsuite>
 	</testsuites>
