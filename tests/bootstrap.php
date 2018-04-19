@@ -81,7 +81,7 @@ $cache = [
 	],
 ];
 
-Cake\Cache\Cache::config($cache);
+Cake\Cache\Cache::setConfig($cache);
 
 Cake\Core\Plugin::load('Queue', ['path' => ROOT . DS, 'autoload' => true, 'bootstrap' => false, 'routes' => true]);
 Cake\Core\Plugin::load('Foo', ['path' => ROOT . DS . 'tests' . DS . 'test_app' . DS . 'plugins' . DS . 'Foo' . DS]);
@@ -90,20 +90,20 @@ Cake\Core\Plugin::load('Tools', ['path' => ROOT . DS . 'vendor' . DS . 'deuromar
 DispatcherFactory::add('Routing');
 DispatcherFactory::add('ControllerFactory');
 
-Cake\Mailer\Email::configTransport('default', [
+Cake\Mailer\Email::setConfigTransport('default', [
 	'className' => 'Debug',
 ]);
-Cake\Mailer\Email::configTransport('queue', [
+Cake\Mailer\Email::setConfigTransport('queue', [
 	'className' => 'Queue.Queue',
 ]);
-Cake\Mailer\Email::config('default', [
+Cake\Mailer\Email::setConfig('default', [
 	'transport' => 'default',
 ]);
 
 // Allow local overwrite
 // E.g. in your console: export db_dsn="mysql://root:secret@127.0.0.1/cake_test"
 if (!getenv('db_class') && getenv('db_dsn')) {
-	ConnectionManager::config('test', ['url' => getenv('db_dsn')]);
+	ConnectionManager::setConfig('test', ['url' => getenv('db_dsn')]);
 	return;
 }
 if (!getenv('db_class')) {
@@ -112,7 +112,7 @@ if (!getenv('db_class')) {
 }
 
 // Uses Travis config then (MySQL, Postgres, ...)
-ConnectionManager::config('test', [
+ConnectionManager::setConfig('test', [
 	'className' => 'Cake\Database\Connection',
 	'driver' => getenv('db_class'),
 	'dsn' => getenv('db_dsn'),
