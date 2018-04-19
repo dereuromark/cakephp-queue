@@ -6,6 +6,8 @@
 
 This branch is for use with **CakePHP 2**.
 
+NOTE: With 4.x development already being started, **this 2.x branch is now in maintenance mode**. No active development is done anymore on it, mainly only necessary bugfixes.
+
 ## Background:
 
 This is a very simple and minimalistic job Queue (or deferred-task) system for CakePHP.
