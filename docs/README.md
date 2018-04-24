@@ -105,7 +105,7 @@ Set it to false to use the DB here instead, as well.
 You can set two main things on each task as property: timeout and retries.
 ```php
 	/**
-	 * Timeout for run, after which the Task is reassigned to a new worker.
+	 * Timeout for this task in seconds, after which the task is reassigned to a new worker.
 	 *
 	 * @var int
 	 */
