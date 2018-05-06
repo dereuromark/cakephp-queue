@@ -24,7 +24,7 @@
 	"require-dev": {
 		"cakephp/migrations": "^1.0",
 		"dereuromark/cakephp-tools": "^1.2",
-		"dereuromark/cakephp-ide-helper": "@stable",
+		"dereuromark/cakephp-ide-helper": "^0.12",
 		"fig-r/psr2r-sniffer": "dev-master"
 	},
 	"suggest": {
