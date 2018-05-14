@@ -72,7 +72,7 @@ class QueueEmailTask extends QueueTask {
 			$this->err('Queue Email task called without settings data.');
 			return false;
 		}
-		
+
 		if (!isset($data['transport'])) {
 			$this->err('Queue Email task needs a transport to be set to actually send the email.');
 			return false;
