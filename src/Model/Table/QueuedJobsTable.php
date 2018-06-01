@@ -123,7 +123,7 @@ class QueuedJobsTable extends Table {
 		] + $config;
 
 		$queuedJob = $this->newEntity($queuedJob);
-		if ($queuedJob->errors()) {
+		if ($queuedJob->getErrors()) {
 			throw new Exception('Invalid entity data');
 		}
 		return $this->save($queuedJob);
