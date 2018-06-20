@@ -11,6 +11,15 @@ use App\Controller\AppController;
 class QueuedJobsController extends AppController {
 
 	/**
+	 * @var array
+	 */
+	public $paginate = [
+		'order' => [
+			'created' => 'DESC',
+		],
+	];
+
+	/**
 	 * Index method
 	 *
 	 * @return \Cake\Http\Response|null
