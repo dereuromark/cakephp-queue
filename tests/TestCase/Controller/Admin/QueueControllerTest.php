@@ -77,7 +77,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	protected function _needsConnection() {
-		$config = ConnectionManager::config('test');
+		$config = ConnectionManager::getConfig('test');
 		$this->skipIf(strpos($config['driver'], 'Mysql') === false, 'Only Mysql is working yet for this.');
 	}
 

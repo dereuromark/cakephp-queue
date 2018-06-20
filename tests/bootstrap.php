@@ -85,7 +85,7 @@ Cake\Cache\Cache::setConfig($cache);
 
 Cake\Core\Plugin::load('Queue', ['path' => ROOT . DS, 'autoload' => true, 'bootstrap' => false, 'routes' => true]);
 Cake\Core\Plugin::load('Foo', ['path' => ROOT . DS . 'tests' . DS . 'test_app' . DS . 'plugins' . DS . 'Foo' . DS]);
-Cake\Core\Plugin::load('Tools', ['path' => ROOT . DS . 'vendor' . DS . 'deuromark' . DS . 'cakephp-tools' . DS]);
+Cake\Core\Plugin::load('Tools', ['path' => ROOT . DS . 'vendor' . DS . 'dereuromark' . DS . 'cakephp-tools' . DS]);
 
 DispatcherFactory::add('Routing');
 DispatcherFactory::add('ControllerFactory');
