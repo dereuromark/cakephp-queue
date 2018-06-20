@@ -18,6 +18,7 @@ use Cake\Validation\Validator;
  * @method \Queue\Model\Entity\QueueProcess findOrCreate($search, callable $callback = null, $options = [])
  *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
+ * @method \Queue\Model\Entity\QueueProcess|bool saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
  */
 class QueueProcessesTable extends Table {
 
