@@ -6,6 +6,7 @@ use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Mailer\Email;
 use Exception;
+use Throwable;
 
 /**
  * @author Mark Scherer
@@ -97,14 +98,18 @@ class QueueEmailTask extends QueueTask {
 					$this->_log($result, $config['log']);
 				}
 				return (bool)$result;
+			} catch (Throwable $e) {
+				$error = $e->getMessage();
+				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
+				Log::write('error', $error);
 			} catch (Exception $e) {
 
 				$error = $e->getMessage();
 				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
 				Log::write('error', $error);
-
-				return false;
 			}
+
+			return false;
 		}
 
 		$this->Email = $this->_getMailer();

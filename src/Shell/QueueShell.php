@@ -11,6 +11,7 @@ use Cake\Log\Log;
 use Cake\Utility\Inflector;
 use Exception;
 use Queue\Queue\TaskFinder;
+use Throwable;
 
 declare(ticks = 1);
 
@@ -172,6 +173,12 @@ TEXT;
 					if ($task->failureMessage) {
 						$failureMessage = $task->failureMessage;
 					}
+				} catch (Throwable $e) {
+					$return = false;
+
+					$failureMessage = get_class($e) . ': ' . $e->getMessage();
+					//log the exception
+					$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString());
 				} catch (Exception $e) {
 					$return = false;
 
