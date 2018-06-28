@@ -60,7 +60,8 @@ class SimpleQueueTransport extends AbstractTransport {
 		$result = $QueuedJobs->createJob('Email', ['settings' => $settings]);
 		$result['headers'] = '';
 		$result['message'] = '';
-		return $result;
+
+		return $result->toArray();
 	}
 
 	/**

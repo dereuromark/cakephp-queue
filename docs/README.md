@@ -391,6 +391,39 @@ This way each time you will `$email->send()` it will use `QueueTransport` as mai
 is useful when dealing with emails which serialization would overflow database `data` field length.
 
 
+### Using built in Email task
+
+The quickest and easiest way is to use the built in Email task:
+```php
+$data = [
+	'settings' => [
+		'to' => $user->email,
+		'from' => Configure::read('Config.adminEmail'),
+		'subject' => $subject,
+	],
+	'content' => $content,
+];
+$queuedJobsTable = TableRegistry::get('Queue.QueuedJobs');
+$queuedJobsTable->createJob('Email', $data);
+```
+
+This will sent a plain email.
+
+If you want a templated email, you need to pass view vars instead of content:
+```php
+$data = [
+	'settings' => [
+		'to' => $user->email,
+		'from' => Configure::read('Config.adminEmail'),
+		'subject' => $subject,
+	],
+	'vars' => [
+		'myEntity' => $myEntity,
+		...	
+	],
+];
+ ```
+
 ### Manually assembling your emails
 
 This is the most advised way to generate your asynchronous emails.
