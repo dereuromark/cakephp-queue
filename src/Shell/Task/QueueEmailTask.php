@@ -74,16 +74,15 @@ class QueueEmailTask extends QueueTask {
 			return false;
 		}
 
-		if (!isset($data['transport'])) {
-			$this->err('Queue Email task needs a transport to be set to actually send the email.');
-			return false;
-		}
-
 		/** @var \Cake\Mailer\Email $email */
 		$email = $data['settings'];
 		if (is_object($email) && $email instanceof Email) {
 			try {
-				$result = $email->setTransport($data['transport'])->send();
+				if (!empty($data['transport'])) {
+					$email->setTransport($data['transport']);
+				}
+				$content = isset($data['content']) ? $data['content'] : null;
+				$result = $email->send($content);
 
 				if (!isset($config['log']) || !empty($config['logTrace']) && $config['logTrace'] === true) {
 					$config['log'] = 'email_trace';
