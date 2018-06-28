@@ -407,7 +407,7 @@ $queuedJobsTable = TableRegistry::get('Queue.QueuedJobs');
 $queuedJobsTable->createJob('Email', $data);
 ```
 
-This will sent a plain email.
+This will sent a plain email. Each settings key must have a matching setter method on the Email class.
 
 If you want a templated email, you need to pass view vars instead of content:
 ```php
@@ -423,6 +423,14 @@ $data = [
 	],
 ];
  ```
+ 
+You can also assemble an Email object manually and pass that along as settings directly:
+```php
+$data = [
+	'settings' => $emailObject,
+	'content' => $content,
+];
+```
 
 ### Manually assembling your emails
 
