@@ -55,9 +55,7 @@ class QueueEmailTask extends QueueTask {
 				'from' => 'system@example.com',
 				'template' => 'sometemplate',
 			],
-			'vars' => [
-				'content' => 'hello world',
-			],
+			'content' => 'hello world',
 		], true));
 		$this->out('Alternativly, you can pass the whole EmailLib to directly use it.');
 	}
@@ -118,11 +116,16 @@ class QueueEmailTask extends QueueTask {
 			call_user_func_array([$this->Email, $method], (array)$setting);
 		}
 		$message = null;
+		if (isset($data['content'])) {
+			$message = $data['content'];
+		}
 		if (!empty($data['vars'])) {
-			if (isset($data['vars']['content'])) {
+			// @deprecated BC only, use $data['content'] instead.
+			if ($message === null && isset($data['vars']['content'])) {
 				$message = $data['vars']['content'];
 			}
-			$this->Email->viewVars($data['vars']);
+
+			$this->Email->setViewVars($data['vars']);
 		}
 		if (!empty($data['headers'])) {
 			if (!is_array($data['headers'])) {
