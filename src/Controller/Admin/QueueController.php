@@ -42,12 +42,20 @@ class QueueController extends AppController {
 
 		$current = $this->QueuedJobs->getLength();
 		$pendingDetails = $this->QueuedJobs->getPendingStats();
+		$new = 0;
+		foreach ($pendingDetails as $pendingDetail) {
+			if ($pendingDetail['fetched'] || $pendingDetail['failed']) {
+				continue;
+			}
+			$new++;
+		}
+
 		$data = $this->QueuedJobs->getStats();
 
 		$taskFinder = new TaskFinder();
 		$tasks = $taskFinder->allAppAndPluginTasks();
 
-		$this->set(compact('current', 'data', 'pendingDetails', 'status', 'tasks'));
+		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks'));
 		$this->helpers[] = 'Tools.Format';
 		$this->helpers[] = 'Tools.Time';
 	}

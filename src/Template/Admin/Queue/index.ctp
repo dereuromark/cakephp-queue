@@ -35,10 +35,11 @@ use Cake\Core\Configure;
 		<?php } ?>
 
 		<h2><?php echo __d('queue', 'Queued Jobs'); ?></h2>
+		<p>
 		<?php
-		echo $current;
-		?> task(s) await processing
-
+		echo $new . '/' .$current;
+		?> task(s) newly await processing.
+		</p>
 		<ol>
 			<?php
 			foreach ($pendingDetails as $item) {
