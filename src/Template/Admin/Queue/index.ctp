@@ -43,7 +43,7 @@ use Cake\Core\Configure;
 		<ol>
 			<?php
 			foreach ($pendingDetails as $item) {
-				echo '<li>' . $item['job_type'] . ' (' . $item['reference'] . '):';
+				echo '<li>' . $this->Html->link($item['job_type'], ['controller' => 'QueuedJobs', 'action' => 'view', $item['id']]) . ' (' . h($item['reference']) . ', prio ' . $item['priority'] . '):';
 				echo '<ul>';
 
 				$reset = '';
@@ -56,7 +56,7 @@ use Cake\Core\Configure;
 
 				echo '<li>Created: ' . $this->Time->nice($item['created']) . '</li>';
 				echo '<li>Fetched: ' . $this->Time->nice($item['fetched']) . '</li>';
-				echo '<li>Status: ' . $item['status'] . '</li>';
+				//echo '<li>Status: ' . h($item['status']) . '</li>';
 				echo '<li>Progress: ' . $this->Number->toPercentage($item['progress'] * 100, 0) . '</li>';
 				echo '<li>Failures: ' . $item['failed'] . $reset . '</li>';
 				echo '<li>Failure Message: ' . h($item['failure_message']) . '</li>';
@@ -70,7 +70,7 @@ use Cake\Core\Configure;
 		<ul>
 			<?php
 			foreach ($data as $item) {
-				echo '<li>' . $item['job_type'] . ':';
+				echo '<li>' . h($item['job_type']) . ':';
 				echo '<ul>';
 				echo '<li>Finished Jobs in Database: ' . $item['num'] . '</li>';
 				echo '<li>Average Job existence: ' . $item['alltime'] . 's</li>';
