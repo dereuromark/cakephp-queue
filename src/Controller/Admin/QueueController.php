@@ -64,6 +64,8 @@ class QueueController extends AppController {
 	 * @param string|null $job
 	 *
 	 * @return \Cake\Http\Response
+	 *
+	 * @throws \Cake\Network\Exception\NotFoundException
 	 */
 	public function addJob($job = null) {
 		if (!$job) {
@@ -81,6 +83,8 @@ class QueueController extends AppController {
 	 * @param string|null $id
 	 *
 	 * @return \Cake\Http\Response
+	 *
+	 * @throws \Cake\Network\Exception\NotFoundException
 	 */
 	public function resetJob($id = null) {
 		if (!$id) {
@@ -115,8 +119,8 @@ class QueueController extends AppController {
 	public function processes() {
 		$processes = $this->QueuedJobs->getProcesses();
 
-		if ($this->request->is('post') && $this->request->query('kill')) {
-			$pid = $this->request->query('kill');
+		if ($this->request->is('post') && $this->request->getQuery('kill')) {
+			$pid = $this->request->getQuery('kill');
 			$this->QueuedJobs->terminateProcess($pid);
 
 			return $this->redirect(['action' => 'processes']);
@@ -173,7 +177,7 @@ class QueueController extends AppController {
 		$pidFilePath = Configure::read('Queue.pidfilepath');
 		if (!$pidFilePath) {
 			$this->loadModel('Queue.QueueProcesses');
-			$results = $this->QueueProcesses->find()->where(['modified >' => $thresholdTime])->orderDesc('modified')->hydrate(false)->all()->toArray();
+			$results = $this->QueueProcesses->find()->where(['modified >' => $thresholdTime])->orderDesc('modified')->enableHydration(false)->all()->toArray();
 
 			if (!$results) {
 				return [];

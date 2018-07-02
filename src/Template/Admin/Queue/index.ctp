@@ -124,7 +124,7 @@ use Cake\Core\Configure;
 				if (substr($task, 0, 11) !== 'Queue.Queue') {
 					continue;
 				}
-				if ($task === 'Queue.QueueExecute') {
+				if (substr($task, -7) !== 'Example') {
 					continue;
 				}
 
@@ -133,7 +133,6 @@ use Cake\Core\Configure;
 				echo '</li>';
 			}
 			?>
-
 		</ul>
 
 	</div>
