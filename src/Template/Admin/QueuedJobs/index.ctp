@@ -3,6 +3,9 @@
  * @var \App\View\AppView $this
  * @var \Queue\Model\Entity\QueuedJob[]|\Cake\Collection\CollectionInterface $queuedJobs
  */
+
+use Cake\Core\Plugin;
+
 ?>
 <nav class="actions large-3 medium-4 columns col-sm-4 col-xs-12" id="actions-sidebar">
     <ul class="side-nav nav nav-pills nav-stacked">
@@ -11,7 +14,15 @@
     </ul>
 </nav>
 <div class="content action-index index large-9 medium-8 columns col-sm-8 col-xs-12">
-    <h2><?= __('Queued Jobs') ?></h2>
+
+	<?php
+	if (Plugin::loaded('Search')) {
+		echo $this->element('Queue.search');
+	}
+	?>
+
+    <h1><?= __('Queued Jobs') ?></h1>
+
     <table class="table table-striped">
         <thead>
             <tr>

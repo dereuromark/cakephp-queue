@@ -3,7 +3,10 @@
 namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\Core\Plugin;
+use Cake\Http\Exception\NotImplementedException;
 use Cake\I18n\Time;
+use Cake\ORM\Query;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Exception;
@@ -79,8 +82,41 @@ class QueuedJobsTable extends Table {
 		parent::initialize($config);
 
 		$this->addBehavior('Timestamp');
+		if (Plugin::loaded('Search')) {
+			$this->addBehavior('Search.Search');
+		}
 
 		$this->initConfig();
+	}
+
+	/**
+	 * @return \Search\Manager
+	 */
+	public function searchManager()
+	{
+		$searchManager = $this->behaviors()->Search->searchManager();
+		$searchManager
+			->value('job_type')
+			->like('search', ['field' => ['job_group', 'reference'], 'before' => true, 'after' => true])
+			->add('status', 'Search.Callback', [
+				'callback' => function (Query $query, $args, $filter) {
+					$status = $args['status'];
+					if ($status === 'completed') {
+						$query->where(['completed IS NOT' => null]);
+
+						return $query;
+					}
+					if ($status === 'in_progress') {
+						$query->where(['completed IS' => null]);
+
+						return $query;
+					}
+
+					throw new NotImplementedException('Invalid status type');
+				}
+			]);
+
+		return $searchManager;
 	}
 
 	/**
@@ -134,6 +170,8 @@ class QueuedJobsTable extends Table {
 	 * @param string $reference
 	 *
 	 * @return bool
+	 *
+	 * @throws \InvalidArgumentException
 	 */
 	public function isQueued($reference) {
 		if (!$reference) {

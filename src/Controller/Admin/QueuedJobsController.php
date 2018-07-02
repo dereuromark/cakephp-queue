@@ -2,6 +2,7 @@
 namespace Queue\Controller\Admin;
 
 use App\Controller\AppController;
+use Cake\Core\Plugin;
 
 /**
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
@@ -20,16 +21,41 @@ class QueuedJobsController extends AppController {
 	];
 
 	/**
+	 * @return void
+	 */
+	public function initialize()
+	{
+		parent::initialize();
+
+		if (!Plugin::loaded('Search')) {
+			return;
+		}
+		$this->loadComponent('Search.Prg', [
+			'actions' => ['index'],
+		]);
+	}
+
+	/**
 	 * Index method
 	 *
 	 * @return \Cake\Http\Response|null
 	 */
 	public function index() {
-		$queuedJobs = $this->paginate();
+		if (Plugin::loaded('Search')) {
+			$query = $this->QueuedJobs->find('search', ['search' => $this->request->getQuery()]);
+		} else {
+			$query = $this->QueuedJobs->find();
+		}
+		$queuedJobs = $this->paginate($query);
 
 		$this->set(compact('queuedJobs'));
 		$this->helpers[] = 'Tools.Format';
 		$this->helpers[] = 'Tools.Time';
+
+		if (Plugin::loaded('Search')) {
+			$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_type', 'valueField' => 'job_type'])->distinct('job_type')->toArray();
+			$this->set(compact('jobTypes'));
+		}
 	}
 
 	/**
