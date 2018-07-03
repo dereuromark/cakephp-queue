@@ -454,7 +454,7 @@ TEXT;
 
 		$timeNeeded = $this->_timeNeeded();
 		$memoryUsage = $this->_memoryUsage();
-		$message .= ' [' . $timeNeeded . 's, ' . $memoryUsage . ']';
+		$message .= ' [' . $timeNeeded . ', ' . $memoryUsage . ']';
 
 		if ($pid) {
 			$message .= ' (pid ' . $pid . ')';

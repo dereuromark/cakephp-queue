@@ -81,8 +81,8 @@ class QueueMonitorExampleTask extends QueueTask {
 
 		$array = [
 			'[PHP] ' . PHP_VERSION,
-			'[Memory Limit] ' . ini_get('memory_limit'),
-			'[Memory] Total: ' . $memory['MemTotal'] . ', Free: ' . $memory['MemFree'],
+			'[PHP Memory Limit] ' . ini_get('memory_limit'),
+			'[Server Memory] Total: ' . $memory['MemTotal'] . ', Free: ' . $memory['MemFree'],
 		];
 
 		$message = implode(PHP_EOL, $array);
