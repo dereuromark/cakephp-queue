@@ -26,8 +26,7 @@
 		"friendsofcake/search": "^4.4",
 		"dereuromark/cakephp-tools": "^1.5.6",
 		"dereuromark/cakephp-ide-helper": "^0.12",
-		"fig-r/psr2r-sniffer": "dev-master",
-		"phpstan/phpstan-shim": "^0.10.1"
+		"fig-r/psr2r-sniffer": "dev-master"
 	},
 	"suggest": {
 		"friendsofcake/search": "For admin backend and filtering of current jobs.",
@@ -53,6 +52,7 @@
 	},
 	"scripts": {
 		"phpstan": "phpstan analyse -c tests/phpstan.neon -l 3 src/",
+		"phpstan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^0.10.1 && mv composer.backup composer.json",
 		"test": "php phpunit.phar",
 		"test-setup": "[ ! -f phpunit.phar ] && wget https://phar.phpunit.de/phpunit-5.7.20.phar && mv phpunit-5.7.20.phar phpunit.phar || true",
 		"cs-check": "phpcs -p --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=/cakephp-queue/vendor/,/tmp/,/logs/,/config/Migrations/ --extensions=php ./",
