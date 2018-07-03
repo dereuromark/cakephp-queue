@@ -23,6 +23,11 @@ class TaskFinderTest extends TestCase {
 	public $err;
 
 	/**
+	 * @var \Queue\Queue\TaskFinder
+	 */
+	protected $taskFinder;
+
+	/**
 	 * Fixtures to load
 	 *
 	 * @var array
@@ -48,7 +53,7 @@ class TaskFinderTest extends TestCase {
 		$this->taskFinder = new TaskFinder();
 
 		$result = $this->taskFinder->allAppAndPluginTasks();
-		$this->assertCount(7, $result);
+		$this->assertCount(8, $result);
 		$this->assertArraySubset(['QueueFoo'], $result);
 		$this->assertTrue(!in_array('Foo.QueueFoo', $result));
 	}

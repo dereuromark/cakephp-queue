@@ -154,7 +154,7 @@ class QueueShellTest extends TestCase {
 	 */
 	public function testMemoryUsage() {
 		$result = $this->invokeMethod($this->QueueShell, '_memoryUsage');
-		$this->assertRegExp('/^\d+MB$/', $result, 'Should be e.g. `17MB`.');
+		$this->assertRegExp('/^\d+MB/', $result, 'Should be e.g. `17MB` or `17MB/1GB` etc.');
 	}
 
 	/**
