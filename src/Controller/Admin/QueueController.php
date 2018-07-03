@@ -5,7 +5,7 @@ namespace Queue\Controller\Admin;
 use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Event\Event;
-use Cake\Network\Exception\NotFoundException;
+use Cake\Http\Exception\NotFoundException;
 use Queue\Queue\TaskFinder;
 
 /**
@@ -65,7 +65,7 @@ class QueueController extends AppController {
 	 *
 	 * @return \Cake\Http\Response
 	 *
-	 * @throws \Cake\Network\Exception\NotFoundException
+	 * @throws \Cake\Http\Exception\NotFoundException
 	 */
 	public function addJob($job = null) {
 		if (!$job) {
@@ -84,7 +84,7 @@ class QueueController extends AppController {
 	 *
 	 * @return \Cake\Http\Response
 	 *
-	 * @throws \Cake\Network\Exception\NotFoundException
+	 * @throws \Cake\Http\Exception\NotFoundException
 	 */
 	public function resetJob($id = null) {
 		if (!$id) {
@@ -133,7 +133,7 @@ class QueueController extends AppController {
 	 * Mark all failed jobs as ready for re-run.
 	 *
 	 * @return \Cake\Http\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException when not posted
+	 * @throws \Cake\Http\Exception\MethodNotAllowedException when not posted
 	 */
 	public function reset() {
 		$this->request->allowMethod('post');
@@ -149,7 +149,7 @@ class QueueController extends AppController {
 	 * Truncate the queue list / table.
 	 *
 	 * @return \Cake\Http\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException when not posted
+	 * @throws \Cake\Http\Exception\MethodNotAllowedException when not posted
 	 */
 	public function hardReset() {
 		$this->request->allowMethod('post');

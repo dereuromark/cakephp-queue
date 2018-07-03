@@ -37,6 +37,11 @@ class QueueShell extends Shell {
 	protected $_taskConf;
 
 	/**
+	 * @var int
+	 */
+	protected $_time = 0;
+
+	/**
 	 * @var bool
 	 */
 	protected $_exit = false;
@@ -164,6 +169,8 @@ TEXT;
 				$taskname = 'Queue' . $queuedTask['job_type'];
 
 				try {
+					$this->_time = time();
+
 					$data = unserialize($queuedTask['data']);
 					/** @var \Queue\Shell\Task\QueueTask $task */
 					$task = $this->{$taskname};
@@ -436,16 +443,22 @@ TEXT;
 	/**
 	 * Timestamped log.
 	 *
-	 * @param string $type Log type
+	 * @param string $message Log type
 	 * @param int|null $pid PID of the process
 	 * @return void
 	 */
-	protected function _log($type, $pid = null) {
+	protected function _log($message, $pid = null) {
 		if (!Configure::read('Queue.log')) {
 			return;
 		}
 
-		$message = $type . ' (pid ' . $pid . ')';
+		$timeNeeded = $this->_timeNeeded();
+		$memoryUsage = $this->_memoryUsage();
+		$message .= ' [' . $timeNeeded . 's, ' . $memoryUsage . ']';
+
+		if ($pid) {
+			$message .= ' (pid ' . $pid . ')';
+		}
 		Log::write('info', $message, ['scope' => 'queue']);
 	}
 
@@ -581,6 +594,43 @@ TEXT;
 		if (file_exists($pidFilePath . 'queue_' . $pid . '.pid')) {
 			unlink($pidFilePath . 'queue_' . $pid . '.pid');
 		}
+	}
+
+	/**
+	 * @return string Memory usage in MB.
+	 */
+	protected function _memoryUsage() {
+		$limit = ini_get('memory_limit');
+
+		$used = number_format(memory_get_peak_usage() / (1024 * 1024), 0) . 'MB';
+		if ($limit !== '-1') {
+			$used .= '/' . $limit;
+		}
+
+		return $used;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function _timeNeeded() {
+		$diff = $this->_time() - $this->_time($this->_time);
+		$seconds = max($diff, 1);
+
+		return $seconds . 's';
+	}
+
+	/**
+	 * @param int|null $providedTime
+	 *
+	 * @return int
+	 */
+	protected function _time($providedTime = null) {
+		if ($providedTime) {
+			return $providedTime;
+		}
+
+		return time();
 	}
 
 }

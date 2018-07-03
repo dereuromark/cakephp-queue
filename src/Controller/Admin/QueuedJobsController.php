@@ -23,8 +23,7 @@ class QueuedJobsController extends AppController {
 	/**
 	 * @return void
 	 */
-	public function initialize()
-	{
+	public function initialize() {
 		parent::initialize();
 
 		if (!Plugin::loaded('Search')) {
@@ -78,7 +77,7 @@ class QueuedJobsController extends AppController {
 	 *
 	 * @param string|null $id Queued Job id.
 	 * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-	 * @throws \Cake\Network\Exception\NotFoundException When record not found.
+	 * @throws \Cake\Http\Exception\NotFoundException When record not found.
 	 */
 	public function edit($id = null) {
 		$queuedJob = $this->QueuedJobs->get($id, [

@@ -92,8 +92,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * @return \Search\Manager
 	 */
-	public function searchManager()
-	{
+	public function searchManager() {
 		$searchManager = $this->behaviors()->Search->searchManager();
 		$searchManager
 			->value('job_type')

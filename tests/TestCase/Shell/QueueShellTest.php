@@ -8,8 +8,11 @@ use Cake\Datasource\ConnectionManager;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\QueueShell;
 use Tools\TestSuite\ConsoleOutput;
+use Tools\TestSuite\ToolsTestTrait;
 
 class QueueShellTest extends TestCase {
+
+	use ToolsTestTrait;
 
 	/**
 	 * @var \Queue\Shell\QueueShell|\PHPUnit_Framework_MockObject_MockObject
@@ -128,6 +131,30 @@ class QueueShellTest extends TestCase {
 		$this->QueueShell->runworker();
 
 		$this->assertContains('Job did not finish, requeued after try 1.', $this->out->output());
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testTimeNeeded() {
+		$this->QueueShell = $this->getMockBuilder(QueueShell::class)->setMethods(['_time'])->getMock();
+
+		$first = time();
+		$second = $first - HOUR + MINUTE;
+		$this->QueueShell->expects($this->at(0))->method('_time')->will($this->returnValue($first));
+		$this->QueueShell->expects($this->at(1))->method('_time')->will($this->returnValue($second));
+		$this->QueueShell->expects($this->exactly(2))->method('_time')->withAnyParameters();
+
+		$result = $this->invokeMethod($this->QueueShell, '_timeNeeded');
+		$this->assertSame('3540s', $result);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testMemoryUsage() {
+		$result = $this->invokeMethod($this->QueueShell, '_memoryUsage');
+		$this->assertRegExp('/^\d+MB$/', $result, 'Should be e.g. `17MB`.');
 	}
 
 	/**
