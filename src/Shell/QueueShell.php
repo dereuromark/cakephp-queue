@@ -602,7 +602,7 @@ TEXT;
 	protected function _memoryUsage() {
 		$limit = ini_get('memory_limit');
 
-		$used = number_format(memory_get_peak_usage() / (1024 * 1024), 0) . 'MB';
+		$used = number_format(memory_get_peak_usage(true) / (1024 * 1024), 0) . 'MB';
 		if ($limit !== '-1') {
 			$used .= '/' . $limit;
 		}
