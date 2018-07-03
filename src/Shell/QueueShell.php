@@ -184,14 +184,12 @@ TEXT;
 					$return = false;
 
 					$failureMessage = get_class($e) . ': ' . $e->getMessage();
-					//log the exception
-					$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString());
+					$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
 				} catch (Exception $e) {
 					$return = false;
 
 					$failureMessage = get_class($e) . ': ' . $e->getMessage();
-					//log the exception
-					$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString());
+					$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
 				}
 
 				if ($return) {
@@ -228,14 +226,6 @@ TEXT;
 		if ($this->param('verbose')) {
 			$this->_log('endworker', $pid);
 		}
-	}
-
-	/**
-	 * @param string $message
-	 * @return void
-	 */
-	protected function _logError($message) {
-		Log::write('error', $message);
 	}
 
 	/**
@@ -460,6 +450,22 @@ TEXT;
 			$message .= ' (pid ' . $pid . ')';
 		}
 		Log::write('info', $message, ['scope' => 'queue']);
+	}
+
+	/**
+	 * @param string $message
+	 * @param int|null $pid PID of the process
+	 * @return void
+	 */
+	protected function _logError($message, $pid = null) {
+		$timeNeeded = $this->_timeNeeded();
+		$memoryUsage = $this->_memoryUsage();
+		$message .= ' [' . $timeNeeded . ', ' . $memoryUsage . ']';
+
+		if ($pid) {
+			$message .= ' (pid ' . $pid . ')';
+		}
+		Log::write('error', $message);
 	}
 
 	/**
