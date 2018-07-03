@@ -69,11 +69,6 @@ class QueueMonitorExampleTask extends QueueTask {
 		$this->doMonitoring();
 
 		$this->out(' ->Success, the MonitorExample Job was run.<-');
-		$this->out(' ');
-		$this->out(' ');
-
-		// Lets create an Example task on successful execution
-		$this->QueuedJobs->createJob('Example');
 
 		return true;
 	}
