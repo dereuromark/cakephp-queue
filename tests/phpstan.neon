@@ -1,0 +1,6 @@
+parameters:
+    autoload_files:
+        - tests/bootstrap.php
+
+    ignoreErrors:
+        - '#Access to an undefined property Cake\\ORM\\BehaviorRegistry::\$Search#'

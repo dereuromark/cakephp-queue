@@ -82,18 +82,6 @@ class QueueEmailTask extends QueueTask {
 				$content = isset($data['content']) ? $data['content'] : null;
 				$result = $email->send($content);
 
-				if (!isset($config['log']) || !empty($config['logTrace']) && $config['logTrace'] === true) {
-					$config['log'] = 'email_trace';
-				} elseif (!empty($config['logTrace'])) {
-					$config['log'] = $config['logTrace'];
-				}
-				if (isset($config['logTrace']) && !$config['logTrace']) {
-					$config['log'] = false;
-				}
-
-				if (!empty($config['logTrace'])) {
-					$this->_log($result, $config['log']);
-				}
 				return (bool)$result;
 			} catch (Throwable $e) {
 				$error = $e->getMessage();

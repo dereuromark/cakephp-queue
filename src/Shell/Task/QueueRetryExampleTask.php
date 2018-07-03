@@ -29,6 +29,11 @@ class QueueRetryExampleTask extends QueueTask {
 	public $retries = 4;
 
 	/**
+	 * @var string
+	 */
+	protected $file;
+
+	/**
 	 * Constructs this Shell instance.
 	 *
 	 * @param \Cake\Console\ConsoleIo|null $io IO

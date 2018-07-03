@@ -147,7 +147,7 @@ class QueuedJobsTable extends Table {
 	 * @param string $jobName Job name
 	 * @param array|null $data Array of data
 	 * @param array $config Config to save along with the job
-	 * @return \Cake\ORM\Entity Saved job entity
+	 * @return \Queue\Model\Entity\QueuedJob Saved job entity
 	 * @throws \Exception
 	 */
 	public function createJob($jobName, array $data = null, array $config = []) {
@@ -430,7 +430,7 @@ class QueuedJobsTable extends Table {
 			$conditions['id'] = $id;
 		}
 
-		return $this->updateAll($fields, $conditions);
+		return (bool)$this->updateAll($fields, $conditions);
 	}
 
 	/**

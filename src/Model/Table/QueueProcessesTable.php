@@ -71,7 +71,7 @@ class QueueProcessesTable extends Table {
 	}
 
 	/**
-	 * @return \Cake\Orm\Query
+	 * @return \Cake\ORM\Query
 	 */
 	public function findActive() {
 		$timeout = Configure::read('Queue.defaultworkertimeout');
@@ -102,6 +102,7 @@ class QueueProcessesTable extends Table {
 	 * @return void
 	 */
 	public function update($pid) {
+		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
 		$queueProcess = $this->find()->where(['pid' => $pid])->firstOrFail();
 		$queueProcess->modified = new FrozenTime();
 		$this->saveOrFail($queueProcess);
