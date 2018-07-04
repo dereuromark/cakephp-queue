@@ -648,7 +648,7 @@ class QueuedJobsTable extends Table {
 	 * @return string
 	 */
 	protected function _getDriverName() {
-		$className = explode('\\', $this->connection()->config()['driver']);
+		$className = explode('\\', $this->getConnection()->config()['driver']);
 		$name = end($className);
 
 		return $name;
