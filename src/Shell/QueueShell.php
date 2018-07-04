@@ -387,7 +387,7 @@ TEXT;
 		];
 
 		return parent::getOptionParser()
-			->description($this->_getDescription())
+			->setDescription($this->_getDescription())
 			->addSubcommand('clean', [
 				'help' => 'Remove old jobs (cleanup)',
 				'parser' => $subcommandParser,
