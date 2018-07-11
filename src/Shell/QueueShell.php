@@ -157,7 +157,7 @@ TEXT;
 			}
 
 			if ($this->param('verbose')) {
-				$this->_log('runworker', $pid);
+				$this->_log('runworker', $pid, false);
 			}
 			$this->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
 
@@ -165,7 +165,7 @@ TEXT;
 
 			if ($queuedTask) {
 				$this->out('Running Job of type "' . $queuedTask['job_type'] . '"');
-				$this->_log('job ' . $queuedTask['job_type'] . ', id ' . $queuedTask['id'], $pid);
+				$this->_log('job ' . $queuedTask['job_type'] . ', id ' . $queuedTask['id'], $pid, false);
 				$taskname = 'Queue' . $queuedTask['job_type'];
 
 				try {
@@ -435,16 +435,19 @@ TEXT;
 	 *
 	 * @param string $message Log type
 	 * @param int|null $pid PID of the process
+	 * @param bool $addDetails
 	 * @return void
 	 */
-	protected function _log($message, $pid = null) {
+	protected function _log($message, $pid = null, $addDetails = true) {
 		if (!Configure::read('Queue.log')) {
 			return;
 		}
 
-		$timeNeeded = $this->_timeNeeded();
-		$memoryUsage = $this->_memoryUsage();
-		$message .= ' [' . $timeNeeded . ', ' . $memoryUsage . ']';
+		if ($addDetails) {
+			$timeNeeded = $this->_timeNeeded();
+			$memoryUsage = $this->_memoryUsage();
+			$message .= ' [' . $timeNeeded . ', ' . $memoryUsage . ']';
+		}
 
 		if ($pid) {
 			$message .= ' (pid ' . $pid . ')';
