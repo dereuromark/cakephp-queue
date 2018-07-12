@@ -41,6 +41,6 @@ return [
 		'connection' => null,
 
 		// enable Search. requires friendsofcake/search
-		'isSearchEnabled' => false,
+		'isSearchEnabled' => true,
 	],
 ];

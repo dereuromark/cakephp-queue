@@ -17,7 +17,7 @@ use Cake\Core\Plugin;
 <div class="content action-index index large-9 medium-8 columns col-sm-8 col-xs-12">
 
 	<?php
-	if (Configure::read('Queue.isSearchEnabled')) {
+	if (Configure::read('Queue.isSearchEnabled') && Plugin::loaded('Search')) {
 		echo $this->element('Queue.search');
 	}
 	?>
