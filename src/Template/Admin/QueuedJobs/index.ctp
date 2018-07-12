@@ -4,6 +4,7 @@
  * @var \Queue\Model\Entity\QueuedJob[]|\Cake\Collection\CollectionInterface $queuedJobs
  */
 
+use Cake\Core\Configure;
 use Cake\Core\Plugin;
 
 ?>
@@ -16,7 +17,7 @@ use Cake\Core\Plugin;
 <div class="content action-index index large-9 medium-8 columns col-sm-8 col-xs-12">
 
 	<?php
-	if (Plugin::loaded('Search')) {
+	if (Configure::read('Queue.isSearchEnabled') && Plugin::loaded('Search')) {
 		echo $this->element('Queue.search');
 	}
 	?>
