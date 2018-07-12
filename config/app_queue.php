@@ -39,5 +39,8 @@ return [
 
 		// set default datasource connection
 		'connection' => null,
+
+		// enable Search. requires friendsofcake/search
+		'isSearchEnabled' => false,
 	],
 ];

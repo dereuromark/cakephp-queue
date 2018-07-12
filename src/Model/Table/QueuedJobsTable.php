@@ -82,7 +82,7 @@ class QueuedJobsTable extends Table {
 		parent::initialize($config);
 
 		$this->addBehavior('Timestamp');
-		if (Plugin::loaded('Search')) {
+		if (Configure::read('Queue.isSearchEnabled')) {
 			$this->addBehavior('Search.Search');
 		}
 
