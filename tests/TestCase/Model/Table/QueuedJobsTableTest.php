@@ -138,7 +138,6 @@ class QueuedJobsTableTest extends TestCase {
 
 		// after this job has been fetched, it may not be reassigned.
 		$result = $this->QueuedJobs->requestJob($capabilities);
-		#debug($result);ob_flush();
 		$this->assertNull($result);
 
 		// queue length is still 1 since the first job did not finish.
@@ -496,12 +495,12 @@ class QueuedJobsTableTest extends TestCase {
 
 		// we should only get tasks 4 and 6, in that order, when requesting inside the group
 		$this->QueuedJobs->clearKey();
-		$tmp = $this->QueuedJobs->requestJob($capabilities, 'testgroup');
+		$tmp = $this->QueuedJobs->requestJob($capabilities, ['testgroup']);
 		$this->assertEquals('task1', $tmp['job_type']);
 		$this->assertEquals($data4, unserialize($tmp['data']));
 
 		$this->QueuedJobs->clearKey();
-		$tmp = $this->QueuedJobs->requestJob($capabilities, 'testgroup');
+		$tmp = $this->QueuedJobs->requestJob($capabilities, ['testgroup']);
 		$this->assertEquals('task1', $tmp['job_type']);
 		$this->assertEquals($data6, unserialize($tmp['data']));
 

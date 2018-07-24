@@ -158,6 +158,20 @@ class QueueShellTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testStringToArray() {
+		$string = 'Foo,Bar,';
+		$result = $this->invokeMethod($this->QueueShell, '_stringToArray', [$string]);
+
+		$expected = [
+			'Foo',
+			'Bar',
+		];
+		$this->assertSame($expected, $result);
+	}
+
+	/**
 	 * Helper method for skipping tests that need a real connection.
 	 *
 	 * @return void
