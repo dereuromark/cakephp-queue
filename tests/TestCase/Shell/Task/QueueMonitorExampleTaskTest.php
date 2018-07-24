@@ -2,8 +2,10 @@
 
 namespace Queue\Test\TestCase\Shell;
 
+use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueMonitorExampleTask;
+use Tools\TestSuite\ConsoleOutput;
 use Tools\TestSuite\ToolsTestTrait;
 
 class QueueMonitorExampleTaskTest extends TestCase {
@@ -33,7 +35,11 @@ class QueueMonitorExampleTaskTest extends TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->Task = new QueueMonitorExampleTask();
+		$this->out = new ConsoleOutput();
+		$this->err = new ConsoleOutput();
+		$io = new ConsoleIo($this->out, $this->err);
+
+		$this->Task = new QueueMonitorExampleTask($io);
 	}
 
 	/**
@@ -43,6 +49,8 @@ class QueueMonitorExampleTaskTest extends TestCase {
 		$result = $this->Task->run([], null);
 
 		$this->assertTrue($result);
+
+		$this->assertTextContains('Success, the MonitorExample Job was run', $this->out->output());
 	}
 
 }

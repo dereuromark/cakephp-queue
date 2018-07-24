@@ -214,7 +214,7 @@ Important: Do not forget to set your [domain](https://book.cakephp.org/3.0/en/co
 You can filter "running" by group or even type:
 ```
 bin/cake queue runworker -g MyGroup
-bin/cake queue runworker -t MyType
+bin/cake queue runworker -t MyType,AnotherType,ThisOneToo
 ```
 That can be helpful when migrating servers and you only want to execute certain ones on the new system or want to test specific servers.
 
@@ -528,8 +528,7 @@ Do not run this with production ones, though.
 
 #### Concurrent workers may execute the same job multiple times
 
-
-If you want to use multiple workers, please use only one per type or double check that all jobs have a high enough timeout (>> 2x max possible execution time of a job). Currently it would otherwise risk the jobs being run multiple times!
+If you want to use multiple workers, please double check that all jobs have a high enough timeout (>> 2x max possible execution time of a job). Currently it would otherwise risk the jobs being run multiple times!
 
 
 ## IDE support

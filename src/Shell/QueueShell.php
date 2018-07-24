@@ -9,6 +9,7 @@ use Cake\I18n\Number;
 use Cake\I18n\Time;
 use Cake\Log\Log;
 use Cake\Utility\Inflector;
+use Cake\Utility\Text;
 use Exception;
 use Queue\Queue\TaskFinder;
 use Throwable;
@@ -140,8 +141,8 @@ TEXT;
 		$this->_exit = false;
 
 		$starttime = time();
-		$group = $this->param('group');
-		$type = $this->param('type');
+		$groups = $this->_stringToArray($this->param('group'));
+		$types = $this->_stringToArray($this->param('type'));
 
 		while (!$this->_exit) {
 			// make sure accidental overriding isnt possible
@@ -160,7 +161,7 @@ TEXT;
 			}
 			$this->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
 
-			$queuedTask = $this->QueuedJobs->requestJob($this->_getTaskConf(), $group, $type);
+			$queuedTask = $this->QueuedJobs->requestJob($this->_getTaskConf(), $groups, $types);
 
 			if ($queuedTask) {
 				$this->out('Running Job of type "' . $queuedTask['job_type'] . '"');
@@ -361,12 +362,12 @@ TEXT;
 		$subcommandParserFull = $subcommandParser;
 		$subcommandParserFull['options']['group'] = [
 			'short' => 'g',
-			'help' => 'Group',
+			'help' => 'Group (comma separated list possible)',
 			'default' => null,
 		];
 		$subcommandParserFull['options']['type'] = [
 			'short' => 't',
-			'help' => 'Type',
+			'help' => 'Type (comma separated list possible)',
 			'default' => null,
 		];
 
@@ -616,6 +617,20 @@ TEXT;
 		}
 
 		return time();
+	}
+
+	/**
+	 * @param string|null $param
+	 * @return array
+	 */
+	protected function _stringToArray($param) {
+		if (!$param) {
+			return [];
+		}
+
+		$array = Text::tokenize($param);
+
+		return array_filter($array);
 	}
 
 }
