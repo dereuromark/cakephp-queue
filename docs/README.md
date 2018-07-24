@@ -17,7 +17,7 @@ Plugin::load('Queue', ['routes' => true]);
 
 Run the following command in the CakePHP console to create the tables using the Migrations plugin:
 ```sh
-bin/cake Migrations migrate -p Queue
+bin/cake migrations migrate -p Queue
 ```
 
 It is also advised to have the `posix` PHP extension enabled. 
