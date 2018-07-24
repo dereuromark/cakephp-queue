@@ -185,8 +185,8 @@ Run the following using the CakePHP shell:
     The worker will always try to find jobs matching its installed Tasks.
 
 
-Some tasks will not be triggered from the console, but from the APP code.
-You will need to use the model access for QueueTask and the createJob() function to do this.
+Most tasks will not be triggered from the console, but from the APP code.
+You will need to use the model access for QueuedJobs and the createJob() function to do this.
 
 The `createJob()` function takes three arguments.
 - The first argument is the name of the type of job that you are creating.
@@ -208,6 +208,15 @@ TableRegistry::get('Queue.QueuedJobs')->createJob('Email',
 It will use your custom APP `QueueEmailTask` to send out emails via CLI.
 
 Important: Do not forget to set your [domain](https://book.cakephp.org/3.0/en/core-libraries/email.html#sending-emails-from-cli) when sending from CLI.
+
+
+### Running only specific tasks per worker
+You can filter "running" by group or even type:
+```
+bin/cake queue runworker -g MyGroup
+bin/cake queue runworker -t MyType
+```
+That can be helpful when migrating servers and you only want to execute certain ones on the new system or want to test specific servers.
 
 ### Avoiding parallel (re)queueing
 
