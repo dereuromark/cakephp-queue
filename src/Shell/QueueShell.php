@@ -342,26 +342,6 @@ TEXT;
 	}
 
 	/**
-	 * Set up tables
-	 *
-	 * @see README
-	 * @return void
-	 */
-	public function install() {
-		$this->out('Run `bin/cake migrations migrate -p Queue`');
-		$this->out('Set up cronjob, e.g. via `crontab -e -u www-data`');
-	}
-
-	/**
-	 * Remove table and kill workers
-	 *
-	 * @return void
-	 */
-	public function uninstall() {
-		$this->out('Remove all workers and cronjobs and then delete the Queue plugin tables.');
-	}
-
-	/**
 	 * Get option parser method to parse commandline options
 	 *
 	 * @return \Cake\Console\ConsoleOptionParser
@@ -398,14 +378,6 @@ TEXT;
 			])
 			->addSubcommand('add', [
 				'help' => 'Add Job',
-				'parser' => $subcommandParser,
-			])
-			->addSubcommand('install', [
-				'help' => 'Install info',
-				'parser' => $subcommandParser,
-			])
-			->addSubcommand('uninstall', [
-				'help' => 'Uninstall info',
 				'parser' => $subcommandParser,
 			])
 			->addSubcommand('stats', [
