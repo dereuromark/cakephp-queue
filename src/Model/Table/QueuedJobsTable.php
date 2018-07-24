@@ -266,9 +266,10 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @param array $capabilities Available QueueWorkerTasks.
 	 * @param string|null $group Request a job from this group, (from any group if null)
+	 * @param string|null $type Request a job from this type, (any type if null)
 	 * @return \Queue\Model\Entity\QueuedJob|null
 	 */
-	public function requestJob(array $capabilities, $group = null) {
+	public function requestJob(array $capabilities, $group = null, $type = null) {
 		$now = new Time();
 		$nowStr = $now->toDateTimeString();
 		$driverName = $this->_getDriverName();
@@ -297,6 +298,9 @@ class QueuedJobsTable extends Table {
 
 		if ($group !== null) {
 			$options['conditions']['job_group'] = $group;
+		}
+		if ($type !== null) {
+			$options['conditions']['job_type'] = $type;
 		}
 
 		// Generate the task specific conditions.

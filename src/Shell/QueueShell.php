@@ -140,10 +140,9 @@ TEXT;
 		$this->_exit = false;
 
 		$starttime = time();
-		$group = null;
-		if (!empty($this->params['group'])) {
-			$group = $this->params['group'];
-		}
+		$group = $this->param('group');
+		$type = $this->param('type');
+
 		while (!$this->_exit) {
 			// make sure accidental overriding isnt possible
 			set_time_limit(0);
@@ -161,7 +160,7 @@ TEXT;
 			}
 			$this->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
 
-			$queuedTask = $this->QueuedJobs->requestJob($this->_getTaskConf(), $group);
+			$queuedTask = $this->QueuedJobs->requestJob($this->_getTaskConf(), $group, $type);
 
 			if ($queuedTask) {
 				$this->out('Running Job of type "' . $queuedTask['job_type'] . '"');
@@ -383,7 +382,12 @@ TEXT;
 		$subcommandParserFull['options']['group'] = [
 			'short' => 'g',
 			'help' => 'Group',
-			'default' => '',
+			'default' => null,
+		];
+		$subcommandParserFull['options']['type'] = [
+			'short' => 't',
+			'help' => 'Type',
+			'default' => null,
 		];
 
 		return parent::getOptionParser()
