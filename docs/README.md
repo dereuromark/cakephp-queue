@@ -215,8 +215,9 @@ You can filter "running" by group or even type:
 ```
 bin/cake queue runworker -g MyGroup
 bin/cake queue runworker -t MyType,AnotherType,-ThisOneToo
+bin/cake queue runworker -t "-ThisOneNot"
 ```
-Use `-` prefix to exclude.
+Use `-` prefix to exclude. Note that you might need to use `""` around the value then to avoid it being seen as option key.
 
 That can be helpful when migrating servers and you only want to execute certain ones on the new system or want to test specific servers.
 
