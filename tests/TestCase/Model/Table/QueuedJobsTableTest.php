@@ -500,7 +500,7 @@ class QueuedJobsTableTest extends TestCase {
 		$this->assertEquals($data4, unserialize($tmp['data']));
 
 		$this->QueuedJobs->clearKey();
-		$tmp = $this->QueuedJobs->requestJob($capabilities, ['testgroup']);
+		$tmp = $this->QueuedJobs->requestJob($capabilities, ['testgroup', '-excluded']);
 		$this->assertEquals('task1', $tmp['job_type']);
 		$this->assertEquals($data6, unserialize($tmp['data']));
 

@@ -265,8 +265,8 @@ class QueuedJobsTable extends Table {
 	 * from the specified group (or any if null).
 	 *
 	 * @param array $capabilities Available QueueWorkerTasks.
-	 * @param array $groups Request a job from these groups, or any otherwise.
-	 * @param array $types Request a job from these types, or any otherwise.
+	 * @param array $groups Request a job from these groups (or exclude certain groups), or any otherwise.
+	 * @param array $types Request a job from these types (or exclude certain types), or any otherwise.
 	 * @return \Queue\Model\Entity\QueuedJob|null
 	 */
 	public function requestJob(array $capabilities, array $groups = [], array $types = []) {
@@ -297,10 +297,10 @@ class QueuedJobsTable extends Table {
 		];
 
 		if ($groups) {
-			$options['conditions']['job_group IN'] = $groups;
+			$options['conditions'] = $this->addFilter($options['conditions'], 'job_group', $groups);
 		}
 		if ($types) {
-			$options['conditions']['job_type IN'] = $types;
+			$options['conditions'] = $this->addFilter($options['conditions'], 'job_type', $types);
 		}
 
 		// Generate the task specific conditions.
@@ -695,6 +695,33 @@ class QueuedJobsTable extends Table {
 		$name = end($className);
 
 		return $name;
+	}
+
+	/**
+	 * @param array $conditions
+	 * @param string $key
+	 * @param array $groups
+	 * @return array
+	 */
+	protected function addFilter(array $conditions, $key, array $groups) {
+		$include = [];
+		$exclude = [];
+		foreach ($groups as $group) {
+			if (substr($group, 0, 1) === '-') {
+				$exclude[] = $group;
+			} else {
+				$include[] = $group;
+			}
+		}
+
+		if ($include) {
+			$conditions[$key . ' IN'] = $include;
+		}
+		if ($exclude) {
+			$conditions[$key . ' NOT IN'] = $exclude;
+		}
+
+		return $conditions;
 	}
 
 }

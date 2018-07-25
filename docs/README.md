@@ -214,8 +214,10 @@ Important: Do not forget to set your [domain](https://book.cakephp.org/3.0/en/co
 You can filter "running" by group or even type:
 ```
 bin/cake queue runworker -g MyGroup
-bin/cake queue runworker -t MyType,AnotherType,ThisOneToo
+bin/cake queue runworker -t MyType,AnotherType,-ThisOneToo
 ```
+Use `-` prefix to exclude.
+
 That can be helpful when migrating servers and you only want to execute certain ones on the new system or want to test specific servers.
 
 ### Avoiding parallel (re)queueing
