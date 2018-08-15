@@ -637,8 +637,7 @@ TEXT;
 	 *
 	 * @return void
 	 */
-	protected function _setPhpTimeout()
-	{
+	protected function _setPhpTimeout() {
 		$timeLimit = (int)Configure::read('Queue.workermaxruntime') * 100;
 		if (Configure::read('Queue.workertimeout') !== null) {
 			$timeLimit = (int)Configure::read('Queue.workertimeout');
