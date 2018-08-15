@@ -22,6 +22,9 @@ return [
 		// seconds of running time after which the worker will terminate (0 = unlimited)
 		'workermaxruntime' => 120,
 
+		// seconds of running time after which the PHP process will terminate, null uses workermaxruntime * 100
+		'workertimeout' => null,
+
 		// minimum time (in seconds) which a task remains in the database before being cleaned up.
 		'cleanuptimeout' => 3600,
 
