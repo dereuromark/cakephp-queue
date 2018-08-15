@@ -145,8 +145,7 @@ TEXT;
 		$types = $this->_stringToArray($this->param('type'));
 
 		while (!$this->_exit) {
-			// make sure accidental overriding isnt possible
-			set_time_limit(0);
+			$this->_setPhpTimeout();
 
 			try {
 				$this->_updatePid($pid);
@@ -631,6 +630,21 @@ TEXT;
 		$array = Text::tokenize($param);
 
 		return array_filter($array);
+	}
+
+	/**
+	 * Makes sure accidental overriding isn't possible, uses workermaxruntime times 100 by default.
+	 *
+	 * @return void
+	 */
+	protected function _setPhpTimeout()
+	{
+		$timeLimit = (int)Configure::read('Queue.workermaxruntime') * 100;
+		if (Configure::read('Queue.workertimeout') !== null) {
+			$timeLimit = (int)Configure::read('Queue.workertimeout');
+		}
+
+		set_time_limit($timeLimit);
 	}
 
 }
