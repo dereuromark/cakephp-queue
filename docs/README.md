@@ -44,7 +44,7 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 - Default timeout after which a job is requeued if the worker doesn't report back:
 
     ```php
-    $config['Queue']['defaultworkertimeout'] = 3600;
+    $config['Queue']['defaultworkertimeout'] = 1800;
     ```
 
 - Default number of retries if a job fails or times out:
@@ -56,10 +56,18 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 - Seconds of running time after which the worker will terminate (0 = unlimited):
 
     ```php
-    $config['Queue']['workermaxruntime'] = 60;
+    $config['Queue']['workermaxruntime'] = 120;
     ```
 
     *Warning:* Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle.
+	
+- Seconds of running time after which the PHP script of the worker will terminate (0 = unlimited):
+
+    ```php
+    $config['Queue']['workertimeout'] = 120 * 100;
+    ```
+
+    *Warning:* Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle. This is the last defense of the tool to prevent flooding too many processes. So make sure this is long enough to never cut off jobs, but also not too long, so the process count stays in manageable range.
 
 - Should a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running):
 
@@ -99,6 +107,11 @@ The values above are the default settings which apply, when no configuration is 
 Finally, make sure you allow the configured `pidfilepath` to be creatable and writable.
 Especially on deployment some `mkdir` command might be necessary.
 Set it to false to use the DB here instead, as well.
+
+#### Configuration tips
+
+For the beginning maybe use not too many runners in parallel, and keep the runtimes rather short while starting new jobs every few minutes.
+You can then always increase spawning of runners if there is a shortage. 
 
 ### Task configuration
 
@@ -497,14 +510,14 @@ Make sure you got the template for it then, e.g.:
 <?= $this->Url->build(['prefix' => 'admin', 'controller' => 'Comments', 'action'=> 'view', $comment['id']], true) ?>
 ```
 
-This way all the generation is in the specific task and template and can be tested separaretly.
+This way all the generation is in the specific task and template and can be tested separately.
 
 
 ### Killing workers
 
-First of all: Make sure you don't run workers with `workermaxruntime` of `0`.
+First of all: Make sure you don't run workers with `workermaxruntime` and `workertimeout` of `0`.
 Then they would at least not run forever, and might pile up only if you start them faster then they terminate.
-
+That can overload the server.
 
 #### Via tool
 

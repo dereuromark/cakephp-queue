@@ -26,7 +26,7 @@ return [
 		'workertimeout' => null,
 
 		// minimum time (in seconds) which a task remains in the database before being cleaned up.
-		'cleanuptimeout' => 3600,
+		'cleanuptimeout' => 2592000, // 30 days
 
 		// instruct a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running)
 		'exitwhennothingtodo' => false,
