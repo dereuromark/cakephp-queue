@@ -700,17 +700,17 @@ class QueuedJobsTable extends Table {
 	/**
 	 * @param array $conditions
 	 * @param string $key
-	 * @param array $groups
+	 * @param array $values
 	 * @return array
 	 */
-	protected function addFilter(array $conditions, $key, array $groups) {
+	protected function addFilter(array $conditions, $key, array $values) {
 		$include = [];
 		$exclude = [];
-		foreach ($groups as $group) {
-			if (substr($group, 0, 1) === '-') {
-				$exclude[] = $group;
+		foreach ($values as $value) {
+			if (substr($value, 0, 1) === '-') {
+				$exclude[] = substr($value, 1);
 			} else {
-				$include[] = $group;
+				$include[] = $value;
 			}
 		}
 
