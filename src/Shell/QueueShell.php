@@ -10,7 +10,6 @@ use Cake\I18n\Time;
 use Cake\Log\Log;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
-use Exception;
 use Queue\Queue\TaskFinder;
 use Throwable;
 
