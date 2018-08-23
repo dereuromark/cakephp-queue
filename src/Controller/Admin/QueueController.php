@@ -72,9 +72,13 @@ class QueueController extends AppController {
 			throw new NotFoundException();
 		}
 
-		$this->QueuedJobs->createJob($job);
+		try {
+			$this->QueuedJobs->createJob($job);
 
-		$this->Flash->success('Job ' . $job . ' added');
+			$this->Flash->success('Job ' . $job . ' added');
+		} catch (\Exception $e) {
+			$this->Flash->success('Job ' . $job . ' error: ' . $e->getMessage());
+		}
 
 		return $this->redirect(['action' => 'index']);
 	}
