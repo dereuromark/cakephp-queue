@@ -173,32 +173,14 @@ TEXT;
 					$data = unserialize($queuedTask['data']);
 					/** @var \Queue\Shell\Task\QueueTask $task */
 					$task = $this->{$taskname};
-					$return = $task->run((array)$data, $queuedTask['id']);
+					$task->run((array)$data, $queuedTask['id']);
 
-					$failureMessage = null;
-					if ($task->failureMessage) {
-						$failureMessage = $task->failureMessage;
-					}
-				} catch (Throwable $e) {
-					$return = false;
-
-					$failureMessage = get_class($e) . ': ' . $e->getMessage();
-					$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
-				} catch (Exception $e) {
-					$return = false;
-
-					$failureMessage = get_class($e) . ': ' . $e->getMessage();
-					$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
-				}
-
-				if ($return) {
 					$this->QueuedJobs->markJobDone($queuedTask);
 					$this->out('Job Finished.');
-				} else {
-					$this->QueuedJobs->markJobFailed($queuedTask, $failureMessage);
-					$failedStatus = $this->QueuedJobs->getFailedStatus($queuedTask, $this->_getTaskConf());
-					$this->_log('job ' . $queuedTask['job_type'] . ', id ' . $queuedTask['id'] . ' failed and ' . $failedStatus, $pid);
-					$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedTask->failed . '.');
+				} catch (Throwable $e) {
+					$failureMessage = get_class($e) . ': ' . $e->getMessage();
+					$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
+					$this->markJobFailed($queuedTask, $failureMessage);
 				}
 			} elseif (Configure::read('Queue.exitwhennothingtodo')) {
 				$this->out('nothing to do, exiting.');
@@ -225,6 +207,22 @@ TEXT;
 		if ($this->param('verbose')) {
 			$this->_log('endworker', $pid);
 		}
+	}
+
+	/**
+	 * Mark a specific job as failed as well as set a failure message
+	 *
+	 * @param $queuedTask
+	 * @param $failureMessage
+	 *
+	 * @return void
+	 */
+	private function markJobFailed($queuedTask, $failureMessage)
+	{
+		$this->QueuedJobs->markJobFailed($queuedTask, $failureMessage);
+		$failedStatus = $this->QueuedJobs->getFailedStatus($queuedTask, $this->_getTaskConf());
+		$this->_log('job ' . $queuedTask['job_type'] . ', id ' . $queuedTask['id'] . ' failed and ' . $failedStatus, $pid);
+		$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedTask->failed . '.');
 	}
 
 	/**

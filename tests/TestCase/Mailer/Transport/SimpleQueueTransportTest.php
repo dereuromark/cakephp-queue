@@ -36,28 +36,29 @@ class SimpleQueueTransportTest extends TestCase {
 			'headerCharset' => 'utf-8',
 		];
 
-		$this->QueueTransport->config($config);
+		$this->QueueTransport->setConfig($config);
 		$Email = new Email($config);
 
-		$Email->from('noreply@cakephp.org', 'CakePHP Test');
-		$Email->to('cake@cakephp.org', 'CakePHP');
-		$Email->cc(['mark@cakephp.org' => 'Mark Story', 'juan@cakephp.org' => 'Juan Basso']);
-		$Email->bcc('phpnut@cakephp.org');
-		$Email->subject('Testing Message');
-		$Email->attachments(['wow.txt' => [
+		$Email->setFrom('noreply@cakephp.org', 'CakePHP Test');
+		$Email->setTo('cake@cakephp.org', 'CakePHP');
+		$Email->setCc(['mark@cakephp.org' => 'Mark Story', 'juan@cakephp.org' => 'Juan Basso']);
+		$Email->setBcc('phpnut@cakephp.org');
+		$Email->setSubject('Testing Message');
+		$Email->setAttachments(['wow.txt' => [
 			'data' => 'much wow!',
 			'mimetype' => 'text/plain',
 			'contentId' => 'important'
 		]]);
 
-		$Email->template('test_template', 'test_layout');
-		$Email->subject("L'utilisateur n'a pas pu être enregistré");
-		$Email->replyTo('noreply@cakephp.org');
-		$Email->readReceipt('noreply2@cakephp.org');
-		$Email->returnPath('noreply3@cakephp.org');
-		$Email->domain('cakephp.org');
-		$Email->theme('EuroTheme');
-		$Email->emailFormat('both');
+		$Email->setLayout('test_layout');
+		$Email->setTemplate('test_template');
+		$Email->setSubject("L'utilisateur n'a pas pu être enregistré");
+		$Email->setReplyTo('noreply@cakephp.org');
+		$Email->setReadReceipt('noreply2@cakephp.org');
+		$Email->setReturnPath('noreply3@cakephp.org');
+		$Email->setDomain('cakephp.org');
+		$Email->setTheme('EuroTheme');
+		$Email->setEmailFormat('both');
 		$Email->set('var1', 1);
 		$Email->set('var2', 2);
 
@@ -69,26 +70,28 @@ class SimpleQueueTransportTest extends TestCase {
 		$emailReconstructed = new Email($config);
 
 		foreach ($output['settings'] as $method => $setting) {
-			call_user_func_array([$emailReconstructed, $method], (array)$setting);
+			$setter = 'set' . ucfirst($method);
+			call_user_func_array([$emailReconstructed, $setter], (array)$setting);
 		}
 
-		$this->assertEquals($emailReconstructed->from(), $Email->from());
-		$this->assertEquals($emailReconstructed->to(), $Email->to());
-		$this->assertEquals($emailReconstructed->cc(), $Email->cc());
-		$this->assertEquals($emailReconstructed->bcc(), $Email->bcc());
-		$this->assertEquals($emailReconstructed->subject(), $Email->subject());
-		$this->assertEquals($emailReconstructed->charset(), $Email->charset());
-		$this->assertEquals($emailReconstructed->headerCharset(), $Email->headerCharset());
-		$this->assertEquals($emailReconstructed->emailFormat(), $Email->emailFormat());
-		$this->assertEquals($emailReconstructed->replyTo(), $Email->replyTo());
-		$this->assertEquals($emailReconstructed->readReceipt(), $Email->readReceipt());
-		$this->assertEquals($emailReconstructed->returnPath(), $Email->returnPath());
-		$this->assertEquals($emailReconstructed->messageId(), $Email->messageId());
-		$this->assertEquals($emailReconstructed->domain(), $Email->domain());
-		$this->assertEquals($emailReconstructed->theme(), $Email->theme());
-		$this->assertEquals($emailReconstructed->profile(), $Email->profile());
-		$this->assertEquals($emailReconstructed->viewVars(), $Email->viewVars());
-		$this->assertEquals($emailReconstructed->template(), $Email->template());
+		$this->assertEquals($emailReconstructed->getFrom(), $Email->getFrom());
+		$this->assertEquals($emailReconstructed->getTo(), $Email->getTo());
+		$this->assertEquals($emailReconstructed->getCc(), $Email->getCc());
+		$this->assertEquals($emailReconstructed->getBcc(), $Email->getBcc());
+		$this->assertEquals($emailReconstructed->getSubject(), $Email->getSubject());
+		$this->assertEquals($emailReconstructed->getCharset(), $Email->getCharset());
+		$this->assertEquals($emailReconstructed->getHeaderCharset(), $Email->getHeaderCharset());
+		$this->assertEquals($emailReconstructed->getEmailFormat(), $Email->getEmailFormat());
+		$this->assertEquals($emailReconstructed->getReplyTo(), $Email->getReplyTo());
+		$this->assertEquals($emailReconstructed->getReadReceipt(), $Email->getReadReceipt());
+		$this->assertEquals($emailReconstructed->getReturnPath(), $Email->getReturnPath());
+		$this->assertEquals($emailReconstructed->getMessageId(), $Email->getMessageId());
+		$this->assertEquals($emailReconstructed->getDomain(), $Email->getDomain());
+		$this->assertEquals($emailReconstructed->getTheme(), $Email->getTheme());
+		$this->assertEquals($emailReconstructed->getProfile(), $Email->getProfile());
+		$this->assertEquals($emailReconstructed->getViewVars(), $Email->getViewVars());
+		$this->assertEquals($emailReconstructed->getTemplate(), $Email->getTemplate());
+		$this->assertEquals($emailReconstructed->getLayout(), $Email->getLayout());
 
 		//for now cannot be done 'data' is base64_encode on set but not decoded when get from $email
 		//$this->assertEquals($emailReconstructed->attachments(),$Email->attachments());
