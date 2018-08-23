@@ -173,14 +173,27 @@ TEXT;
 					$data = unserialize($queuedTask['data']);
 					/** @var \Queue\Shell\Task\QueueTask $task */
 					$task = $this->{$taskname};
-					$task->run((array)$data, $queuedTask['id']);
+					$return = $task->run((array)$data, $queuedTask['id']);
 
-					$this->QueuedJobs->markJobDone($queuedTask);
-					$this->out('Job Finished.');
+					$failureMessage = null;
+					if ($task->failureMessage) {
+						$failureMessage = $task->failureMessage;
+					}
 				} catch (Throwable $e) {
+					$return = false;
+
 					$failureMessage = get_class($e) . ': ' . $e->getMessage();
 					$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
-					$this->markJobFailed($queuedTask, $failureMessage);
+				}
+
+				if ($return) {
+					$this->QueuedJobs->markJobDone($queuedTask);
+					$this->out('Job Finished.');
+				} else {
+					$this->QueuedJobs->markJobFailed($queuedTask, $failureMessage);
+					$failedStatus = $this->QueuedJobs->getFailedStatus($queuedTask, $this->_getTaskConf());
+					$this->_log('job ' . $queuedTask['job_type'] . ', id ' . $queuedTask['id'] . ' failed and ' . $failedStatus, $pid);
+					$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedTask->failed . '.');
 				}
 			} elseif (Configure::read('Queue.exitwhennothingtodo')) {
 				$this->out('nothing to do, exiting.');
@@ -207,22 +220,6 @@ TEXT;
 		if ($this->param('verbose')) {
 			$this->_log('endworker', $pid);
 		}
-	}
-
-	/**
-	 * Mark a specific job as failed as well as set a failure message
-	 *
-	 * @param $queuedTask
-	 * @param $failureMessage
-	 *
-	 * @return void
-	 */
-	private function markJobFailed($queuedTask, $failureMessage)
-	{
-		$this->QueuedJobs->markJobFailed($queuedTask, $failureMessage);
-		$failedStatus = $this->QueuedJobs->getFailedStatus($queuedTask, $this->_getTaskConf());
-		$this->_log('job ' . $queuedTask['job_type'] . ', id ' . $queuedTask['id'] . ' failed and ' . $failedStatus, $pid);
-		$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedTask->failed . '.');
 	}
 
 	/**
