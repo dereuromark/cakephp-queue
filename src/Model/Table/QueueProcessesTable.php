@@ -77,7 +77,7 @@ class QueueProcessesTable extends Table {
 		$timeout = Configure::read('Queue.defaultworkertimeout');
 		$thresholdTime = time() - $timeout;
 
-		$query = $this->find()->where(['modified > ' => $thresholdTime]);
+		$query = $this->find()->where(['modified > ' => date(DATE_ISO8601, $thresholdTime)]);
 
 		return $query;
 	}
