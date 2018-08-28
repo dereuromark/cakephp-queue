@@ -177,7 +177,7 @@ class QueueController extends AppController {
 		$pidFilePath = Configure::read('Queue.pidfilepath');
 		if (!$pidFilePath) {
 			$this->loadModel('Queue.QueueProcesses');
-			$results = $this->QueueProcesses->find()->where(['modified >' => $thresholdTime])->orderDesc('modified')->enableHydration(false)->all()->toArray();
+			$results = $this->QueueProcesses->find()->where(['modified >' => date(DATE_ISO8601, $thresholdTime)])->orderDesc('modified')->enableHydration(false)->all()->toArray();
 
 			if (!$results) {
 				return [];
