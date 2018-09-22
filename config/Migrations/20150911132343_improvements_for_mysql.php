@@ -18,7 +18,7 @@ class ImprovementsForMysql extends AbstractMigration {
 		$table = $this->table('queued_tasks');
 
 		$table->changeColumn('status', 'string', [
-		   'length' => 255,
+		    'length' => 255,
 			'null' => true,
 			'default' => null,
 		]);
