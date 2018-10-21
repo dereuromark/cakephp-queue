@@ -22,6 +22,8 @@ class ImprovementsForMysql extends AbstractMigration {
 			'null' => true,
 			'default' => null,
 		]);
+
+		$table->save();
 	}
 
 }
