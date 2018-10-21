@@ -27,6 +27,8 @@ class IncreaseDataSize extends AbstractMigration {
 					'null' => true,
 					'default' => null,
 				]);
+
+				$table->save();
 			}
 		} catch (Exception $e) {
 			Debugger::dump($e->getMessage());
