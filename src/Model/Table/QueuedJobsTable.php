@@ -581,7 +581,7 @@ class QueuedJobsTable extends Table {
 	 * @return void
 	 */
 	public function clearDoublettes() {
-		$x = $this->_connection->query('SELECT max(id) as id FROM `' . $this->table() . '`
+		$x = $this->_connection->query('SELECT max(id) as id FROM `' . $this->getTable() . '`
 	WHERE completed is NULL
 	GROUP BY data
 	HAVING COUNT(id) > 1');
@@ -627,7 +627,7 @@ class QueuedJobsTable extends Table {
 	 * @return void
 	 */
 	public function truncate() {
-		$sql = $this->schema()->truncateSql($this->_connection);
+		$sql = $this->getSchema()->truncateSql($this->_connection);
 		foreach ($sql as $snippet) {
 			$this->_connection->execute($snippet);
 		}
@@ -640,8 +640,8 @@ class QueuedJobsTable extends Table {
 		$pidFilePath = Configure::read('Queue.pidfilepath');
 		if (!$pidFilePath) {
 			/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
-			$QueueProcesses = TableRegistry::get('Queue.QueueProcesses');
-			$processes = $QueueProcesses->findActive()->hydrate(false)->find('list', ['keyField' => 'pid', 'valueField' => 'modified'])->all()->toArray();
+			$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
+			$processes = $QueueProcesses->findActive()->enableHydration(false)->find('list', ['keyField' => 'pid', 'valueField' => 'modified'])->all()->toArray();
 
 			return $processes;
 		}

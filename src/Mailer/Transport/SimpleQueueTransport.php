@@ -28,26 +28,27 @@ class SimpleQueueTransport extends AbstractTransport {
 		}
 
 		$settings = [
-			'from' => [$email->from()],
-			'to' => [$email->to()],
-			'cc' => [$email->cc()],
-			'bcc' => [$email->bcc()],
-			'charset' => [$email->charset()],
-			'replyTo' => [$email->replyTo()],
-			'readReceipt' => [$email->readReceipt()],
-			'returnPath' => [$email->returnPath()],
-			'messageId' => [$email->messageId()],
-			'domain' => [$email->domain()],
-			'getHeaders' => [$email->getHeaders()],
-			'headerCharset' => [$email->headerCharset()],
-			'theme' => [$email->theme()],
-			'profile' => [$email->profile()],
-			'emailFormat' => [$email->emailFormat()],
-			'subject' => method_exists($email, 'getOriginalSubject') ? [$email->getOriginalSubject()] : [$email->subject()],
+			'from' => [$email->getFrom()],
+			'to' => [$email->getTo()],
+			'cc' => [$email->getCc()],
+			'bcc' => [$email->getBcc()],
+			'charset' => [$email->getCharset()],
+			'replyTo' => [$email->getReplyTo()],
+			'readReceipt' => [$email->getReadReceipt()],
+			'returnPath' => [$email->getReturnPath()],
+			'messageId' => [$email->getMessageId()],
+			'domain' => [$email->getDomain()],
+			'headers' => [$email->getHeaders()],
+			'headerCharset' => [$email->getHeaderCharset()],
+			'theme' => [$email->getTheme()],
+			'profile' => [$email->getProfile()],
+			'emailFormat' => [$email->getEmailFormat()],
+			'subject' => method_exists($email, 'getOriginalSubject') ? [$email->getOriginalSubject()] : [$email->getSubject()],
 			'transport' => [$this->_config['transport']],
-			'attachments' => [$email->attachments()],
-			'template' => $email->template(), //template() gives 2 values - template and layout
-			'viewVars' => [$email->viewVars()]
+			'attachments' => [$email->getAttachments()],
+			'template' => [$email->getTemplate()],
+			'layout' => [$email->getLayout()],
+			'viewVars' => [$email->getViewVars()]
 		];
 
 		foreach ($settings as $setting => $value) {
