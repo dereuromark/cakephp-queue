@@ -135,8 +135,7 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * Add a new Job to the Queue.
-	 *
+	 * Adds a new job to the queue.
 	 *
 	 * Config
 	 * - priority: 1-10, defaults to 5
@@ -144,15 +143,15 @@ class QueuedJobsTable extends Table {
 	 * - group: Used to group similar QueuedJobs
 	 * - reference: An optional reference string
 	 *
-	 * @param string $jobName Job name
+	 * @param string $jobType Job name
 	 * @param array|null $data Array of data
 	 * @param array $config Config to save along with the job
 	 * @return \Queue\Model\Entity\QueuedJob Saved job entity
 	 * @throws \Exception
 	 */
-	public function createJob($jobName, array $data = null, array $config = []) {
+	public function createJob($jobType, array $data = null, array $config = []) {
 		$queuedJob = [
-			'job_type' => $jobName,
+			'job_type' => $jobType,
 			'data' => is_array($data) ? serialize($data) : null,
 			'job_group' => !empty($config['group']) ? $config['group'] : null,
 			'notbefore' => !empty($config['notBefore']) ? new Time($config['notBefore']) : null,
@@ -167,17 +166,26 @@ class QueuedJobsTable extends Table {
 
 	/**
 	 * @param string $reference
+	 * @param string|null $jobType
 	 *
 	 * @return bool
 	 *
 	 * @throws \InvalidArgumentException
 	 */
-	public function isQueued($reference) {
+	public function isQueued($reference, $jobType = null) {
 		if (!$reference) {
 			throw new InvalidArgumentException('A reference is needed');
 		}
 
-		return (bool)$this->find()->where(['reference' => $reference, 'completed IS' => null])->select(['id'])->first();
+		$conditions = [
+			'reference' => $reference,
+			'completed IS' => null,
+		];
+		if ($jobType) {
+			$conditions['job_type'] = $jobType;
+		}
+
+		return (bool)$this->find()->where($conditions)->select(['id'])->first();
 	}
 
 	/**

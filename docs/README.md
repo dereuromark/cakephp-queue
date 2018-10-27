@@ -247,7 +247,7 @@ In your logic you can check on this using `isQueued()` and a unique reference:
         $this->request->allowMethod('post');
 
         $this->loadModel('Queue.QueuedJobs');
-        if ($this->QueuedJobs->isQueued('my-import')) {
+        if ($this->QueuedJobs->isQueued('my-import', 'Execute')) {
             $this->Flash->error('Job already running');
 
             return $this->redirect($this->referer(['action' => 'index']));
@@ -270,6 +270,8 @@ So if someone clicks on the button again before the job is finished, he will not
 ```
 
 For more complex use cases, you can manually use `->find()->where()`, of course.
+
+Note that the 2nd argument (job type) is optional, but recommended. If you do not use it, make sure your reference is globally unique.
 
 ### Updating status
 
