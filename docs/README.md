@@ -273,7 +273,7 @@ For more complex use cases, you can manually use `->find()->where()`, of course.
 
 Note that the 2nd argument (job type) is optional, but recommended. If you do not use it, make sure your reference is globally unique.
 
-### Updating status
+### Updating progress/status
 
 The `createJob()` method returns the entity. So you can store the ID and at any time ask the queue about the status of this job.
 
@@ -289,13 +289,64 @@ foreach ($records as $i => $record) {
     $this->processImageRendering($record);
     $this->QueuedJobs->updateProgress($id, ($i + 1) / $totalRecords);
 }
-
-// Get progress status in web site
-$job = $this->QueuedJobs->get($id);
-$progress = $job->progress; // A float from 0 to 1
-echo number_format($progress * 100, 0) . '%'; // Outputs 87% for example
 ```
 
+You can, independently from the progress field, also use a status (string) field to give feedback.
+See this example implementation:
+
+```php
+class FooTask extends QueueTask {
+
+    public function run(array $data, $jobId) {
+        // Initializing
+        $jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+        $foo = new Foo();
+
+        // Part one
+        $jobsTable->updateAll(
+            ['status' => 'Doing the first thing'],
+            ['id' => $jobId]
+        );
+        $foo->doFirstPartOfTask();
+        $jobsTable->updateProgress($jobId, 33);
+
+        // Part two
+        $jobsTable->updateAll(
+            ['status' => 'Doing the next thing'],
+            ['id' => $jobId]
+        );
+        $foo->doNextPartOfTask();
+        $jobsTable->updateProgress($jobId, 66);
+
+        // Part three
+        $jobsTable->updateAll(
+            ['status' => 'Doing the last thing'],
+            ['id' => $jobId]
+        );
+        $foo->doLastPartOfTask();
+        $jobsTable->updateProgress($jobId, 100);
+
+        // Done
+        $jobsTable->updateAll(
+            ['status' => 'Done doing things'],
+            ['id' => $jobId]
+        );
+        
+        return true;
+    }
+}
+```
+
+Get progress status in web site and display:
+```php
+$job = $this->QueuedJobs->get($id);
+
+$progress = $job->progress; // A float from 0 to 1
+echo number_format($progress * 100, 0) . '%'; // Outputs 87% for example
+
+$status = $job->status; // A string, make sure to escape
+echo h($status); // Outputs "Doing the last thing" for example
+```
 
 ### Logging
 
