@@ -45,5 +45,8 @@ return [
 
 		// enable Search. requires friendsofcake/search
 		'isSearchEnabled' => true,
+
+		// enable Search. requires frontend assets
+		'isStatisticEnabled' => false,
 	],
 ];

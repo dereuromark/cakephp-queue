@@ -108,6 +108,15 @@ Finally, make sure you allow the configured `pidfilepath` to be creatable and wr
 Especially on deployment some `mkdir` command might be necessary.
 Set it to false to use the DB here instead, as well.
 
+#### Backend configuration
+
+- isSearchEnabled: Set to false if you do not want search/filtering capability.
+This is auto-detected based on [Search](https://github.com/FriendsOfCake/search) plugin being available/loaded if not disabled.
+
+- isStatsEnabled: Set to true to enable. This requires [chart.js](https://github.com/chartjs/Chart.js) asset to be available.
+You can also overwrite the template and as such change the asset library as well as the output/chart.
+
+
 #### Configuration tips
 
 For the beginning maybe use not too many runners in parallel, and keep the runtimes rather short while starting new jobs every few minutes.
