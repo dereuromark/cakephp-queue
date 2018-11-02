@@ -22,8 +22,7 @@
 
 		<h2><?php echo __d('queue', 'Job Statistics'); ?></h2>
 
-		<p>For already processed jobs.</p>
-
+		<p>For already processed jobs - in average seconds per timeframe.</p>
 
 		<canvas id="job-chart" style="height:400px"></canvas>
 
