@@ -5,7 +5,7 @@ namespace Queue\Model\Table;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Http\Exception\NotImplementedException;
-use Cake\I18n\Time;
+use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
@@ -24,7 +24,6 @@ if (!defined('SIGTERM')) {
 /**
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
- * @link http://github.com/MSeven/cakephp_queue
  * @method \Queue\Model\Entity\QueuedJob get($primaryKey, $options = [])
  * @method \Queue\Model\Entity\QueuedJob newEntity($data = null, array $options = [])
  * @method \Queue\Model\Entity\QueuedJob[] newEntities(array $data, array $options = [])
@@ -40,6 +39,8 @@ class QueuedJobsTable extends Table {
 	const DRIVER_MYSQL = 'Mysql';
 	const DRIVER_POSTGRES = 'Postgres';
 	const DRIVER_SQLSERVER = 'Sqlserver';
+
+	const STATS_LIMIT = 100000;
 
 	/**
 	 * @var array
@@ -154,7 +155,7 @@ class QueuedJobsTable extends Table {
 			'job_type' => $jobType,
 			'data' => is_array($data) ? serialize($data) : null,
 			'job_group' => !empty($config['group']) ? $config['group'] : null,
-			'notbefore' => !empty($config['notBefore']) ? new Time($config['notBefore']) : null,
+			'notbefore' => !empty($config['notBefore']) ? $this->getDateTime($config['notBefore']) : null,
 		] + $config;
 
 		$queuedJob = $this->newEntity($queuedJob);
@@ -236,7 +237,7 @@ class QueuedJobsTable extends Table {
 	public function getStats() {
 		$driverName = $this->_getDriverName();
 		$options = [
-			'fields' => function ($query) use ($driverName) {
+			'fields' => function (Query $query) use ($driverName) {
 				$alltime = $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(created)');
 				$runtime = $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)');
 				$fetchdelay = $query->func()->avg('UNIX_TIMESTAMP(fetched) - IF(notbefore is NULL, UNIX_TIMESTAMP(created), UNIX_TIMESTAMP(notbefore))');
@@ -269,6 +270,81 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * Returns [
+	 *   'JobType' => [
+	 *      'YYYY-MM-DD' => INT,
+	 *      ...
+	 *   ]
+	 * ]
+	 *
+	 * @param string|null $jobType
+	 * @return array
+	 */
+	public function getFullStats($jobType = null) {
+		$driverName = $this->_getDriverName();
+		$fields = function (Query $query) use ($driverName) {
+			$runtime = $query->newExpr('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)');
+			switch ($driverName) {
+				case static::DRIVER_SQLSERVER:
+					$runtime = $query->newExpr("DATEDIFF(s, '1970-01-01 00:00:00', completed) - DATEDIFF(s, '1970-01-01 00:00:00', fetched)");
+					break;
+			}
+
+			return [
+				'job_type',
+				'created',
+				'duration' => $runtime,
+			];
+		};
+
+		$conditions = ['completed IS NOT' => null];
+		if ($jobType) {
+			$conditions['job_type'] = $jobType;
+		}
+
+		$jobs = $this->find()
+			->select($fields)
+			->where($conditions)
+			->enableHydration(false)
+			->orderDesc('id')
+			->limit(static::STATS_LIMIT)
+			->all()
+			->toArray();
+
+		$result = [];
+
+		$days = [];
+
+		foreach ($jobs as $job) {
+			/** @var \DateTime $created */
+			$created = $job['created'];
+			$day = $created->format('Y-m-d');
+			if (!isset($days[$day])) {
+				$days[$day] = $day;
+			}
+
+			$result[$job['job_type']][$day][] = $job['duration'];
+		}
+
+		foreach ($result as $jobType => $jobs) {
+			foreach ($jobs as $day => $durations) {
+				$average = array_sum($durations) / count($durations);
+				$result[$jobType][$day] = (int)$average;
+			}
+
+			foreach ($days as $day) {
+				if (isset($result[$jobType][$day])) {
+					continue;
+				}
+
+				$result[$jobType][$day] = 0;
+			}
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Look for a new job that can be processed with the current abilities and
 	 * from the specified group (or any if null).
 	 *
@@ -278,7 +354,7 @@ class QueuedJobsTable extends Table {
 	 * @return \Queue\Model\Entity\QueuedJob|null
 	 */
 	public function requestJob(array $capabilities, array $groups = [], array $types = []) {
-		$now = new Time();
+		$now = $this->getDateTime();
 		$nowStr = $now->toDateTimeString();
 		$driverName = $this->_getDriverName();
 
@@ -320,7 +396,7 @@ class QueuedJobsTable extends Table {
 				'AND' => [
 					[
 						'OR' => [
-							'notbefore <' => $now,
+							'notbefore <' => $nowStr,
 							'notbefore IS' => null,
 						],
 					],
@@ -378,13 +454,22 @@ class QueuedJobsTable extends Table {
 	/**
 	 * @param int $id ID of job
 	 * @param float $progress Value from 0 to 1
+	 * @param string|null $status
 	 * @return bool Success
 	 */
-	public function updateProgress($id, $progress) {
+	public function updateProgress($id, $progress, $status = null) {
 		if (!$id) {
 			return false;
 		}
-		return (bool)$this->updateAll(['progress' => round($progress, 2)], ['id' => $id]);
+
+		$values = [
+			'progress' => round($progress, 2)
+		];
+		if ($status !== null) {
+			$values['status'] = $status;
+		}
+
+		return (bool)$this->updateAll($values, ['id' => $id]);
 	}
 
 	/**
@@ -395,7 +480,7 @@ class QueuedJobsTable extends Table {
 	 */
 	public function markJobDone(QueuedJob $job) {
 		$fields = [
-			'completed' => new Time(),
+			'completed' => $this->getDateTime(),
 		];
 		$job = $this->patchEntity($job, $fields);
 
@@ -456,7 +541,7 @@ class QueuedJobsTable extends Table {
 				'id',
 				'job_type',
 				'created',
-				//'status',
+				'status',
 				'priority',
 				'fetched',
 				'progress',
@@ -730,6 +815,23 @@ class QueuedJobsTable extends Table {
 		}
 
 		return $conditions;
+	}
+
+	/**
+	 * Returns a DateTime object from different input.
+	 *
+	 * Without argument this will be "now".
+	 *
+	 * @param int|string|\Cake\I18n\FrozenTime|\Cake\I18n\Time|null $notBefore
+	 *
+	 * @return \Cake\I18n\FrozenTime|\Cake\I18n\Time
+	 */
+	protected function getDateTime($notBefore = null) {
+		if (is_object($notBefore)) {
+			return $notBefore;
+		}
+
+		return new FrozenTime($notBefore);
 	}
 
 }

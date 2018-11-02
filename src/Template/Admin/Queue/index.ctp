@@ -1,6 +1,7 @@
 <?php
 /**
  * @var \App\View\AppView $this
+ * @var array $pendingDetails
  */
 use Cake\Core\Configure;
 ?>
@@ -43,7 +44,7 @@ use Cake\Core\Configure;
 		<ol>
 			<?php
 			foreach ($pendingDetails as $item) {
-				echo '<li>' . $this->Html->link($item['job_type'], ['controller' => 'QueuedJobs', 'action' => 'view', $item['id']]) . ' (' . h($item['reference']) . ', prio ' . $item['priority'] . '):';
+				echo '<li>' . $this->Html->link($item['job_type'], ['controller' => 'QueuedJobs', 'action' => 'view', $item['id']]) . ' (ref <code>' . h($item['reference'] ?: '-') . '</code>, prio ' . $item['priority'] . '):';
 				echo '<ul>';
 
 				$reset = '';
@@ -54,10 +55,19 @@ use Cake\Core\Configure;
 					$reset .= ' ' . $this->Form->postLink('Remove', ['action' => 'removeJob', $item['id']], ['confirm' => 'Sure?']);
 				}
 
+				$notBefore = '';
+				if ($item['notbefore']) {
+					$notBefore = ' (not before ' . $this->Time->nice($item['created']) . ')';
+				}
+
+				$status = '';
+				if ($item['status']) {
+					$status = ' (status: ' . h($item['status']) . ')';
+				}
+
 				echo '<li>Created: ' . $this->Time->nice($item['created']) . '</li>';
-				echo '<li>Fetched: ' . $this->Time->nice($item['fetched']) . '</li>';
-				//echo '<li>Status: ' . h($item['status']) . '</li>';
-				echo '<li>Progress: ' . $this->Number->toPercentage($item['progress'] * 100, 0) . '</li>';
+				echo '<li>Fetched: ' . $this->Time->nice($item['fetched']) . $notBefore . '</li>';
+				echo '<li>Progress: ' . $this->Number->toPercentage($item['progress'] * 100, 0) . $status . '</li>';
 				echo '<li>Failures: ' . $item['failed'] . $reset . '</li>';
 				echo '<li>Failure Message: ' . h($item['failure_message']) . '</li>';
 				echo '</ul>';
@@ -85,7 +95,9 @@ use Cake\Core\Configure;
 			?>
 		</ul>
 
-
+		<?php if (Configure::read('Queue.isStatisticEnabled')) { ?>
+		<p><?php echo $this->Html->link(__d('queue', 'Detailed Statistics'), ['controller' => 'QueuedJobs', 'action' => 'stats']); ?></p>
+		<?php } ?>
 	</div>
 
 	<div class="col-md-6 col-xs-12 medium-6 columns">
@@ -134,6 +146,8 @@ use Cake\Core\Configure;
 			}
 			?>
 		</ul>
+
+		<p><?php echo $this->Html->link(__d('queue', 'Trigger Delayed Job'), ['controller' => 'QueuedJobs', 'action' => 'test']); ?></p>
 
 	</div>
 </div>

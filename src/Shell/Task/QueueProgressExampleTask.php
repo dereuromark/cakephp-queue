@@ -72,9 +72,9 @@ class QueueProgressExampleTask extends QueueTask {
 		$this->out('A total of ' . $seconds . ' seconds need to pass...');
 		for ($i = 0; $i < $seconds; $i++) {
 			sleep(1);
-			$this->QueuedJobs->updateProgress($jobId, ($i + 1) / $seconds);
+			$this->QueuedJobs->updateProgress($jobId, ($i + 1) / $seconds, 'Status Test ' . ($i + 1) . 's');
 		}
-		$this->QueuedJobs->updateProgress($jobId, 1);
+		$this->QueuedJobs->updateProgress($jobId, 1, 'Status Test Done');
 
 		$this->hr();
 		$this->out(' ->Success, the ProgressExample Job was run.<-');
