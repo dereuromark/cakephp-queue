@@ -120,6 +120,11 @@ class QueueShellTest extends TestCase {
 	 * @return void
 	 */
 	public function testRetry() {
+		$file = TMP . 'task_retry.txt';
+		if (file_exists($file)) {
+			unlink($file);
+		}
+
 		$this->_needsConnection();
 
 		$this->QueueShell->args[] = 'RetryExample';
@@ -177,7 +182,7 @@ class QueueShellTest extends TestCase {
 	 * @return void
 	 */
 	protected function _needsConnection() {
-		$config = ConnectionManager::config('test');
+		$config = ConnectionManager::getConfig('test');
 		$this->skipIf(strpos($config['driver'], 'Mysql') === false, 'Only Mysql is working yet for this.');
 	}
 

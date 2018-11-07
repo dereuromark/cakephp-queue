@@ -100,13 +100,13 @@ class QueueRetryExampleTask extends QueueTask {
 		if ($count < 3) {
 			$count++;
 			file_put_contents($this->file, (string)$count);
-			$this->warn(' ->Sry, the Retry Example Job failed. Try again.<-');
+			$this->out(' -> Sry, the Retry Example Job failed. Try again. <-');
 			$this->out(' ');
 			$this->out(' ');
 			return false;
 		}
 
-		$this->success(' ->Success, the Retry Example Job was run.<-');
+		$this->success(' -> Success, the Retry Example Job was run. <-');
 		$this->out(' ');
 		$this->out(' ');
 
