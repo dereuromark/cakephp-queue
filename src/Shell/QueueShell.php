@@ -38,9 +38,9 @@ class QueueShell extends Shell {
 	protected $_taskConf;
 
 	/**
-	 * @var int
+	 * @var \Cake\I18n\FrozenTime
 	 */
-	protected $_time = 0;
+	protected $_time;
 
 	/**
 	 * @var bool
@@ -140,7 +140,7 @@ TEXT;
 		}
 		$this->_exit = false;
 
-		$starttime = time();
+		$startTime = time();
 		$groups = $this->_stringToArray($this->param('group'));
 		$types = $this->_stringToArray($this->param('type'));
 
@@ -160,20 +160,20 @@ TEXT;
 			}
 			$this->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
 
-			$queuedTask = $this->QueuedJobs->requestJob($this->_getTaskConf(), $groups, $types);
+			$queuedJob = $this->QueuedJobs->requestJob($this->_getTaskConf(), $groups, $types);
 
-			if ($queuedTask) {
-				$this->out('Running Job of type "' . $queuedTask['job_type'] . '"');
-				$this->_log('job ' . $queuedTask['job_type'] . ', id ' . $queuedTask['id'], $pid, false);
-				$taskname = 'Queue' . $queuedTask['job_type'];
+			if ($queuedJob) {
+				$this->out('Running Job of type "' . $queuedJob->job_type . '"');
+				$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id, $pid, false);
+				$taskName = 'Queue' . $queuedJob->job_type;
 
 				try {
-					$this->_time = time();
+					$this->_time = new FrozenTime();
 
-					$data = unserialize($queuedTask['data']);
+					$data = unserialize($queuedJob->data);
 					/** @var \Queue\Shell\Task\QueueTask $task */
-					$task = $this->{$taskname};
-					$return = $task->run((array)$data, $queuedTask['id']);
+					$task = $this->{$taskName};
+					$return = $task->run((array)$data, $queuedJob->id);
 
 					$failureMessage = null;
 					if ($task->failureMessage) {
@@ -183,37 +183,37 @@ TEXT;
 					$return = false;
 
 					$failureMessage = get_class($e) . ': ' . $e->getMessage();
-					$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
+					$this->_logError($taskName . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
 				} catch (Exception $e) {
 					$return = false;
 
 					$failureMessage = get_class($e) . ': ' . $e->getMessage();
-					$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
+					$this->_logError($taskName . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
 				}
 
 				if ($return) {
-					$this->QueuedJobs->markJobDone($queuedTask);
+					$this->QueuedJobs->markJobDone($queuedJob);
 					$this->out('Job Finished.');
 				} else {
-					$this->QueuedJobs->markJobFailed($queuedTask, $failureMessage);
-					$failedStatus = $this->QueuedJobs->getFailedStatus($queuedTask, $this->_getTaskConf());
-					$this->_log('job ' . $queuedTask['job_type'] . ', id ' . $queuedTask['id'] . ' failed and ' . $failedStatus, $pid);
-					$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedTask->failed . '.');
+					$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
+					$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->_getTaskConf());
+					$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
+					$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
 				}
-			} elseif (Configure::read('Queue.exitwhennothingtodo')) {
+			} elseif (Configure::readOrFail('Queue.exitwhennothingtodo')) {
 				$this->out('nothing to do, exiting.');
 				$this->_exit = true;
 			} else {
 				$this->out('nothing to do, sleeping.');
-				sleep(Configure::read('Queue.sleeptime'));
+				sleep(Configure::readOrFail('Queue.sleeptime'));
 			}
 
 			// check if we are over the maximum runtime and end processing if so.
-			if (Configure::read('Queue.workermaxruntime') && (time() - $starttime) >= Configure::read('Queue.workermaxruntime')) {
+			if (Configure::readOrFail('Queue.workermaxruntime') && (time() - $startTime) >= Configure::readOrFail('Queue.workermaxruntime')) {
 				$this->_exit = true;
-				$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('Queue.workermaxruntime') . '), terminating.');
+				$this->out('Reached runtime of ' . (time() - $startTime) . ' Seconds (Max ' . Configure::readOrFail('Queue.workermaxruntime') . '), terminating.');
 			}
-			if ($this->_exit || rand(0, 100) > (100 - Configure::read('Queue.gcprob'))) {
+			if ($this->_exit || rand(0, 100) > (100 - (int)Configure::readOrFail('Queue.gcprob'))) {
 				$this->out('Performing Old job cleanup.');
 				$this->QueuedJobs->cleanOldJobs();
 			}
@@ -237,7 +237,7 @@ TEXT;
 			$this->abort('You disabled cleanuptimout in config. Aborting.');
 		}
 
-		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - Configure::read('Queue.cleanuptimeout')));
+		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - (int)Configure::read('Queue.cleanuptimeout')));
 		$this->QueuedJobs->cleanOldJobs();
 		$this->QueueProcesses->cleanKilledProcesses();
 	}
@@ -306,7 +306,7 @@ TEXT;
 
 		$status = $this->QueueProcesses->status();
 		$this->out('Current running workers: ' . ($status ? $status['workers'] : '-'));
-		$this->out('Last run: ' . ($status ? (new FrozenTime($status['time']))->nice() : '-'));
+		$this->out('Last run: ' . ($status ? $status['time']->nice() : '-'));
 	}
 
 	/**
@@ -469,12 +469,12 @@ TEXT;
 				if (property_exists($this->{$taskName}, 'timeout')) {
 					$this->_taskConf[$taskName]['timeout'] = $this->{$taskName}->timeout;
 				} else {
-					$this->_taskConf[$taskName]['timeout'] = Configure::read('Queue.defaultworkertimeout');
+					$this->_taskConf[$taskName]['timeout'] = Configure::readOrFail('Queue.defaultworkertimeout');
 				}
 				if (property_exists($this->{$taskName}, 'retries')) {
 					$this->_taskConf[$taskName]['retries'] = $this->{$taskName}->retries;
 				} else {
-					$this->_taskConf[$taskName]['retries'] = Configure::read('Queue.defaultworkerretries');
+					$this->_taskConf[$taskName]['retries'] = Configure::readOrFail('Queue.defaultworkerretries');
 				}
 				if (property_exists($this->{$taskName}, 'rate')) {
 					$this->_taskConf[$taskName]['rate'] = $this->{$taskName}->rate;
@@ -644,7 +644,7 @@ TEXT;
 	 * @return void
 	 */
 	protected function _setPhpTimeout() {
-		$timeLimit = (int)Configure::read('Queue.workermaxruntime') * 100;
+		$timeLimit = (int)Configure::readOrFail('Queue.workermaxruntime') * 100;
 		if (Configure::read('Queue.workertimeout') !== null) {
 			$timeLimit = (int)Configure::read('Queue.workertimeout');
 		}

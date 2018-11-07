@@ -19,15 +19,12 @@ class QueueController extends AppController {
 	public $modelClass = 'Queue.QueuedJobs';
 
 	/**
-	 * QueueController::beforeFilter()
-	 *
-	 * @param \Cake\Event\Event $event
-	 * @return \Cake\Http\Response|null
+	 * @return void
 	 */
-	public function beforeFilter(Event $event) {
-		$this->QueuedJobs->initConfig();
+	public function initialize() {
+		parent::initialize();
 
-		parent::beforeFilter($event);
+		$this->QueuedJobs->initConfig();
 	}
 
 	/**

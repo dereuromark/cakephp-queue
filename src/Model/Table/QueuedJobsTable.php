@@ -120,17 +120,23 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * @deprecated Manually assert config via bootstrapping.
+	 *
 	 * @return void
 	 */
 	public function initConfig() {
 		// Local config without extra config file
 		$conf = (array)Configure::read('Queue');
+		if (!empty($conf['configLoaded'])) {
+			return;
+		}
 
 		// Fallback to Plugin config which can be overwritten via local app config.
 		Configure::load('Queue.app_queue');
 		$defaultConf = (array)Configure::read('Queue');
 
-		$conf = array_merge($defaultConf, $conf);
+		$conf += $defaultConf;
+		$conf['configLoaded'] = true;
 
 		Configure::write('Queue', $conf);
 	}
@@ -205,8 +211,8 @@ class QueuedJobsTable extends Table {
 		if ($type !== null) {
 			$findConf['conditions']['job_type'] = $type;
 		}
-		$data = $this->find('all', $findConf);
-		return $data->count();
+
+		return $this->find('all', $findConf)->count();
 	}
 
 	/**
@@ -568,14 +574,14 @@ class QueuedJobsTable extends Table {
 		}
 
 		$this->deleteAll([
-			'completed <' => time() - Configure::read('Queue.cleanuptimeout'),
+			'completed <' => time() - (int)Configure::read('Queue.cleanuptimeout'),
 		]);
 		$pidFilePath = Configure::read('Queue.pidfilepath');
 		if (!$pidFilePath) {
 			return;
 		}
 		// Remove all old pid files left over
-		$timeout = time() - 2 * Configure::read('Queue.cleanuptimeout');
+		$timeout = time() - 2 * (int)Configure::read('Queue.cleanuptimeout');
 		$Iterator = new RegexIterator(
 			new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pidFilePath)),
 			'/^.+\_.+\.(pid)$/i',

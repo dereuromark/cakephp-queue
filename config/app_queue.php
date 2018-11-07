@@ -7,8 +7,10 @@
 
 return [
 	'Queue' => [
+		/* Required config keys */
+
 		// seconds to sleep() when no executable job is found
-		'sleeptime' => 10,
+		'sleeptime' => 13,
 
 		// probability in percent of a old job cleanup happening
 		'gcprob' => 10,
@@ -22,14 +24,16 @@ return [
 		// seconds of running time after which the worker will terminate (0 = unlimited)
 		'workermaxruntime' => 120,
 
-		// seconds of running time after which the PHP process will terminate, null uses workermaxruntime * 100
-		'workertimeout' => null,
+		// instruct a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running)
+		'exitwhennothingtodo' => false,
 
 		// minimum time (in seconds) which a task remains in the database before being cleaned up.
 		'cleanuptimeout' => 2592000, // 30 days
 
-		// instruct a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running)
-		'exitwhennothingtodo' => false,
+		/* Optional config keys */
+
+		// seconds of running time after which the PHP process will terminate, null uses workermaxruntime * 100
+		'workertimeout' => null,
 
 		// false for DB, or deprecated string pid file path directory (by default goes to the app/tmp/queue folder)
 		'pidfilepath' => false, // Deprecated: TMP . 'queue' . DS,

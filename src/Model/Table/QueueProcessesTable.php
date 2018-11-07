@@ -74,10 +74,10 @@ class QueueProcessesTable extends Table {
 	 * @return \Cake\ORM\Query
 	 */
 	public function findActive() {
-		$timeout = Configure::read('Queue.defaultworkertimeout');
-		$thresholdTime = time() - $timeout;
+		$timeout = (int)Configure::readOrFail('Queue.defaultworkertimeout');
+		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
-		$query = $this->find()->where(['modified > ' => date(DATE_ISO8601, $thresholdTime)]);
+		$query = $this->find()->where(['modified > ' => $thresholdTime]);
 
 		return $query;
 	}
@@ -121,10 +121,10 @@ class QueueProcessesTable extends Table {
 	 * @return void
 	 */
 	public function cleanKilledProcesses() {
-		$timeout = Configure::read('Queue.defaultworkertimeout');
-		$thresholdTime = time() - $timeout;
+		$timeout = (int)Configure::readOrFail('Queue.defaultworkertimeout');
+		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
-		$this->deleteAll(['modified <' => time() - $thresholdTime]);
+		$this->deleteAll(['modified <' => $thresholdTime]);
 	}
 
 	/**
@@ -135,13 +135,13 @@ class QueueProcessesTable extends Table {
 	 * @return array
 	 */
 	public function status() {
-		$timeout = Configure::read('Queue.defaultworkertimeout');
-		$thresholdTime = time() - $timeout;
+		$timeout = (int)Configure::readOrFail('Queue.defaultworkertimeout');
+		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
 		$pidFilePath = Configure::read('Queue.pidfilepath');
 		if (!$pidFilePath) {
 			$results = $this->find()
-				->where(['modified >' => date(DATE_ISO8601, $thresholdTime)])
+				->where(['modified >' => $thresholdTime])
 				->orderDesc('modified')
 				->enableHydration(false)
 				->all()
@@ -157,7 +157,7 @@ class QueueProcessesTable extends Table {
 			$time = $record['modified'];
 
 			return [
-				'time' => (int)$time->toUnixString(),
+				'time' => $time,
 				'workers' => $count,
 			];
 		}
