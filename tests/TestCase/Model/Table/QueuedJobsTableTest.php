@@ -144,7 +144,8 @@ class QueuedJobsTableTest extends TestCase {
 		$this->assertSame(1, $this->QueuedJobs->getLength());
 
 		// Now mark Task1 as done
-		$this->assertSame(1, $this->QueuedJobs->markJobDone($job));
+		$this->assertTrue($this->QueuedJobs->markJobDone($job));
+
 		// Should be 0 again.
 		$this->assertSame(0, $this->QueuedJobs->getLength());
 	}
@@ -273,7 +274,7 @@ class QueuedJobsTableTest extends TestCase {
 			$tmp = $this->QueuedJobs->requestJob($capabilities);
 
 			$this->assertSame($item['name'], $tmp['job_type']);
-			$this->assertSame($item['data'], unserialize($tmp['data']));
+			$this->assertEquals($item['data'], unserialize($tmp['data']));
 		}
 	}
 
