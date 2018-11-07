@@ -38,9 +38,9 @@ class QueueShell extends Shell {
 	protected $_taskConf;
 
 	/**
-	 * @var \Cake\I18n\FrozenTime
+	 * @var int
 	 */
-	protected $_time;
+	protected $_time = 0;
 
 	/**
 	 * @var bool
@@ -168,7 +168,7 @@ TEXT;
 				$taskName = 'Queue' . $queuedJob->job_type;
 
 				try {
-					$this->_time = new FrozenTime();
+					$this->_time = time();
 
 					$data = unserialize($queuedJob->data);
 					/** @var \Queue\Shell\Task\QueueTask $task */
