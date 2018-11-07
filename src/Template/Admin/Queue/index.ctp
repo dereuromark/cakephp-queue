@@ -57,19 +57,25 @@ use Cake\Core\Configure;
 
 				$notBefore = '';
 				if ($item['notbefore']) {
-					$notBefore = ' (not before ' . $this->Time->nice($item['created']) . ')';
+					$notBefore = ' (scheduled ' . $this->Time->nice($item['notbefore']) . ')';
 				}
 
-				$status = '';
-				if ($item['status']) {
-					$status = ' (status: ' . h($item['status']) . ')';
+				echo '<li>Created: ' . $this->Time->nice($item['created']) . $notBefore . '</li>';
+
+
+				if ($item['fetched']) {
+					echo '<li>Fetched: ' . $this->Time->nice($item['fetched']) . '</li>';
+
+					$status = '';
+					if ($item['status']) {
+						$status = ' (status: ' . h($item['status']) . ')';
+					}
+
+					echo '<li>Progress: ' . $this->Number->toPercentage($item['progress'] * 100, 0) . $status . '</li>';
+					echo '<li>Failures: ' . $item['failed'] . $reset . '</li>';
+					echo '<li>Failure Message: ' . h($item['failure_message']) . '</li>';
 				}
 
-				echo '<li>Created: ' . $this->Time->nice($item['created']) . '</li>';
-				echo '<li>Fetched: ' . $this->Time->nice($item['fetched']) . $notBefore . '</li>';
-				echo '<li>Progress: ' . $this->Number->toPercentage($item['progress'] * 100, 0) . $status . '</li>';
-				echo '<li>Failures: ' . $item['failed'] . $reset . '</li>';
-				echo '<li>Failure Message: ' . h($item['failure_message']) . '</li>';
 				echo '</ul>';
 				echo '</li>';
 			}

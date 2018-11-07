@@ -83,7 +83,7 @@ class QueuedJobsTable extends Table {
 		parent::initialize($config);
 
 		$this->addBehavior('Timestamp');
-		if (Configure::read('Queue.isSearchEnabled') && Plugin::loaded('Search')) {
+		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::loaded('Search')) {
 			$this->addBehavior('Search.Search');
 		}
 
@@ -546,6 +546,7 @@ class QueuedJobsTable extends Table {
 				'fetched',
 				'progress',
 				'reference',
+				'notbefore',
 				'failed',
 				'failure_message',
 			],
