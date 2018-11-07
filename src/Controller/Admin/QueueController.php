@@ -38,7 +38,8 @@ class QueueController extends AppController {
 	 * @return \Cake\Http\Response|null
 	 */
 	public function index() {
-		$status = $this->_status();
+		$this->loadModel('Queue.QueueProcesses');
+		$status = $this->QueueProcesses->status();
 
 		$current = $this->QueuedJobs->getLength();
 		$pendingDetails = $this->QueuedJobs->getPendingStats();
@@ -159,59 +160,6 @@ class QueueController extends AppController {
 		$this->Flash->success($message);
 
 		return $this->redirect(['action' => 'index']);
-	}
-
-	/**
-	 * QueueController::_status()
-	 *
-	 * If pid loggin is enabled, will return an array with
-	 * - time: int Timestamp
-	 * - workers: int Count of currently running workers
-	 *
-	 * @return array Status array
-	 */
-	protected function _status() {
-		$timeout = Configure::read('Queue.defaultworkertimeout');
-		$thresholdTime = time() - $timeout;
-
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-		if (!$pidFilePath) {
-			$this->loadModel('Queue.QueueProcesses');
-			$results = $this->QueueProcesses->find()->where(['modified >' => date(DATE_ISO8601, $thresholdTime)])->orderDesc('modified')->enableHydration(false)->all()->toArray();
-
-			if (!$results) {
-				return [];
-			}
-
-			$count = count($results);
-			$record = array_shift($results);
-			/** @var \Cake\I18n\FrozenTime $time */
-			$time = $record['modified'];
-
-			return [
-				'time' => (int)$time->toUnixString(),
-				'workers' => $count,
-			];
-		}
-
-		$file = $pidFilePath . 'queue.pid';
-		if (!file_exists($file)) {
-			return [];
-		}
-
-		$count = 0;
-		foreach (glob($pidFilePath . 'queue_*.pid') as $filename) {
-			$time = filemtime($filename);
-			if ($time >= $thresholdTime) {
-				$count++;
-			}
-		}
-
-		$res = [
-			'time' => filemtime($file),
-			'workers' => $count,
-		];
-		return $res;
 	}
 
 }

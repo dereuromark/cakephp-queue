@@ -5,8 +5,8 @@ namespace Queue\Shell;
 use Cake\Console\Shell;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\I18n\FrozenTime;
 use Cake\I18n\Number;
-use Cake\I18n\Time;
 use Cake\Log\Log;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
@@ -255,7 +255,7 @@ TEXT;
 
 		$this->out(count($processes) . ' processes:');
 		foreach ($processes as $process => $timestamp) {
-			$this->out(' - ' . $process . ' (last run @ ' . (new Time($timestamp)) . ')');
+			$this->out(' - ' . $process . ' (last run @ ' . (new FrozenTime($timestamp)) . ')');
 		}
 
 		$options = array_keys($processes);
@@ -301,6 +301,12 @@ TEXT;
 			}
 			$this->out('* ' . $key . ': ' . print_r($val, true));
 		}
+
+		$this->out();
+
+		$status = $this->QueueProcesses->status();
+		$this->out('Current running workers: ' . ($status ? $status['workers'] : '-'));
+		$this->out('Last run: ' . ($status ? (new FrozenTime($status['time']))->nice() : '-'));
 	}
 
 	/**

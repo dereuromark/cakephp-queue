@@ -127,4 +127,59 @@ class QueueProcessesTable extends Table {
 		$this->deleteAll(['modified <' => time() - $thresholdTime]);
 	}
 
+	/**
+	 * If pid loggin is enabled, will return an array with
+	 * - time: int Timestamp
+	 * - workers: int Count of currently running workers
+	 *
+	 * @return array
+	 */
+	public function status() {
+		$timeout = Configure::read('Queue.defaultworkertimeout');
+		$thresholdTime = time() - $timeout;
+
+		$pidFilePath = Configure::read('Queue.pidfilepath');
+		if (!$pidFilePath) {
+			$results = $this->find()
+				->where(['modified >' => date(DATE_ISO8601, $thresholdTime)])
+				->orderDesc('modified')
+				->enableHydration(false)
+				->all()
+				->toArray();
+
+			if (!$results) {
+				return [];
+			}
+
+			$count = count($results);
+			$record = array_shift($results);
+			/** @var \Cake\I18n\FrozenTime $time */
+			$time = $record['modified'];
+
+			return [
+				'time' => (int)$time->toUnixString(),
+				'workers' => $count,
+			];
+		}
+
+		$file = $pidFilePath . 'queue.pid';
+		if (!file_exists($file)) {
+			return [];
+		}
+
+		$count = 0;
+		foreach (glob($pidFilePath . 'queue_*.pid') as $filename) {
+			$time = filemtime($filename);
+			if ($time >= $thresholdTime) {
+				$count++;
+			}
+		}
+
+		$res = [
+			'time' => filemtime($file),
+			'workers' => $count,
+		];
+		return $res;
+	}
+
 }
