@@ -429,6 +429,7 @@ class QueuedJobsTable extends Table {
 			$options['conditions']['OR'][] = $tmp;
 		}
 
+		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $this->getConnection()->transactional(function () use ($query, $options, $now) {
 			$job = $query->find('all', $options)
 				->enableAutoFields(true)
@@ -452,7 +453,7 @@ class QueuedJobsTable extends Table {
 			return null;
 		}
 
-		$this->rateHistory[$job['job_type']] = $now->toUnixString();
+		$this->rateHistory[$job->job_type] = $now->toUnixString();
 
 		return $job;
 	}

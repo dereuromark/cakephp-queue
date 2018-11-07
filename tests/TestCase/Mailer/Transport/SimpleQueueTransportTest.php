@@ -63,7 +63,7 @@ class SimpleQueueTransportTest extends TestCase {
 		$Email->set('var2', 2);
 
 		$result = $this->QueueTransport->send($Email);
-		$this->assertEquals('Email', $result['job_type']);
+		$this->assertSame('Email', $result['job_type']);
 		$this->assertTrue(strlen($result['data']) < 10000);
 
 		$output = unserialize($result['data']);

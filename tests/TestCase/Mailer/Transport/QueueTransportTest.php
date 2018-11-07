@@ -33,20 +33,20 @@ class QueueTransportTest extends TestCase {
 	 */
 	public function testSendWithEmail() {
 		$Email = new Email();
-		$Email->from('noreply@cakephp.org', 'CakePHP Test');
-		$Email->to('cake@cakephp.org', 'CakePHP');
-		$Email->cc(['mark@cakephp.org' => 'Mark Story', 'juan@cakephp.org' => 'Juan Basso']);
-		$Email->bcc('phpnut@cakephp.org');
-		$Email->subject('Testing Message');
-		$Email->transport('queue');
-		$config = $Email->config('default');
-		$this->QueueTransport->config($config);
+		$Email->setFrom('noreply@cakephp.org', 'CakePHP Test');
+		$Email->setTo('cake@cakephp.org', 'CakePHP');
+		$Email->setCc(['mark@cakephp.org' => 'Mark Story', 'juan@cakephp.org' => 'Juan Basso']);
+		$Email->setBcc('phpnut@cakephp.org');
+		$Email->setSubject('Testing Message');
+		$Email->setTransport('queue');
+		$config = $Email->getConfig('default');
+		$this->QueueTransport->setConfig($config);
 
 		$result = $this->QueueTransport->send($Email);
-		$this->assertEquals('Email', $result['job_type']);
+		$this->assertSame('Email', $result['job_type']);
 		$this->assertTrue(strlen($result['data']) < 10000);
 
-		$output = unserialize($result['data']);
+		//$output = unserialize($result['data']);
 		//$this->assertEquals('Testing Message', $output['settings']['_subject']);
 	}
 
