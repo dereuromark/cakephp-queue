@@ -60,7 +60,7 @@ class QueueTask extends Shell {
 	}
 
 	/**
-	 * Add functionality.
+	 * Add functionality. Optional.
 	 *
 	 * @return void
 	 */

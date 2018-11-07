@@ -74,7 +74,7 @@ class QueueRetryExampleTask extends QueueTask {
 		 * Adding a task of type 'example' with no additionally passed data
 		 */
 		if ($this->QueuedJobs->createJob('RetryExample', null)) {
-			$this->out('OK, job created, now run the worker');
+			$this->success('OK, job created, now run the worker');
 		} else {
 			$this->err('Could not create Job');
 		}
@@ -100,13 +100,13 @@ class QueueRetryExampleTask extends QueueTask {
 		if ($count < 3) {
 			$count++;
 			file_put_contents($this->file, (string)$count);
-			$this->out(' ->Sry, the Retry Example Job failed. Try again.<-');
+			$this->warn(' ->Sry, the Retry Example Job failed. Try again.<-');
 			$this->out(' ');
 			$this->out(' ');
 			return false;
 		}
 
-		$this->out(' ->Success, the Retry Example Job was run.<-');
+		$this->success(' ->Success, the Retry Example Job was run.<-');
 		$this->out(' ');
 		$this->out(' ');
 

@@ -198,7 +198,7 @@ TEXT;
 					$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
 					$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->_getTaskConf());
 					$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
-					$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
+					$this->err('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
 				}
 			} elseif (Configure::readOrFail('Queue.exitwhennothingtodo')) {
 				$this->out('nothing to do, exiting.');

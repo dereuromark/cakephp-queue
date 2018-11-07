@@ -46,7 +46,7 @@ class QueueMonitorExampleTask extends QueueTask {
 		 * Adding a task of type 'example' with no additionally passed data
 		 */
 		if ($this->QueuedJobs->createJob('MonitorExample', null)) {
-			$this->out('OK, job created, now run the worker');
+			$this->success('OK, job created, now run the worker');
 		} else {
 			$this->err('Could not create Job');
 		}
@@ -68,7 +68,7 @@ class QueueMonitorExampleTask extends QueueTask {
 
 		$this->doMonitoring();
 
-		$this->out(' ->Success, the MonitorExample Job was run.<-');
+		$this->success(' -> Success, the MonitorExample Job was run. <-');
 
 		return true;
 	}
