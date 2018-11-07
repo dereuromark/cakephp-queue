@@ -175,8 +175,10 @@ class QueueProcessesTable extends Table {
 			}
 		}
 
+		$time = filemtime($file);
+
 		$res = [
-			'time' => filemtime($file),
+			'time' => $time ? new FrozenTime($time) : null,
 			'workers' => $count,
 		];
 		return $res;
