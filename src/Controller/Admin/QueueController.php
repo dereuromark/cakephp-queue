@@ -3,7 +3,6 @@
 namespace Queue\Controller\Admin;
 
 use App\Controller\AppController;
-use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Http\Exception\NotFoundException;
 use Queue\Queue\TaskFinder;
