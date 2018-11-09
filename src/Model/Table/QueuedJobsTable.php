@@ -33,6 +33,7 @@ if (!defined('SIGTERM')) {
  * @method \Queue\Model\Entity\QueuedJob findOrCreate($search, callable $callback = null, $options = [])
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  * @method \Queue\Model\Entity\QueuedJob|bool saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @mixin \Search\Model\Behavior\SearchBehavior
  */
 class QueuedJobsTable extends Table {
 
@@ -429,7 +430,7 @@ class QueuedJobsTable extends Table {
 			$options['conditions']['OR'][] = $tmp;
 		}
 
-		/** @var \Queue\Model\Entity\QueuedJob $job */
+		/** @var \Queue\Model\Entity\QueuedJob|null $job */
 		$job = $this->getConnection()->transactional(function () use ($query, $options, $now) {
 			$job = $query->find('all', $options)
 				->enableAutoFields(true)

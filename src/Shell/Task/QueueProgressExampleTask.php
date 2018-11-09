@@ -46,11 +46,8 @@ class QueueProgressExampleTask extends QueueTask {
 		$data = [
 			'duration' => 2 * MINUTE
 		];
-		if ($this->QueuedJobs->createJob('ProgressExample', $data)) {
-			$this->success('OK, job created, now run the worker');
-		} else {
-			$this->err('Could not create Job');
-		}
+		$this->QueuedJobs->createJob('ProgressExample', $data);
+		$this->success('OK, job created, now run the worker');
 	}
 
 	/**

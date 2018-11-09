@@ -32,7 +32,7 @@ class QueuedJobsFixture extends TestFixture {
 		'priority' => ['type' => 'integer', 'length' => 3, 'null' => false, 'default' => 5],
 		'job_group' => ['type' => 'string', 'length' => 255, 'null' => true],
 		'reference' => ['type' => 'string', 'length' => 255, 'null' => true],
-		'created' => ['type' => 'datetime', 'null' => true],
+		'created' => ['type' => 'datetime', 'null' => false],
 		'notbefore' => ['type' => 'datetime', 'null' => true],
 		'fetched' => ['type' => 'datetime', 'null' => true],
 		'completed' => ['type' => 'datetime', 'null' => true],

@@ -42,19 +42,17 @@ class QueueExecuteTask extends QueueTask {
 			$this->out('Call like this:');
 			$this->out('	cake queue add execute *command* *param1* *param2* ...');
 			$this->out(' ');
-		} else {
 
-			$data = [
-				'command' => $this->args[1],
-				'params' => array_slice($this->args, 2),
-			];
-			if ($this->QueuedJobs->createJob('Execute', $data)) {
-				$this->out('Job created');
-			} else {
-				$this->err('Could not create Job');
-			}
-
+			return;
 		}
+
+		$data = [
+			'command' => $this->args[1],
+			'params' => array_slice($this->args, 2),
+		];
+
+		$this->QueuedJobs->createJob('Execute', $data);
+		$this->success('OK, job created, now run the worker');
 	}
 
 	/**
