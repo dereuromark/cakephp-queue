@@ -430,7 +430,7 @@ class QueuedJobsTable extends Table {
 			$options['conditions']['OR'][] = $tmp;
 		}
 
-		/** @var \Queue\Model\Entity\QueuedJob $job */
+		/** @var \Queue\Model\Entity\QueuedJob|null $job */
 		$job = $this->getConnection()->transactional(function () use ($query, $options, $now) {
 			$job = $query->find('all', $options)
 				->enableAutoFields(true)

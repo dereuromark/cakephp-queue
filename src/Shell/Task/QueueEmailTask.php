@@ -72,7 +72,7 @@ class QueueEmailTask extends QueueTask {
 			return false;
 		}
 
-		/** @var \Cake\Mailer\Email $email */
+		/** @var \Cake\Mailer\Email|null $email */
 		$email = $data['settings'];
 		if (is_object($email) && $email instanceof Email) {
 			try {

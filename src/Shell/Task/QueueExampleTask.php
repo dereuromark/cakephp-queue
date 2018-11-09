@@ -48,11 +48,8 @@ class QueueExampleTask extends QueueTask {
 		/*
 		 * Adding a task of type 'example' with no additionally passed data
 		 */
-		if ($this->QueuedJobs->createJob('Example', null)) {
-			$this->success('OK, job created, now run the worker');
-		} else {
-			$this->err('Could not create Job');
-		}
+		$this->QueuedJobs->createJob('Example');
+		$this->success('OK, job created, now run the worker');
 	}
 
 	/**
