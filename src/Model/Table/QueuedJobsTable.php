@@ -33,6 +33,7 @@ if (!defined('SIGTERM')) {
  * @method \Queue\Model\Entity\QueuedJob findOrCreate($search, callable $callback = null, $options = [])
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  * @method \Queue\Model\Entity\QueuedJob|bool saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @mixin \Search\Model\Behavior\SearchBehavior
  */
 class QueuedJobsTable extends Table {
 

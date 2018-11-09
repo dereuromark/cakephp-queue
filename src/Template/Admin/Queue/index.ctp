@@ -6,7 +6,6 @@
 use Cake\Core\Configure;
 ?>
 
-
 <nav class="col-md-3 col-xs-12 large-3 medium-4 columns" id="actions-sidebar">
 	<ul class="side-nav list-unstyled">
 		<li><?php echo $this->Form->postLink(__d('queue', 'Reset {0}', __d('queue', 'Queued Jobs')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will make all failed jobs ready for re-run.'), 'class' => 'btn margin btn-default']); ?></li>

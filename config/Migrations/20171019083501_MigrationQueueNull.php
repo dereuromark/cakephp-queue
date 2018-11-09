@@ -16,12 +16,12 @@ class MigrationQueueNull extends AbstractMigration {
 	 */
 	public function change() {
 		$this->table('queue_processes')
-			->addColumn('created', 'datetime', ['null' => false, 'default' => null])
-			->addColumn('modified', 'datetime', ['null' => false, 'default' => null])
+			->changeColumn('created', 'datetime', ['null' => false, 'default' => null])
+			->changeColumn('modified', 'datetime', ['null' => false, 'default' => null])
 			->update();
 
 		$this->table('queued_jobs')
-			->addColumn('created', 'datetime', ['null' => false, 'default' => null])
+			->changeColumn('created', 'datetime', ['null' => false, 'default' => null])
 			->update();
 	}
 
