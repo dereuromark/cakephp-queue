@@ -23,7 +23,9 @@ use Cake\Core\Configure;
 		<h2><?php echo __d('queue', 'Status'); ?></h2>
 		<?php if ($status) { ?>
 			<?php
-			$running = (time() - $status['time']) < MINUTE;
+			/** @var \Cake\I18n\FrozenTime $time */
+			$time = $status['time'];
+			$running = $time->addMinute()->isFuture();
 			?>
 			<?php echo $this->Format->yesNo($running); ?> <?php echo $running ? __d('queue', 'Running') : __d('queue', 'Not running'); ?> (<?php echo __d('queue', 'last {0}', $this->Time->relLengthOfTime($status['time']))?>)
 

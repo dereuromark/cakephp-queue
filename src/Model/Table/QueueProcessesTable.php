@@ -129,7 +129,7 @@ class QueueProcessesTable extends Table {
 
 	/**
 	 * If pid loggin is enabled, will return an array with
-	 * - time: int Timestamp
+	 * - time: Timestamp as FrozenTime object
 	 * - workers: int Count of currently running workers
 	 *
 	 * @return array
