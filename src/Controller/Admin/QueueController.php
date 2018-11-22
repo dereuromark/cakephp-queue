@@ -54,6 +54,7 @@ class QueueController extends AppController {
 		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks'));
 		$this->helpers[] = 'Tools.Format';
 		$this->helpers[] = 'Tools.Time';
+		$this->helpers[] = 'Tools.Text';
 	}
 
 	/**
