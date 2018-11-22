@@ -74,7 +74,7 @@ use Cake\Core\Configure;
 
 					echo '<li>Progress: ' . $this->Number->toPercentage($item['progress'] * 100, 0) . $status . '</li>';
 					echo '<li>Failures: ' . $item['failed'] . $reset . '</li>';
-					echo '<li>Failure Message: ' . h($item['failure_message']) . '</li>';
+					echo '<li>Failure Message: ' . $this->Text->truncate($item['failure_message'], 200) . '</li>';
 				}
 
 				echo '</ul>';
