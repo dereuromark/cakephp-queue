@@ -49,23 +49,6 @@ class QueuedJobsFixture extends TestFixture {
 	 */
 	public function init() {
 		$this->records = [
-			[
-				'id' => 1,
-				'job_type' => 'Lorem ipsum dolor sit amet',
-				'data' => 'Lorem ipsum dolor sit amet, aliquet feugiat. Convallis morbi fringilla gravida, phasellus feugiat dapibus velit nunc, pulvinar eget sollicitudin venenatis cum nullam, vivamus ut a sed, mollitia lectus. Nulla vestibulum massa neque ut et, id hendrerit sit, feugiat in taciti enim proin nibh, tempor dignissim, rhoncus duis vestibulum nunc mattis convallis.',
-				'job_group' => 'Lorem ipsum dolor sit amet',
-				'reference' => 'Lorem ipsum dolor sit amet',
-				'created' => '2018-11-18 22:54:49',
-				'notbefore' => '2018-11-18 22:54:49',
-				'fetched' => '2018-11-18 22:54:49',
-				'completed' => '2018-11-18 22:54:49',
-				'progress' => 1,
-				'failed' => 1,
-				'failure_message' => 'Lorem ipsum dolor sit amet, aliquet feugiat. Convallis morbi fringilla gravida, phasellus feugiat dapibus velit nunc, pulvinar eget sollicitudin venenatis cum nullam, vivamus ut a sed, mollitia lectus. Nulla vestibulum massa neque ut et, id hendrerit sit, feugiat in taciti enim proin nibh, tempor dignissim, rhoncus duis vestibulum nunc mattis convallis.',
-				'workerkey' => 'Lorem ipsum dolor sit amet',
-				'status' => 'Lorem ipsum dolor sit amet',
-				'priority' => 1
-			],
 		];
 		parent::init();
 	}
