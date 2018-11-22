@@ -39,6 +39,8 @@ The Queue plugin provides a simple method to create and run such non-user-intera
 
 While you can run multiple workers, and can (to some extent) spread these workers to different machines via a shared database, you should consider using a more advanced system for high volume/high number of workers systems.
 
+## Demo
+See [Sandbox app](https://sandbox.dereuromark.de/sandbox/queue-examples).
 
 ## Installation and Usage
 See [Documentation](docs).
