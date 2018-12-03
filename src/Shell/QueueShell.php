@@ -200,7 +200,7 @@ TEXT;
 					$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
 					$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
 				}
-			} elseif (Configure::readOrFail('Queue.exitwhennothingtodo')) {
+			} elseif (Configure::read('Queue.exitwhennothingtodo')) {
 				$this->out('nothing to do, exiting.');
 				$this->_exit = true;
 			} else {
