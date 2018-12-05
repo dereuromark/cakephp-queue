@@ -260,7 +260,7 @@ TEXT;
 
 		$options = array_keys($processes);
 		$options[] = 'all';
-		$in = $this->in('Process', $options);
+		$in = $this->in('Process', $options, 'all');
 
 		if ($in === 'all') {
 			foreach ($processes as $process => $timestamp) {
