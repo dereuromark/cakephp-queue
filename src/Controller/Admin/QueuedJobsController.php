@@ -31,7 +31,7 @@ class QueuedJobsController extends AppController {
 
 		$this->QueuedJobs->initConfig();
 
-		if (Configure::read('Queue.isSearchEnabled') === false || !Plugin::loaded('Search')) {
+		if (Configure::read('Queue.isSearchEnabled') === false || !Plugin::isLoaded('Search')) {
 			return;
 		}
 		$this->loadComponent('Search.Prg', [
@@ -45,7 +45,7 @@ class QueuedJobsController extends AppController {
 	 * @return \Cake\Http\Response|null
 	 */
 	public function index() {
-		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::loaded('Search')) {
+		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
 			$query = $this->QueuedJobs->find('search', ['search' => $this->request->getQuery()]);
 		} else {
 			$query = $this->QueuedJobs->find();
