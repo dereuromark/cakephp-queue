@@ -56,7 +56,7 @@ class QueuedJobsController extends AppController {
 		$this->helpers[] = 'Tools.Format';
 		$this->helpers[] = 'Tools.Time';
 
-		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::loaded('Search')) {
+		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
 			$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_type', 'valueField' => 'job_type'])->distinct('job_type')->toArray();
 			$this->set(compact('jobTypes'));
 		}
