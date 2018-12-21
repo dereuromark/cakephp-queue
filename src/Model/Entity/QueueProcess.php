@@ -10,6 +10,7 @@ use Cake\ORM\Entity;
  * @property string $pid
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
+ * @property bool $terminate
  */
 class QueueProcess extends Entity {
 

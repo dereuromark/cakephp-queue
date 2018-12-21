@@ -575,6 +575,22 @@ Make sure you got the template for it then, e.g.:
 This way all the generation is in the specific task and template and can be tested separately.
 
 
+### Ending workers
+This "soft-killing" should be preferred over "hard-killing".
+It will make sure the worker process will finish the current job and then abort right afterwards.
+
+This is useful when deploying a code or DB migration change and you want the "old workers" based on the old code
+to not process any new incoming jobs after deployment.
+
+In this case, make sure one of your first calls of the deployment script is
+```
+bin/cake queue end -q
+```
+
+To avoid further deployment issues, also try to keep the runtime per worker to only a few minutes.
+You can additionally do this call at the end of the deployment script to make sure any workers started in the meantime
+will also be aborting early. 
+
 ### Killing workers
 
 First of all: Make sure you don't run workers with `workermaxruntime` and `workertimeout` of `0`.
@@ -585,7 +601,6 @@ That can overload the server.
 
 You can kill workers from the backend or the command line.
 Make sure you have set up the workers with the same user (www-data usually) as the user that tries to kill them, or it will not work.
-
 
 #### Manually
 

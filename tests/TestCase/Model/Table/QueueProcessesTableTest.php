@@ -23,7 +23,7 @@ class QueueProcessesTableTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'plugin.queue.queue_processes'
+		'plugin.queue.QueueProcesses',
 	];
 
 	/**

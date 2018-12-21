@@ -5,6 +5,7 @@ use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Queue\Model\ProcessEndingException;
 
 /**
  * QueueProcesses Model
@@ -104,6 +105,10 @@ class QueueProcessesTable extends Table {
 	public function update($pid) {
 		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
 		$queueProcess = $this->find()->where(['pid' => $pid])->firstOrFail();
+		if ($queueProcess->terminate) {
+			throw new ProcessEndingException();
+		}
+
 		$queueProcess->modified = new FrozenTime();
 		$this->saveOrFail($queueProcess);
 	}

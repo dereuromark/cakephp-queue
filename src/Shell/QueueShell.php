@@ -11,6 +11,7 @@ use Cake\Log\Log;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
 use Exception;
+use Queue\Model\ProcessEndingException;
 use Queue\Queue\TaskFinder;
 use Throwable;
 
@@ -60,6 +61,17 @@ class QueueShell extends Shell {
 
 		$this->QueuedJobs->initConfig();
 		$this->loadModel('Queue.QueueProcesses');
+	}
+
+	/**
+	 * @return void
+	 */
+	public function startup() {
+		if ($this->param('quiet')) {
+			$this->interactive = false;
+		}
+
+		parent::startup();
 	}
 
 	/**
@@ -150,7 +162,11 @@ TEXT;
 			try {
 				$this->_updatePid($pid);
 			} catch (RecordNotFoundException $exception) {
-				// Manually killed, e.g. during deploy update
+				// Manually killed
+				$this->_exit = true;
+				continue;
+			} catch (ProcessEndingException $exception) {
+				// Soft killed, e.g. during deploy update
 				$this->_exit = true;
 				continue;
 			}
@@ -240,6 +256,40 @@ TEXT;
 		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - (int)Configure::read('Queue.cleanuptimeout')));
 		$this->QueuedJobs->cleanOldJobs();
 		$this->QueueProcesses->cleanKilledProcesses();
+	}
+
+	/**
+	 * @param string|null $in
+	 * @return void
+	 */
+	public function end($in = null) {
+		$processes = $this->QueuedJobs->getProcesses();
+		if (!$processes) {
+			$this->out('No processed found');
+
+			return;
+		}
+
+		$this->out(count($processes) . ' processes:');
+		foreach ($processes as $process => $timestamp) {
+			$this->out(' - ' . $process . ' (last run @ ' . (new FrozenTime($timestamp)) . ')');
+		}
+
+		$options = array_keys($processes);
+		$options[] = 'all';
+		if ($in === null) {
+			$in = $this->in('Process', $options, 'all');
+		}
+
+		if ($in === 'all') {
+			foreach ($processes as $process => $timestamp) {
+				$this->QueuedJobs->endProcess((int)$process);
+			}
+
+			return;
+		}
+
+		$this->QueuedJobs->endProcess((int)$in);
 	}
 
 	/**
@@ -400,6 +450,10 @@ TEXT;
 			])
 			->addSubcommand('hard_reset', [
 				'help' => 'Hard reset queue (remove all jobs)',
+				'parser' => $subcommandParserFull,
+			])
+			->addSubcommand('end', [
+				'help' => 'Manually end a worker.',
 				'parser' => $subcommandParserFull,
 			])
 			->addSubcommand('kill', [

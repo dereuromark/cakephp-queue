@@ -755,6 +755,23 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * Soft ending of a running job, e.g. when migration is starting
+	 *
+	 * @param int $pid
+	 * @return void
+	 */
+	public function endProcess($pid) {
+		if (!$pid) {
+			return;
+		}
+
+		$QueueProcesses = TableRegistry::get('Queue.QueueProcesses');
+		$queuedProcess = $QueueProcesses->find()->where(['pid' => $pid])->firstOrFail();
+		$queuedProcess->terminate = true;
+		$QueueProcesses->saveOrFail($queuedProcess);
+	}
+
+	/**
 	 * Note this does not work from the web backend to kill CLI workers.
 	 * We might need to run some exec() kill command here instead.
 	 *
