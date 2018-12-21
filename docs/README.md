@@ -615,6 +615,10 @@ Then you can kill them gracefully with `-15` (or forcefully with `-9`, not recom
 Locally, if you want to kill them all, usually `killapp -15 php` does the trick.
 Do not run this with production ones, though.
 
+### Configure loading
+
+Use Configure `'Queue.configLoaded'` set to `true` to avoid the deprecated loading of the config inside the model layer.
+This part is deprecated and can cause troubles.
 
 ### Known Limitations
 
