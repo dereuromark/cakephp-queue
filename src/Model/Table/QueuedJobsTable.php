@@ -766,6 +766,7 @@ class QueuedJobsTable extends Table {
 		}
 
 		$QueueProcesses = TableRegistry::get('Queue.QueueProcesses');
+		/** @var \Queue\Model\Entity\QueueProcess $queuedProcess */
 		$queuedProcess = $QueueProcesses->find()->where(['pid' => $pid])->firstOrFail();
 		$queuedProcess->terminate = true;
 		$QueueProcesses->saveOrFail($queuedProcess);
