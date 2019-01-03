@@ -167,6 +167,7 @@ class QueueProcessesTable extends Table {
 			];
 		}
 
+		// Deprecated: Will be removed, use DB here
 		$file = $pidFilePath . 'queue.pid';
 		if (!file_exists($file)) {
 			return [];

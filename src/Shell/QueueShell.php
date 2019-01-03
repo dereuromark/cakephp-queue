@@ -570,7 +570,7 @@ TEXT;
 			return $pid;
 		}
 
-		// Deprecated
+		// Deprecated: Will be removed, use DB here
 		if (!file_exists($pidFilePath)) {
 			mkdir($pidFilePath, 0755, true);
 		}
@@ -613,7 +613,7 @@ TEXT;
 			return;
 		}
 
-		// Deprecated
+		// Deprecated: Will be removed, use DB here
 		$pidFileName = 'queue_' . $pid . '.pid';
 		if (!empty($pidFilePath)) {
 			touch($pidFilePath . 'queue.pid');
@@ -635,7 +635,7 @@ TEXT;
 			return;
 		}
 
-		// Deprecated
+		// Deprecated: Will be removed, use DB here
 		if (file_exists($pidFilePath . 'queue_' . $pid . '.pid')) {
 			unlink($pidFilePath . 'queue_' . $pid . '.pid');
 		}

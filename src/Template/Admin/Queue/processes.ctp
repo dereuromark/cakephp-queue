@@ -1,8 +1,9 @@
 <?php
 /**
  * @var \App\View\AppView $this
+ * @var array $processes
+ * @var \Queue\Model\Entity\QueueProcess[] $terminated
  */
-use Cake\Core\Configure;
 use Cake\I18n\Time;
 
 ?>
@@ -18,6 +19,8 @@ use Cake\I18n\Time;
 <h1><?php echo __d('queue', 'Queue');?></h1>
 
 <h2><?php echo __d('queue', 'Current Queue Processes'); ?></h2>
+	<p>Active processes:</p>
+
 <ul>
 <?php
 foreach ($processes as $process => $timestamp) {
@@ -33,5 +36,18 @@ if (empty($processes)) {
 }
 ?>
 </ul>
+
+<?php if (!empty($terminated)) { ?>
+	<h3>Terminated</h3>
+	<p>These have been marked as to be terminated after finishing this round:</p>
+	<ul>
+	<?php
+	foreach ($terminated as $queuedJob) {
+		echo '<li>' . $queuedJob->pid;
+		echo '</li>';
+	}
+	?>
+	</ul>
+<?php } ?>
 
 </div>

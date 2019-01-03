@@ -600,6 +600,8 @@ class QueuedJobsTable extends Table {
 		if (!$pidFilePath) {
 			return;
 		}
+
+		// Deprecated: Will be removed, use DB here
 		// Remove all old pid files left over
 		$timeout = time() - 2 * (int)Configure::read('Queue.cleanuptimeout');
 		$Iterator = new RegexIterator(
@@ -758,6 +760,7 @@ class QueuedJobsTable extends Table {
 			return $processes;
 		}
 
+		// Deprecated: Will be removed, use DB here
 		$processes = [];
 		foreach (glob($pidFilePath . 'queue_*.pid') as $filename) {
 			$time = filemtime($filename);
@@ -816,7 +819,7 @@ class QueuedJobsTable extends Table {
 			return;
 		}
 
-		// Deprecated file system
+		// Deprecated: Will be removed, use DB here
 		$file = $pidFilePath . 'queue_' . $pid . '.pid';
 		if (file_exists($file)) {
 			unlink($file);
