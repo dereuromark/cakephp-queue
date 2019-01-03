@@ -62,9 +62,17 @@ class QueueTask extends Shell {
 	/**
 	 * Add functionality. Optional.
 	 *
+	 * Only works for tasks that do not need a payload.
+	 * Make sure all payload $data array keys are defaulted or to abort early otherwise.
+	 * If you do not want this, implement with `throw new NotImplementedException();`
+	 *
 	 * @return void
 	 */
 	public function add() {
+		$task = $this->queueTaskName();
+		$this->QueuedJobs->createJob($task);
+
+		$this->success('Added ' . $task . ' task');
 	}
 
 	/**
@@ -79,6 +87,21 @@ class QueueTask extends Shell {
 	 */
 	public function run(array $data, $jobId) {
 		return true;
+	}
+
+	/**
+	 * @return string
+	 * @throws \InvalidArgumentException
+	 */
+	protected function queueTaskName() {
+		$class = get_class($this);
+		
+		preg_match('#\\\\Queue(.+)Task$#', $class, $matches);
+		if (!$matches) {
+			throw new \InvalidArgumentException('Invalid class name: ' . $class);
+		}
+		
+		return $matches[1];
 	}
 
 }
