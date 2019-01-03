@@ -8,6 +8,7 @@ namespace Queue\Shell\Task;
 
 use Cake\Console\ConsoleIo;
 use Cake\Console\Shell;
+use InvalidArgumentException;
 
 /**
  * Queue Task.
@@ -95,12 +96,12 @@ class QueueTask extends Shell {
 	 */
 	protected function queueTaskName() {
 		$class = get_class($this);
-		
+
 		preg_match('#\\\\Queue(.+)Task$#', $class, $matches);
 		if (!$matches) {
-			throw new \InvalidArgumentException('Invalid class name: ' . $class);
+			throw new InvalidArgumentException('Invalid class name: ' . $class);
 		}
-		
+
 		return $matches[1];
 	}
 
