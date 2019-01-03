@@ -2,8 +2,10 @@
 
 namespace Queue\Model\Table;
 
+use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
+use Cake\Event\Event;
 use Cake\Http\Exception\NotImplementedException;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
@@ -89,6 +91,18 @@ class QueuedJobsTable extends Table {
 		}
 
 		$this->initConfig();
+	}
+
+	/**
+	 * @param \Cake\Event\Event $event
+	 * @param \ArrayObject $data
+	 * @param \ArrayObject $options
+	 * @return void
+	 */
+	public function beforeMarshal(Event $event, ArrayObject $data, ArrayObject $options) {
+		if (isset($data['data']) && $data['data'] === '') {
+			$data['data'] = null;
+		}
 	}
 
 	/**

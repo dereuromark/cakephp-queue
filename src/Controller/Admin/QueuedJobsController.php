@@ -125,6 +125,14 @@ class QueuedJobsController extends AppController {
 	}
 
 	/**
+	 * @param string|null $id Queued Job id.
+	 * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
+	 */
+	public function data($id = null) {
+		return $this->edit($id);
+	}
+
+	/**
 	 * Delete method
 	 *
 	 * @param string|null $id Queued Job id.
