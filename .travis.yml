@@ -37,6 +37,7 @@ before_script:
 
   - if [[ $PREFER_LOWEST != 1 ]]; then composer install --prefer-source --no-interaction ; fi
   - if [[ $PREFER_LOWEST == 1 ]]; then composer update --prefer-dist --no-interaction --prefer-lowest --prefer-stable ; fi
+  - if [[ $PREFER_LOWEST == 1 ]]; then composer require --dev dereuromark/composer-prefer-lowest:dev-master; fi
 
   - if [[ $DB == 'mysql' ]]; then mysql -u root -e 'CREATE DATABASE cakephp_test;' ; fi
   - if [[ $DB == 'pgsql' ]]; then psql -c 'CREATE DATABASE cakephp_test;' -U postgres ; fi
@@ -47,6 +48,7 @@ before_script:
 
 script:
   - if [[ $DEFAULT == 1 ]]; then vendor/bin/phpunit; fi
+  - if [[ $PREFER_LOWEST == 1 ]]; then vendor/bin/validate-prefer-lowest; fi
 
   - if [[ $CHECKS == 1 ]]; then composer phpstan-setup && composer phpstan ; fi
   - if [[ $CHECKS == 1 ]]; then composer cs-check ; fi
