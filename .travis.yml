@@ -5,7 +5,6 @@ sudo: false
 php:
   - 5.6
   - 7.0
-  - 7.1
   - 7.3
 
 env:
@@ -21,7 +20,7 @@ matrix:
     - php: 7.1
       env: DB=pgsql db_dsn='postgres://postgres@127.0.0.1/cakephp_test'
 
-    - php: 7.1
+    - php: 7.2
       env: DB=sqlite db_dsn='sqlite:///:memory:'
 
     - php: 5.6
