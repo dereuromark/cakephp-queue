@@ -15,9 +15,11 @@ class MigrationQueueProcessesIndex extends AbstractMigration {
 	 * @return void
 	 */
 	public function change() {
-		$this->table('queue_processes')
-			->removeIndex(['pid'])
-			->save();
+		if ($this->table('queue_processes')->hasIndex(['pid'], ['unique' => true])) {
+			$this->table('queue_processes')
+				->removeIndex(['pid'], ['unique' => true])
+				->save();
+		}
 
 		$this->table('queue_processes')
 			->addIndex(['pid', 'server'], ['unique' => true])
