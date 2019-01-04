@@ -53,7 +53,7 @@ class QueueProcessesTableTest extends TestCase {
 	 */
 	public function testAdd() {
 		$pid = '123';
-		$id = $this->QueueProcesses->add($pid);
+		$id = $this->QueueProcesses->add($pid, '456');
 		$this->assertNotEmpty($id);
 
 		$queueProcess = $this->QueueProcesses->get($id);
@@ -61,6 +61,7 @@ class QueueProcessesTableTest extends TestCase {
 
 		$this->assertFalse($queueProcess->terminate);
 		$this->assertNotEmpty($queueProcess->server);
+		$this->assertNotEmpty($queueProcess->workerkey);
 	}
 
 	/**
@@ -68,7 +69,7 @@ class QueueProcessesTableTest extends TestCase {
 	 */
 	public function testUpdate() {
 		$pid = '123';
-		$id = $this->QueueProcesses->add($pid);
+		$id = $this->QueueProcesses->add($pid, '456');
 		$this->assertNotEmpty($id);
 
 		$this->QueueProcesses->update($pid);
@@ -82,7 +83,7 @@ class QueueProcessesTableTest extends TestCase {
 	 */
 	public function testRemove() {
 		$pid = '123';
-		$queueProcessId = $this->QueueProcesses->add($pid);
+		$queueProcessId = $this->QueueProcesses->add($pid, '456');
 		$this->assertNotEmpty($queueProcessId);
 
 		$this->QueueProcesses->remove($pid);

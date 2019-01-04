@@ -581,6 +581,7 @@ class QueuedJobsTableTest extends TestCase {
 
 		$queuedProcess = $queuedProcessesTable->newEntity([
 			'pid' => 1,
+			'workerkey' => '123',
 		]);
 		$queuedProcessesTable->saveOrFail($queuedProcess);
 

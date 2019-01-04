@@ -12,6 +12,7 @@ use Cake\ORM\Entity;
  * @property \Cake\I18n\FrozenTime $modified
  * @property bool $terminate
  * @property string|null $server
+ * @property string $workerkey
  */
 class QueueProcess extends Entity {
 

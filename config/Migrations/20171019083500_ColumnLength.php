@@ -21,6 +21,8 @@ class ColumnLength extends AbstractMigration {
 			'length' => 40,
 			'null' => false,
 			'default' => null,
+			'encoding' => 'utf8mb4',
+			'collation' => 'utf8mb4_unicode_ci',
 		]);
 
 		$table->save();

@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class MigrationQueueProcesses extends AbstractMigration {
+class MigrationQueueProcessesKey extends AbstractMigration {
 
 	/**
 	 * Change Method.
@@ -16,14 +16,18 @@ class MigrationQueueProcesses extends AbstractMigration {
 	 */
 	public function change() {
 		$this->table('queue_processes')
-			->addColumn('server', 'string', [
-				'length' => 90,
+			->addColumn('workerkey', 'string', [
+				'length' => 45,
+				'null' => false,
 				'default' => null,
-				'null' => true,
 				'encoding' => 'utf8mb4',
 				'collation' => 'utf8mb4_unicode_ci',
 			])
-			->update();
+			->save();
+
+		$this->table('queue_processes')
+			->addIndex(['workerkey'], ['unique' => true])
+			->save();
 	}
 
 }

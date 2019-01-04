@@ -575,7 +575,8 @@ TEXT;
 		$pidFilePath = Configure::read('Queue.pidfilepath');
 		if (!$pidFilePath) {
 			$pid = $this->_retrievePid();
-			$this->QueueProcesses->add($pid);
+			$key = $this->QueuedJobs->key();
+			$this->QueueProcesses->add($pid, $key);
 
 			return $pid;
 		}

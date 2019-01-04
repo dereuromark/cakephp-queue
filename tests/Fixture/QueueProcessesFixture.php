@@ -21,8 +21,10 @@ class QueueProcessesFixture extends TestFixture {
         'modified' => ['type' => 'datetime', 'length' => null, 'null' => false, 'default' => null, 'comment' => '', 'precision' => null],
         'terminate' => ['type' => 'boolean', 'length' => null, 'null' => false, 'default' => '0', 'comment' => '', 'precision' => null],
         'server' => ['type' => 'string', 'length' => 90, 'null' => true, 'default' => null, 'comment' => '', 'precision' => null, 'fixed' => null],
+        'workerkey' => ['type' => 'string', 'length' => 45, 'null' => false, 'default' => null, 'comment' => '', 'precision' => null, 'fixed' => null],
         '_constraints' => [
             'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
+            'workerkey' => ['type' => 'unique', 'columns' => ['workerkey'], 'length' => []],
             'pid' => ['type' => 'unique', 'columns' => ['pid', 'server'], 'length' => []],
         ],
         '_options' => [
@@ -40,8 +42,8 @@ class QueueProcessesFixture extends TestFixture {
 		$this->records = [
 			[
 				'pid' => 'Lorem ipsum dolor sit amet',
-				'created' => '2019-01-04 11:01:50',
-				'modified' => '2019-01-04 11:01:50',
+				'created' => '2019-01-04 17:27:40',
+				'modified' => '2019-01-04 17:27:40',
 				'terminate' => 1,
 			],
 		];
