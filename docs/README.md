@@ -604,6 +604,8 @@ bin/cake queue end server -q
 
 You can check/verify the current server name using `bin/cake queue stats`.
 
+If you want to test locally, type `export SERVER_NAME=myserver1` and then run the above.
+
 
 ### Killing workers
 

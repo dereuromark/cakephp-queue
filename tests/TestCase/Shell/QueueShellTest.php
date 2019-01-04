@@ -86,7 +86,7 @@ class QueueShellTest extends TestCase {
 		$this->_needsConnection();
 
 		$this->QueueShell->stats();
-		$this->assertContains('Total unfinished Jobs      : 0', $this->out->output());
+		$this->assertContains('Total unfinished jobs: 0', $this->out->output());
 	}
 
 	/**
