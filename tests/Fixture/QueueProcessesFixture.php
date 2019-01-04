@@ -45,6 +45,7 @@ class QueueProcessesFixture extends TestFixture {
 				'created' => '2019-01-04 17:27:40',
 				'modified' => '2019-01-04 17:27:40',
 				'terminate' => 1,
+				'workerkey' => 'key',
 			],
 		];
 		parent::init();
