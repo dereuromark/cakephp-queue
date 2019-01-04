@@ -104,12 +104,12 @@ class QueueProcessesTable extends Table {
 	 * @throws \Queue\Model\ProcessEndingException
 	 */
 	public function update($pid) {
-		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
 		$conditions = [
 			'pid' => $pid,
 			'server IS' => $this->buildServerString(),
 		];
 
+		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
 		$queueProcess = $this->find()->where($conditions)->firstOrFail();
 		if ($queueProcess->terminate) {
 			throw new ProcessEndingException('PID terminated: ' . $pid);

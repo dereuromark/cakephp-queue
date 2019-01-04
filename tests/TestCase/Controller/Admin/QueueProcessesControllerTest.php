@@ -20,8 +20,7 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 	/**
 	 * @return void
 	 */
-	public function tearDown()
-	{
+	public function tearDown() {
 		parent::tearDown();
 
 		Configure::delete('Queue');
