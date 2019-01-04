@@ -55,6 +55,12 @@ class QueueProcessesTableTest extends TestCase {
 		$pid = '123';
 		$id = $this->QueueProcesses->add($pid);
 		$this->assertNotEmpty($id);
+
+		$queueProcess = $this->QueueProcesses->get($id);
+		$this->assertSame($pid, $queueProcess->pid);
+
+		$this->assertFalse($queueProcess->terminate);
+		$this->assertNotEmpty($queueProcess->server);
 	}
 
 	/**
@@ -66,6 +72,9 @@ class QueueProcessesTableTest extends TestCase {
 		$this->assertNotEmpty($id);
 
 		$this->QueueProcesses->update($pid);
+
+		$queueProcess = $this->QueueProcesses->get($id);
+		$this->assertFalse($queueProcess->terminate);
 	}
 
 	/**

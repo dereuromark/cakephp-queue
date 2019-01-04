@@ -24,7 +24,7 @@ use Queue\Model\ProcessEndingException;
 class QueueProcessesTable extends Table {
 
 	/**
-	 * set connection name
+	 * Sets connection name
 	 *
 	 * @return string
 	 */
@@ -78,9 +78,7 @@ class QueueProcessesTable extends Table {
 		$timeout = (int)Configure::readOrFail('Queue.defaultworkertimeout');
 		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
-		$query = $this->find()->where(['modified > ' => $thresholdTime]);
-
-		return $query;
+		return $this->find()->where(['modified > ' => $thresholdTime]);
 	}
 
 	/**
@@ -89,9 +87,12 @@ class QueueProcessesTable extends Table {
 	 * @return int
 	 */
 	public function add($pid) {
-		$queueProcess = $this->newEntity([
+		$data = [
 			'pid' => $pid,
-		]);
+			'server' => $this->buildServerString(),
+		];
+
+		$queueProcess = $this->newEntity($data);
 		$this->saveOrFail($queueProcess);
 
 		return $queueProcess->id;
@@ -99,8 +100,8 @@ class QueueProcessesTable extends Table {
 
 	/**
 	 * @param string $pid
-	 *
 	 * @return void
+	 * @throws \Queue\Model\ProcessEndingException
 	 */
 	public function update($pid) {
 		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
@@ -188,6 +189,28 @@ class QueueProcessesTable extends Table {
 			'workers' => $count,
 		];
 		return $res;
+	}
+
+	/**
+	 * Use ENV to control the server name of the servers run workers with.
+	 *
+	 * export SERVER_NAME=myserver1
+	 *
+	 * This way you can deploy separately and only end the processes of that server.
+	 *
+	 * @return string
+	 */
+	public function buildServerString() {
+		$serverName = env('SERVER_NAME') ?: gethostname();
+		if (!$serverName) {
+			$user = env('USER');
+			$logName = env('LOGNAME');
+			if ($user || $logName) {
+				$serverName = $user . '@' . $logName;
+			}
+		}
+
+		return $serverName;
 	}
 
 }

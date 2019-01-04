@@ -229,7 +229,7 @@ TEXT;
 				$this->_exit = true;
 				$this->out('Reached runtime of ' . (time() - $startTime) . ' Seconds (Max ' . Configure::readOrFail('Queue.workermaxruntime') . '), terminating.');
 			}
-			if ($this->_exit || rand(0, 100) > (100 - (int)Configure::readOrFail('Queue.gcprob'))) {
+			if ($this->_exit || mt_rand(0, 100) > (100 - (int)Configure::readOrFail('Queue.gcprob'))) {
 				$this->out('Performing Old job cleanup.');
 				$this->QueuedJobs->cleanOldJobs();
 			}
@@ -259,11 +259,17 @@ TEXT;
 	}
 
 	/**
+	 * Gracefully end running workers when deploying.
+	 *
+	 * Use $in
+	 * - all: to end all workers on all servers
+	 * - server: to end the ones on this server
+	 *
 	 * @param string|null $in
 	 * @return void
 	 */
 	public function end($in = null) {
-		$processes = $this->QueuedJobs->getProcesses();
+		$processes = $this->QueuedJobs->getProcesses($in === 'server');
 		if (!$processes) {
 			$this->out('No processed found');
 
@@ -281,10 +287,12 @@ TEXT;
 			$in = $this->in('Process', $options, 'all');
 		}
 
-		if ($in === 'all') {
+		if ($in === 'all' || $in === 'server') {
 			foreach ($processes as $process => $timestamp) {
 				$this->QueuedJobs->endProcess((int)$process);
 			}
+
+			$this->out('All ' . count($processes) . ' processes ended.');
 
 			return;
 		}
@@ -365,16 +373,18 @@ TEXT;
 	 * @return void
 	 */
 	public function stats() {
-		$this->out('Jobs currenty in the Queue:');
+		$this->out('Jobs currently in the queue:');
 
 		$types = $this->QueuedJobs->getTypes()->toArray();
 		foreach ($types as $type) {
 			$this->out('      ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $this->QueuedJobs->getLength($type));
 		}
 		$this->hr();
-		$this->out('Total unfinished Jobs      : ' . $this->QueuedJobs->getLength());
+		$this->out('Total unfinished jobs: ' . $this->QueuedJobs->getLength());
+		$this->out('Running workers (processes): ' . $this->QueueProcesses->findActive()->count());
+		$this->out('Server name: ' . $this->QueueProcesses->buildServerString());
 		$this->hr();
-		$this->out('Finished Job Statistics:');
+		$this->out('Finished job statistics:');
 		$data = $this->QueuedJobs->getStats();
 		foreach ($data as $item) {
 			$this->out(' ' . $item['job_type'] . ': ');

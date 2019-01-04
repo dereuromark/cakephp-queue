@@ -3,6 +3,7 @@
  * @var \App\View\AppView $this
  * @var array $processes
  * @var \Queue\Model\Entity\QueueProcess[] $terminated
+ * @var \Queue\Model\Entity\QueuedJob $queuedJob
  */
 use Cake\I18n\Time;
 

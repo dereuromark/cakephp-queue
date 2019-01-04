@@ -11,6 +11,7 @@ use Cake\ORM\Entity;
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  * @property bool $terminate
+ * @property string|null $server
  */
 class QueueProcess extends Entity {
 

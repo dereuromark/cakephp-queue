@@ -589,7 +589,21 @@ bin/cake queue end -q
 
 To avoid further deployment issues, also try to keep the runtime per worker to only a few minutes.
 You can additionally do this call at the end of the deployment script to make sure any workers started in the meantime
-will also be aborting early. 
+will also be aborting early.
+
+#### Ending workers per server
+A useful feature when having multiple servers and workers, and deploying separately, is to only end the workers on the server you are deploying to.
+
+For this make sure you have either `env('SERVER_NAME')` or `gethostname()` return a unique name per server instance. 
+These are stored in the processes and as such you can then end them per instance that deploys.
+
+This snippet should be in the deploy script then instead.
+```
+bin/cake queue end server -q
+```
+
+You can check/verify the current server name using `bin/cake queue stats`.
+
 
 ### Killing workers
 

@@ -748,14 +748,29 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * Gets all active processes.
+	 *
+	 * $forThisServer only works for DB approach.
+	 *
+	 * @param bool $forThisServer
 	 * @return array
 	 */
-	public function getProcesses() {
+	public function getProcesses($forThisServer = false) {
 		$pidFilePath = Configure::read('Queue.pidfilepath');
 		if (!$pidFilePath) {
 			/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 			$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
-			$processes = $QueueProcesses->findActive()->enableHydration(false)->find('list', ['keyField' => 'pid', 'valueField' => 'modified'])->all()->toArray();
+			$query = $QueueProcesses->findActive()
+				->where(['terminate' => false]);
+			if ($forThisServer) {
+				$query = $query->where(['server' => $QueueProcesses->buildServerString()]);
+			}
+
+			$processes = $query
+				->enableHydration(false)
+				->find('list', ['keyField' => 'pid', 'valueField' => 'modified'])
+				->all()
+				->toArray();
 
 			return $processes;
 		}

@@ -573,6 +573,24 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testEndProcess() {
+		/** @var \Queue\Model\Table\QueueProcessesTable $queuedProcessesTable */
+		$queuedProcessesTable = TableRegistry::get('Queue.QueueProcesses');
+
+		$queuedProcess = $queuedProcessesTable->newEntity([
+			'pid' => 1,
+		]);
+		$queuedProcessesTable->saveOrFail($queuedProcess);
+
+		$this->QueuedJobs->endProcess(1);
+
+		$queuedProcess = $queuedProcessesTable->get($queuedProcess->id);
+		$this->assertTrue($queuedProcess->terminate);
+	}
+
+	/**
 	 * Helper method for skipping tests that need a real connection.
 	 *
 	 * @return void
