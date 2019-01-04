@@ -105,9 +105,14 @@ class QueueProcessesTable extends Table {
 	 */
 	public function update($pid) {
 		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
-		$queueProcess = $this->find()->where(['pid' => $pid])->firstOrFail();
+		$conditions = [
+			'pid' => $pid,
+			'server IS' => $this->buildServerString(),
+		];
+
+		$queueProcess = $this->find()->where($conditions)->firstOrFail();
 		if ($queueProcess->terminate) {
-			throw new ProcessEndingException();
+			throw new ProcessEndingException('PID terminated: ' . $pid);
 		}
 
 		$queueProcess->modified = new FrozenTime();
@@ -120,17 +125,22 @@ class QueueProcessesTable extends Table {
 	 * @return void
 	 */
 	public function remove($pid) {
-		$this->deleteAll(['pid' => $pid]);
+		$conditions = [
+			'pid' => $pid,
+			'server IS' => $this->buildServerString(),
+		];
+
+		$this->deleteAll($conditions);
 	}
 
 	/**
-	 * @return void
+	 * @return int
 	 */
 	public function cleanKilledProcesses() {
 		$timeout = (int)Configure::readOrFail('Queue.defaultworkertimeout');
 		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
-		$this->deleteAll(['modified <' => $thresholdTime]);
+		return $this->deleteAll(['modified <' => $thresholdTime]);
 	}
 
 	/**
@@ -198,7 +208,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * This way you can deploy separately and only end the processes of that server.
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public function buildServerString() {
 		$serverName = env('SERVER_NAME') ?: gethostname();
@@ -210,7 +220,7 @@ class QueueProcessesTable extends Table {
 			}
 		}
 
-		return $serverName;
+		return $serverName ?: null;
 	}
 
 }

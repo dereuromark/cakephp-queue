@@ -82,14 +82,12 @@ class QueueProcessesTableTest extends TestCase {
 	 */
 	public function testRemove() {
 		$pid = '123';
-		$queueProcess = $this->QueueProcesses->newEntity([
-			'pid' => $pid
-		]);
-		$this->QueueProcesses->saveOrFail($queueProcess);
+		$queueProcessId = $this->QueueProcesses->add($pid);
+		$this->assertNotEmpty($queueProcessId);
 
 		$this->QueueProcesses->remove($pid);
 
-		$result = $this->QueueProcesses->find()->where(['id' => $queueProcess->id])->first();
+		$result = $this->QueueProcesses->find()->where(['id' => $queueProcessId])->first();
 		$this->assertNull($result);
 	}
 

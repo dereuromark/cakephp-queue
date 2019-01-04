@@ -52,7 +52,8 @@ class QueueController extends AppController {
 		$taskFinder = new TaskFinder();
 		$tasks = $taskFinder->allAppAndPluginTasks();
 
-		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks'));
+		$servers = $this->QueueProcesses->find()->distinct(['server'])->find('list', ['keyField' => 'server', 'valueField' => 'server'])->toArray();
+		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks', 'servers'));
 		$this->helpers[] = 'Tools.Format';
 		$this->helpers[] = 'Tools.Time';
 		$this->helpers[] = 'Tools.Text';

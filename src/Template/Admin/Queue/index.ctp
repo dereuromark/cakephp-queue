@@ -32,6 +32,10 @@ use Cake\Core\Configure;
 			<?php
 			echo '<div><small>Currently ' . $this->Html->link($status['workers'] . ' worker(s)', ['action' => 'processes']) . ' total.</small></div>';
 			?>
+			<?php
+			echo '<div><small>' . count($servers) . ' CLI server(s): ' . implode(', ', $servers) .'</small></div>';
+			?>
+
 		<?php } else { ?>
 			n/a
 		<?php } ?>

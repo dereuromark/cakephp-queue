@@ -574,9 +574,22 @@ Make sure you got the template for it then, e.g.:
 
 This way all the generation is in the specific task and template and can be tested separately.
 
+### Multi Server Setup
+When working with multiple CLI servers there are several requirements for it work smoothly:
+
+File approach does not work here, you must use the new DB approach (using queue_processes table).
+
+Make sure `env('SERVER_NAME')` or `gethostname()` return a unique name per server instance.
+This is required as PID alone is now not unique anymore.
+Each worker then registers itself as combination of `PID + server name`.
+
+You can not kill workers on a different server, you can only mark them as "to be terminated".
+The next run the worker registers this and auto-terminates early.
+
+Removing PIDs from DB will yield the same result then, a "soft-killing".
 
 ### Ending workers
-This "soft-killing" should be preferred over "hard-killing".
+The "soft-killing" should be preferred over "hard-killing".
 It will make sure the worker process will finish the current job and then abort right afterwards.
 
 This is useful when deploying a code or DB migration change and you want the "old workers" based on the old code
@@ -594,7 +607,7 @@ will also be aborting early.
 #### Ending workers per server
 A useful feature when having multiple servers and workers, and deploying separately, is to only end the workers on the server you are deploying to.
 
-For this make sure you have either `env('SERVER_NAME')` or `gethostname()` return a unique name per server instance. 
+For this make sure you have either `env('SERVER_NAME')` or `gethostname()` return a unique name per server instance (see above). 
 These are stored in the processes and as such you can then end them per instance that deploys.
 
 This snippet should be in the deploy script then instead.

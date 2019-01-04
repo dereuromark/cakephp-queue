@@ -13,6 +13,7 @@ use Cake\I18n\Time;
 <nav class="col-md-3 col-xs-12 large-3 medium-4 columns" id="actions-sidebar">
 	<ul class="side-nav list-unstyled">
 		<li><?php echo $this->Html->link(__d('queue', 'Back'), ['action' => 'index']); ?></li>
+		<li><?php echo $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queue Processes')), ['controller' => 'QueueProcesses', 'action' => 'index'], ['class' => 'btn margin btn-primary']); ?></li>
 	</ul>
 </nav>
 
