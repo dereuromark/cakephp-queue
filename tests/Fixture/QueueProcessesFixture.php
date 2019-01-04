@@ -39,12 +39,10 @@ class QueueProcessesFixture extends TestFixture {
 	public function init() {
 		$this->records = [
 			[
-				'id' => 1,
 				'pid' => 'Lorem ipsum dolor sit amet',
 				'created' => '2019-01-04 11:01:50',
 				'modified' => '2019-01-04 11:01:50',
 				'terminate' => 1,
-				'server' => 'Lorem ipsum dolor sit amet'
 			],
 		];
 		parent::init();
