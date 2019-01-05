@@ -72,8 +72,23 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 	}
 
 	/**
-	 * Test delete method
-	 *
+	 * @return void
+	 */
+	public function testTerminate() {
+		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
+		$queueProcess = TableRegistry::get('Queue.QueueProcesses')->find()->firstOrFail();
+		$queueProcess->terminate = false;
+		TableRegistry::get('Queue.QueueProcesses')->saveOrFail($queueProcess);
+
+		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'terminate', 1]);
+
+		$this->assertResponseCode(302);
+
+		$queueProcess = TableRegistry::get('Queue.QueueProcesses')->find()->firstOrFail();
+		$this->assertTrue($queueProcess->terminate);
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testDelete() {
@@ -91,6 +106,7 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 	public function testCleanup() {
 		Configure::write('Queue.defaultworkertimeout', DAY);
 
+		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
 		$queueProcess = TableRegistry::get('Queue.QueueProcesses')->find()->firstOrFail();
 		$queueProcess->modified = new FrozenTime(time() - 2 * DAY);
 		TableRegistry::get('Queue.QueueProcesses')->saveOrFail($queueProcess);

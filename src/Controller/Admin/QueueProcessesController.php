@@ -2,6 +2,7 @@
 namespace Queue\Controller\Admin;
 
 use App\Controller\AppController;
+use Exception;
 
 /**
  * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
@@ -75,8 +76,24 @@ class QueueProcessesController extends AppController {
 	}
 
 	/**
-	 * Delete method
-	 *
+	 * @param string|null $id Queue Process id.
+	 * @return \Cake\Http\Response|null Redirects to index.
+	 */
+	public function terminate($id = null) {
+		$this->request->allowMethod(['post', 'delete']);
+
+		try {
+			$queueProcess = $this->QueueProcesses->get($id);
+			$queueProcess->terminate = true;
+			$this->QueueProcesses->saveOrFail($queueProcess);
+			$this->Flash->success(__('The queue process has been deleted.'));
+		} catch (Exception $exception) {
+			$this->Flash->error(__('The queue process could not be deleted. Please, try again.'));
+		}
+		return $this->redirect(['action' => 'index']);
+	}
+
+	/**
 	 * @param string|null $id Queue Process id.
 	 * @return \Cake\Http\Response|null Redirects to index.
 	 * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
