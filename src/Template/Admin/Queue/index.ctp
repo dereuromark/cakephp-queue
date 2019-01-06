@@ -158,7 +158,7 @@ use Cake\Core\Configure;
 			?>
 		</ul>
 
-		<p><?php echo $this->Html->link(__d('queue', 'Trigger Delayed Job'), ['controller' => 'QueuedJobs', 'action' => 'test']); ?></p>
+		<p><?php echo $this->Html->link(__d('queue', 'Trigger Delayed Test/Demo Job'), ['controller' => 'QueuedJobs', 'action' => 'test']); ?></p>
 
 	</div>
 </div>
