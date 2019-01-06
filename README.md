@@ -2,7 +2,7 @@
 [![Build Status](https://api.travis-ci.org/dereuromark/cakephp-queue.svg?branch=master)](https://travis-ci.org/dereuromark/cakephp-queue)
 [![Coverage Status](https://img.shields.io/codecov/c/github/dereuromark/cakephp-queue/master.svg)](https://codecov.io/github/dereuromark/cakephp-queue?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/dereuromark/cakephp-queue/v/stable.svg)](https://packagist.org/packages/dereuromark/cakephp-queue)
-[![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg)](https://php.net/)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg)](https://php.net/)
 [![License](https://poser.pugx.org/dereuromark/cakephp-queue/license)](https://packagist.org/packages/dereuromark/cakephp-queue)
 [![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-queue/d/total)](https://packagist.org/packages/dereuromark/cakephp-queue)
 [![Coding Standards](https://img.shields.io/badge/cs-PSR--2--R-yellow.svg)](https://github.com/php-fig-rectified/fig-rectified-standards)
@@ -23,7 +23,7 @@ The plugin is an attempt to provide a basic, simple to use method to enable defe
 without the hassle of setting up or running an extra queue daemon, while integrating nicely into
 CakePHP and also simplifying the creation of worker scripts. You can also easily provide progress and status information into your pages.
 
-Please also read the [blog post](http://www.dereuromark.de/2013/12/22/queue-deferred-execution-in-cakephp/).
+Please also read the [blog post](https://www.dereuromark.de/2013/12/22/queue-deferred-execution-in-cakephp/).
 For more high-volume and robust use cases please see the [awesome list](https://github.com/FriendsOfCake/awesome-cakephp#queue).
 
 ### Why use deferred execution?
