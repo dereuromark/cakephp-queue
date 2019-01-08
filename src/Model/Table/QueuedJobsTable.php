@@ -17,6 +17,7 @@ use Queue\Model\Entity\QueuedJob;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
+use RuntimeException;
 
 // PHP 7.1+ has this defined
 if (!defined('SIGTERM')) {
@@ -723,6 +724,10 @@ class QueuedJobsTable extends Table {
 			return $this->_key;
 		}
 		$this->_key = sha1(microtime());
+		if (!$this->_key) {
+			throw new RuntimeException('Invalid key generated');
+		}
+		
 		return $this->_key;
 	}
 
