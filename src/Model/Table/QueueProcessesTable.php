@@ -68,6 +68,10 @@ class QueueProcessesTable extends Table {
 			->requirePresence('pid', 'create')
 			->notEmpty('pid');
 
+		$validator
+			->requirePresence('workerkey', 'create')
+			->notEmpty('workerkey');
+
 		return $validator;
 	}
 
