@@ -727,7 +727,7 @@ class QueuedJobsTable extends Table {
 		if (!$this->_key) {
 			throw new RuntimeException('Invalid key generated');
 		}
-		
+
 		return $this->_key;
 	}
 
