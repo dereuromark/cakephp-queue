@@ -603,9 +603,9 @@ TEXT;
 	 * @return string
 	 */
 	protected function _retrievePid() {
-		if (function_exists('posix_getpid')) {
-			$pid = (string)posix_getpid();
-		} else {
+		$pid = (string)getmypid();
+
+		if (!$pid) {
 			$pid = $this->QueuedJobs->key();
 		}
 
