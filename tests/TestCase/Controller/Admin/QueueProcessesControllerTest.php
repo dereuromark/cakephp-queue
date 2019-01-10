@@ -108,7 +108,7 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 
 		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
 		$queueProcess = TableRegistry::get('Queue.QueueProcesses')->find()->firstOrFail();
-		$queueProcess->modified = new FrozenTime(time() - 2 * DAY);
+		$queueProcess->modified = new FrozenTime(time() - 4 * DAY);
 		TableRegistry::get('Queue.QueueProcesses')->saveOrFail($queueProcess);
 
 		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'cleanup']);
