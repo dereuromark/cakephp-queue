@@ -255,7 +255,7 @@ TEXT;
 
 		$this->out('Deleting old jobs, that have finished before ' . date('Y-m-d H:i:s', time() - (int)Configure::read('Queue.cleanuptimeout')));
 		$this->QueuedJobs->cleanOldJobs();
-		$this->QueueProcesses->cleanKilledProcesses();
+		$this->QueueProcesses->cleanEndedProcesses();
 	}
 
 	/**
@@ -604,7 +604,6 @@ TEXT;
 	 */
 	protected function _retrievePid() {
 		$pid = (string)getmypid();
-
 		if (!$pid) {
 			$pid = $this->QueuedJobs->key();
 		}

@@ -8,7 +8,7 @@
 	<ul class="side-nav nav nav-pills nav-stacked">
 		<li class="heading"><?= __('Actions') ?></li>
 		<li><?= $this->Html->link(__('Back'), ['controller' => 'Queue', 'action' => 'processes'], ['class' => 'btn margin btn-default']) ?></li>
-		<li><?= $this->Form->postLink(__('Cleanup'), ['action' => 'cleanup'], ['confirm' => 'Sure to remove all outdated ones (>' . $this->Configure->readOrFail('Queue.defaultworkertimeout') .'s)?', 'class' => 'btn margin btn-warning']) ?></li>
+		<li><?= $this->Form->postLink(__('Cleanup'), ['action' => 'cleanup'], ['confirm' => 'Sure to remove all outdated ones (>' . ($this->Configure->readOrFail('Queue.defaultworkertimeout') * 2) .'s)?', 'class' => 'btn margin btn-warning']) ?></li>
 	</ul>
 </nav>
 <div class="content action-index index large-9 medium-8 columns col-sm-8 col-xs-12">

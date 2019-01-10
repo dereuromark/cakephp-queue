@@ -115,7 +115,7 @@ class QueueProcessesController extends AppController {
 	public function cleanup() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$count = $this->QueueProcesses->cleanKilledProcesses();
+		$count = $this->QueueProcesses->cleanEndedProcesses();
 
 		$this->Flash->success($count . ' leftovers cleaned out.');
 

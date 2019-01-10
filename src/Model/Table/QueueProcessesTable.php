@@ -142,8 +142,8 @@ class QueueProcessesTable extends Table {
 	/**
 	 * @return int
 	 */
-	public function cleanKilledProcesses() {
-		$timeout = (int)Configure::readOrFail('Queue.defaultworkertimeout');
+	public function cleanEndedProcesses() {
+		$timeout = (int)Configure::readOrFail('Queue.defaultworkertimeout') * 2;
 		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
 		return $this->deleteAll(['modified <' => $thresholdTime]);
