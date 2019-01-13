@@ -289,7 +289,7 @@ TEXT;
 
 		if ($in === 'all' || $in === 'server') {
 			foreach ($processes as $process => $timestamp) {
-				$this->QueuedJobs->endProcess((int)$process);
+				$this->QueuedJobs->endProcess($process);
 			}
 
 			$this->out('All ' . count($processes) . ' processes ended.');
@@ -297,7 +297,7 @@ TEXT;
 			return;
 		}
 
-		$this->QueuedJobs->endProcess((int)$in);
+		$this->QueuedJobs->endProcess($in);
 	}
 
 	/**
@@ -603,8 +603,9 @@ TEXT;
 	 * @return string
 	 */
 	protected function _retrievePid() {
-		$pid = (string)getmypid();
-		if (!$pid) {
+		if (function_exists('posix_getpid')) {
+			$pid = (string)posix_getpid();
+		} else {
 			$pid = $this->QueuedJobs->key();
 		}
 
