@@ -794,7 +794,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * Soft ending of a running job, e.g. when migration is starting
 	 *
-	 * @param int $pid
+	 * @param string $pid
 	 * @return void
 	 */
 	public function endProcess($pid) {
