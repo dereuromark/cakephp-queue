@@ -416,7 +416,7 @@ Play around with it, but just don't shoot over the top.
 The plugin works completely without it, by just using the CLI shell commands.
 But if you want to browse the statistics via URL, you can enable the routing for it (see above) and then access `/admin/queue`
 to see how status of your queue, statistics and settings.
-Please note that this requires the Tools plugin to be loaded if you do not customize the view templates on project level.
+Please note that this requires the [Tools plugin](https://github.com/dereuromark/cakephp-tools) to be loaded if you do not customize the view templates on project level.
 Also make sure you loaded the helpers needed (Tools.Format, Tools.Time as Time, etc).
 
 By default the templates should work fine in both Foundation (v5+) and Boostrap (v3+).
