@@ -8,6 +8,7 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\Number;
 use Cake\Log\Log;
+use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
 use Exception;
@@ -139,10 +140,20 @@ TEXT;
 	 * Runs a Queue Worker process which will try to find unassigned jobs in the queue
 	 * which it may run and try to fetch and execute them.
 	 *
-	 * @return void
+	 * @return int|null
 	 */
 	public function runworker() {
-		$pid = $this->_initPid();
+		try {
+			$pid = $this->_initPid();
+		} catch (PersistenceFailedException $exception) {
+			$this->err($exception->getMessage());
+			$limit = (int)Configure::read('Queue.maxworkers');
+			if ($limit) {
+				$this->out('Cannot start worker: Too many workers already/still running on this server (' . $limit . '/' . $limit . ')');
+			}
+			return static::CODE_ERROR;
+		}
+
 		// Enable Garbage Collector (PHP >= 5.3)
 		if (function_exists('gc_enable')) {
 			gc_enable();
