@@ -72,7 +72,34 @@ class QueueProcessesTable extends Table {
 			->requirePresence('workerkey', 'create')
 			->notEmpty('workerkey');
 
+		$validator
+			->add('server', 'validateCount', [
+				'rule' => 'validateCount',
+				'provider' => 'table',
+				'message' => 'Too many workers running.',
+			]);
+
 		return $validator;
+	}
+
+	/**
+	 * @param string $value
+	 * @param array $context
+	 *
+	 * @return bool
+	 */
+	public function validateCount($value, array $context) {
+		$maxWorkers = (int)Configure::read('Queue.maxworkers');
+		if (!$value || !$maxWorkers) {
+			return true;
+		}
+
+		$currentWorkers = $this->find()->where(['server' => $value])->count();
+		if ($currentWorkers >= $maxWorkers) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

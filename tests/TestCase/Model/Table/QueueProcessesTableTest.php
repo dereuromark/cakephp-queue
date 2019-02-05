@@ -1,6 +1,8 @@
 <?php
 namespace Queue\Test\TestCase\Model\Table;
 
+use Cake\Core\Configure;
+use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Queue\Model\Table\QueueProcessesTable;
@@ -35,6 +37,8 @@ class QueueProcessesTableTest extends TestCase {
 		parent::setUp();
 		$config = TableRegistry::exists('QueueProcesses') ? [] : ['className' => QueueProcessesTable::class];
 		$this->QueueProcesses = TableRegistry::get('QueueProcesses', $config);
+
+		Configure::delete('Queue');
 	}
 
 	/**
@@ -46,6 +50,8 @@ class QueueProcessesTableTest extends TestCase {
 		unset($this->QueueProcesses);
 
 		parent::tearDown();
+
+		Configure::delete('Queue');
 	}
 
 	/**
@@ -62,6 +68,25 @@ class QueueProcessesTableTest extends TestCase {
 		$this->assertFalse($queueProcess->terminate);
 		$this->assertNotEmpty($queueProcess->server);
 		$this->assertNotEmpty($queueProcess->workerkey);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testAddMaxCount() {
+		Configure::write('Queue.maxworkers', 2);
+
+		$pid = '123';
+		$id = $this->QueueProcesses->add($pid, '123123');
+		$this->assertNotEmpty($id);
+
+		$pid = '234';
+		$id = $this->QueueProcesses->add($pid, '234234');
+		$this->assertNotEmpty($id);
+
+		$this->expectException(PersistenceFailedException::class);
+		$pid = '345';
+		$this->QueueProcesses->add($pid, '345345');
 	}
 
 	/**

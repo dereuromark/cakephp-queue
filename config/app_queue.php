@@ -29,6 +29,9 @@ return [
 
 		/* Optional config keys */
 
+		// set this to a limit that can work with your memory limits and alike, 0 => no limit
+		'maxworkers' => 3,
+
 		// instruct a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running)
 		'exitwhennothingtodo' => false,
 
