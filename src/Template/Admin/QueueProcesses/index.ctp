@@ -38,9 +38,11 @@
 				<td><?= $this->Format->yesNo(!$queueProcess->terminate) ?></td>
 				<td><?= h($queueProcess->server) ?></td>
 				<td class="actions">
+					<?= $this->Html->link($this->Format->icon('view'), ['action' => 'view', $queueProcess->id], ['escapeTitle' => false]); ?>
 				<?php if (!$queueProcess->terminate) { ?>
 					<?= $this->Form->postLink($this->Format->icon('close', ['title' => __('Terminate')]), ['action' => 'terminate', $queueProcess->id], ['escapeTitle' => false, 'confirm' => __('Are you sure you want to terminate # {0}?', $queueProcess->id)]); ?>
 				<?php } ?>
+
 				</td>
 			</tr>
 			<?php endforeach; ?>
