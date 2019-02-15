@@ -99,7 +99,7 @@ class QueueShell extends AppShell {
 	}
 
 /**
- * Look for a Queue Task of hte passed name and try to call add() on it.
+ * Look for a Queue Task of the passed name and try to call add() on it.
  * A QueueTask may provide an add function to enable the user to create new jobs via commandline.
  *
  * @return void
@@ -215,7 +215,7 @@ class QueueShell extends AppShell {
 					}
 					//prevent tasks that don't catch their own errors from killing this worker
 					try {
-						$return = $this->{$taskname}->run($data['data'], $data['id']);
+						$return = $this->runTask( $taskname, $data );
 					} catch ( Exception $e)
 					{
 						//assume job failed
@@ -259,6 +259,24 @@ class QueueShell extends AppShell {
 		if (!empty($pidFilePath)) {
 			unlink($pidFilePath . 'queue_' . $pid . '.pid');
 		}
+	}
+
+	private function runTask( $taskname, $data ) {
+		$return = true;
+		if (method_exists($this->{$taskname},'beforeRun')) {
+			$return = $this->{$taskname}->beforeRun($data['data'],$data['id']);
+		}
+		if (!$return) {
+			return false;
+		}
+		$return = $this->{$taskname}->run($data['data'], $data['id']);
+		if (!$return) {
+			return false;
+		}
+		if (method_exists($this->{$taskname},'afterRun')) {
+			$this->{$taskname}->afterRun($data['data'],$data['id']);
+		}
+		return $return;
 	}
 
 /**

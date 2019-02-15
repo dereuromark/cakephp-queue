@@ -68,6 +68,12 @@ class QueuedTaskFixture extends CakeTestFixture {
 			'default' => '0',
 			'length' => 3
 		],
+		'priority' => [
+			'type' => 'integer',
+			'null' => false,
+			'default' => '0',
+			'length' => 3
+		],
 		'failure_message' => [
 			'type' => 'text',
 			'null' => true,

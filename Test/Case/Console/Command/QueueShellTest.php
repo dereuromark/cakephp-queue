@@ -109,6 +109,37 @@ class QueueShellTest extends CakeTestCase {
 		$this->assertTrue(in_array('Job did not finish, requeued.', $this->QueueShell->out));
 	}
 
+	/**
+	 * QueueShellTest::testCallbacks()
+	 *
+	 * @return void
+	 */
+	public function testCallbacks() {
+		$this->QueueShell->args[] = 'Callbacks';
+		$result = $this->QueueShell->add();
+
+		$result = $this->QueueShell->runworker();
+		//debug($this->QueueShell->out);
+		$this->assertTrue($this->QueueShell->QueueCallbacks->before);
+		$this->assertTrue($this->QueueShell->QueueCallbacks->after);
+	}
+
+	/**
+	 * QueueShellTest::testCallbackFail()
+	 *
+	 * @return void
+	 */
+	public function testCallbackFail() {
+		$this->QueueShell->args[] = 'CallbackFail';
+		$this->QueueShell->args[] = 'fail';
+		$result = $this->QueueShell->add();
+
+		$result = $this->QueueShell->runworker();
+		debug($this->QueueShell->out);
+		$this->assertTrue($this->QueueShell->QueueCallbackFail->fail);
+	}
+
+
 }
 
 class TestQueueShell extends QueueShell {
