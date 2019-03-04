@@ -1,5 +1,5 @@
 {
-	"name": "dereuromark/cakephp-queue",
+	"name": "optimiza/cakephp-queue",
 	"type": "cakephp-plugin",
 	"description": "The Queue plugin for CakePHP provides deferred task execution.",
 	"keywords": ["cakephp","queue","deferred tasks","background"],

@@ -242,6 +242,10 @@ class QueuedJobsTable extends Table {
 			case static::DRIVER_SQLSERVER:
 				$age = $query->newExpr()->add('ISNULL(DATEDIFF(SECOND, GETDATE(), notbefore), 0)');
 				break;
+			case static::DRIVER_POSTGRES:
+				$age = $query->newExpr()
+					->add('COALESCE((EXTRACT(EPOCH FROM now()) - EXTRACT(EPOCH FROM notbefore)), 0)');
+				break;
 		}
 		$options = [
 			'conditions' => [
