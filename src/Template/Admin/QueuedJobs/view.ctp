@@ -7,6 +7,8 @@
 <nav class="actions large-3 medium-4 columns col-sm-4 col-xs-12" id="actions-sidebar">
 	<ul class="side-nav nav nav-pills nav-stacked">
 		<li class="heading"><?= __('Actions') ?></li>
+		<li><?= $this->Html->link(__('Export'), ['action' => 'view', $queuedJob->id, '_ext' => 'json', '?' => ['download' => true]]) ?> </li>
+
 		<?php if (!$queuedJob->completed) { ?>
 			<li><?= $this->Html->link(__('Edit Queued Job'), ['action' => 'edit', $queuedJob->id]) ?> </li>
 		<?php } ?>
@@ -69,6 +71,13 @@
 	<div class="row">
 		<h3><?= __('Data') ?></h3>
 		<?= $this->Text->autoParagraph(h($queuedJob->data)); ?>
+		<?php
+			if ($queuedJob->data && $this->Configure->read('debug')) {
+				$data = unserialize($queuedJob->data);
+				echo '<h4>Unserialized content (debug only)</h4>';
+				echo '<pre>' . h(print_r($data, true)) . '</pre>';
+			}
+		?>
 	</div>
 	<div class="row">
 		<h3><?= __('Failure Message') ?></h3>
