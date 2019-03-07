@@ -97,7 +97,7 @@ class QueuedJobsController extends AppController {
 			'contain' => []
 		]);
 
-		if (!empty($this->request->params['_ext']) && $this->request->params['_ext'] === 'json' && $this->request->getQuery('download')) {
+		if ($this->request->getParam('_ext') && $this->request->getParam('_ext') === 'json' && $this->request->getQuery('download')) {
 			$this->response = $this->response->withDownload('queued-job-' . $id . '.json');
 		}
 
