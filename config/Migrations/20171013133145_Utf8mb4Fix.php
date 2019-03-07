@@ -17,6 +17,8 @@ class Utf8mb4Fix extends AbstractMigration {
 	 * @return void
 	 */
 	public function change() {
+		//TODO: check adapter and skip for postgres, for now manually mark as skipped
+
 		$table = $this->table('queue_processes');
 		$table->changeColumn('pid', 'string', [
 			'length' => 40,

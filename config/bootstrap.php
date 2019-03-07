@@ -12,3 +12,5 @@ if (file_exists(ROOT . DS . 'config' . DS . 'app_queue.php')) {
 $generatorTasks = (array)Configure::read('IdeHelper.generatorTasks');
 $generatorTasks[] = QueuedJobTask::class;
 Configure::write('IdeHelper.generatorTasks', $generatorTasks);
+
+//Router::extensions(['json']);

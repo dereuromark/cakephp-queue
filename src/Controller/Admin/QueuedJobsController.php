@@ -5,7 +5,9 @@ use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Http\Exception\NotFoundException;
+use Cake\I18n\FrozenTime;
 use Queue\Queue\TaskFinder;
+use RuntimeException;
 
 /**
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
@@ -31,6 +33,8 @@ class QueuedJobsController extends AppController {
 
 		$this->QueuedJobs->initConfig();
 
+		$this->loadComponent('RequestHandler');
+
 		if (Configure::read('Queue.isSearchEnabled') === false || !Plugin::isLoaded('Search')) {
 			return;
 		}
@@ -55,6 +59,7 @@ class QueuedJobsController extends AppController {
 		$this->set(compact('queuedJobs'));
 		$this->helpers[] = 'Tools.Format';
 		$this->helpers[] = 'Tools.Time';
+		$this->helpers[] = 'Shim.Configure';
 
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
 			$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_type', 'valueField' => 'job_type'])->distinct('job_type')->toArray();
@@ -88,11 +93,61 @@ class QueuedJobsController extends AppController {
 	 * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
 	 */
 	public function view($id = null) {
-		$queuedJob = $this->QueuedJobs->get($id, [
+		$queuedJob = $this->QueuedJobs->get((int)$id, [
 			'contain' => []
 		]);
 
+		if ($this->request->getParam('_ext') && $this->request->getParam('_ext') === 'json' && $this->request->getQuery('download')) {
+			$this->response = $this->response->withDownload('queued-job-' . $id . '.json');
+		}
+
 		$this->set(compact('queuedJob'));
+		$this->set('_serialize', ['queuedJob']);
+	}
+
+	/**
+	 * @throws \RuntimeException
+	 *
+	 * @return \Cake\Http\Response|null
+	 */
+	public function import() {
+		if ($this->request->is(['post'])) {
+			$file = $this->request->getData('file');
+			if ($file && $file['error'] == 0 && $file['size'] > 0) {
+				$content = file_get_contents($file['tmp_name']);
+				$json = json_decode($content, true);
+				if (empty($json) || empty($json['queuedJob'])) {
+					throw new RuntimeException('Invalid JSON content');
+				}
+
+				$data = $json['queuedJob'];
+
+				unset($data['id']);
+				$data['created'] = new FrozenTime($data['created']);
+				if ($data['notbefore']) {
+					$data['notbefore'] = new FrozenTime($data['notbefore']);
+				}
+				if ($data['fetched']) {
+					$data['fetched'] = new FrozenTime($data['fetched']);
+				}
+				if ($data['completed']) {
+					$data['completed'] = new FrozenTime($data['completed']);
+				}
+
+				$queuedJob = $this->QueuedJobs->newEntity($data);
+				if ($queuedJob->getErrors()) {
+					$this->Flash->error('Validation failed: ' . print_r($queuedJob->getErrors(), true));
+					return $this->redirect($this->referer(['action' => 'index']));
+				}
+
+				$this->QueuedJobs->saveOrFail($queuedJob);
+
+				$this->Flash->success('Imported');
+				return $this->redirect(['action' => 'view', $queuedJob->id]);
+			}
+
+			$this->Flash->error(__('Please, try again.'));
+		}
 	}
 
 	/**

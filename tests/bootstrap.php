@@ -1,6 +1,5 @@
 <?php
 use Cake\Datasource\ConnectionManager;
-use Cake\Routing\DispatcherFactory;
 
 if (!defined('DS')) {
 	define('DS', DIRECTORY_SEPARATOR);
@@ -24,7 +23,8 @@ define('CORE_PATH', CAKE_CORE_INCLUDE_PATH . DS);
 define('CAKE', CORE_PATH . APP_DIR . DS);
 
 define('WWW_ROOT', ROOT . DS . 'webroot' . DS);
-define('CONFIG', dirname(__FILE__) . DS . 'config' . DS);
+define('CONFIG', __DIR__ . DS . 'config' . DS);
+define('TESTS', __DIR__ . DS);
 
 ini_set('intl.default_locale', 'de-DE');
 
@@ -83,17 +83,14 @@ $cache = [
 
 Cake\Cache\Cache::setConfig($cache);
 
-Cake\Core\Plugin::load('Queue', ['path' => ROOT . DS, 'autoload' => true, 'bootstrap' => false, 'routes' => true]);
+Cake\Core\Plugin::getCollection()->add(new \Queue\Plugin());
 Cake\Core\Plugin::load('Foo', ['path' => ROOT . DS . 'tests' . DS . 'test_app' . DS . 'plugins' . DS . 'Foo' . DS]);
 Cake\Core\Plugin::load('Tools', ['path' => ROOT . DS . 'vendor' . DS . 'dereuromark' . DS . 'cakephp-tools' . DS]);
 
-DispatcherFactory::add('Routing');
-DispatcherFactory::add('ControllerFactory');
-
-Cake\Mailer\Email::setConfigTransport('default', [
+Cake\Mailer\TransportFactory::setConfig('default', [
 	'className' => 'Debug',
 ]);
-Cake\Mailer\Email::setConfigTransport('queue', [
+Cake\Mailer\TransportFactory::setConfig('queue', [
 	'className' => 'Queue.Queue',
 ]);
 Cake\Mailer\Email::setConfig('default', [

@@ -7,6 +7,15 @@ use Cake\TestSuite\IntegrationTestCase;
 class QueuedJobsControllerTest extends IntegrationTestCase {
 
 	/**
+	 * @return void
+	 */
+	public function setUp() {
+		parent::setUp();
+
+		$this->disableErrorHandlerMiddleware();
+	}
+
+	/**
 	 * Fixtures
 	 *
 	 * @var array
@@ -29,8 +38,6 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 	}
 
 	/**
-	 * Test view method
-	 *
 	 * @return void
 	 */
 	public function testView() {
@@ -39,6 +46,49 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'view', $queuedJob->id]);
 
 		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testViewJson() {
+		$queuedJob = $this->createJob();
+
+		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'view', $queuedJob->id, '_ext' => 'json']);
+
+		$this->assertResponseCode(200);
+
+		$content = (string)$this->_response->getBody();
+		$json = json_decode($content, true);
+		$this->assertNotEmpty($json);
+	}
+
+	/**
+	 * Test view method
+	 *
+	 * @return void
+	 */
+	public function testImport() {
+		$jsonFile = TESTS . 'test_files' . DS . 'queued-job.json';
+
+		$data = [
+			'file' => [
+				'size' => 1,
+				'error' => 0,
+				'tmp_name' => $jsonFile,
+			],
+		];
+
+		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'import'], $data);
+
+		$this->assertResponseCode(302);
+
+		$queuedJobs = TableRegistry::get('Queue.QueuedJobs');
+		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
+		$queuedJob = $queuedJobs->find()->orderDesc('id')->firstOrFail();
+
+		$this->assertSame('Webhook', $queuedJob->job_type);
+		$this->assertSame('web-hook-102803234', $queuedJob->reference);
 	}
 
 	/**

@@ -20,6 +20,15 @@ class QueueControllerTest extends IntegrationTestCase {
 	];
 
 	/**
+	 * @return void
+	 */
+	public function setUp() {
+		parent::setUp();
+
+		$this->disableErrorHandlerMiddleware();
+	}
+
+	/**
 	 * Test index method
 	 *
 	 * @return void

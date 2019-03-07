@@ -12,6 +12,9 @@ use Cake\Core\Plugin;
 	<ul class="side-nav nav nav-pills nav-stacked">
 		<li class="heading"><?= __('Actions') ?></li>
 		<li><?= $this->Html->link(__('Back'), ['controller' => 'Queue', 'action' => 'index']) ?></li>
+		<?php if ($this->Configure->read('debug')) { ?>
+		<li><?= $this->Html->link(__('Import'), ['action' => 'import']) ?></li>
+		<?php } ?>
 	</ul>
 </nav>
 <div class="content action-index index large-9 medium-8 columns col-sm-8 col-xs-12">
