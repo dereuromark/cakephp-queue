@@ -124,6 +124,17 @@ class QueuedJobsController extends AppController {
 
 				unset($data['id']);
 				$data['created'] = new FrozenTime($data['created']);
+
+				if ($this->request->getData('reset')) {
+					$data['fetched'] = null;
+					$data['completed'] = null;
+					$data['progress'] = null;
+					$data['failed'] = 0;
+					$data['failure_message'] = null;
+					$data['workerkey'] = null;
+					$data['status'] = null;
+				}
+
 				if ($data['notbefore']) {
 					$data['notbefore'] = new FrozenTime($data['notbefore']);
 				}
