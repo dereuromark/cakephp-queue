@@ -94,7 +94,7 @@ class QueuedJobsController extends AppController {
 	 */
 	public function view($id = null) {
 		$queuedJob = $this->QueuedJobs->get((int)$id, [
-			'contain' => []
+			'contain' => ['WorkerProcesses']
 		]);
 
 		if ($this->request->getParam('_ext') && $this->request->getParam('_ext') === 'json' && $this->request->getQuery('download')) {

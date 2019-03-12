@@ -37,6 +37,7 @@ if (!defined('SIGTERM')) {
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  * @method \Queue\Model\Entity\QueuedJob|bool saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
  * @mixin \Search\Model\Behavior\SearchBehavior
+ * @property \Queue\Model\Table\QueueProcessesTable|\Cake\ORM\Association\BelongsTo $WorkerProcesses
  */
 class QueuedJobsTable extends Table {
 
@@ -90,6 +91,14 @@ class QueuedJobsTable extends Table {
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
 			$this->addBehavior('Search.Search');
 		}
+
+		$this->belongsTo('WorkerProcesses', [
+			'className' => 'Queue.QueueProcesses',
+			'foreignKey' => false,
+			'conditions' => [
+				'WorkerProcesses.workerkey = QueuedJobs.workerkey',
+			],
+		]);
 
 		$this->initConfig();
 	}

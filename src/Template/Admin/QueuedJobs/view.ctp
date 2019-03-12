@@ -57,7 +57,12 @@
 		</tr>
 			<tr>
 			<th><?= __('Workerkey') ?></th>
-			<td><?= h($queuedJob->workerkey) ?></td>
+			<td>
+				<?= h($queuedJob->workerkey) ?>
+				<?php if ($queuedJob->worker_process) { ?>
+					[<?php echo $this->Html->link($queuedJob->worker_process->server ?: $queuedJob->worker_process->pid, ['controller' => 'QueueProcesses', 'action' => 'view', $queuedJob->worker_process->id]); ?>]
+				<?php } ?>
+			</td>
 		</tr>
 			<tr>
 			<th><?= __('Status') ?></th>
