@@ -50,6 +50,11 @@ class QueueShell extends Shell {
 	protected $_exit = false;
 
 	/**
+	 * @var string|null
+	 */
+	protected $_pid;
+
+	/**
 	 * Overwrite shell initialize to dynamically load all Queue Related Tasks.
 	 *
 	 * @return void
@@ -160,6 +165,9 @@ TEXT;
 		}
 		if (function_exists('pcntl_signal')) {
 			pcntl_signal(SIGTERM, [&$this, '_exit']);
+			pcntl_signal(SIGINT, [&$this, '_abort']);
+			pcntl_signal(SIGTSTP, [&$this, '_abort']);
+			pcntl_signal(SIGQUIT, [&$this, '_abort']);
 		}
 		$this->_exit = false;
 
@@ -562,11 +570,22 @@ TEXT;
 	/**
 	 * Signal handling to queue worker for clean shutdown
 	 *
-	 * @param int $signal not used
+	 * @param int $signal
 	 * @return void
 	 */
 	protected function _exit($signal) {
 		$this->_exit = true;
+	}
+
+	/**
+	 * Signal handling for Ctrl+C
+	 *
+	 * @param int $signal
+	 * @return void
+	 */
+	protected function _abort($signal) {
+		$this->_deletePid($this->_pid);
+		exit(1);
 	}
 
 	/**
@@ -589,6 +608,8 @@ TEXT;
 			$key = $this->QueuedJobs->key();
 			$this->QueueProcesses->add($pid, $key);
 
+			$this->_pid = $pid;
+
 			return $pid;
 		}
 
@@ -606,6 +627,8 @@ TEXT;
 		$fp = fopen($pidFilePath . $pidFileName, 'w');
 		fwrite($fp, $pid);
 		fclose($fp);
+
+		$this->_pid = $pid;
 
 		return $pid;
 	}
@@ -646,11 +669,18 @@ TEXT;
 	}
 
 	/**
-	 * @param string $pid
+	 * @param string|null $pid
 	 *
 	 * @return void
 	 */
 	protected function _deletePid($pid) {
+		if (!$pid) {
+			$pid = $this->_pid;
+		}
+		if (!$pid) {
+			return;
+		}
+
 		$pidFilePath = Configure::read('Queue.pidfilepath');
 		if (!$pidFilePath) {
 			$this->QueueProcesses->remove($pid);

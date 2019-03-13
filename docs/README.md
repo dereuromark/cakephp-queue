@@ -530,7 +530,7 @@ Inside your CommentsTable class after saving the data you execute this hook:
 
 ```php
 /**
- * @param Comment $comment
+ * @param \App\Model\Entity\Comment $comment
  * @return void
  */
 protected function _notifyAdmin(Comment $comment)
@@ -643,6 +643,9 @@ Then you can kill them gracefully with `-15` (or forcefully with `-9`, not recom
 
 Locally, if you want to kill them all, usually `killapp -15 php` does the trick.
 Do not run this with production ones, though.
+
+The console kill commands are also registered here. So if you run a worker locally, 
+and you enter `Ctrl+C` or alike, it will also hard-kill this worker process.
 
 ### Configure loading
 

@@ -1,18 +1,13 @@
 <?php
-/**
- * @author MGriesbach@gmail.com
- * @license http://www.opensource.org/licenses/mit-license.php The MIT License
- * @link http://github.com/MSeven/cakephp_queue
- */
 
 namespace Queue\Shell\Task;
 
-use Cake\Console\ConsoleIo;
+use RuntimeException;
 
 /**
  * A Simple QueueTask example.
  */
-class QueueRetryExampleTask extends QueueTask {
+class QueueExceptionExampleTask extends QueueTask {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -26,23 +21,7 @@ class QueueRetryExampleTask extends QueueTask {
 	 *
 	 * @var int
 	 */
-	public $retries = 4;
-
-	/**
-	 * @var string
-	 */
-	protected $file;
-
-	/**
-	 * Constructs this Shell instance.
-	 *
-	 * @param \Cake\Console\ConsoleIo|null $io IO
-	 */
-	public function __construct(ConsoleIo $io = null) {
-		parent::__construct($io);
-
-		$this->file = TMP . 'task_retry.txt';
-	}
+	public $retries = 2;
 
 	/**
 	 * Example add functionality.
@@ -51,9 +30,9 @@ class QueueRetryExampleTask extends QueueTask {
 	 * @return void
 	 */
 	public function add() {
-		$this->out('CakePHP Queue Retry Example task.');
+		$this->out('CakePHP Queue Exception Example task.');
 		$this->hr();
-		$this->out('This is a very simple example of a QueueTask and how retries work.');
+		$this->out('This is a very simple example of a QueueTask and how exceptions are handled.');
 		$this->out('I will now add an example Job into the Queue.');
 		$this->out('This job will only produce some console output on the worker that it runs on.');
 		$this->out(' ');
@@ -64,16 +43,10 @@ class QueueRetryExampleTask extends QueueTask {
 		$this->out(__FILE__);
 		$this->out(' ');
 
-		if (file_exists($this->file)) {
-			$this->warn('File seems to already exist. Make sure you run this task standalone. You cannot run it multiple times in parallel!');
-		}
-
-		file_put_contents($this->file, '0');
-
 		/*
 		 * Adding a task of type 'example' with no additionally passed data
 		 */
-		$this->QueuedJobs->createJob('RetryExample');
+		$this->QueuedJobs->createJob('ExceptionExample');
 		$this->success('OK, job created, now run the worker');
 	}
 
@@ -85,30 +58,14 @@ class QueueRetryExampleTask extends QueueTask {
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @return bool Success
+	 * @throws \RuntimeException
 	 */
 	public function run(array $data, $jobId) {
-		$count = (int)file_get_contents($this->file);
-
 		$this->hr();
-		$this->out('CakePHP Queue Retry Example task.');
+		$this->out('CakePHP Queue Exception Example task.');
 		$this->hr();
 
-		// Let's fake 3 fails before it actually runs successfully
-		if ($count < 3) {
-			$count++;
-			file_put_contents($this->file, (string)$count);
-			$this->out(' -> Sry, the Retry Example Job failed. Try again. <-');
-			$this->out(' ');
-			$this->out(' ');
-			return false;
-		}
-
-		$this->success(' -> Success, the Retry Example Job was run. <-');
-		$this->out(' ');
-		$this->out(' ');
-
-		unlink($this->file);
-		return true;
+		throw new RuntimeException('Exception demo :-)');
 	}
 
 }
