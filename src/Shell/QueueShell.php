@@ -535,7 +535,7 @@ TEXT;
 		}
 		$serverString = $this->QueueProcesses->buildServerString();
 		if ($serverString) {
-			$message .= ' [' . $serverString . ']';
+			$message .= ' {' . $serverString . '}';
 		}
 
 		Log::write('error', $message);
