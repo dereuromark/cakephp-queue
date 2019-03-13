@@ -533,6 +533,11 @@ TEXT;
 		if ($pid) {
 			$message .= ' (pid ' . $pid . ')';
 		}
+		$serverString = $this->QueueProcesses->buildServerString();
+		if ($serverString) {
+			$message .= ' [' . $serverString . ']';
+		}
+
 		Log::write('error', $message);
 	}
 
