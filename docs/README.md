@@ -654,7 +654,6 @@ This part is deprecated and can cause troubles.
 
 ### Known Limitations
 
-
 #### Concurrent workers may execute the same job multiple times
 
 If you want to use multiple workers, please double check that all jobs have a high enough timeout (>> 2x max possible execution time of a job). Currently it would otherwise risk the jobs being run multiple times!
@@ -690,4 +689,5 @@ I am looking forward to your contributions.
 
 There are a few guidelines that I need contributors to follow:
 * Coding standards (`composer cs-check` to check and `composer cs-fix` to fix)
+* PHPStan (`composer phpstan`, might need `composer phpstan-setup` first)
 * Passing tests (`php phpunit.phar`)

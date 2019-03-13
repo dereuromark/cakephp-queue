@@ -30,6 +30,7 @@ class QueuedJobGeneratorTest extends TestCase {
 			'\Queue\Model\Table\QueuedJobsTable::createJob(0)' => [
 				'Email' => '\Queue\Shell\Task\QueueEmailTask::class',
 				'Example' => '\Queue\Shell\Task\QueueExampleTask::class',
+				'ExceptionExample' => '\Queue\Shell\Task\QueueExceptionExampleTask::class',
 				'Execute' => '\Queue\Shell\Task\QueueExecuteTask::class',
 				'MonitorExample' => '\Queue\Shell\Task\QueueMonitorExampleTask::class',
 				'ProgressExample' => '\Queue\Shell\Task\QueueProgressExampleTask::class',
