@@ -179,7 +179,6 @@ class QueuedJobsTable extends Table {
 	 * @param array|null $data Array of data
 	 * @param array $config Config to save along with the job
 	 * @return \Queue\Model\Entity\QueuedJob Saved job entity
-	 * @throws \Exception
 	 */
 	public function createJob($jobType, array $data = null, array $config = []) {
 		$queuedJob = [
@@ -190,9 +189,7 @@ class QueuedJobsTable extends Table {
 		] + $config;
 
 		$queuedJob = $this->newEntity($queuedJob);
-		if ($queuedJob->getErrors()) {
-			throw new Exception('Invalid entity data');
-		}
+
 		return $this->saveOrFail($queuedJob);
 	}
 
