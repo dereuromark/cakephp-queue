@@ -151,7 +151,7 @@ class QueueShellTest extends TestCase {
 	public function testReset() {
 		$this->QueueShell->reset();
 
-		$this->assertContains('0 jobs reset for re-run.', $this->out->output(), print_r($this->out->output, true));
+		$this->assertContains('0 jobs reset.', $this->out->output(), print_r($this->out->output, true));
 	}
 
 	/**

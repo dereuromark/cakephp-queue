@@ -11,7 +11,6 @@ use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
-use Exception;
 use InvalidArgumentException;
 use Queue\Model\Entity\QueuedJob;
 use RecursiveDirectoryIterator;

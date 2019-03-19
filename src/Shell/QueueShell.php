@@ -361,7 +361,7 @@ TEXT;
 
 		$count = $this->QueuedJobs->reset();
 
-		$this->success($count . ' jobs reset for re-run.');
+		$this->success($count . ' jobs reset.');
 	}
 
 	/**
@@ -376,7 +376,7 @@ TEXT;
 	 * @return void
 	 */
 	public function rerun($type, $reference = null) {
-		$this->out('Re-reunning jobs');
+		$this->out('Rerunning...');
 
 		$count = $this->QueuedJobs->rerun($type, $reference);
 
