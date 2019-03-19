@@ -119,6 +119,24 @@ class QueueShellTest extends TestCase {
 	/**
 	 * @return void
 	 */
+	public function testReset() {
+		$this->QueueShell->reset();
+
+		$this->assertContains('0 jobs reset for re-run.', $this->out->output(), print_r($this->out->output, true));
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testRerun() {
+		$this->QueueShell->rerun('Foo');
+
+		$this->assertContains('0 jobs reset for re-run.', $this->out->output(), print_r($this->out->output, true));
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testRetry() {
 		$file = TMP . 'task_retry.txt';
 		if (file_exists($file)) {

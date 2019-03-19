@@ -358,7 +358,29 @@ TEXT;
 	 */
 	public function reset() {
 		$this->out('Resetting...');
-		$this->QueuedJobs->reset();
+
+		$count = $this->QueuedJobs->reset();
+
+		$this->success($count . ' jobs reset for re-run.');
+	}
+
+	/**
+	 * Manually reset already successfully run jobs for re-run.
+	 * Careful, this should not be done with non-idempotent jobs.
+	 *
+	 * This is mainly useful for debugging and local development,
+	 * if you have to run sth again.
+	 *
+	 * @param string $type
+	 * @param string|null $reference
+	 * @return void
+	 */
+	public function rerun($type, $reference = null) {
+		$this->out('Re-reunning jobs');
+
+		$count = $this->QueuedJobs->rerun($type, $reference);
+
+		$this->success($count . ' jobs reset for re-run.');
 	}
 
 	/**
@@ -455,6 +477,18 @@ TEXT;
 			'default' => null,
 		];
 
+		$rerunParser = $subcommandParser;
+		$rerunParser['arguments'] = [
+			'type' => [
+				'help' => 'Job type. You need to specify one.',
+				'required' => true,
+			],
+			'reference' => [
+				'help' => 'Reference.',
+				'required' => false,
+			],
+		];
+
 		return parent::getOptionParser()
 			->setDescription($this->_getDescription())
 			->addSubcommand('clean', [
@@ -476,6 +510,10 @@ TEXT;
 			->addSubcommand('reset', [
 				'help' => 'Manually reset (failed) jobs for re-run.',
 				'parser' => $subcommandParserFull,
+			])
+			->addSubcommand('rerun', [
+				'help' => 'Manually rerun (successfully) run job.',
+				'parser' => $rerunParser,
 			])
 			->addSubcommand('hard_reset', [
 				'help' => 'Hard reset queue (remove all jobs)',

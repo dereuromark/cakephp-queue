@@ -545,7 +545,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @param int|null $id
 	 *
-	 * @return bool Success
+	 * @return int Success
 	 */
 	public function reset($id = null) {
 		$fields = [
@@ -563,7 +563,33 @@ class QueuedJobsTable extends Table {
 			$conditions['id'] = $id;
 		}
 
-		return (bool)$this->updateAll($fields, $conditions);
+		return $this->updateAll($fields, $conditions);
+	}
+
+	/**
+	 * @param string $type
+	 * @param string|null $reference
+	 *
+	 * @return int
+	 */
+	public function rerun($type, $reference = null) {
+		$fields = [
+			'completed' => null,
+			'fetched' => null,
+			'progress' => 0,
+			'failed' => 0,
+			'workerkey' => null,
+			'failure_message' => null,
+		];
+		$conditions = [
+			'completed IS NOT' => null,
+			'job_type' => $type,
+		];
+		if ($reference) {
+			$conditions['reference'] = $reference;
+		}
+
+		return $this->updateAll($fields, $conditions);
 	}
 
 	/**

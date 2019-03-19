@@ -377,6 +377,27 @@ When debugging (using -v) on the runworker, it will also log the worker run and 
 
 You can disable info logging by setting `Queue.log` to `false` in your config.
 
+### Resetting
+You can reset all failed jobs from CLI and web backend.
+With web backend you can reset specific ones, as well.
+
+From CLI you run this to reset all at once:
+```
+bin/cake queue reset
+```
+
+### Rerunning
+You can rerun successfully run jobs if they are not yet cleaned out. Make sure your cleanup timeout is high enough here.
+Usually weeks or months is a good balance to have those still stored for this case.
+
+This is especially useful for local development or debugging, though. As you would otherwise have to manually trigger or import the job all the time.
+
+From CLI you run this to rerun all of a specific job type at once:
+```
+bin/cake queue rerun FooBar
+```
+You can add an additional reference to rerun a specific job.
+
 
 ### Notes
 
