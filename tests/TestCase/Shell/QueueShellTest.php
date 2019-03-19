@@ -5,6 +5,7 @@ namespace Queue\Test\TestCase\Shell;
 use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\QueueShell;
 use Tools\TestSuite\ConsoleOutput;
@@ -119,6 +120,34 @@ class QueueShellTest extends TestCase {
 	/**
 	 * @return void
 	 */
+	public function testHardReset() {
+		$this->QueueShell->hardReset();
+
+		$this->assertContains('OK', $this->out->output(), print_r($this->out->output, true));
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testHardResetIntegration() {
+		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
+		$queuedJobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$queuedJobsTable->createJob('Example');
+
+		$queuedJobs = $queuedJobsTable->find()->count();
+		$this->assertSame(1, $queuedJobs);
+
+		$this->QueueShell->runCommand(['hard_reset']);
+
+		$this->assertContains('OK', $this->out->output(), print_r($this->out->output, true));
+
+		$queuedJobs = $queuedJobsTable->find()->count();
+		$this->assertSame(0, $queuedJobs);
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testReset() {
 		$this->QueueShell->reset();
 
@@ -132,6 +161,24 @@ class QueueShellTest extends TestCase {
 		$this->QueueShell->rerun('Foo');
 
 		$this->assertContains('0 jobs reset for re-run.', $this->out->output(), print_r($this->out->output, true));
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testEnd() {
+		$this->QueueShell->end();
+
+		$this->assertContains('No processes found', $this->out->output(), print_r($this->out->output, true));
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testKill() {
+		$this->QueueShell->kill();
+
+		$this->assertContains('No processes found', $this->out->output(), print_r($this->out->output, true));
 	}
 
 	/**

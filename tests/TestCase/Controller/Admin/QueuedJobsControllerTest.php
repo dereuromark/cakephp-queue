@@ -38,6 +38,19 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 	}
 
 	/**
+	 * Test index method
+	 *
+	 * @return void
+	 */
+	public function testIndexSearch() {
+		$this->createJob();
+
+		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'completed']]);
+
+		$this->assertResponseCode(200);
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testView() {

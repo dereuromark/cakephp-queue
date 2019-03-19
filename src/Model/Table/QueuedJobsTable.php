@@ -193,7 +193,7 @@ class QueuedJobsTable extends Table {
 		if ($queuedJob->getErrors()) {
 			throw new Exception('Invalid entity data');
 		}
-		return $this->save($queuedJob);
+		return $this->saveOrFail($queuedJob);
 	}
 
 	/**

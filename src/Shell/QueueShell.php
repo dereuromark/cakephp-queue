@@ -290,7 +290,7 @@ TEXT;
 	public function end($in = null) {
 		$processes = $this->QueuedJobs->getProcesses($in === 'server');
 		if (!$processes) {
-			$this->out('No processed found');
+			$this->out('No processes found');
 
 			return;
 		}
@@ -325,7 +325,7 @@ TEXT;
 	public function kill() {
 		$processes = $this->QueuedJobs->getProcesses();
 		if (!$processes) {
-			$this->out('No processed found');
+			$this->out('No processes found');
 
 			return;
 		}
