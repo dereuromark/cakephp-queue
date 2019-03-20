@@ -259,8 +259,7 @@ In your logic you can check on this using `isQueued()` and a unique reference:
     /**
      * @return \Cake\Http\Response|null
      */
-    public function triggerImport()
-    {
+    public function triggerImport() {
         $this->request->allowMethod('post');
 
         $this->loadModel('Queue.QueuedJobs');
