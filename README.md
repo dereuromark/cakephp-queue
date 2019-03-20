@@ -37,6 +37,9 @@ The regular solution to these problems would be to create specialized cronjobs w
 
 The Queue plugin provides a simple method to create and run such non-user-interaction-critical tasks.
 
+Another important reason is that specific jobs can be (auto)retried if they failed.
+So if the email server didn't work the first time, or the API gateway had an issue, the current job to be executed isn't lost but kept for rerun. Most of those external services should be treated as failable once every x calls, and as such a queue implementation can help reducing issues due to such failures. If a job still can't finish despite retries, you still have the option to debug its payload and why this job cannot complete. No data is lost here.
+
 While you can run multiple workers, and can (to some extent) spread these workers to different machines via a shared database, you should consider using a more advanced system for high volume/high number of workers systems.
 
 ## Demo
