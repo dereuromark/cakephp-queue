@@ -19,43 +19,43 @@
 <div class="content action-view view large-9 medium-8 columns col-sm-8 col-xs-12">
 	<h2><?= h($queuedJob->id) ?></h2>
 	<table class="table vertical-table">
-			<tr>
+		<tr>
 			<th><?= __('Job Type') ?></th>
 			<td><?= h($queuedJob->job_type) ?></td>
 		</tr>
-			<tr>
+		<tr>
 			<th><?= __('Job Group') ?></th>
 			<td><?= h($queuedJob->job_group) ?></td>
 		</tr>
-			<tr>
+		<tr>
 			<th><?= __('Reference') ?></th>
 			<td><?= h($queuedJob->reference) ?></td>
 		</tr>
-			<tr>
+		<tr>
 			<th><?= __('Created') ?></th>
 			<td><?= $this->Time->nice($queuedJob->created) ?></td>
 		</tr>
-			<tr>
+		<tr>
 			<th><?= __('Notbefore') ?></th>
 			<td><?= $this->Time->nice($queuedJob->notbefore) ?></td>
 		</tr>
-			<tr>
+		<tr>
 			<th><?= __('Fetched') ?></th>
 			<td><?= $this->Time->nice($queuedJob->fetched) ?></td>
 		</tr>
-			<tr>
+		<tr>
 			<th><?= __('Completed') ?></th>
 			<td><?= $this->Time->nice($queuedJob->completed) ?></td>
 		</tr>
-			<tr>
+		<tr>
 			<th><?= __('Progress') ?></th>
 			<td><?= $this->Number->format($queuedJob->progress) ?></td>
 		</tr>
-			<tr>
+		<tr>
 			<th><?= __('Failed') ?></th>
 			<td><?= $this->Number->format($queuedJob->failed) ?></td>
 		</tr>
-			<tr>
+		<tr>
 			<th><?= __('Workerkey') ?></th>
 			<td>
 				<?= h($queuedJob->workerkey) ?>
@@ -64,11 +64,11 @@
 				<?php } ?>
 			</td>
 		</tr>
-			<tr>
+		<tr>
 			<th><?= __('Status') ?></th>
 			<td><?= h($queuedJob->status) ?></td>
 		</tr>
-			<tr>
+		<tr>
 			<th><?= __('Priority') ?></th>
 			<td><?= $this->Number->format($queuedJob->priority) ?></td>
 		</tr>

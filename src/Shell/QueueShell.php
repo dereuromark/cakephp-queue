@@ -251,6 +251,7 @@ TEXT;
 			if ($this->_exit || mt_rand(0, 100) > (100 - (int)Configure::readOrFail('Queue.gcprob'))) {
 				$this->out('Performing Old job cleanup.');
 				$this->QueuedJobs->cleanOldJobs();
+				$this->QueueProcesses->cleanEndedProcesses();
 			}
 			$this->hr();
 		}
@@ -333,6 +334,10 @@ TEXT;
 		$this->out(count($processes) . ' processes:');
 		foreach ($processes as $process => $timestamp) {
 			$this->out(' - ' . $process . ' (last run @ ' . (new FrozenTime($timestamp)) . ')');
+		}
+
+		if (Configure::read('Queue.multiserver')) {
+			$this->abort('Cannot kill by PID in multiserver environment.');
 		}
 
 		$options = array_keys($processes);

@@ -1,6 +1,8 @@
 <?php
 namespace Queue\Test\TestCase\Controller\Admin;
 
+use Cake\Core\Configure;
+use Cake\Datasource\ConnectionManager;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestCase;
 
@@ -22,6 +24,7 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 	 */
 	public $fixtures = [
 		'plugin.queue.QueuedJobs',
+		'plugin.queue.QueueProcesses',
 	];
 
 	/**
@@ -33,6 +36,88 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 		$this->createJob();
 
 		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'index']);
+
+		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testEdit() {
+		$job = $this->createJob();
+
+		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'edit', $job->id]);
+
+		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testDelete() {
+		$job = $this->createJob();
+
+		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'delete', $job->id]);
+
+		$this->assertResponseCode(302);
+
+		$queuedJobs = TableRegistry::get('Queue.QueuedJobs');
+		$queuedJob = $queuedJobs->find()->where(['id' => $job->id])->first();
+		$this->assertNull($queuedJob);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testEditPost() {
+		$job = $this->createJob();
+
+		$data = [
+			'priority' => 8,
+		];
+		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'edit', $job->id], $data);
+
+		$this->assertResponseCode(302);
+
+		$queuedJobs = TableRegistry::get('Queue.QueuedJobs');
+		/** @var \Queue\Model\Entity\QueuedJob $modifiedJob */
+		$modifiedJob = $queuedJobs->get($job->id);
+		$this->assertSame(8, $modifiedJob->priority);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testData() {
+		$job = $this->createJob();
+
+		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'data', $job->id]);
+
+		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * Test index method
+	 *
+	 * @return void
+	 */
+	public function testStats() {
+		$this->_needsConnection();
+
+		Configure::write('Queue.isStatisticEnabled', true);
+
+		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'stats']);
+
+		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * Test index method
+	 *
+	 * @return void
+	 */
+	public function testTest() {
+		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'test']);
 
 		$this->assertResponseCode(200);
 	}
@@ -102,6 +187,16 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 
 		$this->assertSame('Webhook', $queuedJob->job_type);
 		$this->assertSame('web-hook-102803234', $queuedJob->reference);
+	}
+
+	/**
+	 * Helper method for skipping tests that need a real connection.
+	 *
+	 * @return void
+	 */
+	protected function _needsConnection() {
+		$config = ConnectionManager::getConfig('test');
+		$this->skipIf(strpos($config['driver'], 'Mysql') === false, 'Only Mysql is working yet for this.');
 	}
 
 	/**

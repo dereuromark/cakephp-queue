@@ -55,6 +55,26 @@ class QueueControllerTest extends IntegrationTestCase {
 	/**
 	 * @return void
 	 */
+	public function testProcessesEnd() {
+		$queueProcessesTable = TableRegistry::get('Queue.QueueProcesses');
+		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
+		$queueProcess = $queueProcessesTable->newEntity([
+			'pid' => '1234',
+			'workerkey' => '123456',
+		]);
+		$queueProcessesTable->saveOrFail($queueProcess);
+
+		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'processes', '?' => ['end' => $queueProcess->pid]]);
+
+		$this->assertResponseCode(302);
+
+		$queueProcess = $queueProcessesTable->get($queueProcess->id);
+		$this->assertTrue($queueProcess->terminate);
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testAddJob() {
 		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
 

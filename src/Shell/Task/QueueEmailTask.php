@@ -75,6 +75,8 @@ class QueueEmailTask extends QueueTask {
 		/** @var \Cake\Mailer\Email|null $email */
 		$email = $data['settings'];
 		if (is_object($email) && $email instanceof Email) {
+			$this->Email = $email;
+
 			try {
 				if (!empty($data['transport'])) {
 					$email->setTransport($data['transport']);
@@ -88,7 +90,6 @@ class QueueEmailTask extends QueueTask {
 				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
 				Log::write('error', $error);
 			} catch (Exception $e) {
-
 				$error = $e->getMessage();
 				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
 				Log::write('error', $error);

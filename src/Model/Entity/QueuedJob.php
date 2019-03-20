@@ -23,4 +23,15 @@ use Cake\ORM\Entity;
  * @property \Queue\Model\Entity\QueueProcess $worker_process
  */
 class QueuedJob extends Entity {
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @var array
+	 */
+	protected $_accessible = [
+		'*' => true,
+		'id' => false
+	];
+
 }

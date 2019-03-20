@@ -81,6 +81,14 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     $config['Queue']['cleanuptimeout'] = 2592000; // 30 days
     ```
 
+- Multi-server setup:
+
+    ```php
+    $config['Queue']['multiserver'] = true // Defaults to false (single server)
+    ```
+    
+    For multiple servers running either CLI/web separately, or even multiple CLI workers on top, make sure to enable this.
+
 - Use a different connection:
 
     ```php

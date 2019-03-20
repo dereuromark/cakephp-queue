@@ -21,21 +21,30 @@
 <div class="content action-view view large-9 medium-8 columns col-sm-8 col-xs-12">
 	<h2>PID <?= h($queueProcess->pid) ?></h2>
 	<table class="table vertical-table">
-				<tr>
+		<tr>
 			<th><?= __('Created') ?></th>
-			<td><?= $this->Time->nice($queueProcess->created) ?></td>
+			<td>
+				<?= $this->Time->nice($queueProcess->created) ?>
+				<?php if (!$queueProcess->created->addSeconds($this->Configure->readOrFail('Queue.defaultworkertimeout'))->isFuture()) {
+					echo $this->Format->icon('warning', ['title' => 'Long running (!)']);
+				} ?>
+			</td>
 		</tr>
-			<tr>
+		<tr>
 			<th><?= __('Modified') ?></th>
 			<td><?= $this->Time->nice($queueProcess->modified) ?></td>
 		</tr>
-			<tr>
+		<tr>
 			<th><?= __('Active') ?></th>
 			<td><?= $this->Format->yesNo(!$queueProcess->terminate) ?></td>
 		</tr>
-			<tr>
+		<tr>
 			<th><?= __('Server') ?></th>
 			<td><?= h($queueProcess->server) ?></td>
+		</tr>
+		<tr>
+			<th><?= __('Workerkey') ?></th>
+			<td><?= h($queueProcess->workerkey) ?></td>
 		</tr>
 	</table>
 

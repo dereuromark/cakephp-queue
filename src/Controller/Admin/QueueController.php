@@ -121,8 +121,14 @@ class QueueController extends AppController {
 	public function processes() {
 		$processes = $this->QueuedJobs->getProcesses();
 
+		if ($this->request->is('post') && $this->request->getQuery('end')) {
+			$pid = $this->request->getQuery('end');
+			$this->QueuedJobs->endProcess($pid);
+
+			return $this->redirect(['action' => 'processes']);
+		}
 		if ($this->request->is('post') && $this->request->getQuery('kill')) {
-			$pid = $this->request->getQuery('kill');
+			$pid = (int)$this->request->getQuery('kill');
 			$this->QueuedJobs->terminateProcess($pid);
 
 			return $this->redirect(['action' => 'processes']);
@@ -136,6 +142,7 @@ class QueueController extends AppController {
 		}
 
 		$this->set(compact('processes'));
+		$this->helpers[] = 'Shim.Configure';
 	}
 
 	/**

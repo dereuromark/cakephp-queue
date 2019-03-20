@@ -9,11 +9,11 @@
 		{
 			"name": "Mark Scherer",
 			"homepage": "https://www.dereuromark.de",
-			"role": "Contributor"
+			"role": "Maintainer"
 		},
 		{
-			"name": "David Yell",
-			"homepage": "https://github.com/davidyell",
+			"name": "Contributors",
+			"homepage": "https://github.com/dereuromark/cakephp-queue/graphs/contributors",
 			"role": "Contributor"
 		}
 	],

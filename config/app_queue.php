@@ -29,6 +29,9 @@ return [
 
 		/* Optional config keys */
 
+		// set to true for multi server setup, this will affect web backend possibilities to kill/end workers
+		'multiserver' => false,
+
 		// set this to a limit that can work with your memory limits and alike, 0 => no limit
 		'maxworkers' => 3,
 

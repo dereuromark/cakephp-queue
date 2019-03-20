@@ -51,7 +51,7 @@ class QueueRetryExampleTask extends QueueTask {
 	 * @return void
 	 */
 	public function add() {
-		$this->out('CakePHP Queue Retry Example task.');
+		$this->out('CakePHP Queue RetryExample task.');
 		$this->hr();
 		$this->out('This is a very simple example of a QueueTask and how retries work.');
 		$this->out('I will now add an example Job into the Queue.');
@@ -90,20 +90,20 @@ class QueueRetryExampleTask extends QueueTask {
 		$count = (int)file_get_contents($this->file);
 
 		$this->hr();
-		$this->out('CakePHP Queue Retry Example task.');
+		$this->out('CakePHP Queue RetryExample task.');
 		$this->hr();
 
 		// Let's fake 3 fails before it actually runs successfully
 		if ($count < 3) {
 			$count++;
 			file_put_contents($this->file, (string)$count);
-			$this->out(' -> Sry, the Retry Example Job failed. Try again. <-');
+			$this->out(' -> Sry, the RetryExample Job failed. Try again. <-');
 			$this->out(' ');
 			$this->out(' ');
 			return false;
 		}
 
-		$this->success(' -> Success, the Retry Example Job was run. <-');
+		$this->success(' -> Success, the RetryExample Job was run. <-');
 		$this->out(' ');
 		$this->out(' ');
 

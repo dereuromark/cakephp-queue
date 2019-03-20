@@ -2,12 +2,14 @@
 namespace Queue\Controller\Admin;
 
 use App\Controller\AppController;
+use Cake\Core\Configure;
 use Exception;
 
 /**
  * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
  *
  * @method \Queue\Model\Entity\QueueProcess[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
+ * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  */
 class QueueProcessesController extends AppController {
 
@@ -49,6 +51,7 @@ class QueueProcessesController extends AppController {
 		$this->set(compact('queueProcess'));
 		$this->helpers[] = 'Tools.Format';
 		$this->helpers[] = 'Tools.Time';
+		$this->helpers[] = 'Shim.Configure';
 	}
 
 	/**
@@ -101,6 +104,12 @@ class QueueProcessesController extends AppController {
 	public function delete($id = null) {
 		$this->request->allowMethod(['post', 'delete']);
 		$queueProcess = $this->QueueProcesses->get($id);
+
+		if (!Configure::read('Queue.multiserver')) {
+			$this->loadModel('Queue.QueuedJobs');
+			$this->QueuedJobs->terminateProcess((int)$queueProcess->pid);
+		}
+
 		if ($this->QueueProcesses->delete($queueProcess)) {
 			$this->Flash->success(__('The queue process has been deleted.'));
 		} else {

@@ -33,7 +33,12 @@
 						<div><small><?php echo h($queueProcess->workerkey); ?></small></div>
 					<?php } ?>
 				</td>
-				<td><?= $this->Time->nice($queueProcess->created) ?></td>
+				<td>
+					<?= $this->Time->nice($queueProcess->created) ?>
+					<?php if (!$queueProcess->created->addSeconds($this->Configure->readOrFail('Queue.defaultworkertimeout'))->isFuture()) {
+						echo $this->Format->icon('warning', ['title' => 'Long running (!)']);
+					} ?>
+				</td>
 				<td><?= $this->Time->nice($queueProcess->modified) ?></td>
 				<td><?= $this->Format->yesNo(!$queueProcess->terminate) ?></td>
 				<td><?= h($queueProcess->server) ?></td>
