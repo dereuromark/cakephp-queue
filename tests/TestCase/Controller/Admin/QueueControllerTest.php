@@ -42,6 +42,71 @@ class QueueControllerTest extends IntegrationTestCase {
 	}
 
 	/**
+	 * Test index method
+	 *
+	 * @return void
+	 */
+	public function testProcesses() {
+		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'processes']);
+
+		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testAddJob() {
+		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+
+		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'addJob', 'Example']);
+
+		$this->assertResponseCode(302);
+
+		/** @var \Queue\Model\Entity\QueuedJob $job */
+		$job = $jobsTable->find()->orderDesc('id')->firstOrFail();
+		$this->assertSame('Example', $job->job_type);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testRemoveJob() {
+		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$job = $jobsTable->newEntity([
+			'job_type' => 'foo',
+			'failed' => 1,
+		]);
+		$jobsTable->saveOrFail($job);
+
+		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'removeJob', $job->id]);
+
+		$this->assertResponseCode(302);
+
+		$job = $jobsTable->find()->where(['id' => $job->id])->first();
+		$this->assertNull($job);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testResetJob() {
+		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$job = $jobsTable->newEntity([
+			'job_type' => 'foo',
+			'failed' => 1,
+		]);
+		$jobsTable->saveOrFail($job);
+
+		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id]);
+
+		$this->assertResponseCode(302);
+
+		/** @var \Queue\Model\Entity\QueuedJob $job */
+		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
+		$this->assertSame(0, $job->failed);
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testReset() {
@@ -56,6 +121,7 @@ class QueueControllerTest extends IntegrationTestCase {
 
 		$this->assertResponseCode(302);
 
+		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->get($job->id);
 		$this->assertSame(0, $job->failed);
 	}

@@ -67,6 +67,7 @@ class QueueController extends AppController {
 	 * @throws \Cake\Http\Exception\NotFoundException
 	 */
 	public function addJob($job = null) {
+		$this->request->allowMethod('post');
 		if (!$job) {
 			throw new NotFoundException();
 		}
@@ -86,6 +87,7 @@ class QueueController extends AppController {
 	 * @throws \Cake\Http\Exception\NotFoundException
 	 */
 	public function resetJob($id = null) {
+		$this->request->allowMethod('post');
 		if (!$id) {
 			throw new NotFoundException();
 		}
@@ -103,6 +105,7 @@ class QueueController extends AppController {
 	 * @return \Cake\Http\Response
 	 */
 	public function removeJob($id = null) {
+		$this->request->allowMethod('post');
 		$queuedJob = $this->QueuedJobs->get($id);
 
 		$this->QueuedJobs->delete($queuedJob);
