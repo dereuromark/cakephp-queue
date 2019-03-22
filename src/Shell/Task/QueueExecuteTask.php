@@ -65,16 +65,44 @@ class QueueExecuteTask extends QueueTask {
 	 * @return bool Success
 	 */
 	public function run(array $data, $jobId) {
-		$command = escapeshellcmd($data['command']);
-		if (!empty($data['params'])) {
-			$command .= ' ' . implode(' ', $data['params']);
+		$data += [
+			'command' => null,
+			'params' => [],
+			'redirect' => true,
+			'escape' => true,
+		];
+		$command = $data['command'];
+
+		if ($data['escape']) {
+			$command = escapeshellcmd($command);
 		}
 
-		$this->out('Executing: ' . $command);
+		if ($data['params']) {
+			$params = $data['params'];
+			if ($data['escape']) {
+				foreach ($params as $key => $value) {
+					$params[$key] = escapeshellcmd($value);
+				}
+			}
+			$command .= ' ' . implode(' ', $params);
+		}
+
+		$this->out('Executing: `' . $command . '`');
+
+		if ($data['redirect']) {
+			$command .= ' 2>&1';
+		}
+
 		exec($command, $output, $status);
-		$this->out(' ');
+		$this->nl();
 		$this->out($output);
-		return !$status;
+		if ($status === static::CODE_SUCCESS) {
+			$this->success('Success (status code ' . $status . ')', static::VERBOSE);
+		} else {
+			$this->success('Error (status code ' . $status . ')', static::VERBOSE);
+		}
+
+		return $status === static::CODE_SUCCESS;
 	}
 
 }

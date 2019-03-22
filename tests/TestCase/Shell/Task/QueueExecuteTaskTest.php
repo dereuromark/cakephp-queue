@@ -60,4 +60,30 @@ class QueueExecuteTaskTest extends TestCase {
 		$this->assertTextContains('PHP ', $this->out->output());
 	}
 
+	/**
+	 * @return void
+	 */
+	public function testRunFailure() {
+		$result = $this->Task->run(['command' => 'fooooobbbaraar -eeee'], null);
+
+		$this->assertFalse($result);
+
+		$this->assertTextContains('Error (status code 127)', $this->out->output());
+		$this->assertTextContains('fooooobbbaraar: not found', $this->out->output());
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testRunFailureWithoutRedirect() {
+		$this->skipIf((bool)getenv('TRAVIS'), 'Not redirecting stderr to stdout prints noise to the CLI output in between test runs.');
+
+		$result = $this->Task->run(['command' => 'fooooobbbaraar -eeee', 'redirect' => false], null);
+
+		$this->assertFalse($result);
+
+		$this->assertTextContains('Error (status code 127)', $this->out->output());
+		$this->assertTextNotContains('fooooobbbaraar: not found', $this->out->output());
+	}
+
 }
