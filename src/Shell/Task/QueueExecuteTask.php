@@ -99,7 +99,7 @@ class QueueExecuteTask extends QueueTask {
 		if ($status === static::CODE_SUCCESS) {
 			$this->success('Success (status code ' . $status . ')', static::VERBOSE);
 		} else {
-			$this->success('Error (status code ' . $status . ')', static::VERBOSE);
+			$this->err('Error (status code ' . $status . ')', static::VERBOSE);
 		}
 
 		return $status === static::CODE_SUCCESS;

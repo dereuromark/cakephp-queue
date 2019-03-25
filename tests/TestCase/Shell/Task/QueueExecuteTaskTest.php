@@ -63,12 +63,12 @@ class QueueExecuteTaskTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function testRunFailure() {
+	public function testRunFailureWithRedirect() {
 		$result = $this->Task->run(['command' => 'fooooobbbaraar -eeee'], null);
 
 		$this->assertFalse($result);
 
-		$this->assertTextContains('Error (status code 127)', $this->out->output());
+		$this->assertTextContains('Error (status code 127)', $this->err->output());
 		$this->assertTextContains('fooooobbbaraar: not found', $this->out->output());
 	}
 
@@ -82,8 +82,8 @@ class QueueExecuteTaskTest extends TestCase {
 
 		$this->assertFalse($result);
 
-		$this->assertTextContains('Error (status code 127)', $this->out->output());
-		$this->assertTextNotContains('fooooobbbaraar: not found', $this->out->output());
+		$this->assertTextContains('Error (status code 127)', $this->err->output());
+		$this->assertTextNotContains('fooooobbbaraar: not found', $this->err->output());
 	}
 
 }

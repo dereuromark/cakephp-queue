@@ -602,8 +602,25 @@ Make sure you got the template for it then, e.g.:
 
 This way all the generation is in the specific task and template and can be tested separately.
 
+### Using built in Execute task
+The built in task directly runs on the same path as your app, so you can use relative paths or absolute ones:
+```php
+$data = [
+	'command' => 'bin/cake importer run',
+	'content' => $content,
+];
+$queuedJobsTable = TableRegistry::get('Queue.QueuedJobs');
+$queuedJobsTable->createJob('Execute', $data);
+```
+
+The task automatically captures stderr output into stdout. If you don't want this, set "redirect" to false.
+It also escapes by default using "escape" true. Only disable this if you trust the source.
+
+*Warning*: This can essentially execute anything on CLI. Make sure you never expose this directly as free-text input to anyone.
+Use only predefined and safe code-snippets here!
+
 ### Multi Server Setup
-When working with multiple CLI servers there are several requirements for it work smoothly:
+When working with multiple CLI servers there are several requirements for it to work smoothly:
 
 File approach does not work here, you must use the new DB approach (using queue_processes table).
 
