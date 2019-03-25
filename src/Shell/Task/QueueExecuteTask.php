@@ -70,6 +70,7 @@ class QueueExecuteTask extends QueueTask {
 			'params' => [],
 			'redirect' => true,
 			'escape' => true,
+			'accepted' => [static::CODE_SUCCESS],
 		];
 		$command = $data['command'];
 
@@ -93,16 +94,19 @@ class QueueExecuteTask extends QueueTask {
 			$command .= ' 2>&1';
 		}
 
-		exec($command, $output, $status);
+		exec($command, $output, $returnCode);
 		$this->nl();
 		$this->out($output);
-		if ($status === static::CODE_SUCCESS) {
-			$this->success('Success (status code ' . $status . ')', static::VERBOSE);
+
+		$acceptedReturnCodes = $data['accepted'];
+		$success = !$acceptedReturnCodes || in_array($returnCode, $acceptedReturnCodes, true);
+		if (!$success) {
+			$this->err('Error (code ' . $returnCode . ')', static::VERBOSE);
 		} else {
-			$this->err('Error (status code ' . $status . ')', static::VERBOSE);
+			$this->success('Success (code ' . $returnCode . ')', static::VERBOSE);
 		}
 
-		return $status === static::CODE_SUCCESS;
+		return $success;
 	}
 
 }
