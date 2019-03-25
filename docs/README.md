@@ -60,7 +60,7 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     ```
 
     *Warning:* Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle.
-	
+    
 - Seconds of running time after which the PHP script of the worker will terminate (0 = unlimited):
 
     ```php
@@ -134,19 +134,19 @@ You can then always increase spawning of runners if there is a shortage.
 
 You can set two main things on each task as property: timeout and retries.
 ```php
-	/**
-	 * Timeout for this task in seconds, after which the task is reassigned to a new worker.
-	 *
-	 * @var int
-	 */
-	public $timeout = 120;
-	
-	/**
-	 * Number of times a failed instance of this task should be restarted before giving up.
-	 *
-	 * @var int
-	 */
-	public $retries = 1;
+    /**
+     * Timeout for this task in seconds, after which the task is reassigned to a new worker.
+     *
+     * @var int
+     */
+    public $timeout = 120;
+    
+    /**
+     * Number of times a failed instance of this task should be restarted before giving up.
+     *
+     * @var int
+     */
+    public $retries = 1;
 ```
 Make sure you set the timeout high enough so that it could never run longer than this, otherwise you risk it being re-run while still being run.
 It is recommended setting it to at least 2x the maximum possible execution length.
@@ -166,30 +166,30 @@ namespace App\Shell\Task;
 
 class QueueYourNameForItTask extends QueueTask {
 
-	/**
-	 * @var int
-	 */
-	public $timeout = 20;
+    /**
+     * @var int
+     */
+    public $timeout = 20;
 
-	/**
-	 * @var int
-	 */
-	public $retries = 1;
+    /**
+     * @var int
+     */
+    public $retries = 1;
 
-	/**
-	 * @param array $data The array passed to QueuedJobsTable::createJob()
-	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
-	 */
-	public function run(array $data, $jobId) {
-		$this->loadModel('FooBars');
-		if (!$this->FooBars->doSth()) {
-			throw new RuntimeException('Couldnt do sth.');
-		}
+    /**
+     * @param array $data The array passed to QueuedJobsTable::createJob()
+     * @param int $jobId The id of the QueuedJob entity
+     * @return bool Success
+     */
+    public function run(array $data, $jobId) {
+        $this->loadModel('FooBars');
+        if (!$this->FooBars->doSth()) {
+            throw new RuntimeException('Couldnt do sth.');
+        }
 
-		return true;
-	}
-	
+        return true;
+    }
+    
 }
 ```
 Make sure it returns a boolean result (true ideally), or otherwise throws an exception with a clear error message.
@@ -370,13 +370,13 @@ By default errors are always logged, and with log enabled also the execution of 
 Make sure you add this to your config:
 ```php
 'Log' => [
-	...
-	'queue' => [
-		'className' => ...,
-		'type' => 'queue',
-		'levels' => ['info'],
-		'scopes' => ['queue'],
-	],
+    ...
+    'queue' => [
+        'className' => ...,
+        'type' => 'queue',
+        'levels' => ['info'],
+        'scopes' => ['queue'],
+    ],
 ],
 ```
 
@@ -511,12 +511,12 @@ is useful when dealing with emails which serialization would overflow database `
 The quickest and easiest way is to use the built in Email task:
 ```php
 $data = [
-	'settings' => [
-		'to' => $user->email,
-		'from' => Configure::read('Config.adminEmail'),
-		'subject' => $subject,
-	],
-	'content' => $content,
+    'settings' => [
+        'to' => $user->email,
+        'from' => Configure::read('Config.adminEmail'),
+        'subject' => $subject,
+    ],
+    'content' => $content,
 ];
 $queuedJobsTable = TableRegistry::get('Queue.QueuedJobs');
 $queuedJobsTable->createJob('Email', $data);
@@ -527,23 +527,23 @@ This will sent a plain email. Each settings key must have a matching setter meth
 If you want a templated email, you need to pass view vars instead of content:
 ```php
 $data = [
-	'settings' => [
-		'to' => $user->email,
-		'from' => Configure::read('Config.adminEmail'),
-		'subject' => $subject,
-	],
-	'vars' => [
-		'myEntity' => $myEntity,
-		...	
-	],
+    'settings' => [
+        'to' => $user->email,
+        'from' => Configure::read('Config.adminEmail'),
+        'subject' => $subject,
+    ],
+    'vars' => [
+        'myEntity' => $myEntity,
+        ...    
+    ],
 ];
  ```
  
 You can also assemble an Email object manually and pass that along as settings directly:
 ```php
 $data = [
-	'settings' => $emailObject,
-	'content' => $content,
+    'settings' => $emailObject,
+    'content' => $content,
 ];
 ```
 
@@ -606,8 +606,8 @@ This way all the generation is in the specific task and template and can be test
 The built in task directly runs on the same path as your app, so you can use relative paths or absolute ones:
 ```php
 $data = [
-	'command' => 'bin/cake importer run',
-	'content' => $content,
+    'command' => 'bin/cake importer run',
+    'content' => $content,
 ];
 $queuedJobsTable = TableRegistry::get('Queue.QueuedJobs');
 $queuedJobsTable->createJob('Execute', $data);
