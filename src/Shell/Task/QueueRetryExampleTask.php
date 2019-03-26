@@ -103,11 +103,9 @@ class QueueRetryExampleTask extends QueueTask {
 			return false;
 		}
 
-		$this->success(' -> Success, the RetryExample Job was run. <-');
-		$this->out(' ');
-		$this->out(' ');
-
 		unlink($this->file);
+		$this->success(' -> Success, the RetryExample Job was run. <-');
+
 		return true;
 	}
 

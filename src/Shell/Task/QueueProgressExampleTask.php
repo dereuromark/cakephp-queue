@@ -75,8 +75,6 @@ class QueueProgressExampleTask extends QueueTask {
 
 		$this->hr();
 		$this->success(' -> Success, the ProgressExample Job was run. <-');
-		$this->out(' ');
-		$this->out(' ');
 		return true;
 	}
 

@@ -12,6 +12,7 @@ use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
 use Exception;
+use Queue\Model\Entity\QueuedJob;
 use Queue\Model\ProcessEndingException;
 use Queue\Queue\TaskFinder;
 use Throwable;
@@ -198,43 +199,7 @@ TEXT;
 			$queuedJob = $this->QueuedJobs->requestJob($this->_getTaskConf(), $groups, $types);
 
 			if ($queuedJob) {
-				$this->out('Running Job of type "' . $queuedJob->job_type . '"');
-				$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id, $pid, false);
-				$taskName = 'Queue' . $queuedJob->job_type;
-
-				try {
-					$this->_time = time();
-
-					$data = unserialize($queuedJob->data);
-					/** @var \Queue\Shell\Task\QueueTask $task */
-					$task = $this->{$taskName};
-					$return = $task->run((array)$data, $queuedJob->id);
-
-					$failureMessage = null;
-					if ($task->failureMessage) {
-						$failureMessage = $task->failureMessage;
-					}
-				} catch (Throwable $e) {
-					$return = false;
-
-					$failureMessage = get_class($e) . ': ' . $e->getMessage();
-					$this->_logError($taskName . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
-				} catch (Exception $e) {
-					$return = false;
-
-					$failureMessage = get_class($e) . ': ' . $e->getMessage();
-					$this->_logError($taskName . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
-				}
-
-				if ($return) {
-					$this->QueuedJobs->markJobDone($queuedJob);
-					$this->out('Job Finished.');
-				} else {
-					$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
-					$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->_getTaskConf());
-					$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
-					$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
-				}
+				$this->runJob($queuedJob, $pid);
 			} elseif (Configure::read('Queue.exitwhennothingtodo')) {
 				$this->out('nothing to do, exiting.');
 				$this->_exit = true;
@@ -260,6 +225,51 @@ TEXT;
 
 		if ($this->param('verbose')) {
 			$this->_log('endworker', $pid);
+		}
+	}
+
+	/**
+	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 * @param string $pid
+	 * @return void
+	 */
+	protected function runJob(QueuedJob $queuedJob, $pid) {
+		$this->out('Running Job of type "' . $queuedJob->job_type . '"');
+		$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id, $pid, false);
+		$taskName = 'Queue' . $queuedJob->job_type;
+
+		try {
+			$this->_time = time();
+
+			$data = unserialize($queuedJob->data);
+			/** @var \Queue\Shell\Task\QueueTask $task */
+			$task = $this->{$taskName};
+			$return = $task->run((array)$data, $queuedJob->id);
+
+			$failureMessage = null;
+			if ($task->failureMessage) {
+				$failureMessage = $task->failureMessage;
+			}
+		} catch (Throwable $e) {
+			$return = false;
+
+			$failureMessage = get_class($e) . ': ' . $e->getMessage();
+			$this->_logError($taskName . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
+		} catch (Exception $e) {
+			$return = false;
+
+			$failureMessage = get_class($e) . ': ' . $e->getMessage();
+			$this->_logError($taskName . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
+		}
+
+		if ($return) {
+			$this->QueuedJobs->markJobDone($queuedJob);
+			$this->out('Job Finished.');
+		} else {
+			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
+			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->_getTaskConf());
+			$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
+			$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
 		}
 	}
 
@@ -717,6 +727,20 @@ TEXT;
 	}
 
 	/**
+	 * @return string Memory usage in MB.
+	 */
+	protected function _memoryUsage() {
+		$limit = ini_get('memory_limit');
+
+		$used = number_format(memory_get_peak_usage(true) / (1024 * 1024), 0) . 'MB';
+		if ($limit !== '-1') {
+			$used .= '/' . $limit;
+		}
+
+		return $used;
+	}
+
+	/**
 	 * @param string|null $pid
 	 *
 	 * @return void
@@ -739,20 +763,6 @@ TEXT;
 		if (file_exists($pidFilePath . 'queue_' . $pid . '.pid')) {
 			unlink($pidFilePath . 'queue_' . $pid . '.pid');
 		}
-	}
-
-	/**
-	 * @return string Memory usage in MB.
-	 */
-	protected function _memoryUsage() {
-		$limit = ini_get('memory_limit');
-
-		$used = number_format(memory_get_peak_usage(true) / (1024 * 1024), 0) . 'MB';
-		if ($limit !== '-1') {
-			$used .= '/' . $limit;
-		}
-
-		return $used;
 	}
 
 	/**
