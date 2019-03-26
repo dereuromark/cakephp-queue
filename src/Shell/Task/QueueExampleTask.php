@@ -66,8 +66,6 @@ class QueueExampleTask extends QueueTask {
 		$this->out('CakePHP Queue Example task.');
 		$this->hr();
 		$this->success(' -> Success, the Example Job was run. <-');
-		$this->out(' ');
-		$this->out(' ');
 		return true;
 	}
 
