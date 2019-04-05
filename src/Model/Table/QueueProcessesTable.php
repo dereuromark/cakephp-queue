@@ -220,7 +220,7 @@ class QueueProcessesTable extends Table {
 		$count = 0;
 		foreach (glob($pidFilePath . 'queue_*.pid') as $filename) {
 			$time = filemtime($filename);
-			if ($time >= $thresholdTime) {
+			if ($time >= $thresholdTime->timestamp) {
 				$count++;
 			}
 		}
