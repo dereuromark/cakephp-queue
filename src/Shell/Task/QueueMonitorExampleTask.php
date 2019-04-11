@@ -49,7 +49,7 @@ class QueueMonitorExampleTask extends QueueTask implements AddInterface {
 	 *
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
+	 * @return void
 	 */
 	public function run(array $data, $jobId) {
 		$this->hr();
@@ -59,8 +59,6 @@ class QueueMonitorExampleTask extends QueueTask implements AddInterface {
 		$this->doMonitoring();
 
 		$this->success(' -> Success, the MonitorExample Job was run. <-');
-
-		return true;
 	}
 
 	/**

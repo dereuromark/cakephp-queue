@@ -6,6 +6,7 @@ use Cake\I18n\FrozenTime;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use Queue\Model\ProcessEndingException;
+use Queue\Queue\Config;
 
 /**
  * QueueProcesses Model
@@ -106,7 +107,7 @@ class QueueProcessesTable extends Table {
 	 * @return \Cake\ORM\Query
 	 */
 	public function findActive() {
-		$timeout = (int)Configure::readOrFail('Queue.defaultworkertimeout');
+		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
 		return $this->find()->where(['modified > ' => $thresholdTime]);
@@ -170,7 +171,7 @@ class QueueProcessesTable extends Table {
 	 * @return int
 	 */
 	public function cleanEndedProcesses() {
-		$timeout = (int)Configure::readOrFail('Queue.defaultworkertimeout') * 2;
+		$timeout = Config::defaultworkertimeout() * 2;
 		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
 		return $this->deleteAll(['modified <' => $thresholdTime]);
@@ -184,7 +185,7 @@ class QueueProcessesTable extends Table {
 	 * @return array
 	 */
 	public function status() {
-		$timeout = (int)Configure::readOrFail('Queue.defaultworkertimeout');
+		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
 		$results = $this->find()

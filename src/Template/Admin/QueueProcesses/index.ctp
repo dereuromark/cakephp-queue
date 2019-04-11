@@ -3,12 +3,13 @@
  * @var \App\View\AppView $this
  * @var \Queue\Model\Entity\QueueProcess[]|\Cake\Collection\CollectionInterface $queueProcesses
  */
+use Queue\Queue\Config;
 ?>
 <nav class="actions large-3 medium-4 columns col-sm-4 col-xs-12" id="actions-sidebar">
 	<ul class="side-nav nav nav-pills nav-stacked">
 		<li class="heading"><?= __('Actions') ?></li>
 		<li><?= $this->Html->link(__('Back'), ['controller' => 'Queue', 'action' => 'processes'], ['class' => 'btn margin btn-default']) ?></li>
-		<li><?= $this->Form->postLink(__('Cleanup'), ['action' => 'cleanup'], ['confirm' => 'Sure to remove all outdated ones (>' . ($this->Configure->readOrFail('Queue.defaultworkertimeout') * 2) .'s)?', 'class' => 'btn margin btn-warning']) ?></li>
+		<li><?= $this->Form->postLink(__('Cleanup'), ['action' => 'cleanup'], ['confirm' => 'Sure to remove all outdated ones (>' . (Config::defaultworkertimeout() * 2) .'s)?', 'class' => 'btn margin btn-warning']) ?></li>
 	</ul>
 </nav>
 <div class="content action-index index large-9 medium-8 columns col-sm-8 col-xs-12">
@@ -35,7 +36,7 @@
 				</td>
 				<td>
 					<?= $this->Time->nice($queueProcess->created) ?>
-					<?php if (!$queueProcess->created->addSeconds($this->Configure->readOrFail('Queue.defaultworkertimeout'))->isFuture()) {
+					<?php if (!$queueProcess->created->addSeconds(Config::defaultworkertimeout())->isFuture()) {
 						echo $this->Format->icon('warning', ['title' => 'Long running (!)']);
 					} ?>
 				</td>

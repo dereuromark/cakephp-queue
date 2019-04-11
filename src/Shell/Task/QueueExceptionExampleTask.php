@@ -50,7 +50,7 @@ class QueueExceptionExampleTask extends QueueTask implements AddInterface {
 	 *
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
+	 * @return void
 	 * @throws \Queue\Model\QueueException
 	 */
 	public function run(array $data, $jobId) {

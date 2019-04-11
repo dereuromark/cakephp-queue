@@ -692,11 +692,6 @@ Do not run this with production ones, though.
 The console kill commands are also registered here. So if you run a worker locally, 
 and you enter `Ctrl+C` or alike, it will also hard-kill this worker process.
 
-### Configure loading
-
-Use Configure `'Queue.configLoaded'` set to `true` to avoid the deprecated loading of the config inside the model layer.
-This part is deprecated and can cause troubles.
-
 ### Known Limitations
 
 #### Concurrent workers may execute the same job multiple times

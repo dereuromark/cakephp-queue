@@ -58,7 +58,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * @var string|null
 	 */
-	protected $_key = null;
+	protected $_key;
 
 	/**
 	 * set connection name

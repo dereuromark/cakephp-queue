@@ -38,7 +38,7 @@ class QueueProcessesTableTest extends TestCase {
 		$config = TableRegistry::exists('QueueProcesses') ? [] : ['className' => QueueProcessesTable::class];
 		$this->QueueProcesses = TableRegistry::get('QueueProcesses', $config);
 
-		Configure::delete('Queue');
+		Configure::delete('Queue.maxworkers');
 	}
 
 	/**
@@ -51,7 +51,7 @@ class QueueProcessesTableTest extends TestCase {
 
 		parent::tearDown();
 
-		Configure::delete('Queue');
+		Configure::delete('Queue.maxworkers');
 	}
 
 	/**

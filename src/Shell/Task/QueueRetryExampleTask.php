@@ -98,7 +98,7 @@ class QueueRetryExampleTask extends QueueTask implements AddInterface {
 		if ($count < 3) {
 			$count++;
 			file_put_contents($this->file, (string)$count);
-			$this->err(' -> Sry, the RetryExample Job failed. Try again. <-');
+			$this->abort(' -> Sry, the RetryExample Job failed. Try again. <-');
 		}
 
 		unlink($this->file);

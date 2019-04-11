@@ -15,6 +15,7 @@ use Exception;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\ProcessEndingException;
 use Queue\Model\QueueException;
+use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
 use Queue\Shell\Task\AddInterface;
 use Queue\Shell\Task\QueueTaskInterface;
@@ -210,7 +211,7 @@ TEXT;
 				$this->_exit = true;
 			} else {
 				$this->out('nothing to do, sleeping.');
-				sleep(Configure::readOrFail('Queue.sleeptime'));
+				sleep(Config::sleeptime());
 			}
 
 			// check if we are over the maximum runtime and end processing if so.
@@ -218,7 +219,7 @@ TEXT;
 				$this->_exit = true;
 				$this->out('Reached runtime of ' . (time() - $startTime) . ' Seconds (Max ' . Configure::readOrFail('Queue.workermaxruntime') . '), terminating.');
 			}
-			if ($this->_exit || mt_rand(0, 100) > (100 - (int)Configure::readOrFail('Queue.gcprob'))) {
+			if ($this->_exit || mt_rand(0, 100) > (100 - (int)Config::gcprob())) {
 				$this->out('Performing Old job cleanup.');
 				$this->QueuedJobs->cleanOldJobs();
 				$this->QueueProcesses->cleanEndedProcesses();
@@ -267,7 +268,7 @@ TEXT;
 				$failureMessage .= "\n" . $e->getTraceAsString();
 			}
 
-			$this->_logError($taskName . '(job ' . $queuedJob->id . ')' . "\n" . $failureMessage, $pid);
+			$this->_logError($taskName . ' (job ' . $queuedJob->id . ')' . "\n" . $failureMessage, $pid);
 		} catch (Exception $e) {
 			$return = false;
 
@@ -275,7 +276,7 @@ TEXT;
 			$this->_logError($taskName . "\n" . $failureMessage, $pid);
 		}
 
-		if (!$return) {
+		if ($return === false) {
 			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
 			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->_getTaskConf());
 			$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
@@ -659,12 +660,12 @@ TEXT;
 				if (property_exists($this->{$taskName}, 'timeout')) {
 					$this->_taskConf[$taskName]['timeout'] = $this->{$taskName}->timeout;
 				} else {
-					$this->_taskConf[$taskName]['timeout'] = Configure::readOrFail('Queue.defaultworkertimeout');
+					$this->_taskConf[$taskName]['timeout'] = Config::defaultworkertimeout();
 				}
 				if (property_exists($this->{$taskName}, 'retries')) {
 					$this->_taskConf[$taskName]['retries'] = $this->{$taskName}->retries;
 				} else {
-					$this->_taskConf[$taskName]['retries'] = Configure::readOrFail('Queue.defaultworkerretries');
+					$this->_taskConf[$taskName]['retries'] = Config::defaultworkerretries();
 				}
 				if (property_exists($this->{$taskName}, 'rate')) {
 					$this->_taskConf[$taskName]['rate'] = $this->{$taskName}->rate;

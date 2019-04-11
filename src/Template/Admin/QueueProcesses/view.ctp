@@ -3,6 +3,7 @@
  * @var \App\View\AppView $this
  * @var \Queue\Model\Entity\QueueProcess $queueProcess
  */
+use Queue\Queue\Config;
 ?>
 <nav class="actions large-3 medium-4 columns col-sm-4 col-xs-12" id="actions-sidebar">
 	<ul class="side-nav nav nav-pills nav-stacked">
@@ -25,7 +26,7 @@
 			<th><?= __('Created') ?></th>
 			<td>
 				<?= $this->Time->nice($queueProcess->created) ?>
-				<?php if (!$queueProcess->created->addSeconds($this->Configure->readOrFail('Queue.defaultworkertimeout'))->isFuture()) {
+				<?php if (!$queueProcess->created->addSeconds(Config::defaultworkertimeout())->isFuture()) {
 					echo $this->Format->icon('warning', ['title' => 'Long running (!)']);
 				} ?>
 			</td>
