@@ -51,7 +51,7 @@
 		}
 	},
 	"scripts": {
-		"phpstan": "phpstan analyse -c tests/phpstan.neon -l 4 src/",
+		"phpstan": "phpstan analyse -c tests/phpstan.neon -l 5 src/",
 		"phpstan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan && mv composer.backup composer.json",
 		"test": "php phpunit.phar",
 		"test-setup": "[ ! -f phpunit.phar ] && wget https://phar.phpunit.de/phpunit-6.5.8.phar && mv phpunit-6.5.8.phar phpunit.phar || true",

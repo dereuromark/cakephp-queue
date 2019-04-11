@@ -251,7 +251,7 @@ TEXT;
 
 			$return = $task->run((array)$data, $queuedJob->id);
 			if ($return !== null) {
-				trigger_error(E_USER_DEPRECATED, 'run() should be void and throw exception in error case now.');
+				trigger_error('run() should be void and throw exception in error case now.', E_USER_DEPRECATED);
 			}
 			$failureMessage = $taskName . ' failed';
 
@@ -593,7 +593,7 @@ TEXT;
 	 * Timestamped log.
 	 *
 	 * @param string $message Log type
-	 * @param int|null $pid PID of the process
+	 * @param string|null $pid PID of the process
 	 * @param bool $addDetails
 	 * @return void
 	 */
@@ -616,7 +616,7 @@ TEXT;
 
 	/**
 	 * @param string $message
-	 * @param int|null $pid PID of the process
+	 * @param string|null $pid PID of the process
 	 * @return void
 	 */
 	protected function _logError($message, $pid = null) {

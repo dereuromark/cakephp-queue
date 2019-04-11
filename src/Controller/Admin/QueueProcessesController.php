@@ -39,7 +39,7 @@ class QueueProcessesController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @param string|null $id Queue Process id.
+	 * @param int|null $id Queue Process id.
 	 * @return \Cake\Http\Response|null
 	 * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
 	 */
@@ -57,7 +57,7 @@ class QueueProcessesController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @param string|null $id Queue Process id.
+	 * @param int|null $id Queue Process id.
 	 * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
 	 * @throws \Cake\Http\Exception\NotFoundException When record not found.
 	 */
@@ -79,7 +79,7 @@ class QueueProcessesController extends AppController {
 	}
 
 	/**
-	 * @param string|null $id Queue Process id.
+	 * @param int|null $id Queue Process id.
 	 * @return \Cake\Http\Response|null Redirects to index.
 	 */
 	public function terminate($id = null) {
@@ -97,7 +97,7 @@ class QueueProcessesController extends AppController {
 	}
 
 	/**
-	 * @param string|null $id Queue Process id.
+	 * @param int|null $id Queue Process id.
 	 * @return \Cake\Http\Response|null Redirects to index.
 	 * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
 	 */

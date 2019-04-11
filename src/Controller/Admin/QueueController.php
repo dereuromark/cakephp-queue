@@ -70,7 +70,7 @@ class QueueController extends AppController {
 	}
 
 	/**
-	 * @param string|null $id
+	 * @param int|null $id
 	 *
 	 * @return \Cake\Http\Response
 	 *
@@ -90,7 +90,7 @@ class QueueController extends AppController {
 	}
 
 	/**
-	 * @param string|null $id
+	 * @param int|null $id
 	 *
 	 * @return \Cake\Http\Response
 	 */

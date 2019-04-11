@@ -678,6 +678,7 @@ class QueuedJobsTable extends Table {
 	 * @return void
 	 */
 	public function clearDoublettes() {
+		/** @var array $x */
 		$x = $this->_connection->query('SELECT max(id) as id FROM `' . $this->getTable() . '`
 	WHERE completed is NULL
 	GROUP BY data
