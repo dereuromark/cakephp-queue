@@ -77,7 +77,7 @@ class QueueProcessesTable extends Table {
 			->add('server', 'validateCount', [
 				'rule' => 'validateCount',
 				'provider' => 'table',
-				'message' => 'Too many workers running.',
+				'message' => 'Too many workers running. Check your `Queue.maxworkers` config.',
 			]);
 
 		return $validator;
@@ -90,7 +90,7 @@ class QueueProcessesTable extends Table {
 	 * @return bool
 	 */
 	public function validateCount($value, array $context) {
-		$maxWorkers = (int)Configure::read('Queue.maxworkers');
+		$maxWorkers = Config::maxworkers();
 		if (!$value || !$maxWorkers) {
 			return true;
 		}
