@@ -12,7 +12,7 @@ use Cake\Console\ConsoleIo;
 /**
  * A Simple QueueTask example.
  */
-class QueueRetryExampleTask extends QueueTask {
+class QueueRetryExampleTask extends QueueTask implements AddInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.

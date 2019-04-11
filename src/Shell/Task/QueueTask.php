@@ -52,25 +52,6 @@ abstract class QueueTask extends Shell implements QueueTaskInterface {
 	}
 
 	/**
-	 * Add functionality. Optional.
-	 *
-	 * Only works for tasks that do not need a payload. Otherwise requires custom implementation.
-	 *
-	 * Make sure all payload $data array keys are defaulted or to abort early otherwise.
-	 * If you do not want this, implement with `throw new NotImplementedException();`
-	 *
-	 * @return void
-	 */
-	public function add() {
-		$task = $this->queueTaskName();
-		$this->QueuedJobs->createJob($task);
-
-		$this->success('Added ' . $task . ' task');
-	}
-
-	/**
-	 * FIXME
-	 *
 	 * @return string
 	 * @throws \InvalidArgumentException
 	 */

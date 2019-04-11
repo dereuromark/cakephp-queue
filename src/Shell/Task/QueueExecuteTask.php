@@ -12,7 +12,7 @@ use Queue\Model\QueueException;
 /**
  * Execute a Local command on the server.
  */
-class QueueExecuteTask extends QueueTask {
+class QueueExecuteTask extends QueueTask implements AddInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -20,13 +20,6 @@ class QueueExecuteTask extends QueueTask {
 	 * @var int
 	 */
 	public $timeout = 0;
-
-	/**
-	 * Number of times a failed instance of this task should be restarted before giving up.
-	 *
-	 * @var int
-	 */
-	public $retries = 1;
 
 	/**
 	 * Add functionality.

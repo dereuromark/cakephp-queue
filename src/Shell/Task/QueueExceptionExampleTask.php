@@ -7,7 +7,7 @@ use Queue\Model\QueueException;
 /**
  * A Simple QueueTask example.
  */
-class QueueExceptionExampleTask extends QueueTask {
+class QueueExceptionExampleTask extends QueueTask implements AddInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -15,13 +15,6 @@ class QueueExceptionExampleTask extends QueueTask {
 	 * @var int
 	 */
 	public $timeout = 10;
-
-	/**
-	 * Number of times a failed instance of this task should be restarted before giving up.
-	 *
-	 * @var int
-	 */
-	public $retries = 2;
 
 	/**
 	 * Example add functionality.

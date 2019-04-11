@@ -13,7 +13,7 @@ use Throwable;
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-class QueueEmailTask extends QueueTask {
+class QueueEmailTask extends QueueTask implements AddInterface {
 
 	/**
 	 * List of default variables for EmailComponent
@@ -29,11 +29,6 @@ class QueueEmailTask extends QueueTask {
 	 * @var int
 	 */
 	public $timeout = 120;
-
-	/**
-	 * @var int
-	 */
-	public $retries = 1;
 
 	/**
 	 * @var \Cake\Mailer\Email

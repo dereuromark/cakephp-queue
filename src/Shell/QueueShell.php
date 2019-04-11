@@ -16,6 +16,7 @@ use Queue\Model\Entity\QueuedJob;
 use Queue\Model\ProcessEndingException;
 use Queue\Model\QueueException;
 use Queue\Queue\TaskFinder;
+use Queue\Shell\Task\AddInterface;
 use Queue\Shell\Task\QueueTaskInterface;
 use RuntimeException;
 use Throwable;
@@ -117,12 +118,14 @@ TEXT;
 			return;
 		}
 
-		$name = Inflector::camelize($this->args[0]);
-
-		if (in_array($name, $this->taskNames)) {
-			$this->{$name}->add();
-		} elseif (in_array('Queue' . $name . '', $this->taskNames)) {
-			$this->{'Queue' . $name}->add();
+		$name = 'Queue' . Inflector::camelize($this->args[0]);
+		if (in_array($name, $this->taskNames, true)) {
+			/** @var \Queue\Shell\Task\QueueTask|\Queue\Shell\Task\AddInterface $task */
+			$task = $this->$name;
+			if (!($task instanceof AddInterface)) {
+				$this->abort('This task does not support adding via CLI call');
+			}
+			$task->add();
 		} else {
 			$this->out('Error: Task not found: ' . $name);
 			$this->_displayAvailableTasks();
