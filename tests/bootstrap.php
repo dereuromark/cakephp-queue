@@ -84,8 +84,6 @@ $cache = [
 Cake\Cache\Cache::setConfig($cache);
 
 Cake\Core\Plugin::getCollection()->add(new \Queue\Plugin());
-Cake\Core\Plugin::load('Foo', ['path' => ROOT . DS . 'tests' . DS . 'test_app' . DS . 'plugins' . DS . 'Foo' . DS]);
-Cake\Core\Plugin::load('Tools', ['path' => ROOT . DS . 'vendor' . DS . 'dereuromark' . DS . 'cakephp-tools' . DS]);
 
 Cake\Mailer\TransportFactory::setConfig('default', [
 	'className' => 'Debug',

@@ -118,10 +118,10 @@ TEXT;
 			return;
 		}
 
-		$name = 'Queue' . Inflector::camelize($this->args[0]);
-		if (in_array($name, $this->taskNames, true)) {
+		$name = Inflector::camelize($this->args[0]);
+		if (in_array('Queue' . $name, $this->taskNames, true)) {
 			/** @var \Queue\Shell\Task\QueueTask|\Queue\Shell\Task\AddInterface $task */
-			$task = $this->$name;
+			$task = $this->{'Queue' . $name};
 			if (!($task instanceof AddInterface)) {
 				$this->abort('This task does not support adding via CLI call');
 			}
