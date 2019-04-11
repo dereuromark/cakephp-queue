@@ -3,7 +3,6 @@
 namespace Queue\Controller\Admin;
 
 use App\Controller\AppController;
-use Cake\Core\Configure;
 use Cake\Http\Exception\NotFoundException;
 use Queue\Queue\TaskFinder;
 
@@ -17,15 +16,6 @@ class QueueController extends AppController {
 	 * @var string
 	 */
 	public $modelClass = 'Queue.QueuedJobs';
-
-	/**
-	 * @return void
-	 */
-	public function initialize() {
-		parent::initialize();
-
-		$this->QueuedJobs->initConfig();
-	}
 
 	/**
 	 * Admin center.
@@ -134,14 +124,10 @@ class QueueController extends AppController {
 			return $this->redirect(['action' => 'processes']);
 		}
 
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-		if (!$pidFilePath) {
-			$this->loadModel('Queue.QueueProcesses');
-			$terminated = $this->QueueProcesses->find()->where(['terminate' => true])->all()->toArray();
-			$this->set(compact('terminated'));
-		}
+		$this->loadModel('Queue.QueueProcesses');
+		$terminated = $this->QueueProcesses->find()->where(['terminate' => true])->all()->toArray();
 
-		$this->set(compact('processes'));
+		$this->set(compact('terminated', 'processes'));
 		$this->helpers[] = 'Shim.Configure';
 	}
 

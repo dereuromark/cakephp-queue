@@ -13,9 +13,6 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use InvalidArgumentException;
 use Queue\Model\Entity\QueuedJob;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use RegexIterator;
 use RuntimeException;
 
 // PHP 7.1+ has this defined
@@ -98,8 +95,6 @@ class QueuedJobsTable extends Table {
 				'WorkerProcesses.workerkey = QueuedJobs.workerkey',
 			],
 		]);
-
-		$this->initConfig();
 	}
 
 	/**
@@ -141,28 +136,6 @@ class QueuedJobsTable extends Table {
 			]);
 
 		return $searchManager;
-	}
-
-	/**
-	 * @deprecated Manually assert config via bootstrapping.
-	 *
-	 * @return void
-	 */
-	public function initConfig() {
-		// Local config without extra config file
-		$conf = (array)Configure::read('Queue');
-		if (!empty($conf['configLoaded'])) {
-			return;
-		}
-
-		// Fallback to Plugin config which can be overwritten via local app config.
-		Configure::load('Queue.app_queue');
-		$defaultConf = (array)Configure::read('Queue');
-
-		$conf += $defaultConf;
-		$conf['configLoaded'] = true;
-
-		Configure::write('Queue', $conf);
 	}
 
 	/**
@@ -628,28 +601,6 @@ class QueuedJobsTable extends Table {
 		$this->deleteAll([
 			'completed <' => time() - (int)Configure::read('Queue.cleanuptimeout'),
 		]);
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-		if (!$pidFilePath) {
-			return;
-		}
-
-		// Deprecated: Will be removed, use DB here
-		// Remove all old pid files left over
-		$timeout = time() - 2 * (int)Configure::read('Queue.cleanuptimeout');
-		$Iterator = new RegexIterator(
-			new RecursiveIteratorIterator(new RecursiveDirectoryIterator($pidFilePath)),
-			'/^.+\_.+\.(pid)$/i',
-			RegexIterator::MATCH
-		);
-		foreach ($Iterator as $file) {
-			if ($file->isFile()) {
-				$file = $file->getPathname();
-				$lastModified = filemtime($file);
-				if ($timeout > $lastModified) {
-					unlink($file);
-				}
-			}
-		}
 	}
 
 	/**
@@ -792,32 +743,19 @@ class QueuedJobsTable extends Table {
 	 * @return array
 	 */
 	public function getProcesses($forThisServer = false) {
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-		if (!$pidFilePath) {
-			/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
-			$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
-			$query = $QueueProcesses->findActive()
-				->where(['terminate' => false]);
-			if ($forThisServer) {
-				$query = $query->where(['server' => $QueueProcesses->buildServerString()]);
-			}
-
-			$processes = $query
-				->enableHydration(false)
-				->find('list', ['keyField' => 'pid', 'valueField' => 'modified'])
-				->all()
-				->toArray();
-
-			return $processes;
+		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
+		$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
+		$query = $QueueProcesses->findActive()
+			->where(['terminate' => false]);
+		if ($forThisServer) {
+			$query = $query->where(['server' => $QueueProcesses->buildServerString()]);
 		}
 
-		// Deprecated: Will be removed, use DB here
-		$processes = [];
-		foreach (glob($pidFilePath . 'queue_*.pid') as $filename) {
-			$time = filemtime($filename);
-			preg_match('/\bqueue_([0-9a-z]+)\.pid$/', $filename, $matches);
-			$processes[$matches[1]] = $time;
-		}
+		$processes = $query
+			->enableHydration(false)
+			->find('list', ['keyField' => 'pid', 'valueField' => 'modified'])
+			->all()
+			->toArray();
 
 		return $processes;
 	}
@@ -853,8 +791,6 @@ class QueuedJobsTable extends Table {
 			return;
 		}
 
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-
 		$killed = false;
 		if (function_exists('posix_kill')) {
 			$killed = posix_kill($pid, $sig);
@@ -864,17 +800,8 @@ class QueuedJobsTable extends Table {
 		}
 		sleep(1);
 
-		if (!$pidFilePath) {
-			$QueueProcesses = TableRegistry::get('Queue.QueueProcesses');
-			$QueueProcesses->deleteAll(['pid' => $pid]);
-			return;
-		}
-
-		// Deprecated: Will be removed, use DB here
-		$file = $pidFilePath . 'queue_' . $pid . '.pid';
-		if (file_exists($file)) {
-			unlink($file);
-		}
+		$QueueProcesses = TableRegistry::get('Queue.QueueProcesses');
+		$QueueProcesses->deleteAll(['pid' => $pid]);
 	}
 
 	/**

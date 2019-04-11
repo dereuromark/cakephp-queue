@@ -68,7 +68,6 @@ class QueueShell extends Shell {
 
 		parent::initialize();
 
-		$this->QueuedJobs->initConfig();
 		$this->loadModel('Queue.QueueProcesses');
 	}
 
@@ -272,7 +271,7 @@ TEXT;
 			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
 			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->_getTaskConf());
 			$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
-			$this->err('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
+			$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
 			return;
 		}
 
@@ -702,31 +701,9 @@ TEXT;
 	 * @return string
 	 */
 	protected function _initPid() {
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-		if (!$pidFilePath) {
-			$pid = $this->_retrievePid();
-			$key = $this->QueuedJobs->key();
-			$this->QueueProcesses->add($pid, $key);
-
-			$this->_pid = $pid;
-
-			return $pid;
-		}
-
-		// Deprecated: Will be removed, use DB here
-		if (!file_exists($pidFilePath)) {
-			mkdir($pidFilePath, 0755, true);
-		}
 		$pid = $this->_retrievePid();
-		# global file
-		$fp = fopen($pidFilePath . 'queue.pid', 'w');
-		fwrite($fp, $pid);
-		fclose($fp);
-		# specific pid file
-		$pidFileName = 'queue_' . $pid . '.pid';
-		$fp = fopen($pidFilePath . $pidFileName, 'w');
-		fwrite($fp, $pid);
-		fclose($fp);
+		$key = $this->QueuedJobs->key();
+		$this->QueueProcesses->add($pid, $key);
 
 		$this->_pid = $pid;
 
@@ -752,20 +729,7 @@ TEXT;
 	 * @return void
 	 */
 	protected function _updatePid($pid) {
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-		if (!$pidFilePath) {
-			$this->QueueProcesses->update($pid);
-			return;
-		}
-
-		// Deprecated: Will be removed, use DB here
-		$pidFileName = 'queue_' . $pid . '.pid';
-		if (!empty($pidFilePath)) {
-			touch($pidFilePath . 'queue.pid');
-		}
-		if (!empty($pidFileName)) {
-			touch($pidFilePath . $pidFileName);
-		}
+		$this->QueueProcesses->update($pid);
 	}
 
 	/**
@@ -795,16 +759,7 @@ TEXT;
 			return;
 		}
 
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-		if (!$pidFilePath) {
-			$this->QueueProcesses->remove($pid);
-			return;
-		}
-
-		// Deprecated: Will be removed, use DB here
-		if (file_exists($pidFilePath . 'queue_' . $pid . '.pid')) {
-			unlink($pidFilePath . 'queue_' . $pid . '.pid');
-		}
+		$this->QueueProcesses->remove($pid);
 	}
 
 	/**

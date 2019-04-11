@@ -177,7 +177,7 @@ class QueueProcessesTable extends Table {
 	}
 
 	/**
-	 * If pid loggin is enabled, will return an array with
+	 * If pid logging is enabled, will return an array with
 	 * - time: Timestamp as FrozenTime object
 	 * - workers: int Count of currently running workers
 	 *
@@ -187,51 +187,26 @@ class QueueProcessesTable extends Table {
 		$timeout = (int)Configure::readOrFail('Queue.defaultworkertimeout');
 		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-		if (!$pidFilePath) {
-			$results = $this->find()
-				->where(['modified >' => $thresholdTime])
-				->orderDesc('modified')
-				->enableHydration(false)
-				->all()
-				->toArray();
+		$results = $this->find()
+			->where(['modified >' => $thresholdTime])
+			->orderDesc('modified')
+			->enableHydration(false)
+			->all()
+			->toArray();
 
-			if (!$results) {
-				return [];
-			}
-
-			$count = count($results);
-			$record = array_shift($results);
-			/** @var \Cake\I18n\FrozenTime $time */
-			$time = $record['modified'];
-
-			return [
-				'time' => $time,
-				'workers' => $count,
-			];
-		}
-
-		// Deprecated: Will be removed, use DB here
-		$file = $pidFilePath . 'queue.pid';
-		if (!file_exists($file)) {
+		if (!$results) {
 			return [];
 		}
 
-		$count = 0;
-		foreach (glob($pidFilePath . 'queue_*.pid') as $filename) {
-			$time = filemtime($filename);
-			if ($time >= $thresholdTime->timestamp) {
-				$count++;
-			}
-		}
+		$count = count($results);
+		$record = array_shift($results);
+		/** @var \Cake\I18n\FrozenTime $time */
+		$time = $record['modified'];
 
-		$time = filemtime($file);
-
-		$res = [
-			'time' => $time ? new FrozenTime($time) : null,
+		return [
+			'time' => $time,
 			'workers' => $count,
 		];
-		return $res;
 	}
 
 	/**

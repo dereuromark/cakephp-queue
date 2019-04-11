@@ -31,8 +31,6 @@ class QueuedJobsController extends AppController {
 	public function initialize() {
 		parent::initialize();
 
-		$this->QueuedJobs->initConfig();
-
 		$this->loadComponent('RequestHandler');
 
 		if (Configure::read('Queue.isSearchEnabled') === false || !Plugin::isLoaded('Search')) {

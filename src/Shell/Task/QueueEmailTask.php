@@ -119,11 +119,6 @@ class QueueEmailTask extends QueueTask {
 			$message = $data['content'];
 		}
 		if (!empty($data['vars'])) {
-			// @deprecated BC only, use $data['content'] instead.
-			if ($message === null && isset($data['vars']['content'])) {
-				$message = $data['vars']['content'];
-			}
-
 			$this->Email->setViewVars($data['vars']);
 		}
 		if (!empty($data['headers'])) {

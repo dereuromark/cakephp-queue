@@ -41,9 +41,6 @@ return [
 		// seconds of running time after which the PHP process will terminate, null uses workermaxruntime * 100
 		'workertimeout' => null,
 
-		// false for DB, or deprecated string pid file path directory (by default goes to the app/tmp/queue folder)
-		'pidfilepath' => false, // Deprecated: TMP . 'queue' . DS,
-
 		// determine whether logging is enabled
 		'log' => true,
 
