@@ -118,7 +118,7 @@ class QueuedJobsTable extends Table {
 			->value('job_type')
 			->like('search', ['field' => ['job_group', 'reference'], 'before' => true, 'after' => true])
 			->add('status', 'Search.Callback', [
-				'callback' => function (Query $query, $args, $filter) {
+				'callback' => function (Query $query, array $args, $filter) {
 					$status = $args['status'];
 					if ($status === 'completed') {
 						$query->where(['completed IS NOT' => null]);
@@ -764,7 +764,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * Soft ending of a running job, e.g. when migration is starting
 	 *
-	 * @param string $pid
+	 * @param int $pid
 	 * @return void
 	 */
 	public function endProcess($pid) {

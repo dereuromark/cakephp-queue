@@ -112,7 +112,7 @@ class QueueController extends AppController {
 		$processes = $this->QueuedJobs->getProcesses();
 
 		if ($this->request->is('post') && $this->request->getQuery('end')) {
-			$pid = $this->request->getQuery('end');
+			$pid = (int)$this->request->getQuery('end');
 			$this->QueuedJobs->endProcess($pid);
 
 			return $this->redirect(['action' => 'processes']);

@@ -2,7 +2,7 @@
 
 namespace Queue\Shell\Task;
 
-use RuntimeException;
+use Queue\Model\QueueException;
 
 /**
  * A Simple QueueTask example.
@@ -58,14 +58,14 @@ class QueueExceptionExampleTask extends QueueTask {
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @return bool Success
-	 * @throws \RuntimeException
+	 * @throws \Queue\Model\QueueException
 	 */
 	public function run(array $data, $jobId) {
 		$this->hr();
 		$this->out('CakePHP Queue Exception Example task.');
 		$this->hr();
 
-		throw new RuntimeException('Exception demo :-)');
+		throw new QueueException('Exception demo :-)');
 	}
 
 }

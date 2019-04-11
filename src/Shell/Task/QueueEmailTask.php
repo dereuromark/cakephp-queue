@@ -6,7 +6,7 @@ use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Mailer\Email;
 use Exception;
-use RuntimeException;
+use Queue\Model\QueueException;
 use Throwable;
 
 /**
@@ -70,7 +70,7 @@ class QueueEmailTask extends QueueTask {
 	 */
 	public function run(array $data, $jobId) {
 		if (!isset($data['settings'])) {
-			throw new RuntimeException('Queue Email task called without settings data.');
+			throw new QueueException('Queue Email task called without settings data.');
 		}
 
 		/** @var \Cake\Mailer\Email|null $email */
@@ -102,7 +102,7 @@ class QueueEmailTask extends QueueTask {
 			}
 
 			if (!$result) {
-				throw new RuntimeException('Could not send email.');
+				throw new QueueException('Could not send email.');
 			}
 
 			return;
@@ -123,13 +123,13 @@ class QueueEmailTask extends QueueTask {
 		}
 		if (!empty($data['headers'])) {
 			if (!is_array($data['headers'])) {
-				throw new Exception('please provide headers as array');
+				throw new QueueException('Please provide headers as array.');
 			}
 			$this->Email->setHeaders($data['headers']);
 		}
 
 		if (!$this->Email->send($message)) {
-			throw new RuntimeException('Could not send email.');
+			throw new QueueException('Could not send email.');
 		}
 	}
 
@@ -148,7 +148,7 @@ class QueueEmailTask extends QueueTask {
 			}
 		}
 		if (!class_exists($class)) {
-			throw new Exception(sprintf('Configured mailer class `%s` in `%s` not found.', $class, get_class($this)));
+			throw new QueueException(sprintf('Configured mailer class `%s` in `%s` not found.', $class, get_class($this)));
 		}
 
 		return new $class();

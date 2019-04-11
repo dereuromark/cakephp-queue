@@ -7,7 +7,7 @@
 
 namespace Queue\Shell\Task;
 
-use RuntimeException;
+use Queue\Model\QueueException;
 
 /**
  * Execute a Local command on the server.
@@ -65,7 +65,7 @@ class QueueExecuteTask extends QueueTask {
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @return void
-	 * @throws \RuntimeException
+	 * @throws \Queue\Model\QueueException
 	 */
 	public function run(array $data, $jobId) {
 		$data += [
@@ -110,7 +110,7 @@ class QueueExecuteTask extends QueueTask {
 		}
 
 		if (!$success) {
-			throw new RuntimeException('Failed with error code ' . $returnCode . ': `' . $data['command'] . '`');
+			throw new QueueException('Failed with error code ' . $returnCode . ': `' . $data['command'] . '`');
 		}
 	}
 

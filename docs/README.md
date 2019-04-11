@@ -188,6 +188,9 @@ class QueueYourNameForItTask extends QueueTask implements QueueTaskInterface {
 ```
 Make sure it throws an exception with a clear error message in case of failure.
 
+Note: You can use the provided `Queue\Model\QueueException` if you do not need to include a strack trace.
+This is usually the default inside custom tasks.
+
 ## Usage
 
 Run the following using the CakePHP shell:

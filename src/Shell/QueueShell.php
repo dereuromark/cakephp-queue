@@ -14,6 +14,7 @@ use Cake\Utility\Text;
 use Exception;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\ProcessEndingException;
+use Queue\Model\QueueException;
 use Queue\Queue\TaskFinder;
 use Queue\Shell\Task\QueueTaskInterface;
 use RuntimeException;
@@ -259,12 +260,16 @@ TEXT;
 			$return = false;
 
 			$failureMessage = get_class($e) . ': ' . $e->getMessage();
-			$this->_logError($taskName . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
+			if (!($e instanceof QueueException)) {
+				$failureMessage .= "\n" . $e->getTraceAsString();
+			}
+
+			$this->_logError($taskName . '(job ' . $queuedJob->id . ')' . "\n" . $failureMessage, $pid);
 		} catch (Exception $e) {
 			$return = false;
 
 			$failureMessage = get_class($e) . ': ' . $e->getMessage();
-			$this->_logError($taskName . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
+			$this->_logError($taskName . "\n" . $failureMessage, $pid);
 		}
 
 		if (!$return) {
