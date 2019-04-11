@@ -51,8 +51,7 @@ class Config {
 	/**
 	 * @return int
 	 */
-	public static function maxworkers()
-	{
+	public static function maxworkers() {
 		return Configure::read('Queue.maxworkers', 1);
 	}
 
