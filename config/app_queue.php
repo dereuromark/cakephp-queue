@@ -7,19 +7,8 @@
 
 return [
 	'Queue' => [
-		/* Required config keys */
-
-		// seconds to sleep() when no executable job is found
-		'sleeptime' => 10,
-
-		// probability in percent of a old job cleanup happening
-		'gcprob' => 10,
-
 		// time (in seconds) after which a job is requeued if the worker doesn't report back
 		'defaultworkertimeout' => 1800,
-
-		// number of retries if a job fails or times out.
-		'defaultworkerretries' => 3,
 
 		// seconds of running time after which the worker will terminate (0 = unlimited)
 		'workermaxruntime' => 120,
@@ -27,7 +16,14 @@ return [
 		// minimum time (in seconds) which a task remains in the database before being cleaned up.
 		'cleanuptimeout' => 2592000, // 30 days
 
-		/* Optional config keys */
+		// number of retries if a job fails or times out.
+		'defaultworkerretries' => 1,
+
+		// seconds to sleep() when no executable job is found
+		'sleeptime' => 10,
+
+		// probability in percent of a old job cleanup happening
+		'gcprob' => 10,
 
 		// set to true for multi server setup, this will affect web backend possibilities to kill/end workers
 		'multiserver' => false,
@@ -40,9 +36,6 @@ return [
 
 		// seconds of running time after which the PHP process will terminate, null uses workermaxruntime * 100
 		'workertimeout' => null,
-
-		// false for DB, or deprecated string pid file path directory (by default goes to the app/tmp/queue folder)
-		'pidfilepath' => false, // Deprecated: TMP . 'queue' . DS,
 
 		// determine whether logging is enabled
 		'log' => true,

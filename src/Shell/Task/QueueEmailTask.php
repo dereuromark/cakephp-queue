@@ -6,13 +6,14 @@ use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Mailer\Email;
 use Exception;
+use Queue\Model\QueueException;
 use Throwable;
 
 /**
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-class QueueEmailTask extends QueueTask {
+class QueueEmailTask extends QueueTask implements AddInterface {
 
 	/**
 	 * List of default variables for EmailComponent
@@ -28,11 +29,6 @@ class QueueEmailTask extends QueueTask {
 	 * @var int
 	 */
 	public $timeout = 120;
-
-	/**
-	 * @var int
-	 */
-	public $retries = 1;
 
 	/**
 	 * @var \Cake\Mailer\Email
@@ -63,13 +59,13 @@ class QueueEmailTask extends QueueTask {
 	/**
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
+	 * @return void
 	 * @throws \Exception
+	 * @throws \Throwable
 	 */
 	public function run(array $data, $jobId) {
 		if (!isset($data['settings'])) {
-			$this->err('Queue Email task called without settings data.');
-			return false;
+			throw new QueueException('Queue Email task called without settings data.');
 		}
 
 		/** @var \Cake\Mailer\Email|null $email */
@@ -77,6 +73,7 @@ class QueueEmailTask extends QueueTask {
 		if (is_object($email) && $email instanceof Email) {
 			$this->Email = $email;
 
+			$result = null;
 			try {
 				if (!empty($data['transport'])) {
 					$email->setTransport($data['transport']);
@@ -84,18 +81,26 @@ class QueueEmailTask extends QueueTask {
 				$content = isset($data['content']) ? $data['content'] : null;
 				$result = $email->send($content);
 
-				return (bool)$result;
 			} catch (Throwable $e) {
 				$error = $e->getMessage();
 				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
 				Log::write('error', $error);
+
+				throw $e;
+
 			} catch (Exception $e) {
 				$error = $e->getMessage();
 				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
 				Log::write('error', $error);
+
+				throw $e;
 			}
 
-			return false;
+			if (!$result) {
+				throw new QueueException('Could not send email.');
+			}
+
+			return;
 		}
 
 		$this->Email = $this->_getMailer();
@@ -109,21 +114,18 @@ class QueueEmailTask extends QueueTask {
 			$message = $data['content'];
 		}
 		if (!empty($data['vars'])) {
-			// @deprecated BC only, use $data['content'] instead.
-			if ($message === null && isset($data['vars']['content'])) {
-				$message = $data['vars']['content'];
-			}
-
 			$this->Email->setViewVars($data['vars']);
 		}
 		if (!empty($data['headers'])) {
 			if (!is_array($data['headers'])) {
-				throw new Exception('please provide headers as array');
+				throw new QueueException('Please provide headers as array.');
 			}
 			$this->Email->setHeaders($data['headers']);
 		}
 
-		return (bool)$this->Email->send($message);
+		if (!$this->Email->send($message)) {
+			throw new QueueException('Could not send email.');
+		}
 	}
 
 	/**
@@ -141,7 +143,7 @@ class QueueEmailTask extends QueueTask {
 			}
 		}
 		if (!class_exists($class)) {
-			throw new Exception(sprintf('Configured mailer class `%s` in `%s` not found.', $class, get_class($this)));
+			throw new QueueException(sprintf('Configured mailer class `%s` in `%s` not found.', $class, get_class($this)));
 		}
 
 		return new $class();
@@ -165,6 +167,7 @@ class QueueEmailTask extends QueueTask {
 			}
 			$config = array_merge($config, $log);
 		}
+
 		Log::write(
 			$config['level'],
 			PHP_EOL . $contents['headers'] . PHP_EOL . $contents['message'],

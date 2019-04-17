@@ -61,9 +61,8 @@ class QueueEmailTaskTest extends TestCase {
 			'to' => 'test@test.de',
 		];
 
-		$result = $this->Task->run(['settings' => $settings, 'content' => 'Foo Bar'], null);
+		$this->Task->run(['settings' => $settings, 'content' => 'Foo Bar'], null);
 
-		$this->assertTrue($result);
 		$this->assertInstanceOf(Email::class, $this->Task->Email);
 
 		$debugEmail = $this->Task->Email;
@@ -82,9 +81,8 @@ class QueueEmailTaskTest extends TestCase {
 
 		Configure::write('Config.live', true);
 
-		$result = $this->Task->run(['settings' => $email, 'content' => 'Foo Bar'], null);
+		$this->Task->run(['settings' => $email, 'content' => 'Foo Bar'], null);
 
-		$this->assertTrue($result);
 		$this->assertInstanceOf(TestEmail::class, $this->Task->Email);
 
 		/** @var \App\Mailer\TestEmail $debugEmail */

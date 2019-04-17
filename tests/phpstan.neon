@@ -4,3 +4,4 @@ parameters:
 
     ignoreErrors:
         - '#Access to an undefined property Cake\\ORM\\BehaviorRegistry::\$Search#'
+        - '#Result of method .+QueueTaskInterface::run\(\) \(void\) is used.#'

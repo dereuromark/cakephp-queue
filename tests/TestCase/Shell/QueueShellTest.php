@@ -61,13 +61,10 @@ class QueueShellTest extends TestCase {
 
 		Configure::write('Queue', [
 			'sleeptime' => 2,
-			'gcprob' => 10,
 			'defaultworkertimeout' => 3,
-			'defaultworkerretries' => 1,
 			'workermaxruntime' => 5,
 			'cleanuptimeout' => 10,
 			'exitwhennothingtodo' => false,
-			'pidfilepath' => false, // TMP . 'queue' . DS,
 			'log' => false,
 		]);
 	}

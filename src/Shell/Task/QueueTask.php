@@ -16,7 +16,7 @@ use InvalidArgumentException;
  * Common Queue plugin tasks properties and methods to be extended by custom
  * tasks.
  */
-class QueueTask extends Shell {
+abstract class QueueTask extends Shell implements QueueTaskInterface {
 
 	/**
 	 * @var string
@@ -43,52 +43,12 @@ class QueueTask extends Shell {
 	public $retries = 1;
 
 	/**
-	 * Stores any failure messages triggered during run()
-	 *
-	 * @deprecated Use Exception throwing with a clear message instead.
-	 *
-	 * @var string|null
-	 */
-	public $failureMessage = null;
-
-	/**
 	 * @param \Cake\Console\ConsoleIo|null $io IO
 	 */
 	public function __construct(ConsoleIo $io = null) {
 		parent::__construct($io);
 
 		$this->loadModel($this->queueModelClass);
-	}
-
-	/**
-	 * Add functionality. Optional.
-	 *
-	 * Only works for tasks that do not need a payload. Otherwise requires custom implementation.
-	 *
-	 * Make sure all payload $data array keys are defaulted or to abort early otherwise.
-	 * If you do not want this, implement with `throw new NotImplementedException();`
-	 *
-	 * @return void
-	 */
-	public function add() {
-		$task = $this->queueTaskName();
-		$this->QueuedJobs->createJob($task);
-
-		$this->success('Added ' . $task . ' task');
-	}
-
-	/**
-	 * Run functionality.
-	 *
-	 * This function is executed, when a worker is executing a task.
-	 * The return parameter will determine if the task will be marked completed, or be re-queued.
-	 *
-	 * @param array $data The array passed to QueuedJobsTable::createJob()
-	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
-	 */
-	public function run(array $data, $jobId) {
-		return true;
 	}
 
 	/**

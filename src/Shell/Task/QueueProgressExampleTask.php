@@ -5,7 +5,7 @@ namespace Queue\Shell\Task;
 /**
  * A Simple QueueTask example that runs for a while and updates the progress field.
  */
-class QueueProgressExampleTask extends QueueTask {
+class QueueProgressExampleTask extends QueueTask implements AddInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -13,13 +13,6 @@ class QueueProgressExampleTask extends QueueTask {
 	 * @var int
 	 */
 	public $timeout = 120;
-
-	/**
-	 * Number of times a failed instance of this task should be restarted before giving up.
-	 *
-	 * @var int
-	 */
-	public $retries = 1;
 
 	/**
 	 * Example add functionality.
@@ -59,7 +52,7 @@ class QueueProgressExampleTask extends QueueTask {
 	 *
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
+	 * @return void
 	 */
 	public function run(array $data, $jobId) {
 		$this->hr();
@@ -75,7 +68,6 @@ class QueueProgressExampleTask extends QueueTask {
 
 		$this->hr();
 		$this->success(' -> Success, the ProgressExample Job was run. <-');
-		return true;
 	}
 
 }

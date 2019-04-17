@@ -46,9 +46,7 @@ class QueueMonitorExampleTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRun() {
-		$result = $this->Task->run([], null);
-
-		$this->assertTrue($result);
+		$this->Task->run([], null);
 
 		$this->assertTextContains('Success, the MonitorExample Job was run', $this->out->output());
 	}

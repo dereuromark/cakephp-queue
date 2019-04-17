@@ -10,7 +10,7 @@ namespace Queue\Shell\Task;
 /**
  * A Simple QueueTask example.
  */
-class QueueSuperExampleTask extends QueueTask {
+class QueueSuperExampleTask extends QueueTask implements AddInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -18,13 +18,6 @@ class QueueSuperExampleTask extends QueueTask {
 	 * @var int
 	 */
 	public $timeout = 10;
-
-	/**
-	 * Number of times a failed instance of this task should be restarted before giving up.
-	 *
-	 * @var int
-	 */
-	public $retries = 1;
 
 	/**
 	 * SuperExample add functionality.
@@ -60,7 +53,7 @@ class QueueSuperExampleTask extends QueueTask {
 	 *
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
+	 * @return void
 	 */
 	public function run(array $data, $jobId) {
 		$this->hr();
@@ -70,8 +63,6 @@ class QueueSuperExampleTask extends QueueTask {
 
 		// Lets create an Example task on successful execution
 		$this->QueuedJobs->createJob('Example');
-
-		return true;
 	}
 
 }

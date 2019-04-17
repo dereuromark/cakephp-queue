@@ -2,12 +2,12 @@
 
 namespace Queue\Shell\Task;
 
-use RuntimeException;
+use Queue\Model\QueueException;
 
 /**
  * A Simple QueueTask example.
  */
-class QueueExceptionExampleTask extends QueueTask {
+class QueueExceptionExampleTask extends QueueTask implements AddInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -15,13 +15,6 @@ class QueueExceptionExampleTask extends QueueTask {
 	 * @var int
 	 */
 	public $timeout = 10;
-
-	/**
-	 * Number of times a failed instance of this task should be restarted before giving up.
-	 *
-	 * @var int
-	 */
-	public $retries = 2;
 
 	/**
 	 * Example add functionality.
@@ -57,15 +50,15 @@ class QueueExceptionExampleTask extends QueueTask {
 	 *
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
-	 * @throws \RuntimeException
+	 * @return void
+	 * @throws \Queue\Model\QueueException
 	 */
 	public function run(array $data, $jobId) {
 		$this->hr();
 		$this->out('CakePHP Queue Exception Example task.');
 		$this->hr();
 
-		throw new RuntimeException('Exception demo :-)');
+		throw new QueueException('Exception demo :-)');
 	}
 
 }

@@ -112,10 +112,6 @@ return [
 You can also drop the configuration into an existing config file (recommended) that is already been loaded.
 The values above are the default settings which apply, when no configuration is found.
 
-Finally, make sure you allow the configured `pidfilepath` to be creatable and writable.
-Especially on deployment some `mkdir` command might be necessary.
-Set it to false to use the DB here instead, as well.
-
 #### Backend configuration
 
 - isSearchEnabled: Set to false if you do not want search/filtering capability.
@@ -164,7 +160,7 @@ namespace App\Shell\Task;
 
 ...
 
-class QueueYourNameForItTask extends QueueTask {
+class QueueYourNameForItTask extends QueueTask implements QueueTaskInterface {
 
     /**
      * @var int
@@ -179,20 +175,21 @@ class QueueYourNameForItTask extends QueueTask {
     /**
      * @param array $data The array passed to QueuedJobsTable::createJob()
      * @param int $jobId The id of the QueuedJob entity
-     * @return bool Success
+     * @return void
      */
     public function run(array $data, $jobId) {
         $this->loadModel('FooBars');
         if (!$this->FooBars->doSth()) {
             throw new RuntimeException('Couldnt do sth.');
         }
-
-        return true;
     }
-    
+
 }
 ```
-Make sure it returns a boolean result (true ideally), or otherwise throws an exception with a clear error message.
+Make sure it throws an exception with a clear error message in case of failure.
+
+Note: You can use the provided `Queue\Model\QueueException` if you do not need to include a strack trace.
+This is usually the default inside custom tasks.
 
 ## Usage
 
@@ -694,11 +691,6 @@ Do not run this with production ones, though.
 
 The console kill commands are also registered here. So if you run a worker locally, 
 and you enter `Ctrl+C` or alike, it will also hard-kill this worker process.
-
-### Configure loading
-
-Use Configure `'Queue.configLoaded'` set to `true` to avoid the deprecated loading of the config inside the model layer.
-This part is deprecated and can cause troubles.
 
 ### Known Limitations
 

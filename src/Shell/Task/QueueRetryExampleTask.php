@@ -12,7 +12,7 @@ use Cake\Console\ConsoleIo;
 /**
  * A Simple QueueTask example.
  */
-class QueueRetryExampleTask extends QueueTask {
+class QueueRetryExampleTask extends QueueTask implements AddInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -84,7 +84,8 @@ class QueueRetryExampleTask extends QueueTask {
 	 *
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
+	 * @return void
+	 * @throws \Exception
 	 */
 	public function run(array $data, $jobId) {
 		$count = (int)file_get_contents($this->file);
@@ -97,16 +98,11 @@ class QueueRetryExampleTask extends QueueTask {
 		if ($count < 3) {
 			$count++;
 			file_put_contents($this->file, (string)$count);
-			$this->out(' -> Sry, the RetryExample Job failed. Try again. <-');
-			$this->out(' ');
-			$this->out(' ');
-			return false;
+			$this->abort(' -> Sry, the RetryExample Job failed. Try again. <-');
 		}
 
 		unlink($this->file);
 		$this->success(' -> Success, the RetryExample Job was run. <-');
-
-		return true;
 	}
 
 }

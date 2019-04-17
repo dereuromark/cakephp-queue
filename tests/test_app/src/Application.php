@@ -17,4 +17,14 @@ class Application extends BaseApplication {
 		return $middleware;
 	}
 
+	/**
+	 * @return void
+	 */
+	public function bootstrap() {
+		parent::bootstrap();
+
+		$this->addPlugin('Tools');
+		$this->addPlugin('Foo', ['path' => ROOT . DS . 'tests' . DS . 'test_app' . DS . 'plugins' . DS . 'Foo' . DS]);
+	}
+
 }

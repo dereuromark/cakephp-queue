@@ -31,8 +31,6 @@ class QueuedJobsController extends AppController {
 	public function initialize() {
 		parent::initialize();
 
-		$this->QueuedJobs->initConfig();
-
 		$this->loadComponent('RequestHandler');
 
 		if (Configure::read('Queue.isSearchEnabled') === false || !Plugin::isLoaded('Search')) {
@@ -88,7 +86,7 @@ class QueuedJobsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @param string|null $id Queued Job id.
+	 * @param int|null $id Queued Job id.
 	 * @return \Cake\Http\Response|null
 	 * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
 	 */
@@ -164,7 +162,7 @@ class QueuedJobsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @param string|null $id Queued Job id.
+	 * @param int|null $id Queued Job id.
 	 * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
 	 * @throws \Cake\Http\Exception\NotFoundException When record not found.
 	 */
@@ -191,7 +189,7 @@ class QueuedJobsController extends AppController {
 	}
 
 	/**
-	 * @param string|null $id Queued Job id.
+	 * @param int|null $id Queued Job id.
 	 * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
 	 */
 	public function data($id = null) {
@@ -201,7 +199,7 @@ class QueuedJobsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @param string|null $id Queued Job id.
+	 * @param int|null $id Queued Job id.
 	 * @return \Cake\Http\Response|null Redirects to index.
 	 * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
 	 */

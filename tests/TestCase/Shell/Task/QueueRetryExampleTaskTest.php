@@ -3,6 +3,7 @@
 namespace Queue\Test\TestCase\Shell;
 
 use Cake\Console\ConsoleIo;
+use Cake\Console\Exception\StopException;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueRetryExampleTask;
 use Tools\TestSuite\ConsoleOutput;
@@ -49,11 +50,15 @@ class QueueRetryExampleTaskTest extends TestCase {
 		$file = TMP . 'task_retry.txt';
 		file_put_contents($file, '0');
 
-		$result = $this->Task->run([], null);
+		$exception = null;
+		try {
+			$this->Task->run([], null);
+		} catch (\Exception $e) {
+			$exception = $e;
+		}
 
-		$this->assertFalse($result);
-
-		$this->assertTextContains('Sry, the RetryExample Job failed. Try again.', $this->out->output());
+		$this->assertInstanceOf(StopException::class, $exception);
+		$this->assertTextContains('Sry, the RetryExample Job failed. Try again.', $this->err->output());
 	}
 
 	/**
@@ -63,9 +68,7 @@ class QueueRetryExampleTaskTest extends TestCase {
 		$file = TMP . 'task_retry.txt';
 		file_put_contents($file, '3');
 
-		$result = $this->Task->run([], null);
-
-		$this->assertTrue($result);
+		$this->Task->run([], null);
 
 		$this->assertTextContains('Success, the RetryExample Job was run', $this->out->output());
 	}

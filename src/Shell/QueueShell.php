@@ -14,7 +14,12 @@ use Cake\Utility\Text;
 use Exception;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\ProcessEndingException;
+use Queue\Model\QueueException;
+use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
+use Queue\Shell\Task\AddInterface;
+use Queue\Shell\Task\QueueTaskInterface;
+use RuntimeException;
 use Throwable;
 
 declare(ticks = 1);
@@ -66,7 +71,6 @@ class QueueShell extends Shell {
 
 		parent::initialize();
 
-		$this->QueuedJobs->initConfig();
 		$this->loadModel('Queue.QueueProcesses');
 	}
 
@@ -116,11 +120,13 @@ TEXT;
 		}
 
 		$name = Inflector::camelize($this->args[0]);
-
-		if (in_array($name, $this->taskNames)) {
-			$this->{$name}->add();
-		} elseif (in_array('Queue' . $name . '', $this->taskNames)) {
-			$this->{'Queue' . $name}->add();
+		if (in_array('Queue' . $name, $this->taskNames, true)) {
+			/** @var \Queue\Shell\Task\QueueTask|\Queue\Shell\Task\AddInterface $task */
+			$task = $this->{'Queue' . $name};
+			if (!($task instanceof AddInterface)) {
+				$this->abort('This task does not support adding via CLI call');
+			}
+			$task->add();
 		} else {
 			$this->out('Error: Task not found: ' . $name);
 			$this->_displayAvailableTasks();
@@ -205,7 +211,7 @@ TEXT;
 				$this->_exit = true;
 			} else {
 				$this->out('nothing to do, sleeping.');
-				sleep(Configure::readOrFail('Queue.sleeptime'));
+				sleep(Config::sleeptime());
 			}
 
 			// check if we are over the maximum runtime and end processing if so.
@@ -213,7 +219,7 @@ TEXT;
 				$this->_exit = true;
 				$this->out('Reached runtime of ' . (time() - $startTime) . ' Seconds (Max ' . Configure::readOrFail('Queue.workermaxruntime') . '), terminating.');
 			}
-			if ($this->_exit || mt_rand(0, 100) > (100 - (int)Configure::readOrFail('Queue.gcprob'))) {
+			if ($this->_exit || mt_rand(0, 100) > (100 - (int)Config::gcprob())) {
 				$this->out('Performing Old job cleanup.');
 				$this->QueuedJobs->cleanOldJobs();
 				$this->QueueProcesses->cleanEndedProcesses();
@@ -244,33 +250,77 @@ TEXT;
 			$data = unserialize($queuedJob->data);
 			/** @var \Queue\Shell\Task\QueueTask $task */
 			$task = $this->{$taskName};
-			$return = $task->run((array)$data, $queuedJob->id);
-
-			$failureMessage = null;
-			if ($task->failureMessage) {
-				$failureMessage = $task->failureMessage;
+			if (!$task instanceof QueueTaskInterface) {
+				throw new RuntimeException('Task must implement ' . QueueTaskInterface::class);
 			}
+
+			$return = $task->run((array)$data, $queuedJob->id);
+			if ($return !== null) {
+				trigger_error('run() should be void and throw exception in error case now.', E_USER_DEPRECATED);
+			}
+			$failureMessage = $taskName . ' failed';
+
 		} catch (Throwable $e) {
 			$return = false;
 
 			$failureMessage = get_class($e) . ': ' . $e->getMessage();
-			$this->_logError($taskName . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
+			if (!($e instanceof QueueException)) {
+				$failureMessage .= "\n" . $e->getTraceAsString();
+			}
+
+			$this->_logError($taskName . ' (job ' . $queuedJob->id . ')' . "\n" . $failureMessage, $pid);
 		} catch (Exception $e) {
 			$return = false;
 
 			$failureMessage = get_class($e) . ': ' . $e->getMessage();
-			$this->_logError($taskName . "\n" . $failureMessage . "\n" . $e->getTraceAsString(), $pid);
+			$this->_logError($taskName . "\n" . $failureMessage, $pid);
 		}
 
-		if ($return) {
-			$this->QueuedJobs->markJobDone($queuedJob);
-			$this->out('Job Finished.');
-		} else {
+		if ($return === false) {
 			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
 			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->_getTaskConf());
 			$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
 			$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
+			return;
 		}
+
+		$this->QueuedJobs->markJobDone($queuedJob);
+		$this->out('Job Finished.');
+	}
+
+	/**
+	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 * @param string $pid
+	 * @return void
+	 */
+	protected function _runJob(QueuedJob $queuedJob, $pid) {
+		$this->out('Running Job of type "' . $queuedJob['job_type'] . '"');
+		$this->_log('job ' . $queuedJob['job_type'] . ', id ' . $queuedJob['id'], $pid);
+		$taskname = 'Queue' . $queuedJob['job_type'];
+
+		try {
+			$data = unserialize($queuedJob['data']);
+			/** @var \Queue\Shell\Task\QueueTask $task */
+			$task = $this->{$taskname};
+			if (!$task instanceof QueueTaskInterface) {
+				throw new RuntimeException('Task must implement ' . QueueTaskInterface::class);
+			}
+
+			$task->run((array)$data, $queuedJob['id']);
+
+		} catch (Exception $e) {
+			$failureMessage = get_class($e) . ': ' . $e->getMessage();
+			$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString());
+
+			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
+			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->_getTaskConf());
+			$this->_log('job ' . $queuedJob['job_type'] . ', id ' . $queuedJob['id'] . ' failed and ' . $failedStatus, $pid);
+			$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
+			return;
+		}
+
+		$this->QueuedJobs->markJobDone($queuedJob);
+		$this->out('Job Finished.');
 	}
 
 	/**
@@ -552,7 +602,7 @@ TEXT;
 	 * Timestamped log.
 	 *
 	 * @param string $message Log type
-	 * @param int|null $pid PID of the process
+	 * @param string|null $pid PID of the process
 	 * @param bool $addDetails
 	 * @return void
 	 */
@@ -575,7 +625,7 @@ TEXT;
 
 	/**
 	 * @param string $message
-	 * @param int|null $pid PID of the process
+	 * @param string|null $pid PID of the process
 	 * @return void
 	 */
 	protected function _logError($message, $pid = null) {
@@ -610,12 +660,12 @@ TEXT;
 				if (property_exists($this->{$taskName}, 'timeout')) {
 					$this->_taskConf[$taskName]['timeout'] = $this->{$taskName}->timeout;
 				} else {
-					$this->_taskConf[$taskName]['timeout'] = Configure::readOrFail('Queue.defaultworkertimeout');
+					$this->_taskConf[$taskName]['timeout'] = Config::defaultworkertimeout();
 				}
 				if (property_exists($this->{$taskName}, 'retries')) {
 					$this->_taskConf[$taskName]['retries'] = $this->{$taskName}->retries;
 				} else {
-					$this->_taskConf[$taskName]['retries'] = Configure::readOrFail('Queue.defaultworkerretries');
+					$this->_taskConf[$taskName]['retries'] = Config::defaultworkerretries();
 				}
 				if (property_exists($this->{$taskName}, 'rate')) {
 					$this->_taskConf[$taskName]['rate'] = $this->{$taskName}->rate;
@@ -660,31 +710,9 @@ TEXT;
 	 * @return string
 	 */
 	protected function _initPid() {
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-		if (!$pidFilePath) {
-			$pid = $this->_retrievePid();
-			$key = $this->QueuedJobs->key();
-			$this->QueueProcesses->add($pid, $key);
-
-			$this->_pid = $pid;
-
-			return $pid;
-		}
-
-		// Deprecated: Will be removed, use DB here
-		if (!file_exists($pidFilePath)) {
-			mkdir($pidFilePath, 0755, true);
-		}
 		$pid = $this->_retrievePid();
-		# global file
-		$fp = fopen($pidFilePath . 'queue.pid', 'w');
-		fwrite($fp, $pid);
-		fclose($fp);
-		# specific pid file
-		$pidFileName = 'queue_' . $pid . '.pid';
-		$fp = fopen($pidFilePath . $pidFileName, 'w');
-		fwrite($fp, $pid);
-		fclose($fp);
+		$key = $this->QueuedJobs->key();
+		$this->QueueProcesses->add($pid, $key);
 
 		$this->_pid = $pid;
 
@@ -710,20 +738,7 @@ TEXT;
 	 * @return void
 	 */
 	protected function _updatePid($pid) {
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-		if (!$pidFilePath) {
-			$this->QueueProcesses->update($pid);
-			return;
-		}
-
-		// Deprecated: Will be removed, use DB here
-		$pidFileName = 'queue_' . $pid . '.pid';
-		if (!empty($pidFilePath)) {
-			touch($pidFilePath . 'queue.pid');
-		}
-		if (!empty($pidFileName)) {
-			touch($pidFilePath . $pidFileName);
-		}
+		$this->QueueProcesses->update($pid);
 	}
 
 	/**
@@ -753,16 +768,7 @@ TEXT;
 			return;
 		}
 
-		$pidFilePath = Configure::read('Queue.pidfilepath');
-		if (!$pidFilePath) {
-			$this->QueueProcesses->remove($pid);
-			return;
-		}
-
-		// Deprecated: Will be removed, use DB here
-		if (file_exists($pidFilePath . 'queue_' . $pid . '.pid')) {
-			unlink($pidFilePath . 'queue_' . $pid . '.pid');
-		}
+		$this->QueueProcesses->remove($pid);
 	}
 
 	/**

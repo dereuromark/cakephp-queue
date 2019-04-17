@@ -7,10 +7,12 @@
 
 namespace Queue\Shell\Task;
 
+use Queue\Model\QueueException;
+
 /**
  * Execute a Local command on the server.
  */
-class QueueExecuteTask extends QueueTask {
+class QueueExecuteTask extends QueueTask implements AddInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -18,13 +20,6 @@ class QueueExecuteTask extends QueueTask {
 	 * @var int
 	 */
 	public $timeout = 0;
-
-	/**
-	 * Number of times a failed instance of this task should be restarted before giving up.
-	 *
-	 * @var int
-	 */
-	public $retries = 1;
 
 	/**
 	 * Add functionality.
@@ -62,7 +57,8 @@ class QueueExecuteTask extends QueueTask {
 	 *
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
+	 * @return void
+	 * @throws \Queue\Model\QueueException
 	 */
 	public function run(array $data, $jobId) {
 		$data += [
@@ -72,10 +68,9 @@ class QueueExecuteTask extends QueueTask {
 			'escape' => true,
 			'accepted' => [static::CODE_SUCCESS],
 		];
-		$command = $data['command'];
 
 		if ($data['escape']) {
-			$command = escapeshellcmd($command);
+			$data['command'] = escapeshellcmd($data['command']);
 		}
 
 		if ($data['params']) {
@@ -85,11 +80,12 @@ class QueueExecuteTask extends QueueTask {
 					$params[$key] = escapeshellcmd($value);
 				}
 			}
-			$command .= ' ' . implode(' ', $params);
+			$data['command'] .= ' ' . implode(' ', $params);
 		}
 
-		$this->out('Executing: `' . $command . '`');
+		$this->out('Executing: `' . $data['command'] . '`');
 
+		$command = $data['command'];
 		if ($data['redirect']) {
 			$command .= ' 2>&1';
 		}
@@ -106,7 +102,9 @@ class QueueExecuteTask extends QueueTask {
 			$this->success('Success (code ' . $returnCode . ')', static::VERBOSE);
 		}
 
-		return $success;
+		if (!$success) {
+			throw new QueueException('Failed with error code ' . $returnCode . ': `' . $data['command'] . '`');
+		}
 	}
 
 }
