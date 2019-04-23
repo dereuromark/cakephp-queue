@@ -81,6 +81,12 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     $config['Queue']['cleanuptimeout'] = 2592000; // 30 days
     ```
 
+- Max workers (per server):
+
+    ```php
+    $config['Queue']['maxworkers'] = 3 // Defaults to 1 (single worker can be run per server)
+    ```
+
 - Multi-server setup:
 
     ```php
@@ -435,6 +441,10 @@ got a small overlap where two workers would run simultaneously. If you lower the
 get quite a few overlapping workers and thus more "parallel" processing power.
 Play around with it, but just don't shoot over the top.
 
+Also don't forget to set Configure key `'Queue.maxworkers'` to a reasonable value per server.
+If, for any reason, some of the jobs should take way longer, you want to avoid additional x workers to be started.
+It will then just not start now ones beyond this count until the already running ones are finished.
+This is an important server protection to avoid overloading.
 
 ## Admin backend
 
@@ -622,8 +632,6 @@ Use only predefined and safe code-snippets here!
 ### Multi Server Setup
 When working with multiple CLI servers there are several requirements for it to work smoothly:
 
-File approach does not work here, you must use the new DB approach (using queue_processes table).
-
 Make sure `env('SERVER_NAME')` or `gethostname()` return a unique name per server instance.
 This is required as PID alone is now not unique anymore.
 Each worker then registers itself as combination of `PID + server name`.
@@ -697,6 +705,15 @@ and you enter `Ctrl+C` or alike, it will also hard-kill this worker process.
 #### Concurrent workers may execute the same job multiple times
 
 If you want to use multiple workers, please double check that all jobs have a high enough timeout (>> 2x max possible execution time of a job). Currently it would otherwise risk the jobs being run multiple times!
+
+#### Concurrent workers may execute the same job type multiple times
+
+If you need limiting of how many times a specific job type can be run in parallel, you need to find a custom solution here.
+
+#### Rate limiting
+
+Check if you need to use "rate" config (> 0) to avoid them being run too fast per worker. 
+Currently you cannot rate limit it more globally however.
 
 
 ## IDE support
