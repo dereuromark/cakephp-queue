@@ -21,6 +21,9 @@ class QueueMonitorExampleTask extends QueueTask implements AddInterface {
 	 * MonitorExample add functionality.
 	 * Will create one example job in the queue, which later will be executed using run();
 	 *
+	 * To invoke from CLI execute:
+	 * - bin/cake queue add MonitorExample
+	 *
 	 * @return void
 	 */
 	public function add() {

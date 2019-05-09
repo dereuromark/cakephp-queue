@@ -20,10 +20,13 @@ class QueueExceptionExampleTask extends QueueTask implements AddInterface {
 	 * Example add functionality.
 	 * Will create one example job in the queue, which later will be executed using run();
 	 *
+	 * To invoke from CLI execute:
+	 * - bin/cake queue add ExceptionExample
+	 *
 	 * @return void
 	 */
 	public function add() {
-		$this->out('CakePHP Queue Exception Example task.');
+		$this->out('CakePHP Queue ExceptionExample task.');
 		$this->hr();
 		$this->out('This is a very simple example of a QueueTask and how exceptions are handled.');
 		$this->out('I will now add an example Job into the Queue.');
@@ -55,7 +58,7 @@ class QueueExceptionExampleTask extends QueueTask implements AddInterface {
 	 */
 	public function run(array $data, $jobId) {
 		$this->hr();
-		$this->out('CakePHP Queue Exception Example task.');
+		$this->out('CakePHP Queue ExceptionExample task.');
 		$this->hr();
 
 		throw new QueueException('Exception demo :-)');

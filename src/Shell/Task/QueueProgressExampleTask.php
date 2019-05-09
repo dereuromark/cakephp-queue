@@ -18,6 +18,9 @@ class QueueProgressExampleTask extends QueueTask implements AddInterface {
 	 * Example add functionality.
 	 * Will create one example job in the queue, which later will be executed using run();
 	 *
+	 * To invoke from CLI execute:
+	 * - bin/cake queue add ProgressExample
+	 *
 	 * @return void
 	 */
 	public function add() {

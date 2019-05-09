@@ -23,6 +23,9 @@ class QueueSuperExampleTask extends QueueTask implements AddInterface {
 	 * SuperExample add functionality.
 	 * Will create one example job in the queue, which later will be executed using run();
 	 *
+	 * To invoke from CLI execute:
+	 * - bin/cake queue add SuperExample
+	 *
 	 * @return void
 	 */
 	public function add() {

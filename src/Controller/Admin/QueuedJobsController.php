@@ -216,6 +216,34 @@ class QueuedJobsController extends AppController {
 
 	/**
 	 * @return \Cake\Http\Response|null
+	 * @throws \Cake\Http\Exception\NotFoundException
+	 */
+	public function execute() {
+		if (!Configure::read('debug')) {
+			throw new NotFoundException('Only for local development. Security implications if open on deployment.');
+		}
+
+		if ($this->request->is(['patch', 'post', 'put'])) {
+			$data = (array)$this->request->getData();
+			if (empty($data['command'])) {
+				$this->Flash->error('Command is required');
+				return null;
+			}
+
+			$amount = $data['amount'];
+			unset($data['amount']);
+			for ($i = 0; $i < $amount; $i++) {
+				$this->QueuedJobs->createJob('Execute', $data);
+			}
+
+			$this->Flash->success(__('The requested job has been queued ' . $amount . 'x.'));
+
+			return $this->redirect(['action' => 'execute']);
+		}
+	}
+
+	/**
+	 * @return \Cake\Http\Response|null
 	 */
 	public function test() {
 		$taskFinder = new TaskFinder();

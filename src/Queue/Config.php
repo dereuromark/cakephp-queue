@@ -10,7 +10,7 @@ class Config {
 	 * @return int
 	 */
 	public static function defaultworkertimeout() {
-		return Configure::read('Queue.defaultworkertimeout', 1800); // 1h
+		return Configure::read('Queue.defaultworkertimeout', 600); // 10min
 	}
 
 	/**

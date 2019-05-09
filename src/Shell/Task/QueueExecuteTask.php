@@ -35,7 +35,7 @@ class QueueExecuteTask extends QueueTask implements AddInterface {
 			$this->out('The task is mainly intended to serve as a kind of buffer for programm calls from a cakephp application.');
 			$this->out(' ');
 			$this->out('Call like this:');
-			$this->out('	cake queue add execute *command* *param1* *param2* ...');
+			$this->out('    cake queue add Execute *command* *param1* *param2* ...');
 			$this->out(' ');
 
 			return;
