@@ -53,7 +53,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 			],
 			'content' => 'hello world',
 		], true));
-		$this->out('Alternativly, you can pass the whole EmailLib to directly use it.');
+		$this->out('Alternatively, you can pass the whole EmailLib to directly use it.');
 	}
 
 	/**
