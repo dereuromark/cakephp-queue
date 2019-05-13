@@ -339,6 +339,8 @@ class QueuedJobsTable extends Table {
 
 				$result[$jobType][$day] = 0;
 			}
+
+			ksort($result[$jobType]);
 		}
 
 		return $result;
