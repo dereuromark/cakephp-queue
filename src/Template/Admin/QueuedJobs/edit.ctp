@@ -13,6 +13,7 @@
 				['confirm' => __('Are you sure you want to delete # {0}?', $queuedJob->id)]
 			)
 		?></li>
+		<li><?= $this->Html->link(__('Edit Payload'), ['action' => 'data', $queuedJob->id]) ?></li>
 		<li><?= $this->Html->link(__('List Queued Jobs'), ['action' => 'index']) ?></li>
 	</ul>
 </nav>

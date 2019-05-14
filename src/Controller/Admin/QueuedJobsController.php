@@ -172,14 +172,14 @@ class QueuedJobsController extends AppController {
 		]);
 		if ($queuedJob->completed) {
 			$this->Flash->error(__('The queued job is already completed.'));
-			return $this->redirect(['action' => 'index']);
+			return $this->redirect(['action' => 'view', $id]);
 		}
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$queuedJob = $this->QueuedJobs->patchEntity($queuedJob, $this->request->getData());
 			if ($this->QueuedJobs->save($queuedJob)) {
 				$this->Flash->success(__('The queued job has been saved.'));
-				return $this->redirect(['action' => 'index']);
+				return $this->redirect(['action' => 'view', $id]);
 			}
 
 			$this->Flash->error(__('The queued job could not be saved. Please try again.'));
