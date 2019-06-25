@@ -175,6 +175,7 @@ TEXT;
 			pcntl_signal(SIGINT, [&$this, '_abort']);
 			pcntl_signal(SIGTSTP, [&$this, '_abort']);
 			pcntl_signal(SIGQUIT, [&$this, '_abort']);
+			pcntl_signal(SIGUSR1, function() {});
 		}
 		$this->_exit = false;
 
