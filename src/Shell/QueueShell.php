@@ -91,8 +91,12 @@ class QueueShell extends Shell {
 	public function _getDescription() {
 		$tasks = [];
 		foreach ($this->taskNames as $loadedTask) {
-			$tasks[] = "\t" . '* ' . $this->_taskName($loadedTask);
+			$name = $this->_taskName($loadedTask);
+
+			$tasks[$name] = "\t" . '* ' . $name;
 		}
+		ksort($tasks);
+
 		$tasks = implode(PHP_EOL, $tasks);
 
 		$text = <<<TEXT
@@ -113,7 +117,7 @@ TEXT;
 	public function add() {
 		if (count($this->args) < 1) {
 			$this->out('Please call like this:');
-			$this->out('       bin/cake queue add <taskname>');
+			$this->out('    bin/cake queue add <taskname>');
 			$this->_displayAvailableTasks();
 
 			return;
@@ -645,7 +649,7 @@ TEXT;
 	}
 
 	/**
-	 * Returns a List of available QueueTasks and their individual configurations.
+	 * Returns a List of available QueueTasks and their individual configuration.
 	 *
 	 * @return array
 	 */
@@ -701,7 +705,11 @@ TEXT;
 	 */
 	protected function _displayAvailableTasks() {
 		$this->out('Available Tasks:');
-		foreach ($this->taskNames as $loadedTask) {
+
+		$tasks = $this->taskNames;
+		sort($tasks);
+
+		foreach ($tasks as $loadedTask) {
 			$this->out("\t" . '* ' . $this->_taskName($loadedTask));
 		}
 	}
