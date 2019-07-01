@@ -12,6 +12,10 @@ env:
   global:
     - DEFAULT=1
 
+services:
+  - postgresql
+  - mysql
+
 matrix:
   fast_finish: true
 
