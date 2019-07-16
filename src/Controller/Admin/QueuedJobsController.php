@@ -155,7 +155,7 @@ class QueuedJobsController extends AppController {
 				return $this->redirect(['action' => 'view', $queuedJob->id]);
 			}
 
-			$this->Flash->error(__('Please, try again.'));
+			$this->Flash->error(__d('queue', 'Please, try again.'));
 		}
 	}
 
@@ -171,18 +171,18 @@ class QueuedJobsController extends AppController {
 			'contain' => []
 		]);
 		if ($queuedJob->completed) {
-			$this->Flash->error(__('The queued job is already completed.'));
+			$this->Flash->error(__d('queue', 'The queued job is already completed.'));
 			return $this->redirect(['action' => 'view', $id]);
 		}
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$queuedJob = $this->QueuedJobs->patchEntity($queuedJob, $this->request->getData());
 			if ($this->QueuedJobs->save($queuedJob)) {
-				$this->Flash->success(__('The queued job has been saved.'));
+				$this->Flash->success(__d('queue', 'The queued job has been saved.'));
 				return $this->redirect(['action' => 'view', $id]);
 			}
 
-			$this->Flash->error(__('The queued job could not be saved. Please try again.'));
+			$this->Flash->error(__d('queue', 'The queued job could not be saved. Please try again.'));
 		}
 
 		$this->set(compact('queuedJob'));
@@ -207,9 +207,9 @@ class QueuedJobsController extends AppController {
 		$this->request->allowMethod(['post', 'delete']);
 		$queuedJob = $this->QueuedJobs->get($id);
 		if ($this->QueuedJobs->delete($queuedJob)) {
-			$this->Flash->success(__('The queued job has been deleted.'));
+			$this->Flash->success(__d('queue', 'The queued job has been deleted.'));
 		} else {
-			$this->Flash->error(__('The queued job could not be deleted. Please try again.'));
+			$this->Flash->error(__d('queue', 'The queued job could not be deleted. Please try again.'));
 		}
 		return $this->redirect(['action' => 'index']);
 	}
@@ -236,7 +236,7 @@ class QueuedJobsController extends AppController {
 				$this->QueuedJobs->createJob('Execute', $data);
 			}
 
-			$this->Flash->success(__('The requested job has been queued ' . $amount . 'x.'));
+			$this->Flash->success(__d('queue', 'The requested job has been queued ' . $amount . 'x.'));
 
 			return $this->redirect(['action' => 'execute']);
 		}
@@ -275,12 +275,12 @@ class QueuedJobsController extends AppController {
 
 				$this->QueuedJobs->createJob($jobType, null, $config);
 
-				$this->Flash->success(__('The requested job has been queued.'));
+				$this->Flash->success(__d('queue', 'The requested job has been queued.'));
 
 				return $this->redirect(['action' => 'test']);
 			}
 
-			$this->Flash->error(__('The job could not be queued. Please try again.'));
+			$this->Flash->error(__d('queue', 'The job could not be queued. Please try again.'));
 		}
 
 		$this->set(compact('tasks', 'queuedJob'));

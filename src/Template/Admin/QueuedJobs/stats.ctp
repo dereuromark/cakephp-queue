@@ -5,11 +5,14 @@
  *
  * @var \App\View\AppView $this
  * @var array $stats
+ * @var string[] $jobTypes
  */
 ?>
 
 <nav class="col-md-3 col-xs-12 large-3 medium-4 columns" id="actions-sidebar">
-	<ul class="side-nav list-unstyled">
+	<ul class="side-nav nav nav-pills nav-stacked">
+		<li class="heading"><?= __d('queue', 'Actions') ?></li>
+		<li><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?></li>
 		<li><?php echo $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['controller' => 'QueuedJobs', 'action' => 'index'], ['class' => 'btn margin btn-primary']); ?></li>
 	</ul>
 </nav>

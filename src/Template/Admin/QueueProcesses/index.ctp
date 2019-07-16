@@ -7,22 +7,23 @@ use Queue\Queue\Config;
 ?>
 <nav class="actions large-3 medium-4 columns col-sm-4 col-xs-12" id="actions-sidebar">
 	<ul class="side-nav nav nav-pills nav-stacked">
-		<li class="heading"><?= __('Actions') ?></li>
-		<li><?= $this->Html->link(__('Back'), ['controller' => 'Queue', 'action' => 'processes'], ['class' => 'btn margin btn-default']) ?></li>
-		<li><?= $this->Form->postLink(__('Cleanup'), ['action' => 'cleanup'], ['confirm' => 'Sure to remove all outdated ones (>' . (Config::defaultworkertimeout() * 2) .'s)?', 'class' => 'btn margin btn-warning']) ?></li>
+		<li class="heading"><?= __d('queue', 'Actions') ?></li>
+		<li><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?></li>
+		<li><?= $this->Html->link(__d('queue', 'Back'), ['controller' => 'Queue', 'action' => 'processes'], ['class' => 'btn margin btn-default']) ?></li>
+		<li><?= $this->Form->postLink(__d('queue', 'Cleanup'), ['action' => 'cleanup'], ['confirm' => 'Sure to remove all outdated ones (>' . (Config::defaultworkertimeout() * 2) .'s)?', 'class' => 'btn margin btn-warning']) ?></li>
 	</ul>
 </nav>
 <div class="content action-index index large-9 medium-8 columns col-sm-8 col-xs-12">
-	<h2><?= __('Queue Processes') ?></h2>
+	<h2><?= __d('queue', 'Queue Processes') ?></h2>
 	<table class="table table-striped">
 		<thead>
 			<tr>
 				<th><?= $this->Paginator->sort('pid') ?></th>
-				<th><?= $this->Paginator->sort('created', __('Started'), ['direction' => 'desc']) ?></th>
-				<th><?= $this->Paginator->sort('modified', __('Last Run'), ['direction' => 'desc']) ?></th>
-				<th><?= $this->Paginator->sort('terminate', __('Active')) ?></th>
+				<th><?= $this->Paginator->sort('created', __d('queue', 'Started'), ['direction' => 'desc']) ?></th>
+				<th><?= $this->Paginator->sort('modified', __d('queue', 'Last Run'), ['direction' => 'desc']) ?></th>
+				<th><?= $this->Paginator->sort('terminate', __d('queue', 'Active')) ?></th>
 				<th><?= $this->Paginator->sort('server') ?></th>
-				<th class="actions"><?= __('Actions') ?></th>
+				<th class="actions"><?= __d('queue', 'Actions') ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -46,7 +47,7 @@ use Queue\Queue\Config;
 				<td class="actions">
 					<?= $this->Html->link($this->Format->icon('view'), ['action' => 'view', $queueProcess->id], ['escapeTitle' => false]); ?>
 				<?php if (!$queueProcess->terminate) { ?>
-					<?= $this->Form->postLink($this->Format->icon('close', ['title' => __('Terminate')]), ['action' => 'terminate', $queueProcess->id], ['escapeTitle' => false, 'confirm' => __('Are you sure you want to terminate # {0}?', $queueProcess->id)]); ?>
+					<?= $this->Form->postLink($this->Format->icon('close', ['title' => __d('queue', 'Terminate')]), ['action' => 'terminate', $queueProcess->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id)]); ?>
 				<?php } ?>
 
 				</td>

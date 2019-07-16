@@ -10,10 +10,10 @@ use Cake\Core\Plugin;
 ?>
 <nav class="actions large-3 medium-4 columns col-sm-4 col-xs-12" id="actions-sidebar">
 	<ul class="side-nav nav nav-pills nav-stacked">
-		<li class="heading"><?= __('Actions') ?></li>
-		<li><?= $this->Html->link(__('Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?></li>
+		<li class="heading"><?= __d('queue', 'Actions') ?></li>
+		<li><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?></li>
 		<?php if ($this->Configure->read('debug')) { ?>
-		<li><?= $this->Html->link(__('Import'), ['action' => 'import']) ?></li>
+		<li><?= $this->Html->link(__d('queue', 'Import'), ['action' => 'import']) ?></li>
 		<?php } ?>
 	</ul>
 </nav>
@@ -25,7 +25,7 @@ use Cake\Core\Plugin;
 	}
 	?>
 
-	<h1><?= __('Queued Jobs') ?></h1>
+	<h1><?= __d('queue', 'Queued Jobs') ?></h1>
 
 	<table class="table table-striped">
 		<thead>
@@ -42,7 +42,7 @@ use Cake\Core\Plugin;
 				<th><?= $this->Paginator->sort('workerkey') ?></th>
 				<th><?= $this->Paginator->sort('status') ?></th>
 				<th><?= $this->Paginator->sort('priority', null, ['direction' => 'desc']) ?></th>
-				<th class="actions"><?= __('Actions') ?></th>
+				<th class="actions"><?= __d('queue', 'Actions') ?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -72,7 +72,7 @@ use Cake\Core\Plugin;
 				<?php if (!$queuedJob->completed) { ?>
 					<?= $this->Html->link($this->Format->icon('edit'), ['action' => 'edit', $queuedJob->id], ['escapeTitle' => false]); ?>
 				<?php } ?>
-				<?= $this->Form->postLink($this->Format->icon('delete'), ['action' => 'delete', $queuedJob->id], ['escapeTitle' => false, 'confirm' => __('Are you sure you want to delete # {0}?', $queuedJob->id)]); ?>
+				<?= $this->Form->postLink($this->Format->icon('delete'), ['action' => 'delete', $queuedJob->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id)]); ?>
 				</td>
 			</tr>
 			<?php endforeach; ?>
