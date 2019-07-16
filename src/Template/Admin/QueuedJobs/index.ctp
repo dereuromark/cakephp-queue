@@ -11,7 +11,7 @@ use Cake\Core\Plugin;
 <nav class="actions large-3 medium-4 columns col-sm-4 col-xs-12" id="actions-sidebar">
 	<ul class="side-nav nav nav-pills nav-stacked">
 		<li class="heading"><?= __('Actions') ?></li>
-		<li><?= $this->Html->link(__('Back'), ['controller' => 'Queue', 'action' => 'index']) ?></li>
+		<li><?= $this->Html->link(__('Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?></li>
 		<?php if ($this->Configure->read('debug')) { ?>
 		<li><?= $this->Html->link(__('Import'), ['action' => 'import']) ?></li>
 		<?php } ?>

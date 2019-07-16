@@ -13,6 +13,6 @@ class AppController extends Controller {
 	/**
 	 * @var array
 	 */
-	public $helpers = ['Tools.Time'];
+	public $helpers = ['Tools.Time', 'Tools.Format'];
 
 }

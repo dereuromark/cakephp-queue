@@ -1,7 +1,12 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var array $pendingDetails
+ * @var \Queue\Model\Entity\QueuedJob[] $pendingDetails
+ * @var string[] $tasks
+ * @var string[] $servers
+ * @var array $status
+ * @var int $new
+ * @var int $current
  */
 use Cake\Core\Configure;
 ?>
@@ -48,37 +53,37 @@ use Cake\Core\Configure;
 		</p>
 		<ol>
 			<?php
-			foreach ($pendingDetails as $item) {
-				echo '<li>' . $this->Html->link($item['job_type'], ['controller' => 'QueuedJobs', 'action' => 'view', $item['id']]) . ' (ref <code>' . h($item['reference'] ?: '-') . '</code>, prio ' . $item['priority'] . '):';
+			foreach ($pendingDetails as $queuedJob) {
+				echo '<li>' . $this->Html->link($queuedJob->job_type, ['controller' => 'QueuedJobs', 'action' => 'view', $queuedJob->id]) . ' (ref <code>' . h($queuedJob->reference ?: '-') . '</code>, prio ' . $queuedJob->priority . '):';
 				echo '<ul>';
 
 				$reset = '';
-				if ($item['failed']) {
-					$reset = ' ' . $this->Form->postLink('Soft reset', ['action' => 'resetJob', $item['id']], ['confirm' => 'Sure?']);
-					$reset .= ' ' . $this->Form->postLink('Remove', ['action' => 'removeJob', $item['id']], ['confirm' => 'Sure?']);
-				} elseif ($item['fetched']) {
-					$reset .= ' ' . $this->Form->postLink('Remove', ['action' => 'removeJob', $item['id']], ['confirm' => 'Sure?']);
+				if ($queuedJob->failed) {
+					$reset = ' ' . $this->Form->postLink('Soft reset', ['action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure?']);
+					$reset .= ' ' . $this->Form->postLink('Remove', ['action' => 'removeJob', $queuedJob->id], ['confirm' => 'Sure?']);
+				} elseif ($queuedJob->fetched) {
+					$reset .= ' ' . $this->Form->postLink('Remove', ['action' => 'removeJob', $queuedJob->id], ['confirm' => 'Sure?']);
 				}
 
 				$notBefore = '';
-				if ($item['notbefore']) {
-					$notBefore = ' (scheduled ' . $this->Time->nice($item['notbefore']) . ')';
+				if ($queuedJob->notbefore) {
+					$notBefore = ' (scheduled ' . $this->Time->nice($queuedJob->notbefore) . ')';
 				}
 
-				echo '<li>Created: ' . $this->Time->nice($item['created']) . $notBefore . '</li>';
+				echo '<li>Created: ' . $this->Time->nice($queuedJob->created) . $notBefore . '</li>';
 
 
-				if ($item['fetched']) {
-					echo '<li>Fetched: ' . $this->Time->nice($item['fetched']) . '</li>';
+				if ($queuedJob->fetched) {
+					echo '<li>Fetched: ' . $this->Time->nice($queuedJob->fetched) . '</li>';
 
 					$status = '';
-					if ($item['status']) {
-						$status = ' (status: ' . h($item['status']) . ')';
+					if ($queuedJob->status) {
+						$status = ' (status: ' . h($queuedJob->status) . ')';
 					}
 
-					echo '<li>Progress: ' . $this->Number->toPercentage($item['progress'] * 100, 0) . $status . '</li>';
-					echo '<li>Failures: ' . $item['failed'] . $reset . '</li>';
-					echo '<li>Failure Message: ' . $this->Text->truncate($item['failure_message'], 200) . '</li>';
+					echo '<li>Progress: ' . $this->Number->toPercentage($queuedJob->progress * 100, 0) . $status . '</li>';
+					echo '<li>Failures: ' . $queuedJob->failed . $reset . '</li>';
+					echo '<li>Failure Message: ' . $this->Text->truncate($queuedJob->failure_message, 200) . '</li>';
 				}
 
 				echo '</ul>';
@@ -90,13 +95,13 @@ use Cake\Core\Configure;
 		<h2><?php echo __d('queue', 'Statistics'); ?></h2>
 		<ul>
 			<?php
-			foreach ($data as $item) {
-				echo '<li>' . h($item['job_type']) . ':';
+			foreach ($data as $row) {
+				echo '<li>' . h($row['job_type']) . ':';
 				echo '<ul>';
-				echo '<li>Finished Jobs in Database: ' . $item['num'] . '</li>';
-				echo '<li>Average Job existence: ' . $item['alltime'] . 's</li>';
-				echo '<li>Average Execution delay: ' . $item['fetchdelay'] . 's</li>';
-				echo '<li>Average Execution time: ' . $item['runtime'] . 's</li>';
+				echo '<li>Finished Jobs in Database: ' . $row['num'] . '</li>';
+				echo '<li>Average Job existence: ' . $row['alltime'] . 's</li>';
+				echo '<li>Average Execution delay: ' . $row['fetchdelay'] . 's</li>';
+				echo '<li>Average Execution time: ' . $row['runtime'] . 's</li>';
 				echo '</ul>';
 				echo '</li>';
 			}

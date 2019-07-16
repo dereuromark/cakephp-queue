@@ -7,6 +7,7 @@
 <nav class="actions large-3 medium-4 columns col-sm-4 col-xs-12" id="actions-sidebar">
 	<ul class="side-nav nav nav-pills nav-stacked">
 		<li class="heading"><?= __('Actions') ?></li>
+		<li><?= $this->Html->link(__('Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?> </li>
 		<li><?= $this->Html->link(__('Export'), ['action' => 'view', $queuedJob->id, '_ext' => 'json', '?' => ['download' => true]]) ?> </li>
 
 		<?php if (!$queuedJob->completed) { ?>
@@ -49,11 +50,18 @@
 		</tr>
 		<tr>
 			<th><?= __('Progress') ?></th>
-			<td><?= $this->Number->format($queuedJob->progress) ?></td>
+			<td><?= $queuedJob->progress ? $this->Number->format($queuedJob->progress) : '' ?></td>
 		</tr>
 		<tr>
 			<th><?= __('Failed') ?></th>
-			<td><?= $this->Number->format($queuedJob->failed) ?></td>
+			<td>
+				<?= $queuedJob->failed ? $this->Number->format($queuedJob->failed) . 'x' : '' ?>
+				<?php
+				if ($queuedJob->failed) {
+					echo ' ' . $this->Form->postLink('Soft reset', ['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure?', 'class' => 'button button-primary btn margin btn-primary']);
+				}
+				?>
+			</td>
 		</tr>
 		<tr>
 			<th><?= __('Workerkey') ?></th>
