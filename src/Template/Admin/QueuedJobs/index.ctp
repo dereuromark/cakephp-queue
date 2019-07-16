@@ -37,9 +37,7 @@ use Cake\Core\Plugin;
 				<th><?= $this->Paginator->sort('notbefore', null, ['direction' => 'desc']) ?></th>
 				<th><?= $this->Paginator->sort('fetched', null, ['direction' => 'desc']) ?></th>
 				<th><?= $this->Paginator->sort('completed', null, ['direction' => 'desc']) ?></th>
-				<th><?= $this->Paginator->sort('progress') ?></th>
 				<th><?= $this->Paginator->sort('failed') ?></th>
-				<th><?= $this->Paginator->sort('workerkey') ?></th>
 				<th><?= $this->Paginator->sort('status') ?></th>
 				<th><?= $this->Paginator->sort('priority', null, ['direction' => 'desc']) ?></th>
 				<th class="actions"><?= __d('queue', 'Actions') ?></th>
@@ -59,11 +57,16 @@ use Cake\Core\Plugin;
 				</td>
 				<td><?= $this->Time->nice($queuedJob->created) ?></td>
 				<td><?= $this->Time->nice($queuedJob->notbefore) ?></td>
-				<td><?= $this->Time->nice($queuedJob->fetched) ?></td>
+				<td>
+					<?= $this->Time->nice($queuedJob->fetched) ?>
+
+					<div><small><code><?php echo h($queuedJob->workerkey); ?></code></small></div>
+					<?php if ($queuedJob->progress) { ?>
+						<div><?php echo $this->Number->toPercentage($queuedJob->progress * 100, 0); ?></div>
+					<?php } ?>
+				</td>
 				<td><?= $this->Time->nice($queuedJob->completed) ?></td>
-				<td><?= $this->Number->format($queuedJob->progress) ?></td>
 				<td><?= $this->Number->format($queuedJob->failed) ?></td>
-				<td><?= h($queuedJob->workerkey) ?></td>
 				<td><?= h($queuedJob->status) ?></td>
 				<td><?= $this->Number->format($queuedJob->priority) ?></td>
 				<td class="actions">

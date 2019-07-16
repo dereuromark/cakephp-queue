@@ -50,14 +50,14 @@
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Progress') ?></th>
-			<td><?= $queuedJob->progress ? $this->Number->format($queuedJob->progress) : '' ?></td>
+			<td><?= $queuedJob->progress ? $this->Number->toPercentage($queuedJob->progress * 100, 0) : '' ?></td>
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Failed') ?></th>
 			<td>
 				<?= $queuedJob->failed ? $this->Number->format($queuedJob->failed) . 'x' : '' ?>
 				<?php
-				if ($queuedJob->failed) {
+				if ($queuedJob->fetched && $queuedJob->failed) {
 					echo ' ' . $this->Form->postLink('Soft reset', ['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure?', 'class' => 'button button-primary btn margin btn-primary']);
 				}
 				?>
