@@ -294,7 +294,7 @@ class QueuedJobsTable extends Table {
 					$runtime = $query->newExpr("DATEDIFF(s, '1970-01-01 00:00:00', completed) - DATEDIFF(s, '1970-01-01 00:00:00', fetched)");
 					break;
 				case static::DRIVER_POSTGRES:
-					$runtime = $query->newExpr("EXTRACT(EPOCH FROM completed) - EXTRACT(EPOCH FROM fetched)");
+					$runtime = $query->newExpr('EXTRACT(EPOCH FROM completed) - EXTRACT(EPOCH FROM fetched)');
 					break;
 			}
 
