@@ -60,10 +60,10 @@ use Cake\Core\Configure;
 
 				$reset = '';
 				if ($queuedJob->failed) {
-					$reset = ' ' . $this->Form->postLink('Soft reset', ['action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure?']);
-					$reset .= ' ' . $this->Form->postLink('Remove', ['action' => 'removeJob', $queuedJob->id], ['confirm' => 'Sure?']);
+					$reset = ' ' . $this->Form->postLink('Soft reset', ['action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure?', 'class' => 'button primary btn margin btn-primary']);
+					$reset .= ' ' . $this->Form->postLink('Remove', ['action' => 'removeJob', $queuedJob->id], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-default']);
 				} elseif ($queuedJob->fetched) {
-					$reset .= ' ' . $this->Form->postLink('Remove', ['action' => 'removeJob', $queuedJob->id], ['confirm' => 'Sure?']);
+					$reset .= ' ' . $this->Form->postLink('Remove', ['action' => 'removeJob', $queuedJob->id], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-default']);
 				}
 
 				$notBefore = '';

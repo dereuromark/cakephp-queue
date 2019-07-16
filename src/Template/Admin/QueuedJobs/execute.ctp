@@ -6,6 +6,7 @@
 <nav class="actions large-3 medium-4 columns col-sm-4 col-xs-12" id="actions-sidebar">
 	<ul class="side-nav nav nav-pills nav-stacked">
 		<li class="heading"><?= __d('queue', 'Actions') ?></li>
+		<li><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?></li>
 		<li><?= $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['action' => 'index']) ?></li>
 	</ul>
 </nav>
