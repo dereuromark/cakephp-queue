@@ -408,6 +408,12 @@ bin/cake queue rerun FooBar
 ```
 You can add an additional reference to rerun a specific job.
 
+### Using custom finder
+You can use a convenience finder for tasks that are still queued, that means not yet finished.
+```php
+$query = $this->QueuedJobs->find('queued')->...;
+```
+This includes also failed ones if not filtered further using `where()` conditions.
 
 ### Notes
 

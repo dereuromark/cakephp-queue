@@ -279,6 +279,14 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testFindQueued() {
+		$queued = $this->QueuedJobs->find('queued')->count();
+		$this->assertSame(0, $queued);
+	}
+
+	/**
 	 * Job Rate limiting.
 	 * Do not execute jobs of a certain type more often than once every X seconds.
 	 *

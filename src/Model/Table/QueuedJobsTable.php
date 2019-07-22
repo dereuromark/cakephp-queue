@@ -49,13 +49,6 @@ class QueuedJobsTable extends Table {
 	public $rateHistory = [];
 
 	/**
-	 * @var array
-	 */
-	public $findMethods = [
-		'progress' => true,
-	];
-
-	/**
 	 * @var string|null
 	 */
 	protected $_key;
@@ -623,6 +616,17 @@ class QueuedJobsTable extends Table {
 		}
 
 		return 'aborted';
+	}
+
+	/**
+	 * Custom find method, as in `find('queued', ...)`.
+	 *
+	 * @param \Cake\ORM\Query $query The query to find with
+	 * @param array $options The options to find with
+	 * @return \Cake\ORM\Query The query builder
+	 */
+	public function findQueued(Query $query, array $options) {
+		return $query->where(['completed IS' => null]);
 	}
 
 	/**
