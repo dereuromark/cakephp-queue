@@ -437,7 +437,7 @@ class QueuedJobsTable extends Table {
 					continue;
 				}
 
-				$types[] = '-' . $runningJob->job_type;
+				$types[] = '-' . $capability['name'];
 			}
 		}
 
