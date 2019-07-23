@@ -5,14 +5,13 @@
 ```
 composer require dereuromark/cakephp-queue
 ```
-
-Enable the plugin within your config/bootstrap.php (unless you use loadAll):
+Load the plugin in your `src/Application.php`'s bootstrap() using:
 ```php
-Plugin::load('Queue');
+$this->addPlugin('Queue');
 ```
 If you want to also access the backend controller (not just using CLI), you need to use
 ```php
-Plugin::load('Queue', ['routes' => true]);
+$this->addPlugin('Queue', ['routes' => true]);
 ```
 
 Run the following command in the CakePHP console to create the tables using the Migrations plugin:
@@ -20,7 +19,7 @@ Run the following command in the CakePHP console to create the tables using the 
 bin/cake migrations migrate -p Queue
 ```
 
-It is also advised to have the `posix` PHP extension enabled. 
+It is also advised to have the `posix` PHP extension enabled.
 
 
 ## Configuration
@@ -60,7 +59,7 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     ```
 
     *Warning:* Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle.
-    
+
 - Seconds of running time after which the PHP script of the worker will terminate (0 = unlimited):
 
     ```php
@@ -92,7 +91,7 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     ```php
     $config['Queue']['multiserver'] = true // Defaults to false (single server)
     ```
-    
+
     For multiple servers running either CLI/web separately, or even multiple CLI workers on top, make sure to enable this.
 
 - Use a different connection:
@@ -102,7 +101,7 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     ```
 
 Don't forget to load that config file with `Configure::load('app_queue');` in your bootstrap.
-You can also use `Plugin::load('Queue', ['bootstrap' => true]);` which will load your `app_queue.php` config file automatically.
+You can also use `$this->addPlugin('Queue', ['bootstrap' => true]);` which will load your `app_queue.php` config file automatically.
 
 Example `app_queue.php`:
 
@@ -130,7 +129,7 @@ You can also overwrite the template and as such change the asset library as well
 #### Configuration tips
 
 For the beginning maybe use not too many runners in parallel, and keep the runtimes rather short while starting new jobs every few minutes.
-You can then always increase spawning of runners if there is a shortage. 
+You can then always increase spawning of runners if there is a shortage.
 
 ### Task configuration
 
@@ -142,7 +141,7 @@ You can set two main things on each task as property: timeout and retries.
      * @var int
      */
     public $timeout = 120;
-    
+
     /**
      * Number of times a failed instance of this task should be restarted before giving up.
      *
@@ -256,7 +255,7 @@ That can be helpful when migrating servers and you only want to execute certain 
 
 ### Avoiding parallel (re)queueing
 
-For some background-tasks you will want to make sure only a single instance of this type is currently run. 
+For some background-tasks you will want to make sure only a single instance of this type is currently run.
 In your logic you can check on this using `isQueued()` and a unique reference:
 ```php
     /**
@@ -350,7 +349,7 @@ class FooTask extends QueueTask {
             ['status' => 'Done doing things'],
             ['id' => $jobId]
         );
-        
+
         return true;
     }
 }
@@ -547,11 +546,11 @@ $data = [
     ],
     'vars' => [
         'myEntity' => $myEntity,
-        ...    
+        ...
     ],
 ];
  ```
- 
+
 You can also assemble an Email object manually and pass that along as settings directly:
 ```php
 $data = [
@@ -666,7 +665,7 @@ will also be aborting early.
 #### Ending workers per server
 A useful feature when having multiple servers and workers, and deploying separately, is to only end the workers on the server you are deploying to.
 
-For this make sure you have either `env('SERVER_NAME')` or `gethostname()` return a unique name per server instance (see above). 
+For this make sure you have either `env('SERVER_NAME')` or `gethostname()` return a unique name per server instance (see above).
 These are stored in the processes and as such you can then end them per instance that deploys.
 
 This snippet should be in the deploy script then instead.
@@ -703,7 +702,7 @@ Then you can kill them gracefully with `-15` (or forcefully with `-9`, not recom
 Locally, if you want to kill them all, usually `killapp -15 php` does the trick.
 Do not run this with production ones, though.
 
-The console kill commands are also registered here. So if you run a worker locally, 
+The console kill commands are also registered here. So if you run a worker locally,
 and you enter `Ctrl+C` or alike, it will also hard-kill this worker process.
 
 ### Known Limitations
@@ -718,7 +717,7 @@ If you need limiting of how many times a specific job type can be run in paralle
 
 #### Rate limiting
 
-Check if you need to use "rate" config (> 0) to avoid them being run too fast per worker. 
+Check if you need to use "rate" config (> 0) to avoid them being run too fast per worker.
 Currently you cannot rate limit it more globally however.
 
 
@@ -729,7 +728,7 @@ Especially if you use PHPStorm, this will make it possible to get support here.
 
 Include that plugin, set up your generator config and run e.g. `bin/cake phpstorm generate`.
 
-If you use `Plugin::load('Queue', ['bootstrap' => true, ...])`, the necessary config is already auto-included (recommended).
+If you use `$this->addPlugin('Queue', ['bootstrap' => true, ...])`, the necessary config is already auto-included (recommended).
 Otherwise you can manually include the Queue plugin generator tasks in your `config/app.php` on project level:
 
 ```php
@@ -748,7 +747,7 @@ return [
 ## Baking new Queue task and test
 You can bake a new task and its test via
 ```
-bin/cake bake_queue_task generate MyTaskName [-p PluginName] 
+bin/cake bake_queue_task generate MyTaskName [-p PluginName]
 ```
 
 It will generate a `QueueMyTaskNameTask` class in the right namespace.
