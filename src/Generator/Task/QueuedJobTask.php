@@ -25,6 +25,8 @@ class QueuedJobTask implements TaskInterface {
 			$map[$model] = '\\' . $className . '::class';
 		}
 
+		ksort($map);
+
 		$result = [];
 		foreach ($this->aliases as $alias) {
 			$result[$alias] = $map;

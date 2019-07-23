@@ -53,7 +53,7 @@ class TaskFinderTest extends TestCase {
 		$this->taskFinder = new TaskFinder();
 
 		$result = $this->taskFinder->allAppAndPluginTasks();
-		$this->assertCount(9, $result);
+		$this->assertCount(11, $result);
 		$this->assertArraySubset(['QueueFoo'], $result);
 		$this->assertTrue(!in_array('Foo.QueueFoo', $result));
 	}

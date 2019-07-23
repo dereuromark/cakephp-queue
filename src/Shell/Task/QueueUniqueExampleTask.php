@@ -1,38 +1,28 @@
 <?php
-/**
- * @author MGriesbach@gmail.com
- * @license http://www.opensource.org/licenses/mit-license.php The MIT License
- * @link http://github.com/MSeven/cakephp_queue
- */
 
 namespace Queue\Shell\Task;
 
 /**
- * A Simple QueueTask example.
+ * A Unique QueueTask example.
  */
-class QueueExampleTask extends QueueTask implements AddInterface {
+class QueueUniqueExampleTask extends QueueTask implements AddInterface {
 
 	/**
-	 * Timeout for run, after which the Task is reassigned to a new worker.
-	 *
-	 * @var int
+	 * @var bool
 	 */
-	public $timeout = 10;
+	public $unique = true;
 
 	/**
-	 * Example add functionality.
-	 * Will create one example job in the queue, which later will be executed using run();
-	 *
 	 * To invoke from CLI execute:
-	 * - bin/cake queue add Example
+	 * - bin/cake queue add UniqueExample
 	 *
 	 * @return void
 	 */
 	public function add() {
-		$this->out('CakePHP Queue Example task.');
+		$this->out('CakePHP Queue UniqueExample task.');
 		$this->hr();
-		$this->out('This is a very simple example of a QueueTask.');
 		$this->out('I will now add an example Job into the Queue.');
+		$this->out('This job cannot run more than once across all workers.');
 		$this->out('This job will only produce some console output on the worker that it runs on.');
 		$this->out(' ');
 		$this->out('To run a Worker use:');
@@ -42,12 +32,12 @@ class QueueExampleTask extends QueueTask implements AddInterface {
 		$this->out(__FILE__);
 		$this->out(' ');
 
-		$this->QueuedJobs->createJob('Example');
+		$this->QueuedJobs->createJob('UniqueExample');
 		$this->success('OK, job created, now run the worker');
 	}
 
 	/**
-	 * Example run function.
+	 * UniqueExample run function.
 	 * This function is executed, when a worker is executing a task.
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
@@ -57,9 +47,12 @@ class QueueExampleTask extends QueueTask implements AddInterface {
 	 */
 	public function run(array $data, $jobId) {
 		$this->hr();
-		$this->out('CakePHP Queue Example task.');
+		$this->out('CakePHP Queue UniqueExample task.');
+
+		sleep(10);
+
 		$this->hr();
-		$this->success(' -> Success, the Example Job was run. <-');
+		$this->success(' -> Success, the UniqueExample Job was run. <-');
 	}
 
 }

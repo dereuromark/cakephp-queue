@@ -483,25 +483,26 @@ TEXT;
 	 * @return void
 	 */
 	public function stats() {
-		$this->out('Jobs currently in the queue:');
-
-		$types = $this->QueuedJobs->getTypes()->toArray();
-		foreach ($types as $type) {
-			$this->out('      ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $this->QueuedJobs->getLength($type));
-		}
-		$this->hr();
 		$this->out('Total unfinished jobs: ' . $this->QueuedJobs->getLength());
 		$this->out('Running workers (processes): ' . $this->QueueProcesses->findActive()->count());
 		$this->out('Server name: ' . $this->QueueProcesses->buildServerString());
 		$this->hr();
+
+		$this->out('Jobs currently in the queue:');
+		$types = $this->QueuedJobs->getTypes()->toArray();
+		foreach ($types as $type) {
+			$this->out(' - ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $this->QueuedJobs->getLength($type));
+		}
+		$this->hr();
+
 		$this->out('Finished job statistics:');
 		$data = $this->QueuedJobs->getStats();
 		foreach ($data as $item) {
-			$this->out(' ' . $item['job_type'] . ': ');
-			$this->out('   Finished Jobs in Database: ' . $item['num']);
-			$this->out('   Average Job existence    : ' . str_pad(Number::precision($item['alltime']), 8, ' ', STR_PAD_LEFT) . 's');
-			$this->out('   Average Execution delay  : ' . str_pad(Number::precision($item['fetchdelay']), 8, ' ', STR_PAD_LEFT) . 's');
-			$this->out('   Average Execution time   : ' . str_pad(Number::precision($item['runtime']), 8, ' ', STR_PAD_LEFT) . 's');
+			$this->out(' - ' . $item['job_type'] . ': ');
+			$this->out('   - Finished Jobs in Database: ' . $item['num']);
+			$this->out('   - Average Job existence    : ' . str_pad(Number::precision($item['alltime'], 0), 8, ' ', STR_PAD_LEFT) . 's');
+			$this->out('   - Average Execution delay  : ' . str_pad(Number::precision($item['fetchdelay'], 0), 8, ' ', STR_PAD_LEFT) . 's');
+			$this->out('   - Average Execution time   : ' . str_pad(Number::precision($item['runtime'], 0), 8, ' ', STR_PAD_LEFT) . 's');
 		}
 	}
 
@@ -818,6 +819,7 @@ TEXT;
 
 	/**
 	 * Makes sure accidental overriding isn't possible, uses workermaxruntime times 100 by default.
+	 * If available, uses workertimeout config directly.
 	 *
 	 * @return void
 	 */
