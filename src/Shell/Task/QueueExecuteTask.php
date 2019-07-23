@@ -15,13 +15,6 @@ use Queue\Model\QueueException;
 class QueueExecuteTask extends QueueTask implements AddInterface {
 
 	/**
-	 * Timeout for run, after which the Task is reassigned to a new worker.
-	 *
-	 * @var int
-	 */
-	public $timeout = 0;
-
-	/**
 	 * Add functionality.
 	 * Will create one example job in the queue, which later will be executed using run();
 	 *

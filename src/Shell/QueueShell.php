@@ -660,21 +660,16 @@ TEXT;
 			foreach ($this->tasks as $task) {
 				list($pluginName, $taskName) = pluginSplit($task);
 
+				/** @var \Queue\Shell\Task\QueueTask $taskObject */
+				$taskObject = $this->{$taskName};
+
 				$this->_taskConf[$taskName]['name'] = substr($taskName, 5);
 				$this->_taskConf[$taskName]['plugin'] = $pluginName;
-				if (property_exists($this->{$taskName}, 'timeout')) {
-					$this->_taskConf[$taskName]['timeout'] = $this->{$taskName}->timeout;
-				} else {
-					$this->_taskConf[$taskName]['timeout'] = Config::defaultworkertimeout();
-				}
-				if (property_exists($this->{$taskName}, 'retries')) {
-					$this->_taskConf[$taskName]['retries'] = $this->{$taskName}->retries;
-				} else {
-					$this->_taskConf[$taskName]['retries'] = Config::defaultworkerretries();
-				}
-				if (property_exists($this->{$taskName}, 'rate')) {
-					$this->_taskConf[$taskName]['rate'] = $this->{$taskName}->rate;
-				}
+				$this->_taskConf[$taskName]['timeout'] = $taskObject->timeout !== null ? $taskObject->timeout : Config::defaultworkertimeout();
+				$this->_taskConf[$taskName]['retries'] = $taskObject->retries !== null ? $taskObject->retries : Config::defaultworkerretries();
+				$this->_taskConf[$taskName]['rate'] = $taskObject->rate;
+				$this->_taskConf[$taskName]['costs'] = $taskObject->costs;
+				$this->_taskConf[$taskName]['unique'] = $taskObject->unique;
 			}
 		}
 		return $this->_taskConf;
