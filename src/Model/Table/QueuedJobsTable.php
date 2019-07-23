@@ -640,6 +640,8 @@ class QueuedJobsTable extends Table {
 	/**
 	 * Custom find method, as in `find('progress', ...)`.
 	 *
+	 * @deprecated Unused right now, needs fixing.
+	 *
 	 * @param string $state Current state
 	 * @param array $query Parameters
 	 * @param array $results Results
