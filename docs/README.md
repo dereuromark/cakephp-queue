@@ -9,13 +9,9 @@ Load the plugin in your `src/Application.php`'s bootstrap() using:
 ```php
 $this->addPlugin('Queue');
 ```
-Prior to 3.6.0 enable the plugin within your config/bootstrap.php (unless you use loadAll):
-```php
-Plugin::load('Queue');
-```
 If you want to also access the backend controller (not just using CLI), you need to use
 ```php
-Plugin::load('Queue', ['routes' => true]);
+$this->addPlugin('Queue', ['routes' => true]);
 ```
 
 Run the following command in the CakePHP console to create the tables using the Migrations plugin:
@@ -732,7 +728,7 @@ Especially if you use PHPStorm, this will make it possible to get support here.
 
 Include that plugin, set up your generator config and run e.g. `bin/cake phpstorm generate`.
 
-If you use `Plugin::load('Queue', ['bootstrap' => true, ...])`, the necessary config is already auto-included (recommended).
+If you use `$this->addPlugin('Queue', ['bootstrap' => true, ...])`, the necessary config is already auto-included (recommended).
 Otherwise you can manually include the Queue plugin generator tasks in your `config/app.php` on project level:
 
 ```php
