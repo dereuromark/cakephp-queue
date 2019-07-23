@@ -13,6 +13,7 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use InvalidArgumentException;
 use Queue\Model\Entity\QueuedJob;
+use Queue\Queue\Config;
 use RuntimeException;
 
 // PHP 7.1+ has this defined
@@ -386,6 +387,59 @@ class QueuedJobsTable extends Table {
 				'id' => 'ASC',
 			]
 		];
+
+		$costConstraints = [];
+		foreach ($capabilities as $capability) {
+			if (!$capability['costs']) {
+				continue;
+			}
+
+			$costConstraints[$capability['name']] = $capability['costs'];
+		}
+
+		$uniqueConstraints = [];
+		foreach ($capabilities as $capability) {
+			if (!$capability['unique']) {
+				continue;
+			}
+
+			$uniqueConstraints[$capability['name']] = $capability['name'];
+		}
+
+		/** @var \Queue\Model\Entity\QueuedJob[] $runningJobs */
+		$runningJobs = [];
+		if ($costConstraints || $uniqueConstraints) {
+			$constraintJobs = array_keys($costConstraints + $uniqueConstraints);
+			$runningJobs = $this->find('queued')
+				->contain(['WorkerProcesses'])
+				->where(['QueuedJobs.job_type IN' => $constraintJobs, 'QueuedJobs.workerkey IS NOT' => null, 'QueuedJobs.workerkey !=' => $this->_key, 'WorkerProcesses.modified >' => Config::defaultworkertimeout()])
+				->all()
+				->toArray();
+		}
+
+		$costs = 0;
+		$server = $this->WorkerProcesses->buildServerString();
+		foreach ($runningJobs as $runningJob) {
+			if (isset($uniqueConstraints[$runningJob->job_type])) {
+				$types[] = '-' . $runningJob->job_type;
+				continue;
+			}
+
+			if ($runningJob->worker_process->server === $server && isset($costConstraints[$runningJob->job_type])) {
+				$costs += $costConstraints[$runningJob->job_type];
+			}
+		}
+
+		if ($costs) {
+			$left = 100 - $costs;
+			foreach ($capabilities as $capability) {
+				if (!$capability['costs'] || $capability['costs'] < $left) {
+					continue;
+				}
+
+				$types[] = '-' . $capability['name'];
+			}
+		}
 
 		if ($groups) {
 			$options['conditions'] = $this->addFilter($options['conditions'], 'job_group', $groups);
@@ -851,10 +905,10 @@ class QueuedJobsTable extends Table {
 		}
 
 		if ($include) {
-			$conditions[$key . ' IN'] = $include;
+			$conditions[$key . ' IN'] = array_unique($include);
 		}
 		if ($exclude) {
-			$conditions[$key . ' NOT IN'] = $exclude;
+			$conditions[$key . ' NOT IN'] = array_unique($exclude);
 		}
 
 		return $conditions;

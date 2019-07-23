@@ -37,14 +37,12 @@ class QueueSuperExampleTask extends QueueTask implements AddInterface {
 		$this->out('This job will only produce some console output on the worker that it runs on.');
 		$this->out(' ');
 		$this->out('To run a Worker use:');
-		$this->out('	bin/cake queue runworker');
+		$this->out('    bin/cake queue runworker');
 		$this->out(' ');
 		$this->out('You can find the sourcecode of this task in: ');
 		$this->out(__FILE__);
 		$this->out(' ');
-		/*
-		 * Adding a task of type 'example' with no additionally passed data
-		 */
+
 		$this->QueuedJobs->createJob('SuperExample');
 		$this->success('OK, job created, now run the worker');
 	}
@@ -61,11 +59,13 @@ class QueueSuperExampleTask extends QueueTask implements AddInterface {
 	public function run(array $data, $jobId) {
 		$this->hr();
 		$this->out('CakePHP Queue SuperExample task.');
-		$this->hr();
-		$this->success(' -> Success, the SuperExample Job was run. <-');
 
 		// Lets create an Example task on successful execution
 		$this->QueuedJobs->createJob('Example');
+		$this->out('... New Example task has been scheduled.');
+
+		$this->hr();
+		$this->success(' -> Success, the SuperExample Job was run. <-');
 	}
 
 }

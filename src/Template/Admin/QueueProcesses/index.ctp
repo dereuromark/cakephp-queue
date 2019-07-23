@@ -37,11 +37,19 @@ use Queue\Queue\Config;
 				</td>
 				<td>
 					<?= $this->Time->nice($queueProcess->created) ?>
-					<?php if (!$queueProcess->created->addSeconds(Config::defaultworkertimeout())->isFuture()) {
+					<?php if (!$queueProcess->created->addSeconds(Config::workermaxruntime())->isFuture()) {
 						echo $this->Format->icon('warning', ['title' => 'Long running (!)']);
 					} ?>
 				</td>
-				<td><?= $this->Time->nice($queueProcess->modified) ?></td>
+				<td>
+					<?php
+						$modified = $this->Time->nice($queueProcess->modified);
+						if (!$queueProcess->created->addSeconds(Config::defaultworkertimeout())->isFuture()) {
+							$modified = '<span class="disabled" title="Beyond default worker timeout!">' . $modified . '</span>';
+						}
+						echo $modified;
+					?>
+				</td>
 				<td><?= $this->Format->yesNo(!$queueProcess->terminate) ?></td>
 				<td><?= h($queueProcess->server) ?></td>
 				<td class="actions">

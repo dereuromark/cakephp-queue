@@ -7,6 +7,10 @@ use Cake\Core\Configure;
 class Config {
 
 	/**
+	 * Timeout in seconds, after which the Task is reassigned to a new worker
+	 * if not finished successfully.
+	 * This should be high enough that it cannot still be running on a zombie worker (>> 2x).
+	 *
 	 * @return int
 	 */
 	public static function defaultworkertimeout() {
@@ -14,6 +18,8 @@ class Config {
 	}
 
 	/**
+	 * Seconds of running time after which the worker will terminate (0 = unlimited)
+	 *
 	 * @return int
 	 */
 	public static function workermaxruntime() {
@@ -21,6 +27,8 @@ class Config {
 	}
 
 	/**
+	 * Minimum number of seconds before a cleanup run will remove a completed task (set to 0 to disable)
+	 *
 	 * @return int
 	 */
 	public static function cleanuptimeout() {

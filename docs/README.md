@@ -60,15 +60,15 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 
     *Warning:* Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle.
 
-- Seconds of running time after which the PHP script of the worker will terminate (0 = unlimited):
+- Seconds of running time after which the PHP process of the worker will terminate (0 = unlimited):
 
     ```php
     $config['Queue']['workertimeout'] = 120 * 100;
     ```
 
-    *Warning:* Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle. This is the last defense of the tool to prevent flooding too many processes. So make sure this is long enough to never cut off jobs, but also not too long, so the process count stays in manageable range.
+    *Warning:* Do not use 0 if you are using a cronjob to permanently start a new worker once in a while and if you do not exit on idle. This is the last defense of the tool to prevent flooding too many processes. So make sure this is long enough to never cut off jobs, but also not too long, so the process count stays in manageable range.
 
-- Should a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running):
+- Should a worker process quit when there are no more tasks for it to execute (true = exit, false = keep running):
 
     ```php
     $config['Queue']['exitwhennothingtodo'] = false;
@@ -677,6 +677,19 @@ You can check/verify the current server name using `bin/cake queue stats`.
 
 If you want to test locally, type `export SERVER_NAME=myserver1` and then run the above.
 
+#### Rate limiting and throttling
+
+The following configs can be made specific per Task, hardcoded on the class itself:
+- rate (defaults to `0` = disabled)
+- unique (defaults to `false` = disabled)
+- costs (defaults to `0` = disabled)
+
+Check if you need to use "rate" config (> 0) to avoid tasks being run too often/fast per worker per timeframe. 
+Currently you cannot rate limit it more globally however. You can use `unique` and `costs` config, however, to more globally restrict parallel runs for job types.
+
+
+Note: Once any task has either "unique" or "costs" enabled, the worker has to do a pre-query to fetch the data for this.
+Thus it is disabled by default for trivial use cases.
 
 ### Killing workers
 
@@ -714,11 +727,6 @@ If you want to use multiple workers, please double check that all jobs have a hi
 #### Concurrent workers may execute the same job type multiple times
 
 If you need limiting of how many times a specific job type can be run in parallel, you need to find a custom solution here.
-
-#### Rate limiting
-
-Check if you need to use "rate" config (> 0) to avoid them being run too fast per worker.
-Currently you cannot rate limit it more globally however.
 
 
 ## IDE support

@@ -483,25 +483,26 @@ TEXT;
 	 * @return void
 	 */
 	public function stats() {
-		$this->out('Jobs currently in the queue:');
-
-		$types = $this->QueuedJobs->getTypes()->toArray();
-		foreach ($types as $type) {
-			$this->out('      ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $this->QueuedJobs->getLength($type));
-		}
-		$this->hr();
 		$this->out('Total unfinished jobs: ' . $this->QueuedJobs->getLength());
 		$this->out('Running workers (processes): ' . $this->QueueProcesses->findActive()->count());
 		$this->out('Server name: ' . $this->QueueProcesses->buildServerString());
 		$this->hr();
+
+		$this->out('Jobs currently in the queue:');
+		$types = $this->QueuedJobs->getTypes()->toArray();
+		foreach ($types as $type) {
+			$this->out(' - ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $this->QueuedJobs->getLength($type));
+		}
+		$this->hr();
+
 		$this->out('Finished job statistics:');
 		$data = $this->QueuedJobs->getStats();
 		foreach ($data as $item) {
-			$this->out(' ' . $item['job_type'] . ': ');
-			$this->out('   Finished Jobs in Database: ' . $item['num']);
-			$this->out('   Average Job existence    : ' . str_pad(Number::precision($item['alltime']), 8, ' ', STR_PAD_LEFT) . 's');
-			$this->out('   Average Execution delay  : ' . str_pad(Number::precision($item['fetchdelay']), 8, ' ', STR_PAD_LEFT) . 's');
-			$this->out('   Average Execution time   : ' . str_pad(Number::precision($item['runtime']), 8, ' ', STR_PAD_LEFT) . 's');
+			$this->out(' - ' . $item['job_type'] . ': ');
+			$this->out('   - Finished Jobs in Database: ' . $item['num']);
+			$this->out('   - Average Job existence    : ' . str_pad(Number::precision($item['alltime'], 0), 8, ' ', STR_PAD_LEFT) . 's');
+			$this->out('   - Average Execution delay  : ' . str_pad(Number::precision($item['fetchdelay'], 0), 8, ' ', STR_PAD_LEFT) . 's');
+			$this->out('   - Average Execution time   : ' . str_pad(Number::precision($item['runtime'], 0), 8, ' ', STR_PAD_LEFT) . 's');
 		}
 	}
 
@@ -659,21 +660,16 @@ TEXT;
 			foreach ($this->tasks as $task) {
 				list($pluginName, $taskName) = pluginSplit($task);
 
+				/** @var \Queue\Shell\Task\QueueTask $taskObject */
+				$taskObject = $this->{$taskName};
+
 				$this->_taskConf[$taskName]['name'] = substr($taskName, 5);
 				$this->_taskConf[$taskName]['plugin'] = $pluginName;
-				if (property_exists($this->{$taskName}, 'timeout')) {
-					$this->_taskConf[$taskName]['timeout'] = $this->{$taskName}->timeout;
-				} else {
-					$this->_taskConf[$taskName]['timeout'] = Config::defaultworkertimeout();
-				}
-				if (property_exists($this->{$taskName}, 'retries')) {
-					$this->_taskConf[$taskName]['retries'] = $this->{$taskName}->retries;
-				} else {
-					$this->_taskConf[$taskName]['retries'] = Config::defaultworkerretries();
-				}
-				if (property_exists($this->{$taskName}, 'rate')) {
-					$this->_taskConf[$taskName]['rate'] = $this->{$taskName}->rate;
-				}
+				$this->_taskConf[$taskName]['timeout'] = $taskObject->timeout !== null ? $taskObject->timeout : Config::defaultworkertimeout();
+				$this->_taskConf[$taskName]['retries'] = $taskObject->retries !== null ? $taskObject->retries : Config::defaultworkerretries();
+				$this->_taskConf[$taskName]['rate'] = $taskObject->rate;
+				$this->_taskConf[$taskName]['costs'] = $taskObject->costs;
+				$this->_taskConf[$taskName]['unique'] = $taskObject->unique;
 			}
 		}
 		return $this->_taskConf;
@@ -818,6 +814,7 @@ TEXT;
 
 	/**
 	 * Makes sure accidental overriding isn't possible, uses workermaxruntime times 100 by default.
+	 * If available, uses workertimeout config directly.
 	 *
 	 * @return void
 	 */
