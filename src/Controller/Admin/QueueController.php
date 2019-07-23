@@ -135,7 +135,6 @@ class QueueController extends AppController {
 	 * Mark all failed jobs as ready for re-run.
 	 *
 	 * @return \Cake\Http\Response
-	 * @throws \Cake\Http\Exception\MethodNotAllowedException when not posted
 	 */
 	public function reset() {
 		$this->request->allowMethod('post');
@@ -151,7 +150,6 @@ class QueueController extends AppController {
 	 * Truncate the queue list / table.
 	 *
 	 * @return \Cake\Http\Response
-	 * @throws \Cake\Http\Exception\MethodNotAllowedException when not posted
 	 */
 	public function hardReset() {
 		$this->request->allowMethod('post');

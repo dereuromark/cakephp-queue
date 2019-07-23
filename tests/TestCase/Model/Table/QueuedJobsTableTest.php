@@ -110,6 +110,9 @@ class QueuedJobsTableTest extends TestCase {
 				'name' => 'task1',
 				'timeout' => 100,
 				'retries' => 2,
+				'rate' => 0,
+				'costs' => 0,
+				'unique' => false,
 			],
 		];
 		$testData = [
@@ -164,6 +167,9 @@ class QueuedJobsTableTest extends TestCase {
 				'name' => 'task1',
 				'timeout' => 100,
 				'retries' => 2,
+				'rate' => 0,
+				'costs' => 0,
+				'unique' => false,
 			],
 		];
 		// at first, the queue should contain 0 items.
@@ -231,11 +237,17 @@ class QueuedJobsTableTest extends TestCase {
 				'name' => 'task1',
 				'timeout' => 100,
 				'retries' => 2,
+				'rate' => 0,
+				'costs' => 0,
+				'unique' => false,
 			],
 			'dummytask' => [
 				'name' => 'dummytask',
 				'timeout' => 100,
 				'retries' => 2,
+				'rate' => 0,
+				'costs' => 0,
+				'unique' => false,
 			],
 		];
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('dummytask'));
@@ -301,11 +313,15 @@ class QueuedJobsTableTest extends TestCase {
 				'timeout' => 101,
 				'retries' => 2,
 				'rate' => 2,
+				'costs' => 0,
+				'unique' => false,
 			],
 			'dummytask' => [
 				'name' => 'dummytask',
 				'timeout' => 101,
 				'retries' => 2,
+				'costs' => 0,
+				'unique' => false,
 			],
 		];
 
@@ -468,6 +484,8 @@ class QueuedJobsTableTest extends TestCase {
 				'timeout' => 1,
 				'retries' => 2,
 				'rate' => 0,
+				'costs' => 0,
+				'unique' => false,
 			],
 		];
 
@@ -539,6 +557,8 @@ class QueuedJobsTableTest extends TestCase {
 				'timeout' => 1,
 				'retries' => 2,
 				'rate' => 0,
+				'costs' => 0,
+				'unique' => false,
 			],
 		];
 
