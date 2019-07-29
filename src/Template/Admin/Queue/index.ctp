@@ -73,7 +73,6 @@ use Cake\Core\Configure;
 
 				echo '<li>Created: ' . $this->Time->nice($queuedJob->created) . $notBefore . '</li>';
 
-
 				if ($queuedJob->fetched) {
 					echo '<li>Fetched: ' . $this->Time->nice($queuedJob->fetched) . '</li>';
 
