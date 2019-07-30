@@ -5,6 +5,9 @@ use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use Tools\TestSuite\IntegrationTestCase;
 
+/**
+ * @uses \Queue\Controller\Admin\QueueProcessesController
+ */
 class QueueProcessesControllerTest extends IntegrationTestCase {
 
 	/**

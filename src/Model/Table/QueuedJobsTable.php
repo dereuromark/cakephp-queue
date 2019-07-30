@@ -27,14 +27,14 @@ if (!defined('SIGTERM')) {
  * @method \Queue\Model\Entity\QueuedJob get($primaryKey, $options = [])
  * @method \Queue\Model\Entity\QueuedJob newEntity($data = null, array $options = [])
  * @method \Queue\Model\Entity\QueuedJob[] newEntities(array $data, array $options = [])
- * @method \Queue\Model\Entity\QueuedJob|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \Queue\Model\Entity\QueuedJob|false save(\Cake\Datasource\EntityInterface $entity, $options = [])
  * @method \Queue\Model\Entity\QueuedJob patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
  * @method \Queue\Model\Entity\QueuedJob[] patchEntities($entities, array $data, array $options = [])
  * @method \Queue\Model\Entity\QueuedJob findOrCreate($search, callable $callback = null, $options = [])
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  * @method \Queue\Model\Entity\QueuedJob saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
  * @mixin \Search\Model\Behavior\SearchBehavior
- * @property \Queue\Model\Table\QueueProcessesTable|\Cake\ORM\Association\BelongsTo $WorkerProcesses
+ * @property \Queue\Model\Table\QueueProcessesTable&\Cake\ORM\Association\BelongsTo $WorkerProcesses
  */
 class QueuedJobsTable extends Table {
 

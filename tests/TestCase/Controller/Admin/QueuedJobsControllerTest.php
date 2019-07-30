@@ -6,6 +6,9 @@ use Cake\Datasource\ConnectionManager;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestCase;
 
+/**
+ * @uses \Queue\Controller\Admin\QueuedJobsController
+ */
 class QueuedJobsControllerTest extends IntegrationTestCase {
 
 	/**

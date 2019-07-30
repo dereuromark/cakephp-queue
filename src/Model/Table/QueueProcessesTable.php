@@ -14,7 +14,7 @@ use Queue\Queue\Config;
  * @method \Queue\Model\Entity\QueueProcess get($primaryKey, $options = [])
  * @method \Queue\Model\Entity\QueueProcess newEntity($data = null, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess[] newEntities(array $data, array $options = [])
- * @method \Queue\Model\Entity\QueueProcess|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \Queue\Model\Entity\QueueProcess|false save(\Cake\Datasource\EntityInterface $entity, $options = [])
  * @method \Queue\Model\Entity\QueueProcess patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess[] patchEntities($entities, array $data, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess findOrCreate($search, callable $callback = null, $options = [])

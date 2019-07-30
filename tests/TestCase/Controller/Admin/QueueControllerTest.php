@@ -6,6 +6,7 @@ use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestCase;
 
 /**
+ * @uses \Queue\Controller\Admin\QueueController
  */
 class QueueControllerTest extends IntegrationTestCase {
 
