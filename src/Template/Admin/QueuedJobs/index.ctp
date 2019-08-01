@@ -16,6 +16,13 @@ use Cake\Core\Plugin;
 		<li><?= $this->Html->link(__d('queue', 'Import'), ['action' => 'import']) ?></li>
 		<?php } ?>
 	</ul>
+
+	<hr>
+
+	<?= __d('queue', 'Current server time') ?>:
+	<br>
+	<?php echo $this->Time->nice(new \Cake\I18n\FrozenTime()); ?>
+
 </nav>
 <div class="content action-index index large-9 medium-8 columns col-sm-8 col-xs-12">
 
@@ -56,18 +63,41 @@ use Cake\Core\Plugin;
 					?>
 				</td>
 				<td><?= $this->Time->nice($queuedJob->created) ?></td>
-				<td><?= $this->Time->nice($queuedJob->notbefore) ?></td>
+				<td>
+					<?= $this->Time->nice($queuedJob->notbefore) ?>
+					<br>
+					<?php echo $this->QueueProgress->timeoutProgressBar($queuedJob, 8); ?>
+					<?php if ($queuedJob->notbefore) {
+						echo '<div><small>';
+						echo $this->Time->relLengthOfTime($queuedJob->notbefore);
+						echo '</small></div>';
+					} ?>
+				</td>
 				<td>
 					<?= $this->Time->nice($queuedJob->fetched) ?>
 
-					<div><small><code><?php echo h($queuedJob->workerkey); ?></code></small></div>
-					<?php if ($queuedJob->progress) { ?>
-						<div><?php echo $this->Number->toPercentage($queuedJob->progress * 100, 0); ?></div>
+					<?php if ($queuedJob->fetched) {
+						echo '<div><small>';
+						echo $this->Time->relLengthOfTime($queuedJob->fetched);
+						echo '</small></div>';
+					} ?>
+
+					<?php if ($queuedJob->workerkey) { ?>
+						<div><small><code><?php echo h($queuedJob->workerkey); ?></code></small></div>
 					<?php } ?>
 				</td>
 				<td><?= $this->Time->nice($queuedJob->completed) ?></td>
 				<td><?= $this->Number->format($queuedJob->failed) ?></td>
-				<td><?= h($queuedJob->status) ?></td>
+				<td>
+					<?= h($queuedJob->status) ?>
+					<?php if ($queuedJob->fetched) { ?>
+						<div>
+							<?php echo $this->QueueProgress->progress($queuedJob) ?>
+							<br>
+							<?php echo $this->QueueProgress->progressBar($queuedJob, 8); ?>
+						</div>
+					<?php } ?>
+				</td>
 				<td><?= $this->Number->format($queuedJob->priority) ?></td>
 				<td class="actions">
 				<?= $this->Html->link($this->Format->icon('view'), ['action' => 'view', $queuedJob->id], ['escapeTitle' => false]); ?>

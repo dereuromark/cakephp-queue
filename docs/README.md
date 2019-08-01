@@ -360,11 +360,24 @@ Get progress status in web site and display:
 $job = $this->QueuedJobs->get($id);
 
 $progress = $job->progress; // A float from 0 to 1
-echo number_format($progress * 100, 0) . '%'; // Outputs 87% for example
+echo $this->Number->toPercentage($progress, 0, ['multiply' => true]) . '%'; // Outputs 87% for example
 
 $status = $job->status; // A string, make sure to escape
 echo h($status); // Outputs "Doing the last thing" for example
 ```
+
+#### Progress Bar
+Using Tools plugin 1.9.6+ you can also use the more visual progress bar (or any custom one of yours):
+```php
+echo $this->QueueProgress->progressBar($queuedJob, 18);
+```
+The length refers to the amount of chars to display.
+
+Make sure you loaded the helper in your AppView class.
+
+By default it first tries to use the actual `progress` stored as value 0...1.
+If that field is `null`, it tries to use the statistics of previously finished jobs of the same task
+to determine average length and displays the progress based on this.
 
 ### Logging
 

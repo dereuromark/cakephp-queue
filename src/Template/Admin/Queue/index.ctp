@@ -48,9 +48,7 @@ use Cake\Core\Configure;
 
 		<h2><?php echo __d('queue', 'Queued Jobs'); ?></h2>
 		<p>
-		<?php
-		echo $new . '/' .$current;
-		?> task(s) newly await processing.
+		<?php echo __d('queue', '{0} task(s) newly await processing.', $new . '/' . $current); ?>
 		</p>
 		<ol>
 			<?php
@@ -60,30 +58,36 @@ use Cake\Core\Configure;
 
 				$reset = '';
 				if ($pendingJob->failed) {
-					$reset = ' ' . $this->Form->postLink('Soft reset', ['action' => 'resetJob', $pendingJob->id], ['confirm' => 'Sure?', 'class' => 'button primary btn margin btn-primary']);
-					$reset .= ' ' . $this->Form->postLink('Remove', ['action' => 'removeJob', $pendingJob->id], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-default']);
+					$reset = ' ' . $this->Form->postLink(__d('queue', 'Soft reset'), ['action' => 'resetJob', $pendingJob->id], ['confirm' => 'Sure?', 'class' => 'button primary btn margin btn-primary']);
+					$reset .= ' ' . $this->Form->postLink(__d('queue', 'Remove'), ['action' => 'removeJob', $pendingJob->id], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-default']);
 				} elseif ($pendingJob->fetched) {
-					$reset .= ' ' . $this->Form->postLink('Remove', ['action' => 'removeJob', $pendingJob->id], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-default']);
+					$reset .= ' ' . $this->Form->postLink(__d('queue', 'Remove'), ['action' => 'removeJob', $pendingJob->id], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-default']);
 				}
 
 				$notBefore = '';
 				if ($pendingJob->notbefore) {
-					$notBefore = ' (scheduled ' . $this->Time->nice($pendingJob->notbefore) . ')';
+					$notBefore = ' (' . __d('queue', 'scheduled {0}', $this->Time->nice($pendingJob->notbefore)) . ')';
 				}
 
-				echo '<li>Created: ' . $this->Time->nice($pendingJob->created) . $notBefore . '</li>';
+				echo '<li>' . __d('queue', 'Created') . ': ' . $this->Time->nice($pendingJob->created) . $notBefore . '</li>';
 
 				if ($pendingJob->fetched) {
-					echo '<li>Fetched: ' . $this->Time->nice($pendingJob->fetched) . '</li>';
+					echo '<li>' . __d('queue', 'Fetched') . ': ' . $this->Time->nice($pendingJob->fetched) . '</li>';
 
 					$status = '';
 					if ($pendingJob->status) {
-						$status = ' (status: ' . h($pendingJob->status) . ')';
+						$status = ' (' . __d('queue', 'status') . ': ' . h($pendingJob->status) . ')';
 					}
 
-					echo '<li>Progress: ' . $this->Number->toPercentage($pendingJob->progress * 100, 0) . $status . '</li>';
-					echo '<li>Failures: ' . $pendingJob->failed . $reset . '</li>';
-					echo '<li>Failure Message: ' . $this->Text->truncate($pendingJob->failure_message, 200) . '</li>';
+					echo '<li>';
+					echo __d('queue', 'Progress') . ': ';
+					echo $this->Number->toPercentage($pendingJob->progress, 0, ['multiply' => true]) . $status;
+					echo '<br>' . $this->QueueProgress->progressBar($pendingJob, 18);
+					echo '</li>';
+					echo '<li>' . __d('queue', 'Failures') . ': ' . $pendingJob->failed . $reset . '</li>';
+					if ($pendingJob->failure_message) {
+						echo '<li>' . __d('queue', 'Failure Message') . ': ' . $this->Text->truncate($pendingJob->failure_message, 200) . '</li>';
+					}
 				}
 
 				echo '</ul>';

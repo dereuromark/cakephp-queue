@@ -21,7 +21,7 @@ use Cake\I18n\Time;
 <h1><?php echo __d('queue', 'Queue');?></h1>
 
 <h2><?php echo __d('queue', 'Current Queue Processes'); ?></h2>
-	<p>Active processes:</p>
+	<p><?php echo __d('queue', 'Active processes'); ?>:</p>
 
 <ul>
 <?php
@@ -30,9 +30,9 @@ foreach ($processes as $process => $timestamp) {
 	echo '<ul>';
 	echo '<li>Last run: ' . $this->Time->nice(new Time($timestamp)) . '</li>';
 
-	echo '<li>End: ' . $this->Form->postLink('Finish current job and end', ['action' => 'processes', '?' => ['end' => $process]], ['confirm' => 'Sure?']) . ' (next loop run)</li>';
+	echo '<li>End: ' . $this->Form->postLink(__d('queue', 'Finish current job and end'), ['action' => 'processes', '?' => ['end' => $process]], ['confirm' => 'Sure?']) . ' (next loop run)</li>';
 	if (!$this->Configure->read('Queue.multiserver')) {
-		echo '<li>Kill: ' . $this->Form->postLink('Soft kill', ['action' => 'processes', '?' => ['kill' => $process]], ['confirm' => 'Sure?']) . ' (termination SIGTERM = 15)</li>';
+		echo '<li>' . __d('queue', 'Kill') . ': ' . $this->Form->postLink(__d('queue', 'Soft kill'), ['action' => 'processes', '?' => ['kill' => $process]], ['confirm' => 'Sure?']) . ' (termination SIGTERM = 15)</li>';
 	}
 
 	echo '</ul>';
@@ -45,8 +45,8 @@ if (empty($processes)) {
 </ul>
 
 <?php if (!empty($terminated)) { ?>
-	<h3>Terminated</h3>
-	<p>These have been marked as to be terminated after finishing this round:</p>
+	<h3><?php echo __d('queue', 'Terminated') ?></h3>
+	<p><?php echo __d('queue', 'These have been marked as to be terminated after finishing this round'); ?>:</p>
 	<ul>
 	<?php
 	foreach ($terminated as $queuedJob) {

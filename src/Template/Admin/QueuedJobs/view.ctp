@@ -38,19 +38,50 @@
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Notbefore') ?></th>
-			<td><?= $this->Time->nice($queuedJob->notbefore) ?></td>
+			<td>
+				<?= $this->Time->nice($queuedJob->notbefore) ?>
+				<br>
+				<?php echo $this->QueueProgress->timeoutProgressBar($queuedJob, 18); ?>
+				<?php if ($queuedJob->notbefore) {
+					echo '<div><small>';
+					echo $this->Time->relLengthOfTime($queuedJob->notbefore);
+					echo '</small></div>';
+				} ?>
+			</td>
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Fetched') ?></th>
-			<td><?= $this->Time->nice($queuedJob->fetched) ?></td>
+			<td>
+				<?= $this->Time->nice($queuedJob->fetched) ?>
+				<?php if ($queuedJob->fetched) {
+					echo '<div><small>';
+					echo $this->Time->duration($queuedJob->fetched->diff($queuedJob->created));
+					echo '</small></div>';
+				} ?>
+			</td>
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Completed') ?></th>
-			<td><?= $this->Time->nice($queuedJob->completed) ?></td>
+			<td>
+				<?= $this->Time->nice($queuedJob->completed) ?>
+				<?php if ($queuedJob->completed) {
+					echo '<div><small>';
+					echo $this->Time->duration($queuedJob->completed->diff($queuedJob->fetched));
+					echo '</small></div>';
+				} ?>
+			</td>
+		</tr>
+		<tr>
+			<th><?= __d('queue', 'Status') ?></th>
+			<td><?= h($queuedJob->status) ?></td>
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Progress') ?></th>
-			<td><?= $queuedJob->progress ? $this->Number->toPercentage($queuedJob->progress * 100, 0) : '' ?></td>
+			<td>
+				<?php echo $this->QueueProgress->progress($queuedJob) ?>
+				<br>
+				<?php echo $this->QueueProgress->progressBar($queuedJob, 18); ?>
+			</td>
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Failed') ?></th>
@@ -58,7 +89,7 @@
 				<?= $queuedJob->failed ? $this->Number->format($queuedJob->failed) . 'x' : '' ?>
 				<?php
 				if ($queuedJob->fetched && $queuedJob->failed) {
-					echo ' ' . $this->Form->postLink('Soft reset', ['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure?', 'class' => 'button button-primary btn margin btn-primary']);
+					echo ' ' . $this->Form->postLink(__d('queue', 'Soft reset'), ['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure?', 'class' => 'button button-primary btn margin btn-primary']);
 				}
 				?>
 			</td>
@@ -71,10 +102,6 @@
 					[<?php echo $this->Html->link($queuedJob->worker_process->server ?: $queuedJob->worker_process->pid, ['controller' => 'QueueProcesses', 'action' => 'view', $queuedJob->worker_process->id]); ?>]
 				<?php } ?>
 			</td>
-		</tr>
-		<tr>
-			<th><?= __d('queue', 'Status') ?></th>
-			<td><?= h($queuedJob->status) ?></td>
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Priority') ?></th>

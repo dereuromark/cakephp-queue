@@ -2,13 +2,12 @@
 /**
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
- * @link http://github.com/MSeven/cakephp_queue
  */
 
 namespace Queue\Shell\Task;
 
 /**
- * A Simple QueueTask example.
+ * A cascading QueueTask example.
  */
 class QueueSuperExampleTask extends QueueTask implements AddInterface {
 
@@ -21,7 +20,7 @@ class QueueSuperExampleTask extends QueueTask implements AddInterface {
 
 	/**
 	 * SuperExample add functionality.
-	 * Will create one example job in the queue, which later will be executed using run();
+	 * Will create another example job in the queue, which later will be executed using run();
 	 *
 	 * To invoke from CLI execute:
 	 * - bin/cake queue add SuperExample
@@ -33,7 +32,7 @@ class QueueSuperExampleTask extends QueueTask implements AddInterface {
 		$this->hr();
 		$this->out('This is a very superb example of a QueueTask.');
 		$this->out('I will now add an example Job into the Queue.');
-		$this->out('It will also fire a callback upon successful execution.');
+		$this->out('It will also create another Example job upon successful execution.');
 		$this->out('This job will only produce some console output on the worker that it runs on.');
 		$this->out(' ');
 		$this->out('To run a Worker use:');
