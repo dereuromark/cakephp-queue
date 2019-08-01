@@ -379,6 +379,9 @@ By default it first tries to use the actual `progress` stored as value 0...1.
 If that field is `null`, it tries to use the statistics of previously finished jobs of the same task
 to determine average length and displays the progress based on this.
 
+That also means you should set a high value for `cleanuptimeout` config (~1-2 months) to make sure the average
+runtime data is available and meaningful.
+
 #### Timeout Progress Bar
 For those jobs that are created with a run time in the future (`notbefore`), you can also display progress
 until they are supposed to be run:
