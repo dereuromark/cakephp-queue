@@ -13,7 +13,7 @@
 </nav>
 <div class="content action-form form large-9 medium-8 columns col-sm-8 col-xs-12">
 
-	<h3><?php echo __d('queue', 'Edit PID {0}', $queueProcess->pid); ?></h3>
+	<h1><?php echo __d('queue', 'Edit PID {0}', $queueProcess->pid); ?></h1>
 
 	<?= $this->Form->create($queueProcess) ?>
 	<fieldset>

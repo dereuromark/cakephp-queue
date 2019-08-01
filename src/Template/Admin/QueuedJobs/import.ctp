@@ -10,7 +10,7 @@
 	</ul>
 </nav>
 <div class="releases form large-9 medium-8 columns content">
-	<h2>Import</h2>
+	<h1>Import</h1>
 
 	<?= $this->Form->create(null, ['type' => 'file']) ?>
 	<fieldset>

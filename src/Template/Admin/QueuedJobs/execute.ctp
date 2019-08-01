@@ -11,6 +11,8 @@
 	</ul>
 </nav>
 <div class="content action-form form large-9 medium-8 columns col-sm-8 col-xs-12">
+	<h1><?= __d('queue', 'Add Execute Jobs') ?></h1>
+
 	<?= $this->Form->create(null) ?>
 	<fieldset>
 		<legend><?= __d('queue', 'Trigger Execute Job') ?></legend>

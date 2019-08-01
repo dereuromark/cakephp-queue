@@ -14,7 +14,7 @@ use Queue\Queue\Config;
 	</ul>
 </nav>
 <div class="content action-index index large-9 medium-8 columns col-sm-8 col-xs-12">
-	<h2><?= __d('queue', 'Queue Processes') ?></h2>
+	<h1><?= __d('queue', 'Queue Processes') ?></h1>
 	<table class="table table-striped">
 		<thead>
 			<tr>

@@ -18,7 +18,7 @@
 	</ul>
 </nav>
 <div class="content action-view view large-9 medium-8 columns col-sm-8 col-xs-12">
-	<h2><?= h($queuedJob->id) ?></h2>
+	<h1><?= h($queuedJob->id) ?></h1>
 	<table class="table vertical-table">
 		<tr>
 			<th><?= __d('queue', 'Job Type') ?></th>

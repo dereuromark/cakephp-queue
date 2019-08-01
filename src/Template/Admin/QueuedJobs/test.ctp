@@ -12,6 +12,8 @@
 	</ul>
 </nav>
 <div class="content action-form form large-9 medium-8 columns col-sm-8 col-xs-12">
+	<h1><?= __d('queue', 'Create test jobs') ?></h1>
+
 	<?= $this->Form->create($queuedJob) ?>
 	<fieldset>
 		<legend><?= __d('queue', 'Trigger Delayed Job') ?></legend>

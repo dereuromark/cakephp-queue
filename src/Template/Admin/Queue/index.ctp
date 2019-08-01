@@ -20,7 +20,7 @@ use Cake\Core\Configure;
 	</ul>
 </nav>
 
-<div class="col-md-9 col-xs-12 large-9 medium-8 columns">
+<div class="content col-md-9 col-xs-12 large-9 medium-8 columns">
 <h1><?php echo __d('queue', 'Queue');?></h1>
 
 <div class="row">

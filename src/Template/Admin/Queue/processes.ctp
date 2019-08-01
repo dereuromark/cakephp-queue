@@ -17,7 +17,7 @@ use Cake\I18n\Time;
 	</ul>
 </nav>
 
-<div class="col-md-9 col-xs-12 large-9 medium-8 columns">
+<div class="content col-md-9 col-xs-12 large-9 medium-8 columns">
 <h1><?php echo __d('queue', 'Queue');?></h1>
 
 <h2><?php echo __d('queue', 'Current Queue Processes'); ?></h2>
@@ -30,7 +30,7 @@ foreach ($processes as $process => $timestamp) {
 	echo '<ul>';
 	echo '<li>Last run: ' . $this->Time->nice(new Time($timestamp)) . '</li>';
 
-	echo '<li>End: ' . $this->Form->postLink(__d('queue', 'Finish current job and end'), ['action' => 'processes', '?' => ['end' => $process]], ['confirm' => 'Sure?']) . ' (next loop run)</li>';
+	echo '<li>End: ' . $this->Form->postLink(__d('queue', 'Finish current job and end'), ['action' => 'processes', '?' => ['end' => $process]], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-secondary']) . ' (next loop run)</li>';
 	if (!$this->Configure->read('Queue.multiserver')) {
 		echo '<li>' . __d('queue', 'Kill') . ': ' . $this->Form->postLink(__d('queue', 'Soft kill'), ['action' => 'processes', '?' => ['kill' => $process]], ['confirm' => 'Sure?']) . ' (termination SIGTERM = 15)</li>';
 	}
