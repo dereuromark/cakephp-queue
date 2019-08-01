@@ -777,9 +777,4 @@ It will not overwrite existing classes unless you explicitly force this (after p
 
 ## Contributing
 
-I am looking forward to your contributions.
-
-There are a few guidelines that I need contributors to follow:
-* Coding standards (`composer cs-check` to check and `composer cs-fix` to fix)
-* PHPStan (`composer phpstan`, might need `composer phpstan-setup` first)
-* Passing tests (`php phpunit.phar`)
+See [CONTRIBUTING.md](CONTRIBUTING.md).

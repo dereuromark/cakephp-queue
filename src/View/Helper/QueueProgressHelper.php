@@ -75,8 +75,10 @@ class QueueProgressHelper extends Helper {
 	}
 
 	/**
+	 * Returns percentage as visual progress bar.
+	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
-	 * @param $length
+	 * @param int $length
 	 * @return string|null
 	 */
 	public function timeoutProgressBar(QueuedJob $queuedJob, $length) {
@@ -92,7 +94,6 @@ class QueueProgressHelper extends Helper {
 	 * Calculates the timeout progress rate.
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
-	 *
 	 * @return float|null
 	 */
 	protected function calculateTimeoutProgress(QueuedJob $queuedJob) {

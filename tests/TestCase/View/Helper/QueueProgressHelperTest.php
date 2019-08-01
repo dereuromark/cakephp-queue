@@ -72,6 +72,19 @@ class QueueProgressHelperTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testTimeoutProgressBar() {
+		$queuedJob = new QueuedJob([
+			'created' => (new FrozenTime())->subHour(),
+			'notbefore' => (new FrozenTime())->addHour(),
+		]);
+
+		$result = $this->QueueProgressHelper->timeoutProgressBar($queuedJob, 5);
+		$this->assertTextContains('<span title="50%">', $result);
+	}
+
+	/**
 	 * Helper method for skipping tests that need a real connection.
 	 *
 	 * @return void
