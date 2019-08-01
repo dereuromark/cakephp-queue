@@ -20,7 +20,7 @@ use Queue\Queue\Config;
 	</ul>
 </nav>
 <div class="content action-view view large-9 medium-8 columns col-sm-8 col-xs-12">
-	<h2>PID <?= h($queueProcess->pid) ?></h2>
+	<h1>PID <?= h($queueProcess->pid) ?></h1>
 	<table class="table vertical-table">
 		<tr>
 			<th><?= __d('queue', 'Created') ?></th>

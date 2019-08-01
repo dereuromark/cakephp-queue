@@ -5,7 +5,7 @@ namespace Queue\Shell\Task;
 use Queue\Model\QueueException;
 
 /**
- * A Simple QueueTask example.
+ * An exception throwing QueueTask example.
  */
 class QueueExceptionExampleTask extends QueueTask implements AddInterface {
 

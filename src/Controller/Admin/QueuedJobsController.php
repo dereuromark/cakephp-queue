@@ -31,11 +31,16 @@ class QueuedJobsController extends AppController {
 	public function initialize() {
 		parent::initialize();
 
-		$this->loadComponent('RequestHandler', [
-			'enableBeforeRedirect' => false,
-		]);
+		if (!$this->components()->has('RequestHandler')) {
+			$this->loadComponent('RequestHandler', [
+				'enableBeforeRedirect' => false,
+			]);
+		}
 
 		if (Configure::read('Queue.isSearchEnabled') === false || !Plugin::isLoaded('Search')) {
+			return;
+		}
+		if ($this->components()->has('Search')) {
 			return;
 		}
 		$this->loadComponent('Search.Prg', [

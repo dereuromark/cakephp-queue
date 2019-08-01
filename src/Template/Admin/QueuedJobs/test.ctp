@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \Queue\Model\Entity\QueuedJob $queuedJob
+ * @var string[] $tasks
  */
 ?>
 <nav class="actions large-3 medium-4 columns col-sm-4 col-xs-12" id="actions-sidebar">
@@ -11,6 +12,8 @@
 	</ul>
 </nav>
 <div class="content action-form form large-9 medium-8 columns col-sm-8 col-xs-12">
+	<h1><?= __d('queue', 'Create test jobs') ?></h1>
+
 	<?= $this->Form->create($queuedJob) ?>
 	<fieldset>
 		<legend><?= __d('queue', 'Trigger Delayed Job') ?></legend>

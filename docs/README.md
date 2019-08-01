@@ -360,11 +360,33 @@ Get progress status in web site and display:
 $job = $this->QueuedJobs->get($id);
 
 $progress = $job->progress; // A float from 0 to 1
-echo number_format($progress * 100, 0) . '%'; // Outputs 87% for example
+echo $this->Number->toPercentage($progress, 0, ['multiply' => true]) . '%'; // Outputs 87% for example
 
 $status = $job->status; // A string, make sure to escape
 echo h($status); // Outputs "Doing the last thing" for example
 ```
+
+#### Progress Bar
+Using Tools plugin 1.9.6+ you can also use the more visual progress bar (or any custom one of yours):
+```php
+echo $this->QueueProgress->progressBar($queuedJob, 18);
+```
+The length refers to the amount of chars to display.
+
+Make sure you loaded the helper in your AppView class.
+
+By default it first tries to use the actual `progress` stored as value 0...1.
+If that field is `null`, it tries to use the statistics of previously finished jobs of the same task
+to determine average length and displays the progress based on this.
+
+#### Timeout Progress Bar
+For those jobs that are created with a run time in the future (`notbefore`), you can also display progress
+until they are supposed to be run:
+
+```php
+echo $this->QueueProgress->timeoutProgressBar($queuedJob, 18);
+```
+It shows the progress as current time between `created` and `notbefore` boundaries more visually.
 
 ### Logging
 
@@ -764,9 +786,4 @@ It will not overwrite existing classes unless you explicitly force this (after p
 
 ## Contributing
 
-I am looking forward to your contributions.
-
-There are a few guidelines that I need contributors to follow:
-* Coding standards (`composer cs-check` to check and `composer cs-fix` to fix)
-* PHPStan (`composer phpstan`, might need `composer phpstan-setup` first)
-* Passing tests (`php phpunit.phar`)
+See [CONTRIBUTING.md](CONTRIBUTING.md).

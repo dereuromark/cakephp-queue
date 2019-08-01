@@ -2,7 +2,6 @@
 /**
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
- * @link http://github.com/MSeven/cakephp_queue
  */
 
 namespace Queue\Shell\Task;
@@ -10,7 +9,7 @@ namespace Queue\Shell\Task;
 use Cake\Console\ConsoleIo;
 
 /**
- * A Simple QueueTask example.
+ * A retry QueueTask example.
  */
 class QueueRetryExampleTask extends QueueTask implements AddInterface {
 

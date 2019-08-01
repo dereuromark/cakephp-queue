@@ -2,7 +2,6 @@
 /**
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
- * @link http://github.com/MSeven/cakephp_queue
  */
 
 namespace Queue\Shell\Task;
@@ -25,10 +24,12 @@ class QueueExecuteTask extends QueueTask implements AddInterface {
 		$this->hr();
 		if (count($this->args) < 2) {
 			$this->out('This will run an shell command on the Server.');
-			$this->out('The task is mainly intended to serve as a kind of buffer for programm calls from a cakephp application.');
+			$this->out('The task is mainly intended to serve as a kind of buffer for programm calls from a CakePHP application.');
 			$this->out(' ');
 			$this->out('Call like this:');
-			$this->out('    cake queue add Execute *command* *param1* *param2* ...');
+			$this->out('    bin/cake queue add Execute *command* *param1* *param2* ...');
+			$this->out(' ');
+			$this->out('For commands with spaces use " around it. E.g. `bin/cake queue add Execute "sleep 10s"`.');
 			$this->out(' ');
 
 			return;
