@@ -81,7 +81,7 @@ use Cake\Core\Configure;
 
 					echo '<li>';
 					echo __d('queue', 'Progress') . ': ';
-					echo $this->Number->toPercentage($pendingJob->progress, 0, ['multiply' => true]) . $status;
+					echo $this->QueueProgress->progress($pendingJob) . $status;
 					echo '<br>' . $this->QueueProgress->progressBar($pendingJob, 18);
 					echo '</li>';
 					echo '<li>' . __d('queue', 'Failures') . ': ' . $pendingJob->failed . $reset . '</li>';
