@@ -42,7 +42,7 @@
 				<?= $this->Time->nice($queuedJob->notbefore) ?>
 				<br>
 				<?php echo $this->QueueProgress->timeoutProgressBar($queuedJob, 18); ?>
-				<?php if ($queuedJob->notbefore) {
+				<?php if ($queuedJob->notbefore && $queuedJob->notbefore->isFuture()) {
 					echo '<div><small>';
 					echo $this->Time->relLengthOfTime($queuedJob->notbefore);
 					echo '</small></div>';
@@ -55,7 +55,7 @@
 				<?= $this->Time->nice($queuedJob->fetched) ?>
 				<?php if ($queuedJob->fetched) {
 					echo '<div><small>';
-					echo $this->Time->duration($queuedJob->fetched->diff($queuedJob->created));
+					echo __d('queue', 'Delay') . ': ' . $this->Time->duration($queuedJob->fetched->diff($queuedJob->created));
 					echo '</small></div>';
 				} ?>
 			</td>
@@ -66,7 +66,7 @@
 				<?= $this->Time->nice($queuedJob->completed) ?>
 				<?php if ($queuedJob->completed) {
 					echo '<div><small>';
-					echo $this->Time->duration($queuedJob->completed->diff($queuedJob->fetched));
+					echo __d('queue', 'Duration') . ': ' . $this->Time->duration($queuedJob->completed->diff($queuedJob->fetched));
 					echo '</small></div>';
 				} ?>
 			</td>
