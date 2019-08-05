@@ -233,7 +233,7 @@ $this->loadModel('Queue.QueuedJobs');
 $this->QueuedJobs->createJob('Email', ['to' => 'user@example.org', ...]);
 
 // Somewhere in the model or lib
-TableRegistry::get('Queue.QueuedJobs')->createJob('Email',
+TableRegistry::getTableLocator()->get('Queue.QueuedJobs')->createJob('Email',
     ['to' => 'user@example.org', ...]);
 ```
 
