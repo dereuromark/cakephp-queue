@@ -67,7 +67,7 @@ use Cake\Core\Plugin;
 					<?= $this->Time->nice($queuedJob->notbefore) ?>
 					<br>
 					<?php echo $this->QueueProgress->timeoutProgressBar($queuedJob, 8); ?>
-					<?php if ($queuedJob->notbefore) {
+					<?php if ($queuedJob->notbefore && $queuedJob->notbefore->isFuture()) {
 						echo '<div><small>';
 						echo $this->Time->relLengthOfTime($queuedJob->notbefore);
 						echo '</small></div>';
