@@ -79,14 +79,17 @@ use Cake\Core\Configure;
 						$status = ' (' . __d('queue', 'status') . ': ' . h($pendingJob->status) . ')';
 					}
 
-					echo '<li>';
-					echo __d('queue', 'Progress') . ': ';
-					echo $this->QueueProgress->progress($pendingJob) . $status;
-					echo '<br>' . $this->QueueProgress->progressBar($pendingJob, 18);
-					echo '</li>';
-					echo '<li>' . __d('queue', 'Failures') . ': ' . $pendingJob->failed . $reset . '</li>';
-					if ($pendingJob->failure_message) {
-						echo '<li>' . __d('queue', 'Failure Message') . ': ' . $this->Text->truncate($pendingJob->failure_message, 200) . '</li>';
+					if (!$pendingJob->failed) {
+						echo '<li>';
+						echo __d('queue', 'Progress') . ': ';
+						echo $this->QueueProgress->progress($pendingJob) . $status;
+						echo '<br>' . $this->QueueProgress->progressBar($pendingJob, 18);
+						echo '</li>';
+					} else {
+						echo '<li>' . __d('queue', 'Failures') . ': ' . $pendingJob->failed . $reset . '</li>';
+						if ($pendingJob->failure_message) {
+							echo '<li>' . __d('queue', 'Failure Message') . ': ' . $this->Text->truncate($pendingJob->failure_message, 200) . '</li>';
+						}
 					}
 				}
 

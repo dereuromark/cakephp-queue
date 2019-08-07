@@ -87,14 +87,18 @@ use Cake\Core\Plugin;
 					<?php } ?>
 				</td>
 				<td><?= $this->Time->nice($queuedJob->completed) ?></td>
-				<td><?= $this->Number->format($queuedJob->failed) ?></td>
+				<td><?= $this->Format->ok($this->Number->format($queuedJob->failed) . 'x', !$queuedJob->failed); ?></td>
 				<td>
 					<?= h($queuedJob->status) ?>
 					<?php if ($queuedJob->fetched) { ?>
 						<div>
-							<?php echo $this->QueueProgress->progress($queuedJob) ?>
-							<br>
-							<?php echo $this->QueueProgress->progressBar($queuedJob, 8); ?>
+							<?php if (!$queuedJob->failed) { ?>
+								<?php echo $this->QueueProgress->progress($queuedJob) ?>
+								<br>
+								<?php echo $this->QueueProgress->progressBar($queuedJob, 8); ?>
+							<?php } else { ?>
+								<i><?= __d('queue', 'Aborted') ?></i>
+							<?php } ?>
 						</div>
 					<?php } ?>
 				</td>

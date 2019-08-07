@@ -78,15 +78,19 @@
 		<tr>
 			<th><?= __d('queue', 'Progress') ?></th>
 			<td>
-				<?php echo $this->QueueProgress->progress($queuedJob) ?>
-				<br>
-				<?php echo $this->QueueProgress->progressBar($queuedJob, 18); ?>
+				<?php if (!$queuedJob->failed) { ?>
+					<?php echo $this->QueueProgress->progress($queuedJob) ?>
+					<br>
+					<?php echo $this->QueueProgress->progressBar($queuedJob, 18); ?>
+				<?php } else { ?>
+					<i><?= __d('queue', 'Aborted') ?></i>
+				<?php } ?>
 			</td>
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Failed') ?></th>
 			<td>
-				<?= $queuedJob->failed ? $this->Number->format($queuedJob->failed) . 'x' : '' ?>
+				<?= $queuedJob->failed ? $this->Format->ok($this->Number->format($queuedJob->failed) . 'x', !$queuedJob->failed)  : '' ?>
 				<?php
 				if ($queuedJob->fetched && $queuedJob->failed) {
 					echo ' ' . $this->Form->postLink(__d('queue', 'Soft reset'), ['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure?', 'class' => 'button button-primary btn margin btn-primary']);
