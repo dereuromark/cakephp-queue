@@ -35,6 +35,35 @@ class QueueProgressHelperTest extends TestCase {
 	/**
 	 * @return void
 	 */
+	public function testProgress() {
+		$queuedJob = new QueuedJob([
+			'progress' => 0.9999,
+		]);
+		$result = $this->QueueProgressHelper->progress($queuedJob);
+		$this->assertTextContains('99%', $result);
+
+		$queuedJob = new QueuedJob([
+			'progress' => 0.0001,
+		]);
+		$result = $this->QueueProgressHelper->progress($queuedJob);
+		$this->assertTextContains('1%', $result);
+
+		$queuedJob = new QueuedJob([
+			'progress' => 1.0,
+		]);
+		$result = $this->QueueProgressHelper->progress($queuedJob);
+		$this->assertTextContains('100%', $result);
+
+		$queuedJob = new QueuedJob([
+			'progress' => 0.0,
+		]);
+		$result = $this->QueueProgressHelper->progress($queuedJob);
+		$this->assertTextContains('0%', $result);
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testProgressBar() {
 		$queuedJob = new QueuedJob([
 			'progress' => 0.47,

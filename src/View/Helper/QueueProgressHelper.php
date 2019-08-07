@@ -48,7 +48,9 @@ class QueueProgressHelper extends Helper {
 			return null;
 		}
 
-		return Number::toPercentage($queuedJob->progress, 0, ['multiply' => true]);
+		$progress = $this->Progress->roundPercentage($queuedJob->progress);
+
+		return Number::toPercentage($progress, 0, ['multiply' => true]);
 	}
 
 	/**
