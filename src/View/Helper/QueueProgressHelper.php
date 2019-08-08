@@ -77,6 +77,31 @@ class QueueProgressHelper extends Helper {
 	}
 
 	/**
+	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 * @param string|null $fallbackHtml
+	 *
+	 * @return string
+	 */
+	public function htmlProgressBar(QueuedJob $queuedJob, $fallbackHtml = null) {
+		if ($queuedJob->completed) {
+			return null;
+		}
+
+		if ($queuedJob->progress === null && $queuedJob->fetched) {
+			$queuedJob->progress = $this->calculateJobProgress($queuedJob->job_type, $queuedJob->fetched);
+		}
+
+		if ($queuedJob->progress === null) {
+			return null;
+		}
+
+		$progress = $this->Progress->roundPercentage($queuedJob->progress);
+		$title = Number::toPercentage($progress, 0, ['multiply' => true]);
+
+		return '<progress value="' . number_format($progress * 100, 0) . '" max="100" title="' . $title . '">' . $fallbackHtml . '</progress>';
+	}
+
+	/**
 	 * Returns percentage as visual progress bar.
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
