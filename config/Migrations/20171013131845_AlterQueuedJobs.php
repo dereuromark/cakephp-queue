@@ -17,22 +17,23 @@ class AlterQueuedJobs extends AbstractMigration {
 	 * @return void
 	 */
 	public function change() {
-		$table = $this->table('queued_jobs');
+		if ($this->adapter instanceof \Phinx\Db\Adapter\MysqlAdapter) {
+			$table = $this->table('queued_jobs');
 
-		try {
-			$adapter = new MysqlAdapter([]);
-			if ($adapter->getSqlType('text', 'mediumtext')) {
-				$table->changeColumn('failure_message', 'text', [
-					'limit' => MysqlAdapter::TEXT_MEDIUM,
-					'null' => true,
-					'default' => null,
-				]);
+			try {
+				$adapter = new MysqlAdapter([]);
+				if ($adapter->getSqlType('text', 'mediumtext')) {
+					$table->changeColumn('failure_message', 'text', [
+						'limit' => MysqlAdapter::TEXT_MEDIUM,
+						'null' => true,
+						'default' => null,
+					]);
 
-				$table->save();
+					$table->save();
+				}
+			} catch (Exception $e) {
+				Debugger::dump($e->getMessage());
 			}
-		} catch (Exception $e) {
-			Debugger::dump($e->getMessage());
 		}
 	}
-
 }
