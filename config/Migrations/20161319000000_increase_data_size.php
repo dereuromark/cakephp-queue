@@ -17,21 +17,23 @@ class IncreaseDataSize extends AbstractMigration {
 	 * @return void
 	 */
 	public function change() {
-		$table = $this->table('queued_tasks');
+		if ($this->adapter instanceof \Phinx\Db\Adapter\MysqlAdapter) {	
+			$table = $this->table('queued_tasks');
 
-		try {
-			$adapter = new MysqlAdapter([]);
-			if ($adapter->getSqlType('text', 'longtext')) {
-				$table->changeColumn('data', 'text', [
-					'limit' => MysqlAdapter::TEXT_LONG,
-					'null' => true,
-					'default' => null,
-				]);
+			try {
+				$adapter = new MysqlAdapter([]);
+				if ($adapter->getSqlType('text', 'longtext')) {
+					$table->changeColumn('data', 'text', [
+						'limit' => MysqlAdapter::TEXT_LONG,
+						'null' => true,
+						'default' => null,
+					]);
 
-				$table->save();
+					$table->save();
+				}
+			} catch (Exception $e) {
+				Debugger::dump($e->getMessage());
 			}
-		} catch (Exception $e) {
-			Debugger::dump($e->getMessage());
 		}
 	}
 
