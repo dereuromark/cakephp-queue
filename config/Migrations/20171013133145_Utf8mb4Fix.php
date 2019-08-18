@@ -66,25 +66,27 @@ class Utf8mb4Fix extends AbstractMigration {
 		$table->update();
 
 		//TODO: check adapter and skip for postgres, instead of try/catch
-		try {
-			$table = $this->table('queued_jobs');
-			$table->changeColumn('data', 'text', [
-				'limit' => MysqlAdapter::TEXT_MEDIUM,
-				'null' => true,
-				'default' => null,
-				'encoding' => 'utf8mb4',
-				'collation' => 'utf8mb4_unicode_ci',
-			]);
-			$table->changeColumn('failure_message', 'text', [
-				'limit' => MysqlAdapter::TEXT_MEDIUM,
-				'null' => true,
-				'default' => null,
-				'encoding' => 'utf8mb4',
-				'collation' => 'utf8mb4_unicode_ci',
-			]);
-			$table->update();
-		} catch (Exception $e) {
-			Debugger::dump($e->getMessage());
+		if ($this->adapter instanceof \Phinx\Db\Adapter\MysqlAdapter) {
+			try {
+				$table = $this->table('queued_jobs');
+				$table->changeColumn('data', 'text', [
+					'limit' => MysqlAdapter::TEXT_MEDIUM,
+					'null' => true,
+					'default' => null,
+					'encoding' => 'utf8mb4',
+					'collation' => 'utf8mb4_unicode_ci',
+				]);
+				$table->changeColumn('failure_message', 'text', [
+					'limit' => MysqlAdapter::TEXT_MEDIUM,
+					'null' => true,
+					'default' => null,
+					'encoding' => 'utf8mb4',
+					'collation' => 'utf8mb4_unicode_ci',
+				]);
+				$table->update();
+			} catch (Exception $e) {
+				Debugger::dump($e->getMessage());
+			}
 		}
 	}
 
