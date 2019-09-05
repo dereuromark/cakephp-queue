@@ -345,7 +345,7 @@ TEXT;
 			return;
 		}
 
-		$this->QueuedJobs->endProcess($in);
+		$this->QueuedJobs->endProcess((int)$in);
 	}
 
 	/**

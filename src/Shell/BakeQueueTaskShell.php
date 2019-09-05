@@ -23,7 +23,7 @@ class BakeQueueTaskShell extends Shell {
 	/**
 	 * @param string|null $name
 	 *
-	 * @return bool|int|void|null
+	 * @return bool|int|null|void
 	 */
 	public function generate($name = null) {
 		$name = Inflector::camelize(Inflector::underscore($name));
