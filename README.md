@@ -13,7 +13,7 @@ This branch is for use with **CakePHP 3.7+**. For details see [version map](http
 ## Background
 
 This is a very simple and minimalistic job queue (or deferred-task) system for CakePHP.
-If you need a very basic PHP internal queue tool, this is definitly an option.
+If you need a very basic PHP internal queue tool, this is definitely an option.
 It is also a great tool for demo purposes on how queues work and doesn't have any dependencies.
 
 Overall functionality is inspired by systems like Gearman, Beanstalk or dropr, but without

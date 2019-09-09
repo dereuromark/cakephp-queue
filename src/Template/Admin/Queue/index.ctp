@@ -84,7 +84,8 @@ use Cake\Core\Configure;
 						echo '<li>';
 						echo __d('queue', 'Progress') . ': ';
 						echo $this->QueueProgress->progress($pendingJob) . $status;
-						echo '<br>' . $this->QueueProgress->progressBar($pendingJob, 18);
+						$textProgressBar = $this->QueueProgress->progressBar($pendingJob, 18);
+						echo '<br>' . $this->QueueProgress->htmlProgressBar($pendingJob, $textProgressBar);
 						echo '</li>';
 					} else {
 						echo '<li>' . __d('queue', 'Failures') . ': ' . $pendingJob->failed . $reset . '</li>';

@@ -81,6 +81,27 @@ class QueueProgressHelperTest extends TestCase {
 	/**
 	 * @return void
 	 */
+	public function testHtmlProgressBar() {
+		$queuedJob = new QueuedJob([
+			'progress' => 0.47,
+		]);
+		$result = $this->QueueProgressHelper->htmlProgressBar($queuedJob);
+		$expected = '<progress value="47" max="100" title="47%"></progress>';
+		$this->assertSame($expected, $result);
+
+		$queuedJob = new QueuedJob([
+			'progress' => 0.9999,
+		]);
+		// For IE9 and below
+		$fallback = $this->QueueProgressHelper->progressBar($queuedJob, 10);
+		$result = $this->QueueProgressHelper->htmlProgressBar($queuedJob, $fallback);
+		$expected = '<progress value="99" max="100" title="99%"><span title="99%">█████████░</span></progress>';
+		$this->assertSame($expected, $result);
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testProgressBarByStatistics() {
 		$this->_needsConnection();
 
