@@ -434,7 +434,7 @@ TEXT;
 			$this->out('* ' . $key . ': ' . print_r($val, true));
 		}
 
-		$this->out();
+		$this->out('');
 
 		$status = $this->QueueProcesses->status();
 		$this->out('Current running workers: ' . ($status ? $status['workers'] : '-'));
