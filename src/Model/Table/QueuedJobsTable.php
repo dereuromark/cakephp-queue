@@ -370,7 +370,7 @@ class QueuedJobsTable extends Table {
 				break;
 			case static::DRIVER_POSTGRES:
 				$age = $query->newExpr()
-					->add('COALESCE((EXTRACT(EPOCH FROM now()) - EXTRACT(EPOCH FROM notbefore)), 0)');
+					->add('COALESCE(EXTRACT(EPOCH FROM notbefore) - (EXTRACT(EPOCH FROM now())), 0)');
 				break;
 		}
 		$options = [
