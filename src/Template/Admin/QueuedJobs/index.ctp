@@ -95,7 +95,10 @@ use Cake\Core\Plugin;
 							<?php if (!$queuedJob->failed) { ?>
 								<?php echo $this->QueueProgress->progress($queuedJob) ?>
 								<br>
-								<?php echo $this->QueueProgress->progressBar($queuedJob, 8); ?>
+								<?php
+								$textProgressBar = $this->QueueProgress->progressBar($queuedJob, 8);
+								echo $this->QueueProgress->htmlProgressBar($queuedJob, $textProgressBar);
+								?>
 							<?php } else { ?>
 								<i><?= __d('queue', 'Aborted') ?></i>
 							<?php } ?>
