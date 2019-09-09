@@ -7,6 +7,7 @@
  * @var array $status
  * @var int $new
  * @var int $current
+ * @var array $data
  */
 use Cake\Core\Configure;
 ?>
