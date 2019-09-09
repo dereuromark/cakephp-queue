@@ -81,7 +81,10 @@
 				<?php if (!$queuedJob->failed) { ?>
 					<?php echo $this->QueueProgress->progress($queuedJob) ?>
 					<br>
-					<?php echo $this->QueueProgress->progressBar($queuedJob, 18); ?>
+					<?php
+						$textProgressBar = $this->QueueProgress->progressBar($queuedJob, 18);
+						echo $this->QueueProgress->htmlProgressBar($queuedJob, $textProgressBar);
+					?>
 				<?php } else { ?>
 					<i><?= __d('queue', 'Aborted') ?></i>
 				<?php } ?>
