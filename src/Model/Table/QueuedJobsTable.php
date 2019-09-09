@@ -473,6 +473,8 @@ class QueuedJobsTable extends Table {
 			if (array_key_exists('rate', $task) && $tmp['job_type'] && array_key_exists($tmp['job_type'], $this->rateHistory)) {
 				switch ($driverName) {
 					case static::DRIVER_POSTGRES:
+						$tmp['EXTRACT(EPOCH FROM NOW()) >='] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
+						break;
 					case static::DRIVER_MYSQL:
 						$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
 						break;
