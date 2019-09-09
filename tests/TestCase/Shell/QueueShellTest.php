@@ -245,7 +245,8 @@ class QueueShellTest extends TestCase {
 	 */
 	protected function _needsConnection() {
 		$config = ConnectionManager::getConfig('test');
-		$this->skipIf(strpos($config['driver'], 'Mysql') === false, 'Only Mysql is working yet for this.');
+		$skip = strpos($config['driver'], 'Mysql') === false && strpos($config['driver'], 'Postgres') === false;
+		$this->skipIf($skip, 'Only Mysql/Postgres is working yet for this.');
 	}
 
 }
