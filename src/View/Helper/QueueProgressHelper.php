@@ -80,7 +80,7 @@ class QueueProgressHelper extends Helper {
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 * @param string|null $fallbackHtml
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public function htmlProgressBar(QueuedJob $queuedJob, $fallbackHtml = null) {
 		if ($queuedJob->completed) {
