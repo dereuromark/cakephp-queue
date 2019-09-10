@@ -368,17 +368,24 @@ echo h($status); // Outputs "Doing the last thing" for example
 
 #### Progress Bar
 Using Tools plugin 1.9.6+ you can also use the more visual progress bar (or any custom one of yours):
+
 ```php
 echo $this->QueueProgress->progressBar($queuedJob, 18);
 ```
+![HTML5](bar_text.png)
+
 The length refers to the amount of chars to display.
 
 Using Tools plugin 1.9.7+ you can even use HTML5 progress bar (easier to style using CSS).
+
 For this it is recommended to add the textual one from above as fallback, though:
 ```php
 $textProgressBar = $this->QueueProgress->progressBar($queuedJob, 18);
 echo $this->QueueProgress->htmlProgressBar($queuedJob, $textProgressBar);
 ```
+
+![HTML5](bar_html.png)
+
 The text one will only be visible for older browsers that do not support the HTML5 tag.
 
 Make sure you loaded the helper in your AppView class.

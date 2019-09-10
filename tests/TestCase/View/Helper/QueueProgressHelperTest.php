@@ -135,6 +135,39 @@ class QueueProgressHelperTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testHtmlTimeoutProgressBar() {
+		$queuedJob = new QueuedJob([
+			'created' => (new FrozenTime())->subMinute(),
+			'notbefore' => (new FrozenTime())->addMinute(),
+		]);
+		$result = $this->QueueProgressHelper->htmlTimeoutProgressBar($queuedJob);
+		$expected = '<progress value="50" max="100" title="50%"></progress>';
+		$this->assertSame($expected, $result);
+
+		$queuedJob = new QueuedJob([
+			'created' => (new FrozenTime()),
+			'notbefore' => (new FrozenTime())->addHour(),
+		]);
+		// For IE9 and below
+		$fallback = $this->QueueProgressHelper->timeoutProgressBar($queuedJob, 10);
+		$result = $this->QueueProgressHelper->htmlTimeoutProgressBar($queuedJob, $fallback);
+		$expected = '<progress value="0" max="100" title="0%"><span title="0%">░░░░░░░░░░</span></progress>';
+		$this->assertSame($expected, $result);
+
+		$queuedJob = new QueuedJob([
+			'created' => (new FrozenTime())->subMinute(),
+			'notbefore' => (new FrozenTime())->subSecond(),
+		]);
+		// For IE9 and below
+		$fallback = $this->QueueProgressHelper->timeoutProgressBar($queuedJob, 10);
+		$result = $this->QueueProgressHelper->htmlTimeoutProgressBar($queuedJob, $fallback);
+		$expected = '<progress value="100" max="100" title="100%"><span title="100%">██████████</span></progress>';
+		$this->assertSame($expected, $result);
+	}
+
+	/**
 	 * Helper method for skipping tests that need a real connection.
 	 *
 	 * @return void

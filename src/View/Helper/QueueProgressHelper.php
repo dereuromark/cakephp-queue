@@ -110,11 +110,29 @@ class QueueProgressHelper extends Helper {
 	 */
 	public function timeoutProgressBar(QueuedJob $queuedJob, $length) {
 		$progress = $this->calculateTimeoutProgress($queuedJob);
-		if (!$progress) {
+		if ($progress === null) {
 			return null;
 		}
 
 		return $this->Progress->progressBar($progress, $length);
+	}
+
+	/**
+	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 * @param string|null $fallbackHtml
+	 *
+	 * @return string|null
+	 */
+	public function htmlTimeoutProgressBar(QueuedJob $queuedJob, $fallbackHtml = null) {
+		$progress = $this->calculateTimeoutProgress($queuedJob);
+		if ($progress === null) {
+			return null;
+		}
+
+		$progress = $this->Progress->roundPercentage($progress);
+		$title = Number::toPercentage($progress, 0, ['multiply' => true]);
+
+		return '<progress value="' . number_format($progress * 100, 0) . '" max="100" title="' . $title . '">' . $fallbackHtml . '</progress>';
 	}
 
 	/**
@@ -139,8 +157,8 @@ class QueueProgressHelper extends Helper {
 			return null;
 		}
 
-		if ($progressed <= 0) {
-			$progressed = $total;
+		if ($progressed < 0) {
+			$progressed = 0;
 		}
 
 		$progress = min($progressed / $total, 1.0);
