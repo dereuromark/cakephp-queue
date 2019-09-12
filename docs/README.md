@@ -377,7 +377,6 @@ echo $this->QueueProgress->progressBar($queuedJob, 18);
 The length refers to the amount of chars to display.
 
 Using Tools plugin 1.9.7+ you can even use HTML5 progress bar (easier to style using CSS).
-
 For this it is recommended to add the textual one from above as fallback, though:
 ```php
 $textProgressBar = $this->QueueProgress->progressBar($queuedJob, 18);
@@ -405,6 +404,13 @@ until they are supposed to be run:
 echo $this->QueueProgress->timeoutProgressBar($queuedJob, 18);
 ```
 It shows the progress as current time between `created` and `notbefore` boundaries more visually.
+
+Using Tools plugin 1.9.7+ you can even use HTML5 progress bar (easier to style using CSS).
+For this it is recommended to add the textual one from above as fallback, though:
+```php
+$textTimeoutProgressBar = $this->QueueProgress->timeoutProgressBar($queuedJob, 18);
+echo $this->QueueProgress->htmlTimeoutProgressBar($queuedJob, $textTimeoutProgressBar);
+```
 
 ### Logging
 
