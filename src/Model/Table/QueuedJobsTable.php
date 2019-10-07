@@ -353,8 +353,8 @@ class QueuedJobsTable extends Table {
 	 * from the specified group (or any if null).
 	 *
 	 * @param array $capabilities Available QueueWorkerTasks.
-	 * @param array $groups Request a job from these groups (or exclude certain groups), or any otherwise.
-	 * @param array $types Request a job from these types (or exclude certain types), or any otherwise.
+	 * @param string[] $groups Request a job from these groups (or exclude certain groups), or any otherwise.
+	 * @param string[] $types Request a job from these types (or exclude certain types), or any otherwise.
 	 * @return \Queue\Model\Entity\QueuedJob|null
 	 */
 	public function requestJob(array $capabilities, array $groups = [], array $types = []) {
@@ -892,7 +892,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * @param array $conditions
 	 * @param string $key
-	 * @param array $values
+	 * @param string[] $values
 	 * @return array
 	 */
 	protected function addFilter(array $conditions, $key, array $values) {

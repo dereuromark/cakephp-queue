@@ -7,7 +7,7 @@ use Queue\Shell\QueueShell;
 class TestQueueShell extends QueueShell {
 
 	/**
-	 * @var array
+	 * @var string[]
 	 */
 	public $out = [];
 

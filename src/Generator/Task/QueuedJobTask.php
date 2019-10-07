@@ -8,7 +8,7 @@ use Queue\Queue\TaskFinder;
 class QueuedJobTask implements TaskInterface {
 
 	/**
-	 * @var array
+	 * @var string[]
 	 */
 	protected $aliases = [
 		'\Queue\Model\Table\QueuedJobsTable::createJob(0)',

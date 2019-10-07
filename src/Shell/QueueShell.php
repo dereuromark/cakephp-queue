@@ -764,7 +764,7 @@ TEXT;
 
 	/**
 	 * @param string|null $param
-	 * @return array
+	 * @return string[]
 	 */
 	protected function _stringToArray($param) {
 		if (!$param) {

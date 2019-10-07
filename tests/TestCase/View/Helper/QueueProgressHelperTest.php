@@ -8,6 +8,7 @@ use Cake\TestSuite\TestCase;
 use Cake\View\View;
 use Queue\Model\Entity\QueuedJob;
 use Queue\View\Helper\QueueProgressHelper;
+use Tools\Utility\Number;
 
 class QueueProgressHelperTest extends TestCase {
 
@@ -24,12 +25,30 @@ class QueueProgressHelperTest extends TestCase {
 	protected $QueueProgressHelper;
 
 	/**
+	 * @var string
+	 */
+	protected $locale;
+
+	/**
 	 * @return void
 	 */
 	public function setUp() {
 		parent::setUp();
 
+		$this->locale = ini_get('intl.default_locale');
+		ini_set('intl.default_locale', 'en-US');
+		Number::config('en_EN');
+
 		$this->QueueProgressHelper = new QueueProgressHelper(new View(null));
+	}
+
+	/**
+	 * @return void
+	 */
+	public function tearDown() {
+		parent::tearDown();
+
+		ini_set('intl.default_locale', $this->locale);
 	}
 
 	/**
