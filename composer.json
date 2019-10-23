@@ -33,6 +33,9 @@
 		"dereuromark/cakephp-tools": "For the Email lib and QueueEmailTask. Or write your own task here. Also for admin backend.",
 		"dereuromark/cakephp-ide-helper": "For maximum IDE support, especially around createJob() usage."
 	},
+	"conflict": {
+		"dereuromark/cakephp-ide-helper": "0.13.*"
+	},
 	"support": {
 		"source": "https://github.com/dereuromark/cakephp-queue"
 	},
