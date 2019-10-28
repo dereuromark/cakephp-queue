@@ -166,6 +166,9 @@ TEXT;
 			if ($limit) {
 				$this->out('Cannot start worker: Too many workers already/still running on this server (' . $limit . '/' . $limit . ')');
 			}
+
+			$this->QueueProcesses->cleanEndedProcesses();
+
 			return static::CODE_ERROR;
 		}
 
