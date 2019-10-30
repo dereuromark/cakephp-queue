@@ -34,7 +34,7 @@
 		"dereuromark/cakephp-ide-helper": "For maximum IDE support, especially around createJob() usage."
 	},
 	"conflict": {
-		"dereuromark/cakephp-ide-helper": "0.13.*"
+		"dereuromark/cakephp-ide-helper": "<0.14"
 	},
 	"support": {
 		"source": "https://github.com/dereuromark/cakephp-queue"
