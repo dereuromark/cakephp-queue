@@ -25,13 +25,16 @@
 		"cakephp/migrations": "^2.0",
 		"friendsofcake/search": "^5.0",
 		"dereuromark/cakephp-tools": "^1.9.7",
-		"dereuromark/cakephp-ide-helper": "^0.13.16",
+		"dereuromark/cakephp-ide-helper": "dev-feature/directive as 0.14",
 		"fig-r/psr2r-sniffer": "dev-master"
 	},
 	"suggest": {
 		"friendsofcake/search": "For admin backend and filtering of current jobs.",
 		"dereuromark/cakephp-tools": "For the Email lib and QueueEmailTask. Or write your own task here. Also for admin backend.",
 		"dereuromark/cakephp-ide-helper": "For maximum IDE support, especially around createJob() usage."
+	},
+	"conflict": {
+		"dereuromark/cakephp-ide-helper": "<0.14"
 	},
 	"support": {
 		"source": "https://github.com/dereuromark/cakephp-queue"

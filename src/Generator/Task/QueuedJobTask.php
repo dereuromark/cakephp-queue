@@ -2,6 +2,7 @@
 namespace Queue\Generator\Task;
 
 use Cake\Core\App;
+use IdeHelper\Generator\Directive\Override;
 use IdeHelper\Generator\Task\TaskInterface;
 use Queue\Queue\TaskFinder;
 
@@ -15,7 +16,7 @@ class QueuedJobTask implements TaskInterface {
 	];
 
 	/**
-	 * @return array
+	 * @return \IdeHelper\Generator\Directive\BaseDirective[]
 	 */
 	public function collect() {
 		$map = [];
@@ -29,7 +30,8 @@ class QueuedJobTask implements TaskInterface {
 
 		$result = [];
 		foreach ($this->aliases as $alias) {
-			$result[$alias] = $map;
+			$directive = new Override($alias, $map);
+			$result[$directive->key()] = $directive;
 		}
 
 		return $result;
