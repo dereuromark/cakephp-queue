@@ -126,7 +126,7 @@ class QueuedJobsTable extends Table {
 					}
 
 					throw new NotImplementedException('Invalid status type');
-				}
+				},
 			]);
 
 		return $searchManager;
@@ -379,13 +379,13 @@ class QueuedJobsTable extends Table {
 				'OR' => [],
 			],
 			'fields' => [
-				'age' => $age
+				'age' => $age,
 			],
 			'order' => [
 				'priority' => 'ASC',
 				'age' => 'ASC',
 				'id' => 'ASC',
-			]
+			],
 		];
 
 		$costConstraints = [];
@@ -500,7 +500,7 @@ class QueuedJobsTable extends Table {
 			$key = $this->key();
 			$job = $this->patchEntity($job, [
 				'workerkey' => $key,
-				'fetched' => $now
+				'fetched' => $now,
 			]);
 
 			return $this->saveOrFail($job);
@@ -527,7 +527,7 @@ class QueuedJobsTable extends Table {
 		}
 
 		$values = [
-			'progress' => round($progress, 2)
+			'progress' => round($progress, 2),
 		];
 		if ($status !== null) {
 			$values['status'] = $status;

@@ -410,7 +410,7 @@ class QueuedJobsTableTest extends TestCase {
 		];
 
 		$data = [
-			'key' => '1'
+			'key' => '1',
 		];
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data));
 

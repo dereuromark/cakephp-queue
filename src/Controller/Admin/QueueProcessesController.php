@@ -44,7 +44,7 @@ class QueueProcessesController extends AppController {
 	 */
 	public function view($id = null) {
 		$queueProcess = $this->QueueProcesses->get($id, [
-			'contain' => []
+			'contain' => [],
 		]);
 
 		$this->set(compact('queueProcess'));
@@ -61,7 +61,7 @@ class QueueProcessesController extends AppController {
 	 */
 	public function edit($id = null) {
 		$queueProcess = $this->QueueProcesses->get($id, [
-			'contain' => []
+			'contain' => [],
 		]);
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$queueProcess = $this->QueueProcesses->patchEntity($queueProcess, $this->request->getData());

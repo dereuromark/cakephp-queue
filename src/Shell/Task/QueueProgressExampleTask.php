@@ -38,7 +38,7 @@ class QueueProgressExampleTask extends QueueTask implements AddInterface {
 		$this->out(' ');
 
 		$data = [
-			'duration' => 2 * MINUTE
+			'duration' => 2 * MINUTE,
 		];
 		$this->QueuedJobs->createJob('ProgressExample', $data);
 		$this->success('OK, job created, now run the worker');

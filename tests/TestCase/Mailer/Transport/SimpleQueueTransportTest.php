@@ -47,7 +47,7 @@ class SimpleQueueTransportTest extends TestCase {
 		$Email->setAttachments(['wow.txt' => [
 			'data' => 'much wow!',
 			'mimetype' => 'text/plain',
-			'contentId' => 'important'
+			'contentId' => 'important',
 		]]);
 
 		$Email->setLayout('test_layout');

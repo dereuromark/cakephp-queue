@@ -36,7 +36,7 @@ Cake\Core\Configure::write('App', [
 	'encoding' => 'UTF-8',
 	'paths' => [
 		'templates' => [ROOT . DS . 'tests' . DS . 'test_app' . DS . 'src' . DS . 'Template' . DS],
-	]
+	],
 ]);
 
 Cake\Core\Configure::write('debug', true);

@@ -17,7 +17,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 */
 	public $fixtures = [
 		'plugin.queue.QueuedJobs',
-		'plugin.queue.QueueProcesses'
+		'plugin.queue.QueueProcesses',
 	];
 
 	/**
@@ -153,7 +153,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	public function testHardReset() {
 		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo'
+			'job_type' => 'foo',
 		]);
 		$jobsTable->saveOrFail($job);
 		$count = $jobsTable->find()->count();

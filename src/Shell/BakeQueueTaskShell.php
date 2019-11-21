@@ -105,7 +105,7 @@ class BakeQueueTaskShell extends Shell {
 				'name' => [
 					'default' => null,
 					'required' => true,
-				]
+				],
 			],
 			'options' => [
 				'plugin' => [

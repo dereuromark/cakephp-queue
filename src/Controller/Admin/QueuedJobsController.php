@@ -98,7 +98,7 @@ class QueuedJobsController extends AppController {
 	 */
 	public function view($id = null) {
 		$queuedJob = $this->QueuedJobs->get((int)$id, [
-			'contain' => ['WorkerProcesses']
+			'contain' => ['WorkerProcesses'],
 		]);
 
 		if ($this->request->getParam('_ext') && $this->request->getParam('_ext') === 'json' && $this->request->getQuery('download')) {
@@ -173,7 +173,7 @@ class QueuedJobsController extends AppController {
 	 */
 	public function edit($id = null) {
 		$queuedJob = $this->QueuedJobs->get($id, [
-			'contain' => []
+			'contain' => [],
 		]);
 		if ($queuedJob->completed) {
 			$this->Flash->error(__d('queue', 'The queued job is already completed.'));

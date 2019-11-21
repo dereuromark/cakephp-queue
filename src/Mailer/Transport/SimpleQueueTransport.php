@@ -48,7 +48,7 @@ class SimpleQueueTransport extends AbstractTransport {
 			'attachments' => [$email->getAttachments()],
 			'template' => [$email->getTemplate()],
 			'layout' => [$email->getLayout()],
-			'viewVars' => [$email->getViewVars()]
+			'viewVars' => [$email->getViewVars()],
 		];
 
 		foreach ($settings as $setting => $value) {
