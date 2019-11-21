@@ -1,7 +1,7 @@
 parameters:
-    autoload_files:
-        - tests/bootstrap.php
+  autoload_files:
+    - tests/bootstrap.php
 
-    ignoreErrors:
-        - '#Access to an undefined property Cake\\ORM\\BehaviorRegistry::\$Search#'
-        - '#Result of method .+QueueTaskInterface::run\(\) \(void\) is used.#'
+  ignoreErrors:
+    - '#Access to an undefined property Cake\\ORM\\BehaviorRegistry::\$Search#'
+    - '#Result of method .+QueueTaskInterface::run\(\) \(void\) is used.#'
