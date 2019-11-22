@@ -89,11 +89,12 @@ class QueueExecuteTaskTest extends TestCase {
 
 	/**
 	 * @return void
-	 * @expectedException \RuntimeException
-	 * @expectedExceptionMessage Failed with error code 127: `fooooobbbaraar -eeee`
 	 */
 	public function testRunFailureWithoutRedirect() {
 		$this->skipIf((bool)getenv('TRAVIS'), 'Not redirecting stderr to stdout prints noise to the CLI output in between test runs.');
+
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage('Failed with error code 127: `fooooobbbaraar -eeee`');
 
 		$this->Task->run(['command' => 'fooooobbbaraar -eeee', 'redirect' => false], null);
 	}

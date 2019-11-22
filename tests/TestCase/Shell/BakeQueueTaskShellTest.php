@@ -60,8 +60,8 @@ class BakeQueueTaskShellTest extends TestCase {
 		$this->shell->runCommand(['generate', 'FooBar', '-d']);
 
 		$output = $this->out->output();
-		$this->assertContains('Generating: QueueFooBarTask', $output);
-		$this->assertContains('Generating: QueueFooBarTask test class', $output);
+		$this->assertStringContainsString('Generating: QueueFooBarTask', $output);
+		$this->assertStringContainsString('Generating: QueueFooBarTask test class', $output);
 	}
 
 }

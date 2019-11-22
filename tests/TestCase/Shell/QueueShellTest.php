@@ -84,7 +84,7 @@ class QueueShellTest extends TestCase {
 		$this->_needsConnection();
 
 		$this->QueueShell->stats();
-		$this->assertContains('Total unfinished jobs: 0', $this->out->output());
+		$this->assertStringContainsString('Total unfinished jobs: 0', $this->out->output());
 	}
 
 	/**
@@ -92,7 +92,7 @@ class QueueShellTest extends TestCase {
 	 */
 	public function testSettings() {
 		$this->QueueShell->settings();
-		$this->assertContains('* cleanuptimeout: 10', $this->out->output());
+		$this->assertStringContainsString('* cleanuptimeout: 10', $this->out->output());
 	}
 
 	/**
@@ -101,7 +101,7 @@ class QueueShellTest extends TestCase {
 	public function testAddInexistent() {
 		$this->QueueShell->args[] = 'FooBar';
 		$this->QueueShell->add();
-		$this->assertContains('Error: Task not found: FooBar', $this->out->output());
+		$this->assertStringContainsString('Error: Task not found: FooBar', $this->out->output());
 	}
 
 	/**
@@ -111,7 +111,7 @@ class QueueShellTest extends TestCase {
 		$this->QueueShell->args[] = 'Example';
 		$this->QueueShell->add();
 
-		$this->assertContains('OK, job created, now run the worker', $this->out->output(), print_r($this->out->output, true));
+		$this->assertStringContainsString('OK, job created, now run the worker', $this->out->output(), print_r($this->out->output, true));
 	}
 
 	/**
@@ -120,7 +120,7 @@ class QueueShellTest extends TestCase {
 	public function testHardReset() {
 		$this->QueueShell->hardReset();
 
-		$this->assertContains('OK', $this->out->output(), print_r($this->out->output, true));
+		$this->assertStringContainsString('OK', $this->out->output(), print_r($this->out->output, true));
 	}
 
 	/**
@@ -136,7 +136,7 @@ class QueueShellTest extends TestCase {
 
 		$this->QueueShell->runCommand(['hard_reset']);
 
-		$this->assertContains('OK', $this->out->output(), print_r($this->out->output, true));
+		$this->assertStringContainsString('OK', $this->out->output(), print_r($this->out->output, true));
 
 		$queuedJobs = $queuedJobsTable->find()->count();
 		$this->assertSame(0, $queuedJobs);
@@ -148,7 +148,7 @@ class QueueShellTest extends TestCase {
 	public function testReset() {
 		$this->QueueShell->reset();
 
-		$this->assertContains('0 jobs reset.', $this->out->output(), print_r($this->out->output, true));
+		$this->assertStringContainsString('0 jobs reset.', $this->out->output(), print_r($this->out->output, true));
 	}
 
 	/**
@@ -157,7 +157,7 @@ class QueueShellTest extends TestCase {
 	public function testRerun() {
 		$this->QueueShell->rerun('Foo');
 
-		$this->assertContains('0 jobs reset for re-run.', $this->out->output(), print_r($this->out->output, true));
+		$this->assertStringContainsString('0 jobs reset for re-run.', $this->out->output(), print_r($this->out->output, true));
 	}
 
 	/**
@@ -166,7 +166,7 @@ class QueueShellTest extends TestCase {
 	public function testEnd() {
 		$this->QueueShell->end();
 
-		$this->assertContains('No processes found', $this->out->output(), print_r($this->out->output, true));
+		$this->assertStringContainsString('No processes found', $this->out->output(), print_r($this->out->output, true));
 	}
 
 	/**
@@ -175,7 +175,7 @@ class QueueShellTest extends TestCase {
 	public function testKill() {
 		$this->QueueShell->kill();
 
-		$this->assertContains('No processes found', $this->out->output(), print_r($this->out->output, true));
+		$this->assertStringContainsString('No processes found', $this->out->output(), print_r($this->out->output, true));
 	}
 
 	/**
@@ -193,11 +193,11 @@ class QueueShellTest extends TestCase {
 		$this->QueueShell->add();
 
 		$expected = 'This is a very simple example of a QueueTask and how retries work';
-		$this->assertContains($expected, $this->out->output());
+		$this->assertStringContainsString($expected, $this->out->output());
 
 		$this->QueueShell->runworker();
 
-		$this->assertContains('Job did not finish, requeued after try 1.', $this->out->output());
+		$this->assertStringContainsString('Job did not finish, requeued after try 1.', $this->out->output());
 	}
 
 	/**

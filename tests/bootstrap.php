@@ -1,4 +1,8 @@
 <?php
+use Cake\Core\Configure;
+use Cake\Filesystem\Folder;
+use Cake\Cache\Cache;
+use Cake\Mailer\TransportFactory;
 use Cake\Datasource\ConnectionManager;
 
 if (!defined('DS')) {
@@ -31,7 +35,7 @@ ini_set('intl.default_locale', 'de-DE');
 require ROOT . '/vendor/autoload.php';
 require CORE_PATH . 'config/bootstrap.php';
 
-Cake\Core\Configure::write('App', [
+Configure::write('App', [
 	'namespace' => 'App',
 	'encoding' => 'UTF-8',
 	'paths' => [
@@ -39,14 +43,14 @@ Cake\Core\Configure::write('App', [
 	],
 ]);
 
-Cake\Core\Configure::write('debug', true);
+Configure::write('debug', true);
 
-Cake\Core\Configure::write('EmailTransport', [
+Configure::write('EmailTransport', [
 		'default' => [
 			'className' => 'Debug',
 		],
 ]);
-Cake\Core\Configure::write('Email', [
+Configure::write('Email', [
 		'default' => [
 			'transport' => 'default',
 			'from' => 'you@localhost',
@@ -55,7 +59,7 @@ Cake\Core\Configure::write('Email', [
 
 mb_internal_encoding('UTF-8');
 
-$Tmp = new \Cake\Filesystem\Folder(TMP);
+$Tmp = new Folder(TMP);
 $Tmp->create(TMP . 'cache/models', 0770);
 $Tmp->create(TMP . 'cache/persistent', 0770);
 $Tmp->create(TMP . 'cache/views', 0770);
@@ -81,14 +85,14 @@ $cache = [
 	],
 ];
 
-Cake\Cache\Cache::setConfig($cache);
+Cache::setConfig($cache);
 
-Cake\Core\Plugin::getCollection()->add(new \Queue\Plugin());
+Cake\Core\Plugin::getCollection()->add(new Queue\Plugin());
 
-Cake\Mailer\TransportFactory::setConfig('default', [
+TransportFactory::setConfig('default', [
 	'className' => 'Debug',
 ]);
-Cake\Mailer\TransportFactory::setConfig('queue', [
+TransportFactory::setConfig('queue', [
 	'className' => 'Queue.Queue',
 ]);
 /*

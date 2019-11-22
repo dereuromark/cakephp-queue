@@ -51,9 +51,10 @@ class QueueExceptionExampleTaskTest extends TestCase {
 
 	/**
 	 * @return void
-	 * @expectedException \RuntimeException
 	 */
 	public function testRun() {
+		$this->expectException(\RuntimeException::class);
+
 		$this->Task->run([], null);
 	}
 
