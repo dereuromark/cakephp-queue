@@ -6,7 +6,7 @@
 namespace Queue\Mailer\Transport;
 
 use Cake\Mailer\AbstractTransport;
-use Cake\Mailer\Email;
+use Cake\Mailer\Message;
 use Cake\ORM\TableRegistry;
 
 /**
@@ -17,38 +17,38 @@ class SimpleQueueTransport extends AbstractTransport {
 	/**
 	 * Send mail
 	 *
-	 * @param \Cake\Mailer\Email $email Email
+	 * @param \Cake\Mailer\Message $message
 	 * @return array
 	 */
-	public function send(Email $email) {
+	public function send(Message $message): array {
 		if (!empty($this->_config['queue'])) {
 			$this->_config = $this->_config['queue'] + $this->_config;
-			$email->setConfig((array)$this->_config['queue'] + ['queue' => []]);
+			$message->setConfig((array)$this->_config['queue'] + ['queue' => []]);
 			unset($this->_config['queue']);
 		}
 
 		$settings = [
-			'from' => [$email->getFrom()],
-			'to' => [$email->getTo()],
-			'cc' => [$email->getCc()],
-			'bcc' => [$email->getBcc()],
-			'charset' => [$email->getCharset()],
-			'replyTo' => [$email->getReplyTo()],
-			'readReceipt' => [$email->getReadReceipt()],
-			'returnPath' => [$email->getReturnPath()],
-			'messageId' => [$email->getMessageId()],
-			'domain' => [$email->getDomain()],
-			'headers' => [$email->getHeaders()],
-			'headerCharset' => [$email->getHeaderCharset()],
-			'theme' => [$email->getTheme()],
-			'profile' => [$email->getProfile()],
-			'emailFormat' => [$email->getEmailFormat()],
-			'subject' => method_exists($email, 'getOriginalSubject') ? [$email->getOriginalSubject()] : [$email->getSubject()],
+			'from' => [$message->getFrom()],
+			'to' => [$message->getTo()],
+			'cc' => [$message->getCc()],
+			'bcc' => [$message->getBcc()],
+			'charset' => [$message->getCharset()],
+			'replyTo' => [$message->getReplyTo()],
+			'readReceipt' => [$message->getReadReceipt()],
+			'returnPath' => [$message->getReturnPath()],
+			'messageId' => [$message->getMessageId()],
+			'domain' => [$message->getDomain()],
+			'headers' => [$message->getHeaders()],
+			'headerCharset' => [$message->getHeaderCharset()],
+			//'theme' => [$message->getTheme()],
+			//'profile' => [$message->getProfile()],
+			'emailFormat' => [$message->getEmailFormat()],
+			'subject' => method_exists($message, 'getOriginalSubject') ? [$message->getOriginalSubject()] : [$message->getSubject()],
 			'transport' => [$this->_config['transport']],
-			'attachments' => [$email->getAttachments()],
-			'template' => [$email->getTemplate()],
-			'layout' => [$email->getLayout()],
-			'viewVars' => [$email->getViewVars()],
+			'attachments' => [$message->getAttachments()],
+			//'template' => [$message->getTemplate()],
+			//'layout' => [$message->getLayout()],
+			//'viewVars' => [$message->getViewVars()],
 		];
 
 		foreach ($settings as $setting => $value) {

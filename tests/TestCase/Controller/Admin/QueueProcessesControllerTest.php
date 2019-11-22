@@ -13,7 +13,7 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 	/**
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->disableErrorHandlerMiddleware();
@@ -22,7 +22,7 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 	/**
 	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 	}
 
@@ -42,7 +42,7 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testIndex() {
-		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'index']);
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'index']);
 
 		$this->assertResponseCode(200);
 	}
@@ -53,7 +53,7 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testView() {
-		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'view', 1]);
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'view', 1]);
 
 		$this->assertResponseCode(200);
 	}
@@ -64,7 +64,7 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testEdit() {
-		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'edit', 1]);
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'edit', 1]);
 
 		$this->assertResponseCode(200);
 	}
@@ -78,7 +78,7 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 		$queueProcess->terminate = false;
 		TableRegistry::get('Queue.QueueProcesses')->saveOrFail($queueProcess);
 
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'terminate', 1]);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'terminate', 1]);
 
 		$this->assertResponseCode(302);
 
@@ -90,7 +90,7 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testDelete() {
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'delete', 1]);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'delete', 1]);
 
 		$this->assertResponseCode(302);
 
@@ -107,7 +107,7 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 		$queueProcess->modified = new FrozenTime(time() - 4 * DAY);
 		TableRegistry::get('Queue.QueueProcesses')->saveOrFail($queueProcess);
 
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'cleanup']);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'cleanup']);
 
 		$this->assertResponseCode(302);
 

@@ -30,8 +30,8 @@ class QueuedJobsTableTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'plugin.queue.QueuedJobs',
-		'plugin.queue.QueueProcesses',
+		'plugin.Queue.QueuedJobs',
+		'plugin.Queue.QueueProcesses',
 	];
 
 	/**
@@ -39,7 +39,7 @@ class QueuedJobsTableTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$config = TableRegistry::exists('QueuedJobs') ? [] : ['className' => QueuedJobsTable::class];

@@ -1,7 +1,6 @@
 <?php
 namespace App\Shell;
 
-use Cake\Console\Shell;
 use Queue\Shell\QueueShell;
 
 class TestQueueShell extends QueueShell {
@@ -14,14 +13,16 @@ class TestQueueShell extends QueueShell {
 	/**
 	 * Output function for Test
 	 *
-	 * @param string|null $message Message.
+	 * @param string|string[] $message A string or an array of strings to output
 	 * @param int $newlines Newline.
 	 * @param int $level Output level.
 	 *
-	 * @return void
+	 * @return int|null
 	 */
-	public function out($message = null, $newlines = 1, $level = Shell::NORMAL) {
+	public function out($message, int $newlines = 1, int $level = self::NORMAL): ?int {
 		$this->out[] = $message;
+
+		return null;
 	}
 
 	/**

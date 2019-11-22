@@ -18,23 +18,20 @@
 		}
 	],
 	"require": {
-		"php": ">=5.6",
-		"cakephp/cakephp": "^3.7"
+		"php": ">=7.2",
+		"cakephp/cakephp": "4.x-dev as 4.0.0"
 	},
 	"require-dev": {
-		"cakephp/migrations": "^2.0",
-		"friendsofcake/search": "^5.0",
-		"dereuromark/cakephp-tools": "^1.9.7",
-		"dereuromark/cakephp-ide-helper": "dev-master",
+		"cakephp/migrations": "4.x-dev",
+		"friendsofcake/search": "dev-cake-4.x",
+		"dereuromark/cakephp-tools": "dev-cake4",
+		"dereuromark/cakephp-ide-helper": "dev-cake4",
 		"fig-r/psr2r-sniffer": "dev-master"
 	},
 	"suggest": {
 		"friendsofcake/search": "For admin backend and filtering of current jobs.",
 		"dereuromark/cakephp-tools": "For the Email lib and QueueEmailTask. Or write your own task here. Also for admin backend.",
 		"dereuromark/cakephp-ide-helper": "For maximum IDE support, especially around createJob() usage."
-	},
-	"conflict": {
-		"dereuromark/cakephp-ide-helper": "<0.14"
 	},
 	"support": {
 		"source": "https://github.com/dereuromark/cakephp-queue"
@@ -53,11 +50,13 @@
 			"Cake\\Test\\": "vendor/cakephp/cakephp/tests/"
 		}
 	},
+	"prefer-stable": true,
+	"minimum-stability": "dev",
 	"scripts": {
 		"phpstan": "phpstan analyse -c tests/phpstan.neon -l 5 src/",
 		"phpstan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan-shim && mv composer.backup composer.json",
 		"test": "php phpunit.phar",
-		"test-setup": "[ ! -f phpunit.phar ] && wget https://phar.phpunit.de/phpunit-6.5.13.phar && mv phpunit-6.5.13.phar phpunit.phar || true",
+		"test-setup": "[ ! -f phpunit.phar ] && wget https://phar.phpunit.de/phpunit-8.4.3.phar && mv phpunit-8.4.3.phar phpunit.phar || true",
 		"cs-check": "phpcs -p --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=/config/Migrations/ --extensions=php src/ tests/ config/",
 		"cs-fix": "phpcbf -v --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=/config/Migrations/ --extensions=php src/ tests/ config/"
 	}

@@ -25,7 +25,7 @@ class QueueProcessesTableTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'plugin.queue.QueueProcesses',
+		'plugin.Queue.QueueProcesses',
 	];
 
 	/**
@@ -33,7 +33,7 @@ class QueueProcessesTableTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('QueueProcesses') ? [] : ['className' => QueueProcessesTable::class];
 		$this->QueueProcesses = TableRegistry::get('QueueProcesses', $config);
@@ -46,7 +46,7 @@ class QueueProcessesTableTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->QueueProcesses);
 
 		parent::tearDown();

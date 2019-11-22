@@ -5,12 +5,13 @@ namespace Queue\Model\Table;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
-use Cake\Event\Event;
+use Cake\Event\EventInterface;
 use Cake\Http\Exception\NotImplementedException;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
+use Cake\Validation\Validator;
 use InvalidArgumentException;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Queue\Config;
@@ -59,7 +60,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return string
 	 */
-	public static function defaultConnectionName() {
+	public static function defaultConnectionName(): string {
 		$connection = Configure::read('Queue.connection');
 		if (!empty($connection)) {
 			return $connection;
@@ -74,7 +75,7 @@ class QueuedJobsTable extends Table {
 	 * @param array $config Configuration
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->addBehavior('Timestamp');
@@ -92,12 +93,12 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * @param \Cake\Event\Event $event
+	 * @param \Cake\Event\EventInterface $event
 	 * @param \ArrayObject $data
 	 * @param \ArrayObject $options
 	 * @return void
 	 */
-	public function beforeMarshal(Event $event, ArrayObject $data, ArrayObject $options) {
+	public function beforeMarshal(EventInterface $event, ArrayObject $data, ArrayObject $options) {
 		if (isset($data['data']) && $data['data'] === '') {
 			$data['data'] = null;
 		}
@@ -130,6 +131,24 @@ class QueuedJobsTable extends Table {
 			]);
 
 		return $searchManager;
+	}
+
+	/**
+	 * Default validation rules.
+	 *
+	 * @param \Cake\Validation\Validator $validator Validator instance.
+	 * @return \Cake\Validation\Validator
+	 */
+	public function validationDefault(Validator $validator): Validator {
+		$validator
+			->integer('id')
+			->allowEmptyString('id', 'create');
+
+		$validator
+			->requirePresence('job_type', 'create')
+			->notEmptyString('job_type');
+
+		return $validator;
 	}
 
 	/**
@@ -801,7 +820,9 @@ class QueuedJobsTable extends Table {
 	 * @return void
 	 */
 	public function truncate() {
-		$sql = $this->getSchema()->truncateSql($this->_connection);
+		/** @var \Cake\Database\Schema\TableSchema $schema */
+		$schema = $this->getSchema();
+		$sql = $schema->truncateSql($this->_connection);
 		foreach ($sql as $snippet) {
 			$this->_connection->execute($snippet);
 		}

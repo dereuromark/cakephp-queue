@@ -16,7 +16,7 @@ class QueueProgressHelperTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'plugin.queue.QueuedJobs',
+		'plugin.Queue.QueuedJobs',
 	];
 
 	/**
@@ -32,7 +32,7 @@ class QueueProgressHelperTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->locale = ini_get('intl.default_locale');
@@ -45,7 +45,7 @@ class QueueProgressHelperTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 
 		ini_set('intl.default_locale', $this->locale);

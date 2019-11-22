@@ -29,7 +29,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return string
 	 */
-	public static function defaultConnectionName() {
+	public static function defaultConnectionName(): string {
 		$connection = Configure::read('Queue.connection');
 		if (!empty($connection)) {
 			return $connection;
@@ -44,7 +44,7 @@ class QueueProcessesTable extends Table {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('queue_processes');
@@ -60,18 +60,18 @@ class QueueProcessesTable extends Table {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): Validator {
 		$validator
 			->integer('id')
-			->allowEmpty('id', 'create');
+			->allowEmptyString('id', 'create');
 
 		$validator
 			->requirePresence('pid', 'create')
-			->notEmpty('pid');
+			->notEmptyString('pid');
 
 		$validator
 			->requirePresence('workerkey', 'create')
-			->notEmpty('workerkey');
+			->notEmptyString('workerkey');
 
 		$validator
 			->add('server', 'validateCount', [

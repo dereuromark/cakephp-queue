@@ -2,6 +2,7 @@
 
 namespace Queue\Shell;
 
+use Cake\Console\ConsoleOptionParser;
 use Cake\Console\Shell;
 use Cake\Core\App;
 use Cake\Core\Plugin;
@@ -12,7 +13,7 @@ class BakeQueueTaskShell extends Shell {
 	/**
 	 * @return void
 	 */
-	public function startup() {
+	public function startup(): void {
 		if ($this->param('quiet')) {
 			$this->interactive = false;
 		}
@@ -29,7 +30,7 @@ class BakeQueueTaskShell extends Shell {
 		$name = Inflector::camelize(Inflector::underscore($name));
 
 		$name = 'Queue' . $name . 'Task';
-		$plugin = $this->param('plugin');
+		$plugin = $this->param('plugin') ?: null;
 		if ($plugin) {
 			$plugin = Inflector::camelize(Inflector::underscore($plugin));
 		}
@@ -99,7 +100,7 @@ class BakeQueueTaskShell extends Shell {
 	 *
 	 * @return \Cake\Console\ConsoleOptionParser
 	 */
-	public function getOptionParser() {
+	public function getOptionParser(): ConsoleOptionParser {
 		$subcommandParser = [
 			'arguments' => [
 				'name' => [
@@ -111,7 +112,7 @@ class BakeQueueTaskShell extends Shell {
 				'plugin' => [
 					'short' => 'p',
 					'help' => 'Plugin',
-					'default' => '',
+					'default' => null,
 				],
 				'dry-run' => [
 					'short' => 'd',
@@ -152,7 +153,7 @@ class $name extends QueueTask {
 	 * @param int \$jobId The id of the QueuedJob entity
 	 * @return void
 	 */
-	public function run(array \$data, \$jobId) {
+	public function run(array \$data, \$jobId): void {
 	}
 
 }
@@ -186,19 +187,19 @@ use $taskClassNamespace;
 class $testName extends TestCase {
 
 	/**
-	 * @var array
+	 * @var string[]
 	 */
 	public \$fixtures = [
 		'plugin.Queue.QueuedJobs',
 		'plugin.Queue.QueueProcesses',
 	];
-	
+
 	/**
 	 * @return void
 	 */
-	public function testRun() {
+	public function testRun(): void {
 		\$task = new $name();
-		
+
 		//TODO
 	}
 

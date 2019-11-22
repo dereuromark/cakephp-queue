@@ -5,7 +5,6 @@ namespace Queue\Shell\Task;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Mailer\Email;
-use Exception;
 use Queue\Model\QueueException;
 use Throwable;
 
@@ -88,12 +87,6 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 
 				throw $e;
 
-			} catch (Exception $e) {
-				$error = $e->getMessage();
-				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
-				Log::write('error', $error);
-
-				throw $e;
 			}
 
 			if (!$result) {
@@ -120,7 +113,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 			if (!is_array($data['headers'])) {
 				throw new QueueException('Please provide headers as array.');
 			}
-			$this->Email->setHeaders($data['headers']);
+			$this->Email->getMessage()->setHeaders($data['headers']);
 		}
 
 		if (!$this->Email->send($message)) {

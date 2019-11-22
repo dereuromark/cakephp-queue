@@ -2,6 +2,7 @@
 
 namespace Queue\Shell;
 
+use Cake\Console\ConsoleOptionParser;
 use Cake\Console\Shell;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
@@ -11,7 +12,6 @@ use Cake\Log\Log;
 use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
-use Exception;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\ProcessEndingException;
 use Queue\Model\QueueException;
@@ -64,7 +64,7 @@ class QueueShell extends Shell {
 	 *
 	 * @return void
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		$taskFinder = new TaskFinder();
 		$this->tasks = $taskFinder->allAppAndPluginTasks();
 
@@ -76,7 +76,7 @@ class QueueShell extends Shell {
 	/**
 	 * @return void
 	 */
-	public function startup() {
+	public function startup(): void {
 		if ($this->param('quiet')) {
 			$this->interactive = false;
 		}
@@ -250,6 +250,7 @@ TEXT;
 		$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id, $pid, false);
 		$taskName = 'Queue' . $queuedJob->job_type;
 
+		$return = $failureMessage = null;
 		try {
 			$this->_time = time();
 
@@ -260,11 +261,7 @@ TEXT;
 				throw new RuntimeException('Task must implement ' . QueueTaskInterface::class);
 			}
 
-			$return = $task->run((array)$data, $queuedJob->id);
-			if ($return !== null) {
-				trigger_error('run() should be void and throw exception in error case now.', E_USER_DEPRECATED);
-			}
-			$failureMessage = $taskName . ' failed';
+			$task->run((array)$data, $queuedJob->id);
 
 		} catch (Throwable $e) {
 			$return = false;
@@ -275,11 +272,6 @@ TEXT;
 			}
 
 			$this->_logError($taskName . ' (job ' . $queuedJob->id . ')' . "\n" . $failureMessage, $pid);
-		} catch (Exception $e) {
-			$return = false;
-
-			$failureMessage = get_class($e) . ': ' . $e->getMessage();
-			$this->_logError($taskName . "\n" . $failureMessage, $pid);
 		}
 
 		if ($return === false) {
@@ -490,7 +482,7 @@ TEXT;
 	 *
 	 * @return \Cake\Console\ConsoleOptionParser
 	 */
-	public function getOptionParser() {
+	public function getOptionParser(): ConsoleOptionParser {
 		$subcommandParser = [
 			'options' => [
 				/*

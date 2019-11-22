@@ -3,9 +3,8 @@
 namespace App\Shell\Task;
 
 use Queue\Shell\Task\QueueTask;
-use Queue\Shell\Task\QueueTaskInterface;
 
-class QueueFooTask extends QueueTask implements QueueTaskInterface {
+class QueueFooTask extends QueueTask {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.

@@ -16,14 +16,14 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'plugin.queue.QueuedJobs',
-		'plugin.queue.QueueProcesses',
+		'plugin.Queue.QueuedJobs',
+		'plugin.Queue.QueueProcesses',
 	];
 
 	/**
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->disableErrorHandlerMiddleware();
@@ -37,7 +37,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	public function testIndex() {
 		$this->_needsConnection();
 
-		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
 
 		$this->assertResponseCode(200);
 	}
@@ -48,7 +48,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testProcesses() {
-		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'processes']);
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'processes']);
 
 		$this->assertResponseCode(200);
 	}
@@ -65,7 +65,7 @@ class QueueControllerTest extends IntegrationTestCase {
 		]);
 		$queueProcessesTable->saveOrFail($queueProcess);
 
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'processes', '?' => ['end' => $queueProcess->pid]]);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'processes', '?' => ['end' => $queueProcess->pid]]);
 
 		$this->assertResponseCode(302);
 
@@ -79,7 +79,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	public function testAddJob() {
 		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
 
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'addJob', 'Example']);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'addJob', 'Example']);
 
 		$this->assertResponseCode(302);
 
@@ -99,7 +99,7 @@ class QueueControllerTest extends IntegrationTestCase {
 		]);
 		$jobsTable->saveOrFail($job);
 
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'removeJob', $job->id]);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'removeJob', $job->id]);
 
 		$this->assertResponseCode(302);
 
@@ -118,7 +118,7 @@ class QueueControllerTest extends IntegrationTestCase {
 		]);
 		$jobsTable->saveOrFail($job);
 
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id]);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id]);
 
 		$this->assertResponseCode(302);
 
@@ -138,7 +138,7 @@ class QueueControllerTest extends IntegrationTestCase {
 		]);
 		$jobsTable->saveOrFail($job);
 
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'reset']);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'reset']);
 
 		$this->assertResponseCode(302);
 
@@ -159,7 +159,7 @@ class QueueControllerTest extends IntegrationTestCase {
 		$count = $jobsTable->find()->count();
 		$this->assertSame(1, $count);
 
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'hardReset']);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'hardReset']);
 
 		$this->assertResponseCode(302);
 

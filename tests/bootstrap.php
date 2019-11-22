@@ -91,9 +91,11 @@ Cake\Mailer\TransportFactory::setConfig('default', [
 Cake\Mailer\TransportFactory::setConfig('queue', [
 	'className' => 'Queue.Queue',
 ]);
-Cake\Mailer\Email::setConfig('default', [
+/*
+Cake\Mailer\TransportFactory::setConfig('default', [
 	'transport' => 'default',
 ]);
+*/
 
 // Allow local overwrite
 // E.g. in your console: export db_dsn="mysql://root:secret@127.0.0.1/cake_test"
@@ -109,11 +111,11 @@ if (!getenv('db_class')) {
 // Uses Travis config then (MySQL, Postgres, ...)
 ConnectionManager::setConfig('test', [
 	'className' => 'Cake\Database\Connection',
-	'driver' => getenv('db_class'),
-	'dsn' => getenv('db_dsn'),
-	'database' => getenv('db_database'),
-	'username' => getenv('db_username'),
-	'password' => getenv('db_password'),
+	'driver' => getenv('db_class') ?: null,
+	'dsn' => getenv('db_dsn') ?: null,
+	//'database' => getenv('db_database'),
+	//'username' => getenv('db_username'),
+	//'password' => getenv('db_password'),
 	'timezone' => 'UTC',
 	'quoteIdentifiers' => true,
 	'cacheMetadata' => true,
