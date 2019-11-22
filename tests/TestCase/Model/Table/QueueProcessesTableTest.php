@@ -17,7 +17,7 @@ class QueueProcessesTableTest extends TestCase {
 	 *
 	 * @var \Queue\Model\Table\QueueProcessesTable
 	 */
-	public $QueueProcesses;
+	protected $QueueProcesses;
 
 	/**
 	 * Fixtures
