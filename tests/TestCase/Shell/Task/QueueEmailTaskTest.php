@@ -23,19 +23,19 @@ class QueueEmailTaskTest extends TestCase {
 	];
 
 	/**
-	 * @var \Queue\Shell\Task\QueueEmailTask|\PHPUnit_Framework_MockObject_MockObject
+	 * @var \Queue\Shell\Task\QueueEmailTask|\PHPUnit\Framework\MockObject\MockObject
 	 */
-	public $Task;
+	protected $Task;
 
 	/**
 	 * @var \Tools\TestSuite\ConsoleOutput
 	 */
-	public $out;
+	protected $out;
 
 	/**
 	 * @var \Tools\TestSuite\ConsoleOutput
 	 */
-	public $err;
+	protected $err;
 
 	/**
 	 * Setup Defaults

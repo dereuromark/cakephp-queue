@@ -13,19 +13,19 @@ class BakeQueueTaskShellTest extends TestCase {
 	use ToolsTestTrait;
 
 	/**
-	 * @var \Queue\Shell\BakeQueueTaskShell|\PHPUnit_Framework_MockObject_MockObject
+	 * @var \Queue\Shell\BakeQueueTaskShell|\PHPUnit\Framework\MockObject\MockObject
 	 */
-	public $shell;
+	protected $shell;
 
 	/**
 	 * @var \Tools\TestSuite\ConsoleOutput
 	 */
-	public $out;
+	protected $out;
 
 	/**
 	 * @var \Tools\TestSuite\ConsoleOutput
 	 */
-	public $err;
+	protected $err;
 
 	/**
 	 * Fixtures to load
