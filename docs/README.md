@@ -497,6 +497,7 @@ If, for any reason, some of the jobs should take way longer, you want to avoid a
 It will then just not start now ones beyond this count until the already running ones are finished.
 This is an important server protection to avoid overloading.
 
+
 ## Admin backend
 
 The plugin works completely without it, by just using the CLI shell commands.
@@ -527,6 +528,11 @@ if ($queuedJob->failed) {
 }
 ```
 The `redirect` query string element makes sure you are getting redirected back to this page (instead of Queue admin dashboard).
+
+Make sure you allow those actions to be accessed by the user (role) that can trigger this.
+Ideally, you also only display those buttons if that user has the access to do so.
+[TinyAuth](https://github.com/dereuromark/cakephp-tinyauth) can be used for that, for example.
+
 
 ## Tips for Development
 
