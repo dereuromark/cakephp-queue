@@ -130,6 +130,50 @@ class QueueControllerTest extends IntegrationTestCase {
 	/**
 	 * @return void
 	 */
+	public function testResetJobRedirect() {
+		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$job = $jobsTable->newEntity([
+			'job_type' => 'foo',
+			'failed' => 1,
+		]);
+		$jobsTable->saveOrFail($job);
+
+		$query = ['redirect' => '/foo/bar/baz'];
+		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id, '?' => $query]);
+
+		$this->assertResponseCode(302);
+		$this->assertHeader('Location', '/foo/bar/baz');
+
+		/** @var \Queue\Model\Entity\QueuedJob $job */
+		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
+		$this->assertSame(0, $job->failed);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testResetJobRedirectInvalid() {
+		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$job = $jobsTable->newEntity([
+			'job_type' => 'foo',
+			'failed' => 1,
+		]);
+		$jobsTable->saveOrFail($job);
+
+		$query = ['redirect' => 'http://x.y.z/foo/bar/baz'];
+		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id, '?' => $query]);
+
+		$this->assertResponseCode(302);
+		$this->assertHeader('Location', '/admin/queue');
+
+		/** @var \Queue\Model\Entity\QueuedJob $job */
+		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
+		$this->assertSame(0, $job->failed);
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testReset() {
 		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
