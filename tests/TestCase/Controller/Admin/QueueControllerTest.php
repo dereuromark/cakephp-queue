@@ -174,6 +174,32 @@ class QueueControllerTest extends IntegrationTestCase {
 	/**
 	 * @return void
 	 */
+	public function testResetJobRedirectReferer() {
+		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$job = $jobsTable->newEntity([
+			'job_type' => 'foo',
+			'failed' => 1,
+		]);
+		$jobsTable->saveOrFail($job);
+
+		$this->configRequest([
+			'headers' => [
+				'referer' => '/foo/bar/baz',
+			],
+		]);
+		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id]);
+
+		$this->assertResponseCode(302);
+		$this->assertHeader('Location', '/foo/bar/baz');
+
+		/** @var \Queue\Model\Entity\QueuedJob $job */
+		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
+		$this->assertSame(0, $job->failed);
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testReset() {
 		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([

@@ -86,7 +86,7 @@ class QueueController extends AppController {
 
 		$this->Flash->success('Job # ' . $id . ' re-added');
 
-		return $this->refererRedirect(['action' => 'index']);
+		return $this->refererRedirect($this->referer(['action' => 'index'], true));
 	}
 
 	/**
@@ -162,11 +162,11 @@ class QueueController extends AppController {
 	}
 
 	/**
-	 * @param array $default
+	 * @param string|array $default
 	 *
 	 * @return \Cake\Http\Response|null
 	 */
-	protected function refererRedirect(array $default) {
+	protected function refererRedirect($default) {
 		$url = $this->request->getQuery('redirect');
 		if ($url && (mb_substr($url, 0, 1) !== '/' || mb_substr($url, 0, 2) === '//')) {
 			$url = null;
