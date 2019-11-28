@@ -105,7 +105,7 @@ class QueuedJobsController extends AppController {
 		}
 
 		$this->set(compact('queuedJob'));
-		$this->viewBuilder()->setOption('_serialize', ['queuedJob']);
+		$this->viewBuilder()->setOption('serialize', ['queuedJob']);
 	}
 
 	/**
