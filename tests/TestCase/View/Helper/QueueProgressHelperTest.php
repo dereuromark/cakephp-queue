@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Test\TestCase\View\Helper;
 
 use Cake\Datasource\ConnectionManager;

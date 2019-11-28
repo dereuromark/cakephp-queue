@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Generator\Task;
 
 use Cake\Core\App;

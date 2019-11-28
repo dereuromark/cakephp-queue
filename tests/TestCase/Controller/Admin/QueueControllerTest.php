@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Datasource\ConnectionManager;

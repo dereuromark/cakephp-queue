@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Model\Table;
 
 use Cake\Core\Configure;

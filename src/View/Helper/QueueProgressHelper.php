@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\View\Helper;
 
 use Cake\Cache\Cache;
