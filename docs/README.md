@@ -497,6 +497,7 @@ If, for any reason, some of the jobs should take way longer, you want to avoid a
 It will then just not start now ones beyond this count until the already running ones are finished.
 This is an important server protection to avoid overloading.
 
+
 ## Admin backend
 
 The plugin works completely without it, by just using the CLI shell commands.
@@ -505,8 +506,32 @@ to see how status of your queue, statistics and settings.
 Please note that this requires the [Tools plugin](https://github.com/dereuromark/cakephp-tools) to be loaded if you do not customize the view templates on project level.
 Also make sure you loaded the helpers needed (Tools.Format, Tools.Time as Time, etc).
 
-By default the templates should work fine in both Foundation (v5+) and Boostrap (v3+).
+By default the templates should work fine in both Foundation (v5+) and Bootstrap (v3+).
 Copy-and-paste to project level for any customization here.
+
+### Using backend actions
+You can add buttons to your specific app views to re-run a failed job, or to remove it.
+```php
+if ($queuedJob->failed) {
+    $query = ['redirect' => $this->request->getAttribute('here')];
+    echo $this->Form->postLink(
+        'Re-Run job',
+        ['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id, '?' => $query],
+        ['class' => 'button warning']
+    );
+    echo ' ';
+    echo $this->Form->postLink(
+        'Remove job',
+        ['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'removeJob', $queuedJob->id, '?' => $query],
+        ['class' => 'button alert']
+    );
+}
+```
+The `redirect` query string element makes sure you are getting redirected back to this page (instead of Queue admin dashboard).
+
+Make sure you allow those actions to be accessed by the user (role) that can trigger this.
+Ideally, you also only display those buttons if that user has the access to do so.
+[TinyAuth](https://github.com/dereuromark/cakephp-tinyauth) can be used for that, for example.
 
 
 ## Tips for Development
@@ -730,7 +755,7 @@ The following configs can be made specific per Task, hardcoded on the class itse
 - unique (defaults to `false` = disabled)
 - costs (defaults to `0` = disabled)
 
-Check if you need to use "rate" config (> 0) to avoid tasks being run too often/fast per worker per timeframe. 
+Check if you need to use "rate" config (> 0) to avoid tasks being run too often/fast per worker per timeframe.
 Currently you cannot rate limit it more globally however. You can use `unique` and `costs` config, however, to more globally restrict parallel runs for job types.
 
 

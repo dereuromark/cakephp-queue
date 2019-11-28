@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Shell;
 
 use Queue\Shell\QueueShell;

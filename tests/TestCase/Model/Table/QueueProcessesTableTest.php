@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Test\TestCase\Model\Table;
 
 use Cake\Core\Configure;

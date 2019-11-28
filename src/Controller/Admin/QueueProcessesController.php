@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Controller\Admin;
 
 use App\Controller\AppController;
