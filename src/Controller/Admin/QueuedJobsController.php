@@ -63,9 +63,7 @@ class QueuedJobsController extends AppController {
 		$queuedJobs = $this->paginate($query);
 
 		$this->set(compact('queuedJobs'));
-		$this->helpers[] = 'Tools.Format';
-		$this->helpers[] = 'Tools.Time';
-		$this->helpers[] = 'Shim.Configure';
+		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Shim.Configure']);
 
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
 			$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_type', 'valueField' => 'job_type'])->distinct('job_type')->toArray();
@@ -107,7 +105,7 @@ class QueuedJobsController extends AppController {
 		}
 
 		$this->set(compact('queuedJob'));
-		$this->set('_serialize', ['queuedJob']);
+		$this->viewBuilder()->setOption('_serialize', ['queuedJob']);
 	}
 
 	/**
@@ -266,7 +264,7 @@ class QueuedJobsController extends AppController {
 			$tasks[$name] = $task;
 		}
 
-		$queuedJob = $this->QueuedJobs->newEntity();
+		$queuedJob = $this->QueuedJobs->newEmptyEntity();
 
 		if ($this->request->is(['post', 'patch', 'put'])) {
 			$queuedJob = $this->QueuedJobs->patchEntity($queuedJob, $this->request->getData());

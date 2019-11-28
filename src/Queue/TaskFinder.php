@@ -25,7 +25,7 @@ class TaskFinder {
 			return $this->tasks;
 		}
 
-		$paths = App::path('Shell/Task');
+		$paths = App::classPath('Shell/Task');
 		$this->tasks = [];
 
 		foreach ($paths as $path) {
@@ -34,7 +34,7 @@ class TaskFinder {
 		}
 		$plugins = Plugin::loaded();
 		foreach ($plugins as $plugin) {
-			$pluginPaths = App::path('Shell/Task', $plugin);
+			$pluginPaths = App::classPath('Shell/Task', $plugin);
 			foreach ($pluginPaths as $pluginPath) {
 				$Folder = new Folder($pluginPath);
 				$pluginTasks = $this->getPluginPaths($Folder, $plugin);

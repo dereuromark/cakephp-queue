@@ -117,7 +117,7 @@
 	</table>
 	<div class="row">
 		<h3><?= __d('queue', 'Data') ?></h3>
-		<?= $this->Text->autoParagraph(h($queuedJob->data)); ?>
+		<?= $queuedJob->data ? $this->Text->autoParagraph(h($queuedJob->data)) : ''; ?>
 		<?php
 			if ($queuedJob->data && $this->Configure->read('debug')) {
 				$data = unserialize($queuedJob->data);
@@ -128,7 +128,7 @@
 	</div>
 	<div class="row">
 		<h3><?= __d('queue', 'Failure Message') ?></h3>
-		<?= $this->Text->autoParagraph(h($queuedJob->failure_message)); ?>
+		<?= $queuedJob->data ? $this->Text->autoParagraph(h($queuedJob->failure_message)) : ''; ?>
 	</div>
 
 </div>

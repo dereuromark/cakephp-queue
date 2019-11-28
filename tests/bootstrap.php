@@ -39,7 +39,7 @@ Configure::write('App', [
 	'namespace' => 'App',
 	'encoding' => 'UTF-8',
 	'paths' => [
-		'templates' => [ROOT . DS . 'tests' . DS . 'test_app' . DS . 'src' . DS . 'Template' . DS],
+		'templates' => [ROOT . DS . 'tests' . DS . 'test_app' . DS . 'templates' . DS],
 	],
 ]);
 
@@ -117,9 +117,6 @@ ConnectionManager::setConfig('test', [
 	'className' => 'Cake\Database\Connection',
 	'driver' => getenv('db_class') ?: null,
 	'dsn' => getenv('db_dsn') ?: null,
-	//'database' => getenv('db_database'),
-	//'username' => getenv('db_username'),
-	//'password' => getenv('db_password'),
 	'timezone' => 'UTC',
 	'quoteIdentifiers' => true,
 	'cacheMetadata' => true,

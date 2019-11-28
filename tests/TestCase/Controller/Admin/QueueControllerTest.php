@@ -140,10 +140,10 @@ class QueueControllerTest extends IntegrationTestCase {
 		$jobsTable->saveOrFail($job);
 
 		$query = ['redirect' => '/foo/bar/baz'];
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id, '?' => $query]);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id, '?' => $query]);
 
 		$this->assertResponseCode(302);
-		$this->assertHeader('Location', '/foo/bar/baz');
+		$this->assertHeader('Location', 'http://localhost/foo/bar/baz');
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
@@ -162,10 +162,10 @@ class QueueControllerTest extends IntegrationTestCase {
 		$jobsTable->saveOrFail($job);
 
 		$query = ['redirect' => 'http://x.y.z/foo/bar/baz'];
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id, '?' => $query]);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id, '?' => $query]);
 
 		$this->assertResponseCode(302);
-		$this->assertHeader('Location', '/admin/queue');
+		$this->assertHeader('Location', 'http://localhost/admin/queue');
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
@@ -188,10 +188,10 @@ class QueueControllerTest extends IntegrationTestCase {
 				'referer' => '/foo/bar/baz',
 			],
 		]);
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id]);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id]);
 
 		$this->assertResponseCode(302);
-		$this->assertHeader('Location', '/foo/bar/baz');
+		$this->assertHeader('Location', 'http://localhost/foo/bar/baz');
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();

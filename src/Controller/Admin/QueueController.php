@@ -44,9 +44,7 @@ class QueueController extends AppController {
 
 		$servers = $this->QueueProcesses->find()->distinct(['server'])->find('list', ['keyField' => 'server', 'valueField' => 'server'])->toArray();
 		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks', 'servers'));
-		$this->helpers[] = 'Tools.Format';
-		$this->helpers[] = 'Tools.Time';
-		$this->helpers[] = 'Tools.Text';
+		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Tools.Text']);
 	}
 
 	/**
@@ -128,7 +126,7 @@ class QueueController extends AppController {
 		$terminated = $this->QueueProcesses->find()->where(['terminate' => true])->all()->toArray();
 
 		$this->set(compact('terminated', 'processes'));
-		$this->helpers[] = 'Shim.Configure';
+		$this->viewBuilder()->setHelpers(['Shim.Configure']);
 	}
 
 	/**

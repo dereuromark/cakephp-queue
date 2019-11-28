@@ -46,7 +46,7 @@ class BakeQueueTaskShell extends Shell {
 	 * @return void
 	 */
 	protected function generateTask($name, $plugin) {
-		$path = App::path('Shell/Task', $plugin);
+		$path = App::classPath('Shell/Task', $plugin);
 		if (!$path) {
 			$this->abort('Path not found for this plugin.');
 		}

@@ -32,9 +32,7 @@ class QueueProcessesController extends AppController {
 		$queueProcesses = $this->paginate();
 
 		$this->set(compact('queueProcesses'));
-		$this->helpers[] = 'Tools.Format';
-		$this->helpers[] = 'Tools.Time';
-		$this->helpers[] = 'Shim.Configure';
+		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Shim.Configure']);
 	}
 
 	/**
@@ -49,9 +47,7 @@ class QueueProcessesController extends AppController {
 		]);
 
 		$this->set(compact('queueProcess'));
-		$this->helpers[] = 'Tools.Format';
-		$this->helpers[] = 'Tools.Time';
-		$this->helpers[] = 'Shim.Configure';
+		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Shim.Configure']);
 	}
 
 	/**
