@@ -155,7 +155,7 @@ TEXT;
 	 * Runs a Queue Worker process which will try to find unassigned jobs in the queue
 	 * which it may run and try to fetch and execute them.
 	 *
-	 * @return int|null
+	 * @return int
 	 */
 	public function runworker() {
 		try {
@@ -238,6 +238,8 @@ TEXT;
 		if ($this->param('verbose')) {
 			$this->_log('endworker', $pid);
 		}
+
+		return static::CODE_SUCCESS;
 	}
 
 	/**

@@ -247,9 +247,7 @@ class QueuedJobsTable extends Table {
 						$fetchdelay = $query->func()->avg('EXTRACT(EPOCH FROM fetched) - CASE WHEN notbefore IS NULL then EXTRACT(EPOCH FROM created) ELSE EXTRACT(EPOCH FROM notbefore) END');
 						break;
 				}
-					/**
-						 * @var \Cake\ORM\Query
-						 */
+
 				return [
 					'job_type',
 					'num' => $query->func()->count('*'),
