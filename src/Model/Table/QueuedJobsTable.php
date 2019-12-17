@@ -567,13 +567,14 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * Reset current jobs
+	 * Resets all failed and not yet completed jobs.
 	 *
 	 * @param int|null $id
+	 * @param bool $full Also currently running jobs.
 	 *
 	 * @return int Success
 	 */
-	public function reset($id = null) {
+	public function reset($id = null, $full = false) {
 		$fields = [
 			'completed' => null,
 			'fetched' => null,
@@ -587,6 +588,9 @@ class QueuedJobsTable extends Table {
 		];
 		if ($id) {
 			$conditions['id'] = $id;
+		}
+		if (!$full) {
+			$conditions['failed >'] = 0;
 		}
 
 		return $this->updateAll($fields, $conditions);
