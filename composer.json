@@ -22,7 +22,7 @@
 		"cakephp/cakephp": "^4.0"
 	},
 	"require-dev": {
-		"cakephp/migrations": "3.0.0-beta2",
+		"cakephp/migrations": "^3.0",
 		"friendsofcake/search": "dev-cake-4.x",
 		"dereuromark/cakephp-tools": "dev-cake4",
 		"dereuromark/cakephp-ide-helper": "dev-cake4",
