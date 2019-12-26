@@ -266,9 +266,7 @@ class QueuedJobsTable extends Table {
 						$fetchdelay = $query->func()->avg('EXTRACT(EPOCH FROM fetched) - CASE WHEN notbefore IS NULL then EXTRACT(EPOCH FROM created) ELSE EXTRACT(EPOCH FROM notbefore) END');
 						break;
 				}
-					/**
-						 * @var \Cake\ORM\Query
-						 */
+
 				return [
 					'job_type',
 					'num' => $query->func()->count('*'),
@@ -588,13 +586,14 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * Reset current jobs
+	 * Resets all failed and not yet completed jobs.
 	 *
 	 * @param int|null $id
+	 * @param bool $full Also currently running jobs.
 	 *
 	 * @return int Success
 	 */
-	public function reset($id = null) {
+	public function reset($id = null, $full = false) {
 		$fields = [
 			'completed' => null,
 			'fetched' => null,
@@ -608,6 +607,9 @@ class QueuedJobsTable extends Table {
 		];
 		if ($id) {
 			$conditions['id'] = $id;
+		}
+		if (!$full) {
+			$conditions['failed >'] = 0;
 		}
 
 		return $this->updateAll($fields, $conditions);

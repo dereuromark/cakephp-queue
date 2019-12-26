@@ -136,7 +136,7 @@ class QueueController extends AppController {
 	 */
 	public function reset() {
 		$this->request->allowMethod('post');
-		$this->QueuedJobs->reset();
+		$this->QueuedJobs->reset(null, (bool)$this->request->getQuery('full'));
 
 		$message = __d('queue', 'OK');
 		$this->Flash->success($message);
