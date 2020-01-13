@@ -78,9 +78,6 @@
 		<tr>
 			<th><?= __d('queue', 'Progress') ?></th>
 			<td>
-				<?php if ($queuedJob->completed) { ?>
-					<i><?= __d('queue', 'Completed') ?></i>
-				<?php } ?>
 				<?php if (!$queuedJob->completed && $queuedJob->fetched) { ?>
 					<?php if (!$queuedJob->failed || !$queuedJob->failure_message) { ?>
 						<?php echo $this->QueueProgress->progress($queuedJob) ?>
