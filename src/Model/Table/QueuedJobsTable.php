@@ -518,6 +518,8 @@ class QueuedJobsTable extends Table {
 			$job = $this->patchEntity($job, [
 				'workerkey' => $key,
 				'fetched' => $now,
+				'progress' => null,
+				'failure_message' => null,
 			]);
 
 			return $this->saveOrFail($job);
@@ -561,6 +563,7 @@ class QueuedJobsTable extends Table {
 	 */
 	public function markJobDone(QueuedJob $job) {
 		$fields = [
+			'progress' => 100,
 			'completed' => $this->getDateTime(),
 		];
 		$job = $this->patchEntity($job, $fields);
@@ -597,7 +600,7 @@ class QueuedJobsTable extends Table {
 		$fields = [
 			'completed' => null,
 			'fetched' => null,
-			'progress' => 0,
+			'progress' => null,
 			'failed' => 0,
 			'workerkey' => null,
 			'failure_message' => null,
@@ -625,7 +628,7 @@ class QueuedJobsTable extends Table {
 		$fields = [
 			'completed' => null,
 			'fetched' => null,
-			'progress' => 0,
+			'progress' => null,
 			'failed' => 0,
 			'workerkey' => null,
 			'failure_message' => null,

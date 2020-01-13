@@ -63,7 +63,7 @@
 		<tr>
 			<th><?= __d('queue', 'Completed') ?></th>
 			<td>
-				<?= $this->Time->nice($queuedJob->completed) ?>
+				<?= $this->Format->ok($this->Time->nice($queuedJob->completed), (bool)$queuedJob->completed) ?>
 				<?php if ($queuedJob->completed) {
 					echo '<div><small>';
 					echo __d('queue', 'Duration') . ': ' . $this->Time->duration($queuedJob->completed->diff($queuedJob->fetched));
@@ -78,15 +78,17 @@
 		<tr>
 			<th><?= __d('queue', 'Progress') ?></th>
 			<td>
-				<?php if (!$queuedJob->failed) { ?>
-					<?php echo $this->QueueProgress->progress($queuedJob) ?>
-					<br>
-					<?php
-						$textProgressBar = $this->QueueProgress->progressBar($queuedJob, 18);
-						echo $this->QueueProgress->htmlProgressBar($queuedJob, $textProgressBar);
-					?>
-				<?php } else { ?>
-					<i><?= __d('queue', 'Aborted') ?></i>
+				<?php if (!$queuedJob->completed && $queuedJob->fetched) { ?>
+					<?php if (!$queuedJob->failed || !$queuedJob->failure_message) { ?>
+						<?php echo $this->QueueProgress->progress($queuedJob) ?>
+						<br>
+						<?php
+							$textProgressBar = $this->QueueProgress->progressBar($queuedJob, 18);
+							echo $this->QueueProgress->htmlProgressBar($queuedJob, $textProgressBar);
+						?>
+					<?php } else { ?>
+						<i><?php echo $queuedJob->failure_message ? __d('queue', 'Aborted') : __d('queue', 'Requeued'); ?></i>
+					<?php } ?>
 				<?php } ?>
 			</td>
 		</tr>
@@ -95,7 +97,7 @@
 			<td>
 				<?= $queuedJob->failed ? $this->Format->ok($this->Number->format($queuedJob->failed) . 'x', !$queuedJob->failed)  : '' ?>
 				<?php
-				if ($queuedJob->fetched && $queuedJob->failed) {
+				if (!$queuedJob->completed && $queuedJob->fetched && $queuedJob->failed && $queuedJob->failure_message) {
 					echo ' ' . $this->Form->postLink(__d('queue', 'Soft reset'), ['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure?', 'class' => 'button button-primary btn margin btn-primary']);
 				}
 				?>

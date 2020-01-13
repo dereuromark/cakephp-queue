@@ -86,11 +86,11 @@ use Cake\Core\Plugin;
 						<div><small><code><?php echo h($queuedJob->workerkey); ?></code></small></div>
 					<?php } ?>
 				</td>
-				<td><?= $this->Time->nice($queuedJob->completed) ?></td>
+				<td><?= $this->Format->ok($this->Time->nice($queuedJob->completed), (bool)$queuedJob->completed) ?></td>
 				<td><?= $this->Format->ok($this->Number->format($queuedJob->failed) . 'x', !$queuedJob->failed); ?></td>
 				<td>
 					<?= h($queuedJob->status) ?>
-					<?php if ($queuedJob->fetched) { ?>
+					<?php if (!$queuedJob->completed && $queuedJob->fetched) { ?>
 						<div>
 							<?php if (!$queuedJob->failed) { ?>
 								<?php echo $this->QueueProgress->progress($queuedJob) ?>
@@ -100,7 +100,7 @@ use Cake\Core\Plugin;
 								echo $this->QueueProgress->htmlProgressBar($queuedJob, $textProgressBar);
 								?>
 							<?php } else { ?>
-								<i><?= __d('queue', 'Aborted') ?></i>
+								<i><?php echo $queuedJob->failure_message ? __d('queue', 'Aborted') : __d('queue', 'Requeued'); ?></i>
 							<?php } ?>
 						</div>
 					<?php } ?>
