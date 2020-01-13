@@ -281,7 +281,11 @@ TEXT;
 			$return = false;
 
 			$failureMessage = get_class($e) . ': ' . $e->getMessage();
-			$this->_logError($taskName . "\n" . $failureMessage, $pid);
+			if (!($e instanceof QueueException)) {
+				$failureMessage .= "\n" . $e->getTraceAsString();
+			}
+
+			$this->_logError($taskName . ' (job ' . $queuedJob->id . ')' . "\n" . $failureMessage, $pid);
 		}
 
 		if ($return === false) {

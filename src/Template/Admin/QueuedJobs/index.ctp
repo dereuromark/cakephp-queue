@@ -90,7 +90,7 @@ use Cake\Core\Plugin;
 				<td><?= $this->Format->ok($this->Number->format($queuedJob->failed) . 'x', !$queuedJob->failed); ?></td>
 				<td>
 					<?= h($queuedJob->status) ?>
-					<?php if ($queuedJob->fetched) { ?>
+					<?php if (!$queuedJob->completed && $queuedJob->fetched) { ?>
 						<div>
 							<?php if (!$queuedJob->failed) { ?>
 								<?php echo $this->QueueProgress->progress($queuedJob) ?>
