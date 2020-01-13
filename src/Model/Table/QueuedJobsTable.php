@@ -578,7 +578,7 @@ class QueuedJobsTable extends Table {
 		$fields = [
 			'completed' => null,
 			'fetched' => null,
-			'progress' => 0,
+			'progress' => null,
 			'failed' => 0,
 			'workerkey' => null,
 			'failure_message' => null,
@@ -606,7 +606,7 @@ class QueuedJobsTable extends Table {
 		$fields = [
 			'completed' => null,
 			'fetched' => null,
-			'progress' => 0,
+			'progress' => null,
 			'failed' => 0,
 			'workerkey' => null,
 			'failure_message' => null,
