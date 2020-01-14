@@ -1,9 +1,9 @@
 <?php
-use Cake\Core\Configure;
-use Cake\Filesystem\Folder;
 use Cake\Cache\Cache;
-use Cake\Mailer\TransportFactory;
+use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\Filesystem\Folder;
+use Cake\Mailer\TransportFactory;
 
 if (!defined('DS')) {
 	define('DS', DIRECTORY_SEPARATOR);

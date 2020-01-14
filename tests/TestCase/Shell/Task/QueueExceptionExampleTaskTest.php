@@ -5,6 +5,7 @@ namespace Queue\Test\TestCase\Shell;
 use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueExceptionExampleTask;
+use RuntimeException;
 use Tools\TestSuite\ConsoleOutput;
 use Tools\TestSuite\ToolsTestTrait;
 
@@ -53,7 +54,7 @@ class QueueExceptionExampleTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRun() {
-		$this->expectException(\RuntimeException::class);
+		$this->expectException(RuntimeException::class);
 
 		$this->Task->run([], null);
 	}

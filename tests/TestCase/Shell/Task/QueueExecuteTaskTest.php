@@ -6,6 +6,7 @@ use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
 use Exception;
 use Queue\Shell\Task\QueueExecuteTask;
+use RuntimeException;
 use Tools\TestSuite\ConsoleOutput;
 use Tools\TestSuite\ToolsTestTrait;
 
@@ -93,7 +94,7 @@ class QueueExecuteTaskTest extends TestCase {
 	public function testRunFailureWithoutRedirect() {
 		$this->skipIf((bool)getenv('TRAVIS'), 'Not redirecting stderr to stdout prints noise to the CLI output in between test runs.');
 
-		$this->expectException(\RuntimeException::class);
+		$this->expectException(RuntimeException::class);
 		$this->expectExceptionMessage('Failed with error code 127: `fooooobbbaraar -eeee`');
 
 		$this->Task->run(['command' => 'fooooobbbaraar -eeee', 'redirect' => false], null);

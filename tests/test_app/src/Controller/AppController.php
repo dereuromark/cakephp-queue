@@ -10,8 +10,7 @@ class AppController extends Controller {
 	/**
 	 * @return void
 	 */
-	public function initialize(): void
-	{
+	public function initialize(): void {
 		parent::initialize();
 
 		$this->loadComponent('Flash');
@@ -22,10 +21,10 @@ class AppController extends Controller {
 	 *
 	 * @return \Cake\Http\Response|null|void
 	 */
-	public function beforeRender(EventInterface $event)
-	{
+	public function beforeRender(EventInterface $event) {
 		parent::beforeRender($event);
 
 		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format']);
 	}
+
 }
