@@ -16,7 +16,7 @@ class QueueProgressHelperTest extends TestCase {
 	/**
 	 * @var array
 	 */
-	public $fixtures = [
+	protected $fixtures = [
 		'plugin.Queue.QueuedJobs',
 	];
 

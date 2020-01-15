@@ -21,7 +21,7 @@ class QueueController extends AppController {
 	 * Admin center.
 	 * Manage queues from admin backend (without the need to open ssh console window).
 	 *
-	 * @return \Cake\Http\Response|null
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function index() {
 		$this->loadModel('Queue.QueueProcesses');
@@ -104,7 +104,7 @@ class QueueController extends AppController {
 	}
 
 	/**
-	 * @return \Cake\Http\Response|null
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function processes() {
 		$processes = $this->QueuedJobs->getProcesses();
@@ -162,7 +162,7 @@ class QueueController extends AppController {
 	/**
 	 * @param string|array $default
 	 *
-	 * @return \Cake\Http\Response|null
+	 * @return \Cake\Http\Response|null|void
 	 */
 	protected function refererRedirect($default) {
 		$url = $this->request->getQuery('redirect');

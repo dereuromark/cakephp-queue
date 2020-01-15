@@ -5,12 +5,12 @@ namespace Queue\Test\TestCase\Shell;
 use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueProgressExampleTask;
-use Tools\TestSuite\ConsoleOutput;
-use Tools\TestSuite\ToolsTestTrait;
+use Shim\TestSuite\ConsoleOutput;
+use Shim\TestSuite\TestTrait;
 
 class QueueProgressExampleTaskTest extends TestCase {
 
-	use ToolsTestTrait;
+	use TestTrait;
 
 	/**
 	 * @var \Queue\Shell\Task\QueueProgressExampleTask|\PHPUnit\Framework\MockObject\MockObject
@@ -18,12 +18,12 @@ class QueueProgressExampleTaskTest extends TestCase {
 	protected $Task;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
 	protected $out;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
 	protected $err;
 
@@ -46,7 +46,7 @@ class QueueProgressExampleTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRun() {
-		$this->Task->run(['duration' => 1], null);
+		$this->Task->run(['duration' => 1], 0);
 
 		$this->assertTextContains('Success, the ProgressExample Job was run', $this->out->output());
 	}

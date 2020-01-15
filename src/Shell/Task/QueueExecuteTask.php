@@ -54,7 +54,7 @@ class QueueExecuteTask extends QueueTask implements AddInterface {
 	 * @return void
 	 * @throws \Queue\Model\QueueException
 	 */
-	public function run(array $data, $jobId) {
+	public function run(array $data, int $jobId): void {
 		$data += [
 			'command' => null,
 			'params' => [],

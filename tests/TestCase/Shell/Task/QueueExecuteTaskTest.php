@@ -7,17 +7,17 @@ use Cake\TestSuite\TestCase;
 use Exception;
 use Queue\Shell\Task\QueueExecuteTask;
 use RuntimeException;
-use Tools\TestSuite\ConsoleOutput;
-use Tools\TestSuite\ToolsTestTrait;
+use Shim\TestSuite\ConsoleOutput;
+use Shim\TestSuite\TestTrait;
 
 class QueueExecuteTaskTest extends TestCase {
 
-	use ToolsTestTrait;
+	use TestTrait;
 
 	/**
 	 * @var array
 	 */
-	public $fixtures = [
+	protected $fixtures = [
 		'plugin.Queue.QueuedJobs',
 	];
 
@@ -27,12 +27,12 @@ class QueueExecuteTaskTest extends TestCase {
 	protected $Task;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
 	protected $out;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
 	protected $err;
 
@@ -55,7 +55,7 @@ class QueueExecuteTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRun() {
-		$this->Task->run(['command' => 'php -v'], null);
+		$this->Task->run(['command' => 'php -v'], 0);
 
 		$this->assertTextContains('PHP ', $this->out->output());
 	}
@@ -66,7 +66,7 @@ class QueueExecuteTaskTest extends TestCase {
 	public function testRunFailureWithRedirect() {
 		$exception = null;
 		try {
-			$this->Task->run(['command' => 'fooooobbbaraar -eeee'], null);
+			$this->Task->run(['command' => 'fooooobbbaraar -eeee'], 0);
 		} catch (\Exception $e) {
 			$exception = $e;
 		}
@@ -82,7 +82,7 @@ class QueueExecuteTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRunFailureWithRedirectAndIgnoreCode() {
-		$this->Task->run(['command' => 'fooooobbbaraar -eeee', 'accepted' => []], null);
+		$this->Task->run(['command' => 'fooooobbbaraar -eeee', 'accepted' => []], 0);
 
 		$this->assertTextContains('Success (code 127)', $this->out->output());
 		$this->assertTextContains('fooooobbbaraar: not found', $this->out->output());
@@ -97,7 +97,7 @@ class QueueExecuteTaskTest extends TestCase {
 		$this->expectException(RuntimeException::class);
 		$this->expectExceptionMessage('Failed with error code 127: `fooooobbbaraar -eeee`');
 
-		$this->Task->run(['command' => 'fooooobbbaraar -eeee', 'redirect' => false], null);
+		$this->Task->run(['command' => 'fooooobbbaraar -eeee', 'redirect' => false], 0);
 	}
 
 }

@@ -6,17 +6,17 @@ use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueExceptionExampleTask;
 use RuntimeException;
-use Tools\TestSuite\ConsoleOutput;
-use Tools\TestSuite\ToolsTestTrait;
+use Shim\TestSuite\ConsoleOutput;
+use Shim\TestSuite\TestTrait;
 
 class QueueExceptionExampleTaskTest extends TestCase {
 
-	use ToolsTestTrait;
+	use TestTrait;
 
 	/**
 	 * @var array
 	 */
-	public $fixtures = [
+	protected $fixtures = [
 		'plugin.Queue.QueuedJobs',
 	];
 
@@ -26,12 +26,12 @@ class QueueExceptionExampleTaskTest extends TestCase {
 	protected $Task;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
 	protected $out;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
 	protected $err;
 
@@ -56,7 +56,7 @@ class QueueExceptionExampleTaskTest extends TestCase {
 	public function testRun() {
 		$this->expectException(RuntimeException::class);
 
-		$this->Task->run([], null);
+		$this->Task->run([], 0);
 	}
 
 }

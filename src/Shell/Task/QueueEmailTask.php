@@ -4,7 +4,7 @@ namespace Queue\Shell\Task;
 
 use Cake\Core\Configure;
 use Cake\Log\Log;
-use Cake\Mailer\Email;
+use Cake\Mailer\Mailer;
 use Queue\Model\QueueException;
 use Throwable;
 
@@ -30,9 +30,9 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 	public $timeout = 120;
 
 	/**
-	 * @var \Cake\Mailer\Email
+	 * @var \Cake\Mailer\Mailer
 	 */
-	public $Email;
+	public $mailer;
 
 	/**
 	 * "Add" the task, not possible for QueueEmailTask
@@ -58,27 +58,27 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 	/**
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return void
-	 * @throws \Exception
+	 * @throws \Queue\Model\QueueException
 	 * @throws \Throwable
+	 * @return void
 	 */
-	public function run(array $data, $jobId) {
+	public function run(array $data, int $jobId): void {
 		if (!isset($data['settings'])) {
 			throw new QueueException('Queue Email task called without settings data.');
 		}
 
-		/** @var \Cake\Mailer\Email|null $email */
-		$email = $data['settings'];
-		if (is_object($email) && $email instanceof Email) {
-			$this->Email = $email;
+		/** @var \Cake\Mailer\Mailer|null $mailer */
+		$mailer = $data['settings'];
+		if (is_object($mailer) && $mailer instanceof Mailer) {
+			$this->mailer = $mailer;
 
 			$result = null;
 			try {
 				if (!empty($data['transport'])) {
-					$email->setTransport($data['transport']);
+					$mailer->setTransport($data['transport']);
 				}
 				$content = isset($data['content']) ? $data['content'] : null;
-				$result = $email->send($content);
+				$result = $mailer->send($content);
 
 			} catch (Throwable $e) {
 				$error = $e->getMessage();
@@ -86,7 +86,6 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 				Log::write('error', $error);
 
 				throw $e;
-
 			}
 
 			if (!$result) {
@@ -96,27 +95,27 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 			return;
 		}
 
-		$this->Email = $this->_getMailer();
+		$this->mailer = $this->_getMailer();
 
 		$settings = array_merge($this->defaults, $data['settings']);
 		foreach ($settings as $method => $setting) {
-			call_user_func_array([$this->Email, $method], (array)$setting);
+			call_user_func_array([$this->mailer, $method], (array)$setting);
 		}
 		$message = null;
 		if (isset($data['content'])) {
 			$message = $data['content'];
 		}
 		if (!empty($data['vars'])) {
-			$this->Email->setViewVars($data['vars']);
+			$this->mailer->setViewVars($data['vars']);
 		}
 		if (!empty($data['headers'])) {
 			if (!is_array($data['headers'])) {
 				throw new QueueException('Please provide headers as array.');
 			}
-			$this->Email->getMessage()->setHeaders($data['headers']);
+			$this->mailer->getMessage()->setHeaders($data['headers']);
 		}
 
-		if (!$this->Email->send($message)) {
+		if (!$this->mailer->send($message)) {
 			throw new QueueException('Could not send email.');
 		}
 	}
@@ -124,15 +123,15 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 	/**
 	 * Check if Mail class exists and create instance
 	 *
-	 * @return \Cake\Mailer\Email
-	 * @throws \Exception
+	 * @return \Cake\Mailer\Mailer
+	 * @throws \Queue\Model\QueueException
 	 */
 	protected function _getMailer() {
 		$class = Configure::read('Queue.mailerClass');
 		if (!$class) {
-			$class = 'Tools\Mailer\Email';
+			$class = 'Tools\Mailer\Mailer';
 			if (!class_exists($class)) {
-				$class = 'Cake\Mailer\Email';
+				$class = 'Cake\Mailer\Mailer';
 			}
 		}
 		if (!class_exists($class)) {

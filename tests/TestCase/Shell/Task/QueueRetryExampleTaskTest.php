@@ -6,12 +6,12 @@ use Cake\Console\ConsoleIo;
 use Cake\Console\Exception\StopException;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueRetryExampleTask;
-use Tools\TestSuite\ConsoleOutput;
-use Tools\TestSuite\ToolsTestTrait;
+use Shim\TestSuite\ConsoleOutput;
+use Shim\TestSuite\TestTrait;
 
 class QueueRetryExampleTaskTest extends TestCase {
 
-	use ToolsTestTrait;
+	use TestTrait;
 
 	/**
 	 * @var \Queue\Shell\Task\QueueRetryExampleTask|\PHPUnit\Framework\MockObject\MockObject
@@ -19,12 +19,12 @@ class QueueRetryExampleTaskTest extends TestCase {
 	protected $Task;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
 	protected $out;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
 	protected $err;
 
@@ -52,7 +52,7 @@ class QueueRetryExampleTaskTest extends TestCase {
 
 		$exception = null;
 		try {
-			$this->Task->run([], null);
+			$this->Task->run([], 0);
 		} catch (\Exception $e) {
 			$exception = $e;
 		}
@@ -68,7 +68,7 @@ class QueueRetryExampleTaskTest extends TestCase {
 		$file = TMP . 'task_retry.txt';
 		file_put_contents($file, '3');
 
-		$this->Task->run([], null);
+		$this->Task->run([], 0);
 
 		$this->assertTextContains('Success, the RetryExample Job was run', $this->out->output());
 	}

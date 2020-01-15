@@ -84,9 +84,8 @@ class QueueRetryExampleTask extends QueueTask implements AddInterface {
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @return void
-	 * @throws \Exception
 	 */
-	public function run(array $data, $jobId) {
+	public function run(array $data, int $jobId): void {
 		$count = (int)file_get_contents($this->file);
 
 		$this->hr();

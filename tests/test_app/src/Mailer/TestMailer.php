@@ -2,9 +2,9 @@
 
 namespace App\Mailer;
 
-use Tools\Mailer\Email;
+use Tools\Mailer\Mailer;
 
-class TestEmail extends Email {
+class TestMailer extends Mailer {
 
 	/**
 	 * @return array|null

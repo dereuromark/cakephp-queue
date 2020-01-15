@@ -29,7 +29,7 @@ class QueueFooTask extends QueueTask {
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @return void
 	 */
-	public function run(array $data, $jobId) {
+	public function run(array $data, int $jobId): void {
 		$this->out('CakePHP Foo app Example.');
 	}
 

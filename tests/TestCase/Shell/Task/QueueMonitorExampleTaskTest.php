@@ -5,12 +5,12 @@ namespace Queue\Test\TestCase\Shell;
 use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueMonitorExampleTask;
-use Tools\TestSuite\ConsoleOutput;
-use Tools\TestSuite\ToolsTestTrait;
+use Shim\TestSuite\ConsoleOutput;
+use Shim\TestSuite\TestTrait;
 
 class QueueMonitorExampleTaskTest extends TestCase {
 
-	use ToolsTestTrait;
+	use TestTrait;
 
 	/**
 	 * @var \Queue\Shell\Task\QueueMonitorExampleTask|\PHPUnit\Framework\MockObject\MockObject
@@ -18,12 +18,12 @@ class QueueMonitorExampleTaskTest extends TestCase {
 	protected $Task;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
 	protected $out;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
 	protected $err;
 
@@ -46,7 +46,7 @@ class QueueMonitorExampleTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRun() {
-		$this->Task->run([], null);
+		$this->Task->run([], 0);
 
 		$this->assertTextContains('Success, the MonitorExample Job was run', $this->out->output());
 	}

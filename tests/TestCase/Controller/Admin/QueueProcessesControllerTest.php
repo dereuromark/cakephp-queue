@@ -4,12 +4,22 @@ namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
-use Tools\TestSuite\IntegrationTestCase;
+use Shim\TestSuite\IntegrationTestCase;
 
 /**
  * @uses \Queue\Controller\Admin\QueueProcessesController
  */
 class QueueProcessesControllerTest extends IntegrationTestCase {
+
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	protected $fixtures = [
+		'plugin.Queue.QueueProcesses',
+		'plugin.Queue.QueuedJobs',
+	];
 
 	/**
 	 * @return void
@@ -26,16 +36,6 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 	}
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'plugin.Queue.QueueProcesses',
-		'plugin.Queue.QueuedJobs',
-	];
 
 	/**
 	 * Test index method

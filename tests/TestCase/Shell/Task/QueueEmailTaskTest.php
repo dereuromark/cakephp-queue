@@ -2,23 +2,23 @@
 
 namespace Queue\Test\TestCase\Shell;
 
-use App\Mailer\TestEmail;
+use App\Mailer\TestMailer;
 use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
-use Cake\Mailer\Email;
+use Cake\Mailer\Mailer;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueEmailTask;
-use Tools\TestSuite\ConsoleOutput;
-use Tools\TestSuite\ToolsTestTrait;
+use Shim\TestSuite\ConsoleOutput;
+use Shim\TestSuite\TestTrait;
 
 class QueueEmailTaskTest extends TestCase {
 
-	use ToolsTestTrait;
+	use TestTrait;
 
 	/**
 	 * @var array
 	 */
-	public $fixtures = [
+	protected $fixtures = [
 		'plugin.Queue.QueuedJobs',
 	];
 
@@ -28,12 +28,12 @@ class QueueEmailTaskTest extends TestCase {
 	protected $Task;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
 	protected $out;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
 	protected $err;
 
@@ -61,11 +61,11 @@ class QueueEmailTaskTest extends TestCase {
 			'to' => 'test@test.de',
 		];
 
-		$this->Task->run(['settings' => $settings, 'content' => 'Foo Bar'], null);
+		$this->Task->run(['settings' => $settings, 'content' => 'Foo Bar'], 0);
 
-		$this->assertInstanceOf(Email::class, $this->Task->Email);
+		$this->assertInstanceOf(Mailer::class, $this->Task->mailer);
 
-		$debugEmail = $this->Task->Email;
+		$debugEmail = $this->Task->mailer;
 
 		$transportConfig = $debugEmail->getTransport()->getConfig();
 		$this->assertSame('Debug', $transportConfig['className']);
@@ -75,19 +75,19 @@ class QueueEmailTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRunToolsEmailObject() {
-		$email = new TestEmail();
+		$email = new TestMailer();
 		$email->setFrom('test@test.de');
 		$email->setTo('test@test.de');
 
 		Configure::write('Config.live', true);
 
-		$this->Task->run(['settings' => $email, 'content' => 'Foo Bar'], null);
+		$this->Task->run(['settings' => $email, 'content' => 'Foo Bar'], 0);
 
-		$this->assertInstanceOf(TestEmail::class, $this->Task->Email);
+		$this->assertInstanceOf(TestMailer::class, $this->Task->mailer);
 
-		/** @var \App\Mailer\TestEmail $debugEmail */
-		$debugEmail = $this->Task->Email;
-		$this->assertNull($debugEmail->getError());
+		/** @var \App\Mailer\TestMailer $debugEmail */
+		$debugEmail = $this->Task->mailer;
+		//$this->assertNull($debugEmail->getError());
 
 		$transportConfig = $debugEmail->getTransport()->getConfig();
 		$this->assertSame('Debug', $transportConfig['className']);

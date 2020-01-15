@@ -25,7 +25,7 @@ class QueueProcessesTableTest extends TestCase {
 	 *
 	 * @var array
 	 */
-	public $fixtures = [
+	protected $fixtures = [
 		'plugin.Queue.QueueProcesses',
 	];
 

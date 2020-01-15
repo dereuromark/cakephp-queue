@@ -55,7 +55,7 @@ class QueueProgressExampleTask extends QueueTask implements AddInterface {
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @return void
 	 */
-	public function run(array $data, $jobId) {
+	public function run(array $data, int $jobId): void {
 		$this->hr();
 		$this->out('CakePHP Queue ProgressExample task.');
 		$seconds = !empty($data['duration']) ? (int)$data['duration'] : 2 * MINUTE;
