@@ -18,7 +18,7 @@
 	</ul>
 </nav>
 <div class="content action-view view large-9 medium-8 columns col-sm-8 col-xs-12">
-	<h1><?= h($queuedJob->id) ?></h1>
+	<h1>ID <?= h($queuedJob->id) ?></h1>
 	<table class="table vertical-table">
 		<tr>
 			<th><?= __d('queue', 'Job Type') ?></th>
@@ -26,11 +26,11 @@
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Job Group') ?></th>
-			<td><?= h($queuedJob->job_group) ?></td>
+			<td><?= h($queuedJob->job_group) ?: '---' ?></td>
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Reference') ?></th>
-			<td><?= h($queuedJob->reference) ?></td>
+			<td><?= h($queuedJob->reference) ?: '---' ?></td>
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Created') ?></th>
@@ -130,7 +130,7 @@
 	</div>
 	<div class="row">
 		<h3><?= __d('queue', 'Failure Message') ?></h3>
-		<?= $queuedJob->data ? $this->Text->autoParagraph(h($queuedJob->failure_message)) : ''; ?>
+		<?= $queuedJob->failure_message ? $this->Text->autoParagraph(h($queuedJob->failure_message)) : ''; ?>
 	</div>
 
 </div>

@@ -85,14 +85,14 @@ class QueueEmailTaskTest extends TestCase {
 
 		$this->assertInstanceOf(TestMailer::class, $this->Task->mailer);
 
-		/** @var \App\Mailer\TestMailer $debugEmail */
-		$debugEmail = $this->Task->mailer;
+		/** @var \App\Mailer\TestMailer $testMailer */
+		$testMailer = $this->Task->mailer;
 		//$this->assertNull($debugEmail->getError());
 
-		$transportConfig = $debugEmail->getTransport()->getConfig();
+		$transportConfig = $testMailer->getTransport()->getConfig();
 		$this->assertSame('Debug', $transportConfig['className']);
 
-		$result = $debugEmail->debug();
+		$result = $testMailer->debug();
 		$this->assertTextContains('Foo Bar', $result['message']);
 	}
 

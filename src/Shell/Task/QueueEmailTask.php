@@ -40,9 +40,26 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 	 * @return void
 	 */
 	public function add() {
-		$this->err('Queue Email Task cannot be added via Console.');
-		$this->out('Please use createJob() on the QueuedTask Model to create a Proper Email Task.');
-		$this->out('The Data Array should look something like this:');
+		$adminEmail = Configure::read('Config.adminEmail');
+		if ($adminEmail) {
+			$data = [
+				'settings' => [
+					'to' => $adminEmail,
+					'subject' => 'Test Subject',
+					'from' => $adminEmail,
+				],
+				'content' => 'Hello world',
+			];
+			$this->QueuedJobs->createJob('Email', $data);
+			$this->success('OK, job created for email `' . $adminEmail. '`, now run the worker');
+
+			return;
+		}
+
+		$this->err('Queue Email Task cannot be added via Console without `Config.adminEmail` being set.');
+		$this->out('Please set this config value in your app.php Configure config. It will use this for to+from then.');
+		$this->out('Or use createJob() on the QueuedTasks Table to create a proper QueueEmail job.');
+		$this->out('The payload $data array should look something like this:');
 		$this->out(var_export([
 			'settings' => [
 				'to' => 'email@example.com',
@@ -52,7 +69,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 			],
 			'content' => 'hello world',
 		], true));
-		$this->out('Alternatively, you can pass the whole EmailLib to directly use it.');
+		$this->out('Alternatively, you can pass the whole Mailer to directly use it.');
 	}
 
 	/**
@@ -63,6 +80,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
+		//TODO: Allow Message and createFromArray()
 		if (!isset($data['settings'])) {
 			throw new QueueException('Queue Email task called without settings data.');
 		}
@@ -98,7 +116,20 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 		$this->mailer = $this->_getMailer();
 
 		$settings = array_merge($this->defaults, $data['settings']);
-		foreach ($settings as $method => $setting) {
+
+		$map = [
+			'to' => 'setTo',
+			'from' => 'setFrom',
+			'cc' => 'setCc',
+			'bcc' => 'setBcc',
+			'subject' => 'setSubject',
+			'sender' => 'setSender',
+			'replyTo' => 'setReplyTo',
+			'returnPath' => 'setReturnPath',
+			'readReceipt'=> 'setReadReceipt',
+		];
+		foreach ($settings as $key => $setting) {
+			$method = $map[$key] ?? $key;
 			call_user_func_array([$this->mailer, $method], (array)$setting);
 		}
 		$message = null;
@@ -115,7 +146,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 			$this->mailer->getMessage()->setHeaders($data['headers']);
 		}
 
-		if (!$this->mailer->send($message)) {
+		if (!$this->mailer->deliver($message)) {
 			throw new QueueException('Could not send email.');
 		}
 	}

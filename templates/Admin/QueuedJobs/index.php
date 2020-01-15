@@ -54,9 +54,9 @@ use Cake\Core\Plugin;
 			<?php foreach ($queuedJobs as $queuedJob): ?>
 			<tr>
 				<td><?= h($queuedJob->job_type) ?></td>
-				<td><?= h($queuedJob->job_group) ?></td>
+				<td><?= h($queuedJob->job_group) ?: '---'  ?></td>
 				<td>
-					<?= h($queuedJob->reference) ?>
+					<?= h($queuedJob->reference) ?: '---' ?>
 					<?php if ($queuedJob->data) {
 						echo $this->Format->icon('cubes', ['title' => $this->Text->truncate($queuedJob->data, 1000)]);
 					}
