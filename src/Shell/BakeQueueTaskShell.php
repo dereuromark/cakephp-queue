@@ -79,7 +79,12 @@ class BakeQueueTaskShell extends Shell {
 	protected function generateTaskTest($name, $plugin) {
 		$testsPath = $plugin ? Plugin::path($plugin) . 'tests' . DS : ROOT . DS . 'tests' . DS;
 
-		$path = $testsPath . 'TestCase' . DS . 'Shell' . DS . 'Task' . DS . $name . 'Test.php';
+		$path = $testsPath . 'TestCase' . DS . 'Shell' . DS . 'Task' . DS;
+		if (!is_dir($path)) {
+			mkdir($path, 0770, true);
+		}
+
+		$path .= $name . 'Test.php';
 
 		$in = 'y';
 		if (file_exists($path)) {
@@ -153,7 +158,7 @@ class $name extends QueueTask {
 	 * @param int \$jobId The id of the QueuedJob entity
 	 * @return void
 	 */
-	public function run(array \$data, \$jobId): void {
+	public function run(array \$data, int \$jobId): void {
 	}
 
 }
@@ -189,7 +194,7 @@ class $testName extends TestCase {
 	/**
 	 * @var string[]
 	 */
-	public \$fixtures = [
+	protected \$fixtures = [
 		'plugin.Queue.QueuedJobs',
 		'plugin.Queue.QueueProcesses',
 	];
@@ -201,6 +206,7 @@ class $testName extends TestCase {
 		\$task = new $name();
 
 		//TODO
+		//\$task->run(\$data, \$jobId);
 	}
 
 }

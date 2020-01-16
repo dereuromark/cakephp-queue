@@ -22,8 +22,6 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 	}
 
 	/**
-	 * Fixtures
-	 *
 	 * @var array
 	 */
 	protected $fixtures = [
@@ -65,7 +63,7 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 
 		$this->assertResponseCode(302);
 
-		$queuedJobs = TableRegistry::get('Queue.QueuedJobs');
+		$queuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$queuedJob = $queuedJobs->find()->where(['id' => $job->id])->first();
 		$this->assertNull($queuedJob);
 	}
@@ -83,7 +81,7 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 
 		$this->assertResponseCode(302);
 
-		$queuedJobs = TableRegistry::get('Queue.QueuedJobs');
+		$queuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		/** @var \Queue\Model\Entity\QueuedJob $modifiedJob */
 		$modifiedJob = $queuedJobs->get($job->id);
 		$this->assertSame(8, $modifiedJob->priority);
@@ -185,7 +183,7 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 
 		$this->assertResponseCode(302);
 
-		$queuedJobs = TableRegistry::get('Queue.QueuedJobs');
+		$queuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
 		$queuedJob = $queuedJobs->find()->orderDesc('id')->firstOrFail();
 
@@ -214,7 +212,7 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 			'job_type' => 'foo',
 		];
 
-		$queuedJobs = TableRegistry::get('Queue.QueuedJobs');
+		$queuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$queuedJob = $queuedJobs->newEntity($data);
 		$queuedJobs->saveOrFail($queuedJob);
 

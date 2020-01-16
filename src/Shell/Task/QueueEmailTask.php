@@ -15,8 +15,6 @@ use Throwable;
 class QueueEmailTask extends QueueTask implements AddInterface {
 
 	/**
-	 * List of default variables for EmailComponent
-	 *
 	 * @var array
 	 */
 	public $defaults = [
@@ -92,11 +90,9 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 
 			$result = null;
 			try {
-				if (!empty($data['transport'])) {
-					$mailer->setTransport($data['transport']);
-				}
+				$mailer->setTransport($data['transport'] ?? 'default');
 				$content = isset($data['content']) ? $data['content'] : null;
-				$result = $mailer->send($content);
+				$result = $mailer->deliver($content);
 
 			} catch (Throwable $e) {
 				$error = $e->getMessage();
@@ -128,10 +124,20 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 			'returnPath' => 'setReturnPath',
 			'readReceipt' => 'setReadReceipt',
 		];
-		foreach ($settings as $key => $setting) {
-			$method = $map[$key] ?? $key;
-			call_user_func_array([$this->mailer, $method], (array)$setting);
+		foreach ($settings as $method => $setting) {
+			//$method = $map[$key] ?? $key;
+			$setter = 'set' . ucfirst($method);
+			if (in_array($method, ['theme', 'template', 'layout'], true)) {
+				call_user_func_array([$this->mailer->viewBuilder(), $setter], (array)$setting);
+
+				continue;
+			}
+
+			call_user_func_array([$this->mailer, $setter], (array)$setting);
 		}
+
+		$this->mailer->setTransport($data['transport'] ?? 'default');
+
 		$message = null;
 		if (isset($data['content'])) {
 			$message = $data['content'];

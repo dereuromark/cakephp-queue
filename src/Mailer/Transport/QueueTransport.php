@@ -11,7 +11,7 @@ use Cake\Mailer\Message;
 use Cake\ORM\TableRegistry;
 
 /**
- * Send mail using Queue plugin
+ * Send mail using Queue plugin and Message objects.
  */
 class QueueTransport extends AbstractTransport {
 
@@ -28,14 +28,13 @@ class QueueTransport extends AbstractTransport {
 			unset($this->_config['queue']);
 		}
 
-		$transport = $this->_config['transport'];
-		//$message->setTransport($transport);
+		$transport = $this->_config['transport'] ?? null;
 
 		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
 		$QueuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$result = $QueuedJobs->createJob('Email', ['transport' => $transport, 'settings' => $message]);
-		$result['headers'] = '';
-		$result['message'] = '';
+		$result->headers = '';
+		$result->message = '';
 
 		return $result->toArray();
 	}

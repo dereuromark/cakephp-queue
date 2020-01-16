@@ -58,7 +58,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testProcessesEnd() {
-		$queueProcessesTable = TableRegistry::get('Queue.QueueProcesses');
+		$queueProcessesTable = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
 		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
 		$queueProcess = $queueProcessesTable->newEntity([
 			'pid' => '1234',
@@ -78,7 +78,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testAddJob() {
-		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 
 		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'addJob', 'Example']);
 
@@ -93,7 +93,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testRemoveJob() {
-		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_type' => 'foo',
 			'failed' => 1,
@@ -112,7 +112,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testResetJob() {
-		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_type' => 'foo',
 			'failed' => 1,
@@ -132,7 +132,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testResetJobRedirect() {
-		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_type' => 'foo',
 			'failed' => 1,
@@ -154,7 +154,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testResetJobRedirectInvalid() {
-		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_type' => 'foo',
 			'failed' => 1,
@@ -176,7 +176,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testResetJobRedirectReferer() {
-		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_type' => 'foo',
 			'failed' => 1,
@@ -202,7 +202,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testReset() {
-		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_type' => 'foo',
 			'failed' => 1,
@@ -222,7 +222,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testHardReset() {
-		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_type' => 'foo',
 		]);

@@ -28,8 +28,6 @@ class BakeQueueTaskShellTest extends TestCase {
 	protected $err;
 
 	/**
-	 * Fixtures to load
-	 *
 	 * @var array
 	 */
 	protected $fixtures = [

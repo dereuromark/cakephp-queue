@@ -126,13 +126,13 @@ class QueueProgressHelperTest extends TestCase {
 		$this->_needsConnection();
 
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
-		$queuedJob = TableRegistry::get('Queue.QueuedJobs')->newEntity([
+		$queuedJob = TableRegistry::getTableLocator()->get('Queue.QueuedJobs')->newEntity([
 			'job_type' => 'Foo',
 			'created' => (new FrozenTime())->subHour(),
 			'fetched' => (new FrozenTime())->subHour(),
 			'completed' => (new FrozenTime())->subHour()->addMinutes(10),
 		]);
-		TableRegistry::get('Queue.QueuedJobs')->saveOrFail($queuedJob);
+		TableRegistry::getTableLocator()->get('Queue.QueuedJobs')->saveOrFail($queuedJob);
 
 		$queuedJob->completed = null;
 		$queuedJob->fetched = (new FrozenTime())->subMinute();

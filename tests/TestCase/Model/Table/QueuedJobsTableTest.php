@@ -25,8 +25,6 @@ class QueuedJobsTableTest extends TestCase {
 	protected $QueuedJobs;
 
 	/**
-	 * Fixtures
-	 *
 	 * @var array
 	 */
 	protected $fixtures = [
@@ -43,7 +41,7 @@ class QueuedJobsTableTest extends TestCase {
 		parent::setUp();
 
 		$config = TableRegistry::exists('QueuedJobs') ? [] : ['className' => QueuedJobsTable::class];
-		$this->QueuedJobs = TableRegistry::get('QueuedJobs', $config);
+		$this->QueuedJobs = TableRegistry::getTableLocator()->get('QueuedJobs', $config);
 	}
 
 	/**
@@ -605,7 +603,7 @@ class QueuedJobsTableTest extends TestCase {
 	 */
 	public function testEndProcess() {
 		/** @var \Queue\Model\Table\QueueProcessesTable $queuedProcessesTable */
-		$queuedProcessesTable = TableRegistry::get('Queue.QueueProcesses');
+		$queuedProcessesTable = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
 
 		$queuedProcess = $queuedProcessesTable->newEntity([
 			'pid' => 1,

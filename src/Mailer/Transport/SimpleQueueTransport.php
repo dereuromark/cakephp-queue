@@ -11,7 +11,8 @@ use Cake\Mailer\Message;
 use Cake\ORM\TableRegistry;
 
 /**
- * Send mail using Queue plugin
+ * Send mail using Queue plugin and Message settings.
+ * This is only recommended for non-templated emails.
  */
 class SimpleQueueTransport extends AbstractTransport {
 
@@ -41,15 +42,10 @@ class SimpleQueueTransport extends AbstractTransport {
 			'domain' => [$message->getDomain()],
 			'headers' => [$message->getHeaders()],
 			'headerCharset' => [$message->getHeaderCharset()],
-			//'theme' => [$message->getTheme()],
-			//'profile' => [$message->getProfile()],
 			'emailFormat' => [$message->getEmailFormat()],
-			'subject' => method_exists($message, 'getOriginalSubject') ? [$message->getOriginalSubject()] : [$message->getSubject()],
+			'subject' => [$message->getOriginalSubject()],
 			'transport' => [$this->_config['transport']],
 			'attachments' => [$message->getAttachments()],
-			//'template' => [$message->getTemplate()],
-			//'layout' => [$message->getLayout()],
-			//'viewVars' => [$message->getViewVars()],
 		];
 
 		foreach ($settings as $setting => $value) {
@@ -60,8 +56,8 @@ class SimpleQueueTransport extends AbstractTransport {
 
 		$QueuedJobs = $this->getQueuedJobsModel();
 		$result = $QueuedJobs->createJob('Email', ['settings' => $settings]);
-		$result['headers'] = '';
-		$result['message'] = '';
+		$result['headers'] = $message->getHeadersString();
+		$result['message'] = $message->getBodyString();
 
 		return $result->toArray();
 	}
@@ -71,7 +67,7 @@ class SimpleQueueTransport extends AbstractTransport {
 	 */
 	protected function getQueuedJobsModel() {
 		/** @var \Queue\Model\Table\QueuedJobsTable $table */
-		$table = TableRegistry::get('Queue.QueuedJobs');
+		$table = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 
 		return $table;
 	}

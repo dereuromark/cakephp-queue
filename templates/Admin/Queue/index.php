@@ -89,7 +89,9 @@ use Cake\Core\Configure;
 						echo '<br>' . $this->QueueProgress->htmlProgressBar($pendingJob, $textProgressBar);
 						echo '</li>';
 					} else {
-						echo '<li>' . __d('queue', 'Failures') . ': ' . $pendingJob->failed . $reset . '</li>';
+						echo '<li><i>' . $this->Queue->failureStatus($pendingJob) . '</i>';
+  						echo '<div>' . __d('queue', 'Failures') . ': ' . $this->Queue->fails($pendingJob) . $reset . '</div>';
+  						echo '</li>';
 						if ($pendingJob->failure_message) {
 							echo '<li>' . __d('queue', 'Failure Message') . ': ' . $this->Text->truncate($pendingJob->failure_message, 200) . '</li>';
 						}

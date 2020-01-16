@@ -21,8 +21,6 @@ class QueueProcessesTableTest extends TestCase {
 	protected $QueueProcesses;
 
 	/**
-	 * Fixtures
-	 *
 	 * @var array
 	 */
 	protected $fixtures = [
@@ -37,7 +35,7 @@ class QueueProcessesTableTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('QueueProcesses') ? [] : ['className' => QueueProcessesTable::class];
-		$this->QueueProcesses = TableRegistry::get('QueueProcesses', $config);
+		$this->QueueProcesses = TableRegistry::getTableLocator()->get('QueueProcesses', $config);
 
 		Configure::delete('Queue.maxworkers');
 	}

@@ -2,7 +2,7 @@
 
 namespace Queue\Test\TestCase\Mailer\Transport;
 
-use Cake\Mailer\Email;
+use Cake\Mailer\Mailer;
 use Cake\TestSuite\TestCase;
 use Queue\Mailer\Transport\SimpleQueueTransport;
 
@@ -10,6 +10,13 @@ use Queue\Mailer\Transport\SimpleQueueTransport;
  * Test case
  */
 class SimpleQueueTransportTest extends TestCase {
+
+	/**
+	 * @var array
+	 */
+	protected $fixtures = [
+		'plugin.Queue.QueuedJobs',
+	];
 
 	/**
 	 * @var \Queue\Mailer\Transport\SimpleQueueTransport
@@ -37,61 +44,48 @@ class SimpleQueueTransportTest extends TestCase {
 		];
 
 		$this->QueueTransport->setConfig($config);
-		$Email = new Email($config);
+		$mailer = new Mailer($config);
 
-		$Email->setFrom('noreply@cakephp.org', 'CakePHP Test');
-		$Email->setTo('cake@cakephp.org', 'CakePHP');
-		$Email->setCc(['mark@cakephp.org' => 'Mark Story', 'juan@cakephp.org' => 'Juan Basso']);
-		$Email->setBcc('phpnut@cakephp.org');
-		$Email->setSubject('Testing Message');
-		$Email->setAttachments(['wow.txt' => [
+		$mailer->setFrom('noreply@cakephp.org', 'CakePHP Test');
+		$mailer->setTo('cake@cakephp.org', 'CakePHP');
+		$mailer->setCc(['mark@cakephp.org' => 'Mark Story', 'juan@cakephp.org' => 'Juan Basso']);
+		$mailer->setBcc('phpnut@cakephp.org');
+		$mailer->setSubject('Testing Message');
+		$mailer->setAttachments(['wow.txt' => [
 			'data' => 'much wow!',
 			'mimetype' => 'text/plain',
 			'contentId' => 'important',
 		]]);
 
-		$Email->setLayout('test_layout');
-		$Email->setTemplate('test_template');
-		$Email->setSubject("L'utilisateur n'a pas pu être enregistré");
-		$Email->setReplyTo('noreply@cakephp.org');
-		$Email->setReadReceipt('noreply2@cakephp.org');
-		$Email->setReturnPath('noreply3@cakephp.org');
-		$Email->setDomain('cakephp.org');
-		$Email->setTheme('EuroTheme');
-		$Email->setEmailFormat('both');
-		$Email->set('var1', 1);
-		$Email->set('var2', 2);
+		$mailer->render('Foo Bar Content');
+		/*
+		$mailer->viewBuilder()->setLayout('test_layout');
+		$mailer->viewBuilder()->setTemplate('test_template');
+		$mailer->viewBuilder()->setTheme('EuroTheme');
+		$mailer->set('var1', 1);
+		$mailer->set('var2', 2);
+		*/
+		$mailer->setSubject("L'utilisateur n'a pas pu être enregistré");
+		$mailer->setReplyTo('noreply@cakephp.org');
+		$mailer->setReadReceipt('noreply2@cakephp.org');
+		$mailer->setReturnPath('noreply3@cakephp.org');
+		$mailer->setDomain('cakephp.org');
+		$mailer->setEmailFormat('both');
 
-		$result = $this->QueueTransport->send($Email);
+		$result = $this->QueueTransport->send($mailer->getMessage());
 		$this->assertSame('Email', $result['job_type']);
 		$this->assertTrue(strlen($result['data']) < 10000);
 
 		$output = unserialize($result['data']);
-		$emailReconstructed = new Email($config);
 
-		foreach ($output['settings'] as $method => $setting) {
-			$setter = 'set' . ucfirst($method);
-			call_user_func_array([$emailReconstructed, $setter], (array)$setting);
-		}
+		$settings = $output['settings'];
+		$this->assertSame([['noreply@cakephp.org' => 'CakePHP Test']], $settings['from']);
+		$this->assertSame(['L\'utilisateur n\'a pas pu être enregistré'], $settings['subject']);
+		$this->assertSame(['queue'], $settings['transport']);
+		$this->assertNotEmpty($settings['attachments']);
 
-		$this->assertEquals($emailReconstructed->getFrom(), $Email->getFrom());
-		$this->assertEquals($emailReconstructed->getTo(), $Email->getTo());
-		$this->assertEquals($emailReconstructed->getCc(), $Email->getCc());
-		$this->assertEquals($emailReconstructed->getBcc(), $Email->getBcc());
-		$this->assertEquals($emailReconstructed->getSubject(), $Email->getSubject());
-		$this->assertEquals($emailReconstructed->getCharset(), $Email->getCharset());
-		$this->assertEquals($emailReconstructed->getHeaderCharset(), $Email->getHeaderCharset());
-		$this->assertEquals($emailReconstructed->getEmailFormat(), $Email->getEmailFormat());
-		$this->assertEquals($emailReconstructed->getReplyTo(), $Email->getReplyTo());
-		$this->assertEquals($emailReconstructed->getReadReceipt(), $Email->getReadReceipt());
-		$this->assertEquals($emailReconstructed->getReturnPath(), $Email->getReturnPath());
-		//$this->assertEquals($emailReconstructed->getMessageId(), $Email->getMessageId());
-		$this->assertEquals($emailReconstructed->getDomain(), $Email->getDomain());
-		$this->assertEquals($emailReconstructed->getTheme(), $Email->getTheme());
-		$this->assertEquals($emailReconstructed->getProfile(), $Email->getProfile());
-		$this->assertEquals($emailReconstructed->getViewVars(), $Email->getViewVars());
-		$this->assertEquals($emailReconstructed->getTemplate(), $Email->getTemplate());
-		$this->assertEquals($emailReconstructed->getLayout(), $Email->getLayout());
+		$this->assertNotEmpty($result['headers']);
+		$this->assertTextContains('Foo Bar Content', $result['message']);
 	}
 
 }

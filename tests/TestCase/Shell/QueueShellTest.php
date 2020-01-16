@@ -31,8 +31,6 @@ class QueueShellTest extends TestCase {
 	protected $err;
 
 	/**
-	 * Fixtures to load
-	 *
 	 * @var array
 	 */
 	protected $fixtures = [
@@ -128,7 +126,7 @@ class QueueShellTest extends TestCase {
 	 */
 	public function testHardResetIntegration() {
 		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
-		$queuedJobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$queuedJobsTable->createJob('Example');
 
 		$queuedJobs = $queuedJobsTable->find()->count();

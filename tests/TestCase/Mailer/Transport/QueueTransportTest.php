@@ -12,6 +12,13 @@ use Queue\Mailer\Transport\QueueTransport;
 class QueueTransportTest extends TestCase {
 
 	/**
+	 * @var array
+	 */
+	protected $fixtures = [
+		'plugin.Queue.QueuedJobs',
+	];
+
+	/**
 	 * @var \Queue\Mailer\Transport\QueueTransport
 	 */
 	protected $QueueTransport;
@@ -38,16 +45,17 @@ class QueueTransportTest extends TestCase {
 		$message->setCc(['mark@cakephp.org' => 'Mark Story', 'juan@cakephp.org' => 'Juan Basso']);
 		$message->setBcc('phpnut@cakephp.org');
 		$message->setSubject('Testing Message');
-		//$message->setTransport('queue');
-		//$config = $Email->getConfig('default');
-		//$this->QueueTransport->setConfig($config);
 
 		$result = $this->QueueTransport->send($message);
 		$this->assertSame('Email', $result['job_type']);
 		$this->assertTrue(strlen($result['data']) < 10000);
 
-		//$output = unserialize($result['data']);
-		//$this->assertEquals('Testing Message', $output['settings']['_subject']);
+		$output = unserialize($result['data']);
+		$this->assertInstanceOf(Message::class, $output['settings']);
+
+		/** @var \Cake\Mailer\Message $message */
+		$message = $output['settings'];
+		$this->assertSame('Testing Message', $message->getSubject());
 	}
 
 }

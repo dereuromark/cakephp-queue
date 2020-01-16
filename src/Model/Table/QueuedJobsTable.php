@@ -142,7 +142,7 @@ class QueuedJobsTable extends Table {
 	public function validationDefault(Validator $validator): Validator {
 		$validator
 			->integer('id')
-			->allowEmptyString('id', 'create');
+			->allowEmptyString('id', null, 'create');
 
 		$validator
 			->requirePresence('job_type', 'create')
@@ -870,7 +870,7 @@ class QueuedJobsTable extends Table {
 			return;
 		}
 
-		$QueueProcesses = TableRegistry::get('Queue.QueueProcesses');
+		$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
 		/** @var \Queue\Model\Entity\QueueProcess $queuedProcess */
 		$queuedProcess = $QueueProcesses->find()->where(['pid' => $pid])->firstOrFail();
 		$queuedProcess->terminate = true;
@@ -899,7 +899,7 @@ class QueuedJobsTable extends Table {
 		}
 		sleep(1);
 
-		$QueueProcesses = TableRegistry::get('Queue.QueueProcesses');
+		$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
 		$QueueProcesses->deleteAll(['pid' => $pid]);
 	}
 
