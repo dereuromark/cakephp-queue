@@ -6,7 +6,7 @@
 
 namespace Queue\Shell\Task;
 
-use Cake\Console\ConsoleIo;
+use RuntimeException;
 
 /**
  * A retry QueueTask example.
@@ -30,17 +30,27 @@ class QueueRetryExampleTask extends QueueTask implements AddInterface {
 	/**
 	 * @var string
 	 */
-	protected $file;
+	protected static $file = TMP . 'task_retry.txt';
 
 	/**
-	 * Constructs this Shell instance.
+	 * This is only for demo/testing purposes.
 	 *
-	 * @param \Cake\Console\ConsoleIo|null $io IO
+	 * @throws \RuntimeException
+	 *
+	 * @return bool
 	 */
-	public function __construct(ConsoleIo $io = null) {
-		parent::__construct($io);
+	public static function init() {
+		if (file_exists(static::$file)) {
+			return false;
+		}
 
-		$this->file = TMP . 'task_retry.txt';
+		file_put_contents(static::$file, '0');
+
+		if (!file_exists(static::$file)) {
+			throw new RuntimeException('Cannot create necessary test file: ' . static::$file);
+		}
+
+		return true;
 	}
 
 	/**
@@ -66,11 +76,10 @@ class QueueRetryExampleTask extends QueueTask implements AddInterface {
 		$this->out(__FILE__);
 		$this->out(' ');
 
-		if (file_exists($this->file)) {
+		$init = static::init();
+		if (!$init) {
 			$this->warn('File seems to already exist. Make sure you run this task standalone. You cannot run it multiple times in parallel!');
 		}
-
-		file_put_contents($this->file, '0');
 
 		$this->QueuedJobs->createJob('RetryExample');
 		$this->success('OK, job created, now run the worker');
@@ -84,10 +93,13 @@ class QueueRetryExampleTask extends QueueTask implements AddInterface {
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @return void
-	 * @throws \Exception
 	 */
 	public function run(array $data, $jobId) {
-		$count = (int)file_get_contents($this->file);
+		if (!file_exists(static::$file)) {
+			$this->abort(' -> No demo file found. Aborting. <-');
+		}
+
+		$count = (int)file_get_contents(static::$file);
 
 		$this->hr();
 		$this->out('CakePHP Queue RetryExample task.');
@@ -96,11 +108,11 @@ class QueueRetryExampleTask extends QueueTask implements AddInterface {
 		// Let's fake 3 fails before it actually runs successfully
 		if ($count < 3) {
 			$count++;
-			file_put_contents($this->file, (string)$count);
+			file_put_contents(static::$file, (string)$count);
 			$this->abort(' -> Sry, the RetryExample Job failed. Try again. <-');
 		}
 
-		unlink($this->file);
+		unlink(static::$file);
 		$this->success(' -> Success, the RetryExample Job was run. <-');
 	}
 

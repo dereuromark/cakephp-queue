@@ -2,7 +2,9 @@
 
 namespace Foo\Shell\Task;
 
-class QueueFooTask extends QueueTask implements QueueTaskInterface {
+use Queue\Shell\Task\QueueTask;
+
+class QueueFooTask extends QueueTask {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -25,11 +27,10 @@ class QueueFooTask extends QueueTask implements QueueTaskInterface {
 	 *
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return bool Success
+	 * @return void
 	 */
 	public function run(array $data, $jobId) {
 		$this->out('CakePHP Foo plugin Example.');
-		return true;
 	}
 
 }

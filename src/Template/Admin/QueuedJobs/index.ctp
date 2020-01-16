@@ -54,9 +54,9 @@ use Cake\Core\Plugin;
 			<?php foreach ($queuedJobs as $queuedJob): ?>
 			<tr>
 				<td><?= h($queuedJob->job_type) ?></td>
-				<td><?= h($queuedJob->job_group) ?></td>
+				<td><?= h($queuedJob->job_group) ?: '---' ?></td>
 				<td>
-					<?= h($queuedJob->reference) ?>
+					<?= h($queuedJob->reference) ?: '---' ?>
 					<?php if ($queuedJob->data) {
 						echo $this->Format->icon('cubes', ['title' => $this->Text->truncate($queuedJob->data, 1000)]);
 					}
@@ -87,7 +87,7 @@ use Cake\Core\Plugin;
 					<?php } ?>
 				</td>
 				<td><?= $this->Format->ok($this->Time->nice($queuedJob->completed), (bool)$queuedJob->completed) ?></td>
-				<td><?= $this->Format->ok($this->Number->format($queuedJob->failed) . 'x', !$queuedJob->failed); ?></td>
+				<td><?= $this->Format->ok($this->Queue->fails($queuedJob), !$queuedJob->failed); ?></td>
 				<td>
 					<?= h($queuedJob->status) ?>
 					<?php if (!$queuedJob->completed && $queuedJob->fetched) { ?>
@@ -100,7 +100,7 @@ use Cake\Core\Plugin;
 								echo $this->QueueProgress->htmlProgressBar($queuedJob, $textProgressBar);
 								?>
 							<?php } else { ?>
-								<i><?php echo $queuedJob->failure_message ? __d('queue', 'Aborted') : __d('queue', 'Requeued'); ?></i>
+								<i><?php echo $this->Queue->failureStatus($queuedJob); ?></i>
 							<?php } ?>
 						</div>
 					<?php } ?>

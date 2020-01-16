@@ -18,7 +18,7 @@
 	</ul>
 </nav>
 <div class="content action-view view large-9 medium-8 columns col-sm-8 col-xs-12">
-	<h1><?= h($queuedJob->id) ?></h1>
+	<h1>ID <?= h($queuedJob->id) ?></h1>
 	<table class="table vertical-table">
 		<tr>
 			<th><?= __d('queue', 'Job Type') ?></th>
@@ -26,11 +26,11 @@
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Job Group') ?></th>
-			<td><?= h($queuedJob->job_group) ?></td>
+			<td><?= h($queuedJob->job_group) ?: '---' ?></td>
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Reference') ?></th>
-			<td><?= h($queuedJob->reference) ?></td>
+			<td><?= h($queuedJob->reference) ?: '---' ?></td>
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Created') ?></th>
@@ -87,7 +87,7 @@
 							echo $this->QueueProgress->htmlProgressBar($queuedJob, $textProgressBar);
 						?>
 					<?php } else { ?>
-						<i><?php echo $queuedJob->failure_message ? __d('queue', 'Aborted') : __d('queue', 'Requeued'); ?></i>
+						<i><?php echo $this->Queue->failureStatus($queuedJob); ?></i>
 					<?php } ?>
 				<?php } ?>
 			</td>
@@ -95,9 +95,9 @@
 		<tr>
 			<th><?= __d('queue', 'Failed') ?></th>
 			<td>
-				<?= $queuedJob->failed ? $this->Format->ok($this->Number->format($queuedJob->failed) . 'x', !$queuedJob->failed)  : '' ?>
+				<?= $queuedJob->failed ? $this->Format->ok($this->Queue->fails($queuedJob), !$queuedJob->failed)  : '' ?>
 				<?php
-				if (!$queuedJob->completed && $queuedJob->fetched && $queuedJob->failed && $queuedJob->failure_message) {
+				if ($this->Queue->hasFailed($queuedJob)) {
 					echo ' ' . $this->Form->postLink(__d('queue', 'Soft reset'), ['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure?', 'class' => 'button button-primary btn margin btn-primary']);
 				}
 				?>

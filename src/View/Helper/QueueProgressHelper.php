@@ -181,7 +181,7 @@ class QueueProgressHelper extends Helper {
 		$average = array_sum($stats) / count($stats);
 		$running = $fetched->diffInSeconds();
 
-		$progress = min($running / $average, 0.9999);
+		$progress = $average ? min($running / $average, 0.9999) : 0;
 
 		return (float)$progress;
 	}

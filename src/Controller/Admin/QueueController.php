@@ -3,6 +3,7 @@
 namespace Queue\Controller\Admin;
 
 use App\Controller\AppController;
+use Cake\Core\App;
 use Cake\Http\Exception\NotFoundException;
 use Queue\Queue\TaskFinder;
 
@@ -21,7 +22,7 @@ class QueueController extends AppController {
 	 * Admin center.
 	 * Manage queues from admin backend (without the need to open ssh console window).
 	 *
-	 * @return \Cake\Http\Response|null
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function index() {
 		$this->loadModel('Queue.QueueProcesses');
@@ -44,9 +45,7 @@ class QueueController extends AppController {
 
 		$servers = $this->QueueProcesses->find()->distinct(['server'])->find('list', ['keyField' => 'server', 'valueField' => 'server'])->toArray();
 		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks', 'servers'));
-		$this->helpers[] = 'Tools.Format';
-		$this->helpers[] = 'Tools.Time';
-		$this->helpers[] = 'Tools.Text';
+		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Tools.Text']);
 	}
 
 	/**
@@ -60,6 +59,15 @@ class QueueController extends AppController {
 		$this->request->allowMethod('post');
 		if (!$job) {
 			throw new NotFoundException();
+		}
+
+		$className = App::className('Queue.Queue' . $job, 'Shell/Task', 'Task');
+		if (!$className) {
+			throw new NotFoundException('Class not found for job `' . $job . '`');
+		}
+
+		if (method_exists($className, 'init')) {
+			$className::init();
 		}
 
 		$this->QueuedJobs->createJob($job);
@@ -106,7 +114,7 @@ class QueueController extends AppController {
 	}
 
 	/**
-	 * @return \Cake\Http\Response|null
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function processes() {
 		$processes = $this->QueuedJobs->getProcesses();
@@ -128,7 +136,7 @@ class QueueController extends AppController {
 		$terminated = $this->QueueProcesses->find()->where(['terminate' => true])->all()->toArray();
 
 		$this->set(compact('terminated', 'processes'));
-		$this->helpers[] = 'Shim.Configure';
+		$this->viewBuilder()->setHelpers(['Shim.Configure']);
 	}
 
 	/**
@@ -164,7 +172,7 @@ class QueueController extends AppController {
 	/**
 	 * @param string|array $default
 	 *
-	 * @return \Cake\Http\Response|null
+	 * @return \Cake\Http\Response|null|void
 	 */
 	protected function refererRedirect($default) {
 		$url = $this->request->getQuery('redirect');

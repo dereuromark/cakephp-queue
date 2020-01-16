@@ -186,19 +186,19 @@ use $taskClassNamespace;
 class $testName extends TestCase {
 
 	/**
-	 * @var array
+	 * @var string[]
 	 */
 	public \$fixtures = [
 		'plugin.Queue.QueuedJobs',
 		'plugin.Queue.QueueProcesses',
 	];
-	
+
 	/**
 	 * @return void
 	 */
 	public function testRun() {
 		\$task = new $name();
-		
+
 		//TODO
 	}
 

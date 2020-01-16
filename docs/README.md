@@ -512,7 +512,8 @@ Copy-and-paste to project level for any customization here.
 ### Using backend actions
 You can add buttons to your specific app views to re-run a failed job, or to remove it.
 ```php
-if ($queuedJob->failed) {
+$this->loadHelper('Queue.Queue');
+if ($this->Queue->failed($queuedJob)) {
     $query = ['redirect' => $this->request->getAttribute('here')];
     echo $this->Form->postLink(
         'Re-Run job',
