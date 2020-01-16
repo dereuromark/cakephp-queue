@@ -87,7 +87,7 @@
 							echo $this->QueueProgress->htmlProgressBar($queuedJob, $textProgressBar);
 						?>
 					<?php } else { ?>
-						<i><?php echo $queuedJob->failure_message ? __d('queue', 'Aborted') : __d('queue', 'Requeued'); ?></i>
+						<i><?php echo $this->Queue->failureStatus($queuedJob); ?></i>
 					<?php } ?>
 				<?php } ?>
 			</td>
@@ -95,9 +95,9 @@
 		<tr>
 			<th><?= __d('queue', 'Failed') ?></th>
 			<td>
-				<?= $queuedJob->failed ? $this->Format->ok($this->Number->format($queuedJob->failed) . 'x', !$queuedJob->failed)  : '' ?>
+				<?= $queuedJob->failed ? $this->Format->ok($this->Queue->fails($queuedJob), !$queuedJob->failed)  : '' ?>
 				<?php
-				if (!$queuedJob->completed && $queuedJob->fetched && $queuedJob->failed && $queuedJob->failure_message) {
+				if ($this->Queue->hasFailed($queuedJob)) {
 					echo ' ' . $this->Form->postLink(__d('queue', 'Soft reset'), ['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure?', 'class' => 'button button-primary btn margin btn-primary']);
 				}
 				?>

@@ -59,7 +59,7 @@ use Cake\Core\Configure;
 				echo '<ul>';
 
 				$reset = '';
-				if ($pendingJob->failed) {
+				if ($this->Queue->hasFailed($pendingJob)) {
 					$reset = ' ' . $this->Form->postLink(__d('queue', 'Soft reset'), ['action' => 'resetJob', $pendingJob->id], ['confirm' => 'Sure?', 'class' => 'button primary btn margin btn-primary']);
 					$reset .= ' ' . $this->Form->postLink(__d('queue', 'Remove'), ['action' => 'removeJob', $pendingJob->id], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-default']);
 				} elseif ($pendingJob->fetched) {

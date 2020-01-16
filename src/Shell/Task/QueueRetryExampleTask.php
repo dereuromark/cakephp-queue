@@ -6,7 +6,7 @@
 
 namespace Queue\Shell\Task;
 
-use Cake\Console\ConsoleIo;
+use RuntimeException;
 
 /**
  * A retry QueueTask example.
@@ -47,7 +47,7 @@ class QueueRetryExampleTask extends QueueTask implements AddInterface {
 		file_put_contents(static::$file, '0');
 
 		if (!file_exists(static::$file)) {
-			throw new \RuntimeException('Cannot create necessary test file: ' . static::$file);
+			throw new RuntimeException('Cannot create necessary test file: ' . static::$file);
 		}
 
 		return true;
@@ -95,6 +95,10 @@ class QueueRetryExampleTask extends QueueTask implements AddInterface {
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
+		if (!file_exists(static::$file)) {
+			$this->abort(' -> No demo file found. Aborting. <-');
+		}
+
 		$count = (int)file_get_contents(static::$file);
 
 		$this->hr();

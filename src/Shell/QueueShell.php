@@ -617,22 +617,9 @@ TEXT;
 	 */
 	protected function _getTaskConf() {
 		if (!is_array($this->_taskConf)) {
-			$this->_taskConf = [];
-			foreach ($this->tasks as $task) {
-				list($pluginName, $taskName) = pluginSplit($task);
-
-				/** @var \Queue\Shell\Task\QueueTask $taskObject */
-				$taskObject = $this->{$taskName};
-
-				$this->_taskConf[$taskName]['name'] = substr($taskName, 5);
-				$this->_taskConf[$taskName]['plugin'] = $pluginName;
-				$this->_taskConf[$taskName]['timeout'] = $taskObject->timeout !== null ? $taskObject->timeout : Config::defaultworkertimeout();
-				$this->_taskConf[$taskName]['retries'] = $taskObject->retries !== null ? $taskObject->retries : Config::defaultworkerretries();
-				$this->_taskConf[$taskName]['rate'] = $taskObject->rate;
-				$this->_taskConf[$taskName]['costs'] = $taskObject->costs;
-				$this->_taskConf[$taskName]['unique'] = $taskObject->unique;
-			}
+			$this->_taskConf = Config::taskConfig($this->tasks);
 		}
+
 		return $this->_taskConf;
 	}
 

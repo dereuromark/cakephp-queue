@@ -51,7 +51,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 				'content' => 'Hello world',
 			];
 			$this->QueuedJobs->createJob('Email', $data);
-			$this->success('OK, job created for email `' . $adminEmail. '`, now run the worker');
+			$this->success('OK, job created for email `' . $adminEmail . '`, now run the worker');
 
 			return;
 		}
@@ -126,7 +126,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 			'sender' => 'setSender',
 			'replyTo' => 'setReplyTo',
 			'returnPath' => 'setReturnPath',
-			'readReceipt'=> 'setReadReceipt',
+			'readReceipt' => 'setReadReceipt',
 		];
 		foreach ($settings as $key => $setting) {
 			$method = $map[$key] ?? $key;
