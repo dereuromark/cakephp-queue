@@ -107,8 +107,16 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 
 		$settings = array_merge($this->defaults, $data['settings']);
 		foreach ($settings as $method => $setting) {
-			call_user_func_array([$this->Email, $method], (array)$setting);
+			$setter = 'set' . ucfirst($method);
+			if (in_array($method, ['theme', 'template', 'layout'], true)) {
+				call_user_func_array([$this->Email->viewBuilder(), $setter], (array)$setting);
+
+				continue;
+			}
+
+			call_user_func_array([$this->Email, $setter], (array)$setting);
 		}
+
 		$message = null;
 		if (isset($data['content'])) {
 			$message = $data['content'];

@@ -41,14 +41,14 @@ class SimpleQueueTransport extends AbstractTransport {
 			'domain' => [$email->getDomain()],
 			'headers' => [$email->getHeaders()],
 			'headerCharset' => [$email->getHeaderCharset()],
-			'theme' => [$email->getTheme()],
 			'profile' => [$email->getProfile()],
 			'emailFormat' => [$email->getEmailFormat()],
 			'subject' => method_exists($email, 'getOriginalSubject') ? [$email->getOriginalSubject()] : [$email->getSubject()],
 			'transport' => [$this->_config['transport']],
 			'attachments' => [$email->getAttachments()],
-			'template' => [$email->getTemplate()],
-			'layout' => [$email->getLayout()],
+			'theme' => [$email->viewBuilder()->getTheme()],
+			'template' => [$email->viewBuilder()->getTemplate()],
+			'layout' => [$email->viewBuilder()->getLayout()],
 			'viewVars' => [$email->getViewVars()],
 		];
 

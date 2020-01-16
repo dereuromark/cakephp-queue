@@ -12,6 +12,13 @@ use Queue\Mailer\Transport\SimpleQueueTransport;
 class SimpleQueueTransportTest extends TestCase {
 
 	/**
+	 * @var array
+	 */
+	public $fixtures = [
+		'plugin.Queue.QueuedJobs',
+	];
+
+	/**
 	 * @var \Queue\Mailer\Transport\SimpleQueueTransport
 	 */
 	protected $QueueTransport;
@@ -50,14 +57,14 @@ class SimpleQueueTransportTest extends TestCase {
 			'contentId' => 'important',
 		]]);
 
-		$Email->setLayout('test_layout');
-		$Email->setTemplate('test_template');
+		$Email->viewBuilder()->setLayout('test_layout');
+		$Email->viewBuilder()->setTemplate('test_template');
+		$Email->viewBuilder()->setTheme('EuroTheme');
 		$Email->setSubject("L'utilisateur n'a pas pu être enregistré");
 		$Email->setReplyTo('noreply@cakephp.org');
 		$Email->setReadReceipt('noreply2@cakephp.org');
 		$Email->setReturnPath('noreply3@cakephp.org');
 		$Email->setDomain('cakephp.org');
-		$Email->setTheme('EuroTheme');
 		$Email->setEmailFormat('both');
 		$Email->set('var1', 1);
 		$Email->set('var2', 2);
@@ -71,6 +78,12 @@ class SimpleQueueTransportTest extends TestCase {
 
 		foreach ($output['settings'] as $method => $setting) {
 			$setter = 'set' . ucfirst($method);
+			if (in_array($method, ['theme', 'template', 'layout'], true)) {
+				call_user_func_array([$emailReconstructed->viewBuilder(), $setter], (array)$setting);
+
+				continue;
+			}
+
 			call_user_func_array([$emailReconstructed, $setter], (array)$setting);
 		}
 
@@ -85,13 +98,12 @@ class SimpleQueueTransportTest extends TestCase {
 		$this->assertEquals($emailReconstructed->getReplyTo(), $Email->getReplyTo());
 		$this->assertEquals($emailReconstructed->getReadReceipt(), $Email->getReadReceipt());
 		$this->assertEquals($emailReconstructed->getReturnPath(), $Email->getReturnPath());
-		//$this->assertEquals($emailReconstructed->getMessageId(), $Email->getMessageId());
 		$this->assertEquals($emailReconstructed->getDomain(), $Email->getDomain());
-		$this->assertEquals($emailReconstructed->getTheme(), $Email->getTheme());
+		$this->assertEquals($emailReconstructed->viewBuilder()->getTheme(), $Email->viewBuilder()->getTheme());
 		$this->assertEquals($emailReconstructed->getProfile(), $Email->getProfile());
 		$this->assertEquals($emailReconstructed->getViewVars(), $Email->getViewVars());
-		$this->assertEquals($emailReconstructed->getTemplate(), $Email->getTemplate());
-		$this->assertEquals($emailReconstructed->getLayout(), $Email->getLayout());
+		$this->assertEquals($emailReconstructed->viewBuilder()->getTemplate(), $Email->viewBuilder()->getTemplate());
+		$this->assertEquals($emailReconstructed->viewBuilder()->getLayout(), $Email->viewBuilder()->getLayout());
 	}
 
 }
