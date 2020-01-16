@@ -18,8 +18,6 @@ use Cake\ORM\Entity;
 class QueueProcess extends Entity {
 
 	/**
-	 * {@inheritDoc}
-	 *
 	 * @var array
 	 */
 	protected $_accessible = [

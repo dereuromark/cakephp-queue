@@ -11,6 +11,7 @@ use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
+use Cake\Validation\Validator;
 use InvalidArgumentException;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Queue\Config;
@@ -130,6 +131,24 @@ class QueuedJobsTable extends Table {
 			]);
 
 		return $searchManager;
+	}
+
+	/**
+	 * Default validation rules.
+	 *
+	 * @param \Cake\Validation\Validator $validator Validator instance.
+	 * @return \Cake\Validation\Validator
+	 */
+	public function validationDefault(Validator $validator) {
+		$validator
+			->integer('id')
+			->allowEmptyString('id', null, 'create');
+
+		$validator
+			->requirePresence('job_type', 'create')
+			->notEmptyString('job_type');
+
+		return $validator;
 	}
 
 	/**
@@ -806,7 +825,9 @@ class QueuedJobsTable extends Table {
 	 * @return void
 	 */
 	public function truncate() {
-		$sql = $this->getSchema()->truncateSql($this->_connection);
+		/** @var \Cake\Database\Schema\TableSchema $schema */
+		$schema = $this->getSchema();
+		$sql = $schema->truncateSql($this->_connection);
 		foreach ($sql as $snippet) {
 			$this->_connection->execute($snippet);
 		}

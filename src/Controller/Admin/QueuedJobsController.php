@@ -52,7 +52,7 @@ class QueuedJobsController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return \Cake\Http\Response|null
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function index() {
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
@@ -63,9 +63,7 @@ class QueuedJobsController extends AppController {
 		$queuedJobs = $this->paginate($query);
 
 		$this->set(compact('queuedJobs'));
-		$this->helpers[] = 'Tools.Format';
-		$this->helpers[] = 'Tools.Time';
-		$this->helpers[] = 'Shim.Configure';
+		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Shim.Configure']);
 
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
 			$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_type', 'valueField' => 'job_type'])->distinct('job_type')->toArray();
@@ -95,7 +93,7 @@ class QueuedJobsController extends AppController {
 	 * View method
 	 *
 	 * @param int|null $id Queued Job id.
-	 * @return \Cake\Http\Response|null
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function view($id = null) {
 		$queuedJob = $this->QueuedJobs->get((int)$id, [
@@ -113,7 +111,7 @@ class QueuedJobsController extends AppController {
 	/**
 	 * @throws \RuntimeException
 	 *
-	 * @return \Cake\Http\Response|null
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function import() {
 		if ($this->request->is(['post'])) {
@@ -170,7 +168,7 @@ class QueuedJobsController extends AppController {
 	 * Edit method
 	 *
 	 * @param int|null $id Queued Job id.
-	 * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
+	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit($id = null) {
 		$queuedJob = $this->QueuedJobs->get($id, [
@@ -196,7 +194,7 @@ class QueuedJobsController extends AppController {
 
 	/**
 	 * @param int|null $id Queued Job id.
-	 * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
+	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
 	public function data($id = null) {
 		return $this->edit($id);
@@ -206,7 +204,7 @@ class QueuedJobsController extends AppController {
 	 * Delete method
 	 *
 	 * @param int|null $id Queued Job id.
-	 * @return \Cake\Http\Response|null Redirects to index.
+	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
 	public function delete($id = null) {
 		$this->request->allowMethod(['post', 'delete']);
@@ -220,7 +218,7 @@ class QueuedJobsController extends AppController {
 	}
 
 	/**
-	 * @return \Cake\Http\Response|null
+	 * @return \Cake\Http\Response|null|void
 	 * @throws \Cake\Http\Exception\NotFoundException
 	 */
 	public function execute() {
@@ -248,7 +246,7 @@ class QueuedJobsController extends AppController {
 	}
 
 	/**
-	 * @return \Cake\Http\Response|null
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function test() {
 		$taskFinder = new TaskFinder();

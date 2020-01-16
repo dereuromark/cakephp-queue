@@ -64,15 +64,15 @@ class QueueProcessesTable extends Table {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->integer('id')
-			->allowEmpty('id', 'create');
+			->allowEmptyString('id', null, 'create');
 
 		$validator
 			->requirePresence('pid', 'create')
-			->notEmpty('pid');
+			->notEmptyString('pid');
 
 		$validator
 			->requirePresence('workerkey', 'create')
-			->notEmpty('workerkey');
+			->notEmptyString('workerkey');
 
 		$validator
 			->add('server', 'validateCount', [
