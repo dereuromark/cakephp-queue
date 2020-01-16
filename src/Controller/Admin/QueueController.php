@@ -3,6 +3,7 @@
 namespace Queue\Controller\Admin;
 
 use App\Controller\AppController;
+use Cake\Core\App;
 use Cake\Http\Exception\NotFoundException;
 use Queue\Queue\TaskFinder;
 
@@ -58,6 +59,15 @@ class QueueController extends AppController {
 		$this->request->allowMethod('post');
 		if (!$job) {
 			throw new NotFoundException();
+		}
+
+		$className = App::className('Queue.Queue' . $job, 'Shell/Task', 'Task');
+		if (!$className) {
+			throw new NotFoundException('Class not found for job `' . $job . '`');
+		}
+
+		if (method_exists($className, 'init')) {
+			$className::init();
 		}
 
 		$this->QueuedJobs->createJob($job);
