@@ -25,7 +25,7 @@
 		"cakephp/migrations": "^2.0",
 		"friendsofcake/search": "^5.0",
 		"dereuromark/cakephp-tools": "^1.9.7",
-		"dereuromark/cakephp-ide-helper": "dev-master",
+		"dereuromark/cakephp-ide-helper": "0.*",
 		"fig-r/psr2r-sniffer": "dev-master"
 	},
 	"suggest": {
