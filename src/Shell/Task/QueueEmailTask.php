@@ -2,6 +2,7 @@
 
 namespace Queue\Shell\Task;
 
+use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Mailer\Mailer;
@@ -9,18 +10,15 @@ use Queue\Model\QueueException;
 use Throwable;
 
 /**
+ * A convenience task ready to use for asynchronously sending basic emails.
+ *
+ * Especially useful is the fact that sending is auto-retried as per your config.
+ * Do do not lose the email, you can decide to even retry manually again afterwards.
+ *
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 class QueueEmailTask extends QueueTask implements AddInterface {
-
-	/**
-	 * @var array
-	 */
-	public $defaults = [
-		'to' => null,
-		'from' => null,
-	];
 
 	/**
 	 * @var int
@@ -31,6 +29,25 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 	 * @var \Cake\Mailer\Mailer
 	 */
 	public $mailer;
+
+	/**
+	 * List of default variables for Email class.
+	 *
+	 * @var array
+	 */
+	protected $defaults = [];
+
+	/**
+	 * @param \Cake\Console\ConsoleIo|null $io IO
+	 */
+	public function __construct(ConsoleIo $io = null) {
+		parent::__construct($io);
+
+		$adminEmail = Configure::read('Config.adminEmail');
+		if ($adminEmail) {
+			$this->defaults['from'] = $adminEmail;
+		}
+	}
 
 	/**
 	 * "Add" the task, not possible for QueueEmailTask
@@ -111,8 +128,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 
 		$this->mailer = $this->_getMailer();
 
-		$settings = array_merge($this->defaults, $data['settings']);
-
+		$settings = $data['settings'] + $this->defaults;
 		$map = [
 			'to' => 'setTo',
 			'from' => 'setFrom',
