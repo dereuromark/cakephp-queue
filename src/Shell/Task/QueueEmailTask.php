@@ -46,7 +46,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 
 		$adminEmail = Configure::read('Config.adminEmail');
 		if ($adminEmail) {
-			$this->defaults['from']  = $adminEmail;
+			$this->defaults['from'] = $adminEmail;
 		}
 	}
 
