@@ -118,7 +118,7 @@ ConnectionManager::setConfig('test', [
 	'driver' => getenv('db_class') ?: null,
 	'dsn' => getenv('db_dsn') ?: null,
 	'timezone' => 'UTC',
-	'quoteIdentifiers' => true,
+	'quoteIdentifiers' => false,
 	'cacheMetadata' => true,
 
 ]);
