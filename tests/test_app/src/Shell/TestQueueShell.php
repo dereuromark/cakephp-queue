@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Shell;
+namespace TestApp\Shell;
 
 use Queue\Shell\QueueShell;
 

@@ -39,7 +39,7 @@ class QueuedJobGeneratorTest extends TestCase {
 			'Example' => '\Queue\Shell\Task\QueueExampleTask::class',
 			'ExceptionExample' => '\Queue\Shell\Task\QueueExceptionExampleTask::class',
 			'Execute' => '\Queue\Shell\Task\QueueExecuteTask::class',
-			'Foo' => '\App\Shell\Task\QueueFooTask::class',
+			'Foo' => '\TestApp\Shell\Task\QueueFooTask::class',
 			'MonitorExample' => '\Queue\Shell\Task\QueueMonitorExampleTask::class',
 			'ProgressExample' => '\Queue\Shell\Task\QueueProgressExampleTask::class',
 			'RetryExample' => '\Queue\Shell\Task\QueueRetryExampleTask::class',

@@ -2,7 +2,6 @@
 
 namespace Queue\Test\TestCase\Shell;
 
-use App\Mailer\TestMailer;
 use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
 use Cake\Mailer\Mailer;
@@ -10,6 +9,7 @@ use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueEmailTask;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
+use TestApp\Mailer\TestMailer;
 
 class QueueEmailTaskTest extends TestCase {
 

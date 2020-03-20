@@ -36,7 +36,7 @@ require ROOT . '/vendor/autoload.php';
 require CORE_PATH . 'config/bootstrap.php';
 
 Configure::write('App', [
-	'namespace' => 'App',
+	'namespace' => 'TestApp',
 	'encoding' => 'UTF-8',
 	'paths' => [
 		'templates' => [ROOT . DS . 'tests' . DS . 'test_app' . DS . 'templates' . DS],
@@ -86,6 +86,8 @@ $cache = [
 ];
 
 Cache::setConfig($cache);
+
+class_alias(TestApp\Controller\AppController::class, 'App\Controller\AppController');
 
 Cake\Core\Plugin::getCollection()->add(new Queue\Plugin());
 

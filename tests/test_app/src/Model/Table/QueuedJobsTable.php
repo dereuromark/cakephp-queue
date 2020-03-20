@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Model\Table;
+namespace TestApp\Model\Table;
 
 use Queue\Model\Table\QueuedJobsTable as BaseQueuedJobsTable;
 
