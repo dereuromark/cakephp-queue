@@ -14,6 +14,7 @@ use RuntimeException;
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  *
  * @method \Queue\Model\Entity\QueuedJob[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
+ * @property \Search\Controller\Component\SearchComponent $Search
  */
 class QueuedJobsController extends AppController {
 
@@ -44,7 +45,7 @@ class QueuedJobsController extends AppController {
 		if ($this->components()->has('Search')) {
 			return;
 		}
-		$this->loadComponent('Search.Prg', [
+		$this->loadComponent('Search.Search', [
 			'actions' => ['index'],
 		]);
 	}
