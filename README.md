@@ -1,5 +1,5 @@
 # CakePHP Queue Plugin
-[![Build Status](https://api.travis-ci.com/dereuromark/cakephp-queue.svg?branch=cake3)](https://travis-ci.org/dereuromark/cakephp-queue)
+[![Build Status](https://api.travis-ci.com/dereuromark/cakephp-queue.svg?branch=cake3)](https://travis-ci.com/dereuromark/cakephp-queue)
 [![Coverage Status](https://img.shields.io/codecov/c/github/dereuromark/cakephp-queue/master.svg)](https://codecov.io/github/dereuromark/cakephp-queue?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/dereuromark/cakephp-queue/v/stable.svg)](https://packagist.org/packages/dereuromark/cakephp-queue)
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg)](https://php.net/)
