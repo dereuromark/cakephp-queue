@@ -23,9 +23,9 @@ class QueuedJobTask implements TaskInterface {
 	public function collect(): array {
 		$list = [];
 
-		$models = $this->collectQueuedJobTasks();
-		foreach ($models as $model => $className) {
-			$list[$model] = '\\' . $className . '::class';
+		$names = $this->collectQueuedJobTasks();
+		foreach ($names as $name => $className) {
+			$list[$name] = "'$name'";
 		}
 
 		ksort($list);

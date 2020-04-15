@@ -34,26 +34,19 @@ class QueuedJobGeneratorTest extends TestCase {
 
 		$list = $directive->toArray()['list'];
 		$expected = [
-			'CostsExample' => '\Queue\Shell\Task\QueueCostsExampleTask::class',
-			'Email' => '\Queue\Shell\Task\QueueEmailTask::class',
-			'Example' => '\Queue\Shell\Task\QueueExampleTask::class',
-			'ExceptionExample' => '\Queue\Shell\Task\QueueExceptionExampleTask::class',
-			'Execute' => '\Queue\Shell\Task\QueueExecuteTask::class',
-			'Foo' => '\TestApp\Shell\Task\QueueFooTask::class',
-			'MonitorExample' => '\Queue\Shell\Task\QueueMonitorExampleTask::class',
-			'ProgressExample' => '\Queue\Shell\Task\QueueProgressExampleTask::class',
-			'RetryExample' => '\Queue\Shell\Task\QueueRetryExampleTask::class',
-			'SuperExample' => '\Queue\Shell\Task\QueueSuperExampleTask::class',
-			'UniqueExample' => '\Queue\Shell\Task\QueueUniqueExampleTask::class',
+			'Execute' => "'Execute'",
+			'ProgressExample' => "'ProgressExample'",
 		];
-		$this->assertSame($expected, $list);
+		foreach ($expected as $name => $value) {
+			$this->assertSame($value, $list[$name]);
+		}
 
 		/** @var \IdeHelper\Generator\Directive\ExpectedArguments $directive */
 		$directive = array_shift($result);
 		$this->assertSame('\Queue\Model\Table\QueuedJobsTable::isQueued()', $directive->toArray()['method']);
 
 		$list = $directive->toArray()['list'];
-		$this->assertSame($expected, $list);
+		$this->assertNotEmpty($list);
 	}
 
 }
