@@ -26,13 +26,13 @@ class QueuedJobGeneratorTest extends TestCase {
 	public function testCollect() {
 		$result = $this->task->collect();
 
-		$this->assertCount(1, $result);
+		$this->assertCount(2, $result);
 
-		/** @var \IdeHelper\Generator\Directive\Override $directive */
+		/** @var \IdeHelper\Generator\Directive\ExpectedArguments $directive */
 		$directive = array_shift($result);
-		$this->assertSame('\Queue\Model\Table\QueuedJobsTable::createJob(0)', $directive->toArray()['method']);
+		$this->assertSame('\Queue\Model\Table\QueuedJobsTable::createJob()', $directive->toArray()['method']);
 
-		$map = $directive->toArray()['map'];
+		$list = $directive->toArray()['list'];
 		$expected = [
 			'CostsExample' => '\Queue\Shell\Task\QueueCostsExampleTask::class',
 			'Email' => '\Queue\Shell\Task\QueueEmailTask::class',
@@ -46,7 +46,14 @@ class QueuedJobGeneratorTest extends TestCase {
 			'SuperExample' => '\Queue\Shell\Task\QueueSuperExampleTask::class',
 			'UniqueExample' => '\Queue\Shell\Task\QueueUniqueExampleTask::class',
 		];
-		$this->assertSame($expected, $map);
+		$this->assertSame($expected, $list);
+
+		/** @var \IdeHelper\Generator\Directive\ExpectedArguments $directive */
+		$directive = array_shift($result);
+		$this->assertSame('\Queue\Model\Table\QueuedJobsTable::isQueued()', $directive->toArray()['method']);
+
+		$list = $directive->toArray()['list'];
+		$this->assertSame($expected, $list);
 	}
 
 }
