@@ -561,13 +561,12 @@ Instead of manually adding job every time you want to send mail you can use exis
         'timeout' => 30,
         'username' => 'username',
         'password' => 'password',
-        //'client' => null,
         'tls' => true,
     ],
     'queue' => [
         'className' => 'Queue.Queue',
-        'transport' => 'default'
-    ]
+        'transport' => 'default',
+    ],
 ],
 
 'Email' => [
@@ -632,9 +631,23 @@ $data = [
 ];
 ```
 
+Inside a controller you can for example do this for your mailers:
+```php
+$mailer = $this->getMailer('User');
+$mailer->viewBuilder()
+    ->setTemplate('register');
+$mailer->set...(...);
+
+$this->loadModel('Queue.QueuedJobs')->createJob(
+    'Email',
+    ['settings' => $mailer]
+);
+```
+Do not send your emails here, only assemble them. The Email Queue task triggers the `deliver()` method.
+
 ### Manually assembling your emails
 
-This is the most advised way to generate your asynchronous emails.
+This is the most customizable way to generate your asynchronous emails.
 
 Don't generate them directly in your code and pass them to the queue, instead just pass the minimum requirements, like non persistent data needed and the primary keys of the records that need to be included.
 So let's say someone posted a comment and you want to get notified.
@@ -662,17 +675,17 @@ protected function _notifyAdmin(Comment $comment)
 }
 ```
 
-And your `QueueAdminEmailTask::run()` method:
+And your `QueueAdminEmailTask::run()` method (using `MailerAwareTrait`):
 
 ```php
-$this->Mailer = new Mailer();
+$this->getMailer('User');
 $this->Mailer->viewBuilder()->setTemplate('comment_notification');
 // ...
 if (!empty($data['vars'])) {
     $this->Mailer->setViewVars($data['vars']);
 }
 
-return (bool)$this->Mailer->send();
+$this->Mailer->deliver();
 ```
 
 Make sure you got the template for it then, e.g.:
@@ -801,6 +814,11 @@ If you want to use multiple workers, please double check that all jobs have a hi
 
 If you need limiting of how many times a specific job type can be run in parallel, you need to find a custom solution here.
 
+
+## Generating links/URLS in CLI
+When you have Queue tasks and templates that need to create URLs, make sure you followed the core documentation
+on setting the `App.fullBaseUrl` config on your server.
+CLI itself does not know the URL your website is running on, so this value must be configured here for the generation to work.
 
 ## IDE support
 
