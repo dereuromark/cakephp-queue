@@ -77,6 +77,7 @@ abstract class QueueTask extends Shell implements QueueTaskInterface {
 
 	/**
 	 * @param \Cake\Console\ConsoleIo|null $io IO
+	 * @param \Cake\ORM\Locator\LocatorInterface|null $locator
 	 */
 	public function __construct(ConsoleIo $io = null, ?LocatorInterface $locator = null) {
 		parent::__construct($io, $locator);
