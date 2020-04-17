@@ -17,7 +17,7 @@ use InvalidArgumentException;
  * Common Queue plugin tasks properties and methods to be extended by custom
  * tasks.
  */
-abstract class QueueTask extends Shell {
+abstract class QueueTask extends Shell implements QueueTaskInterface {
 
 	/**
 	 * @var string
