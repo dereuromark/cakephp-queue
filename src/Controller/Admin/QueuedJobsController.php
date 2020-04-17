@@ -39,6 +39,14 @@ class QueuedJobsController extends AppController {
 			]);
 		}
 
+		$this->enableSearch();
+		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Shim.Configure']);
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function enableSearch(): void {
 		if (Configure::read('Queue.isSearchEnabled') === false || !Plugin::isLoaded('Search')) {
 			return;
 		}
@@ -64,7 +72,6 @@ class QueuedJobsController extends AppController {
 		$queuedJobs = $this->paginate($query);
 
 		$this->set(compact('queuedJobs'));
-		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Shim.Configure']);
 
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
 			$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_type', 'valueField' => 'job_type'])->distinct('job_type')->toArray();

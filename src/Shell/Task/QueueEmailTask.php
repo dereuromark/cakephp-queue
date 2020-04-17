@@ -84,7 +84,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 			],
 			'content' => 'hello world',
 		], true));
-		$this->out('Alternatively, you can pass the whole Mailer to directly use it.');
+		$this->out('Alternatively, you can pass the whole Mailer in `settings` key.');
 	}
 
 	/**
@@ -108,7 +108,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 			$result = null;
 			try {
 				$mailer->setTransport($data['transport'] ?? 'default');
-				$content = isset($data['content']) ? $data['content'] : null;
+				$content = isset($data['content']) ? $data['content'] : '';
 				$result = $mailer->deliver($content);
 
 			} catch (Throwable $e) {

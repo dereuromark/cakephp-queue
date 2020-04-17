@@ -141,7 +141,11 @@ use Cake\Core\Configure;
 		Current runtime configuration:
 		<ul>
 			<?php
-			$configurations = Configure::read('Queue');
+			$configurations = (array)Configure::read('Queue');
+			if (!$configurations) {
+				echo '<b>No configuration found</b>';
+			}
+
 			foreach ($configurations as $key => $configuration) {
 				echo '<li>';
 				if (is_dir($configuration)) {

@@ -24,6 +24,15 @@ class QueueProcessesController extends AppController {
 	];
 
 	/**
+	 * @return void
+	 */
+	public function initialize(): void {
+		parent::initialize();
+
+		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Shim.Configure']);
+	}
+
+	/**
 	 * Index method
 	 *
 	 * @return \Cake\Http\Response|null|void
@@ -32,7 +41,6 @@ class QueueProcessesController extends AppController {
 		$queueProcesses = $this->paginate();
 
 		$this->set(compact('queueProcesses'));
-		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Shim.Configure']);
 	}
 
 	/**
@@ -47,7 +55,6 @@ class QueueProcessesController extends AppController {
 		]);
 
 		$this->set(compact('queueProcess'));
-		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Shim.Configure']);
 	}
 
 	/**

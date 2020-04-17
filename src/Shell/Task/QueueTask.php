@@ -8,6 +8,7 @@ namespace Queue\Shell\Task;
 
 use Cake\Console\ConsoleIo;
 use Cake\Console\Shell;
+use Cake\ORM\Locator\LocatorInterface;
 use InvalidArgumentException;
 
 /**
@@ -16,7 +17,7 @@ use InvalidArgumentException;
  * Common Queue plugin tasks properties and methods to be extended by custom
  * tasks.
  */
-abstract class QueueTask extends Shell implements QueueTaskInterface {
+abstract class QueueTask extends Shell {
 
 	/**
 	 * @var string
@@ -36,7 +37,7 @@ abstract class QueueTask extends Shell implements QueueTaskInterface {
 	 *
 	 * @var int|null
 	 */
-	public $timeout = null;
+	public $timeout;
 
 	/**
 	 * Number of times a failed instance of this task should be restarted before giving up.
@@ -44,7 +45,7 @@ abstract class QueueTask extends Shell implements QueueTaskInterface {
 	 *
 	 * @var int|null
 	 */
-	public $retries = null;
+	public $retries;
 
 	/**
 	 * Rate limiting per worker in seconds.
@@ -77,8 +78,8 @@ abstract class QueueTask extends Shell implements QueueTaskInterface {
 	/**
 	 * @param \Cake\Console\ConsoleIo|null $io IO
 	 */
-	public function __construct(ConsoleIo $io = null) {
-		parent::__construct($io);
+	public function __construct(ConsoleIo $io = null, ?LocatorInterface $locator = null) {
+		parent::__construct($io, $locator);
 
 		$this->loadModel($this->queueModelClass);
 	}

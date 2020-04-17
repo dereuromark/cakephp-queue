@@ -37,7 +37,7 @@ class QueueShell extends Shell {
 	/**
 	 * @var string
 	 */
-	public $modelClass = 'Queue.QueuedJobs';
+	protected $modelClass = 'Queue.QueuedJobs';
 
 	/**
 	 * @var array|null

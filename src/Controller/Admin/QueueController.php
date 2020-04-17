@@ -16,7 +16,16 @@ class QueueController extends AppController {
 	/**
 	 * @var string
 	 */
-	public $modelClass = 'Queue.QueuedJobs';
+	protected $modelClass = 'Queue.QueuedJobs';
+
+	/**
+	 * @return void
+	 */
+	public function initialize(): void {
+		parent::initialize();
+
+		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Tools.Text', 'Shim.Configure']);
+	}
 
 	/**
 	 * Admin center.
@@ -45,7 +54,6 @@ class QueueController extends AppController {
 
 		$servers = $this->QueueProcesses->find()->distinct(['server'])->find('list', ['keyField' => 'server', 'valueField' => 'server'])->toArray();
 		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks', 'servers'));
-		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Tools.Text']);
 	}
 
 	/**
@@ -136,7 +144,6 @@ class QueueController extends AppController {
 		$terminated = $this->QueueProcesses->find()->where(['terminate' => true])->all()->toArray();
 
 		$this->set(compact('terminated', 'processes'));
-		$this->viewBuilder()->setHelpers(['Shim.Configure']);
 	}
 
 	/**
