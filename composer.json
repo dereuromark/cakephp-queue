@@ -50,7 +50,7 @@
 		}
 	},
 	"prefer-stable": true,
-	"minimum-stability": "dev",
+	"minimum-stability": "beta",
 	"scripts": {
 		"phpstan": "phpstan analyse -c tests/phpstan.neon -l 5 src/",
 		"phpstan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^0.12 && mv composer.backup composer.json",
