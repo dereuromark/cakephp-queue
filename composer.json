@@ -26,7 +26,7 @@
 		"friendsofcake/search": "^5.0",
 		"dereuromark/cakephp-tools": "^1.9.7",
 		"dereuromark/cakephp-ide-helper": "0.*",
-		"fig-r/psr2r-sniffer": "dev-master"
+		"fig-r/psr2r-sniffer": "^0.6"
 	},
 	"suggest": {
 		"friendsofcake/search": "For admin backend and filtering of current jobs.",
