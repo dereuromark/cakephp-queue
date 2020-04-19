@@ -155,7 +155,8 @@ use Queue\Shell\Task\QueueTask;
 class $name extends QueueTask {
 
 	/**
-	 * @param int \$jobId The id of the QueuedJob entity
+	 * @param array \$data Payload
+	 * @param int \$jobId The ID of the QueuedJob entity
 	 * @return void
 	 */
 	public function run(array \$data, int \$jobId): void {
