@@ -506,7 +506,7 @@ to see how status of your queue, statistics and settings.
 Please note that this requires the [Tools plugin](https://github.com/dereuromark/cakephp-tools) to be loaded if you do not customize the view templates on project level.
 Also make sure you loaded the helpers needed (Tools.Format, Tools.Time as Time, etc).
 
-By default the templates should work fine in both Foundation (v5+) and Bootstrap (v3+).
+By default, the templates should work fine in both Foundation (v5+) and Bootstrap (v3+).
 Copy-and-paste to project level for any customization here.
 
 ### Using backend actions
@@ -665,11 +665,11 @@ protected function _notifyAdmin(Comment $comment)
     $QueuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
     $data = [
         'settings' => [
-            'subject' => __('New comment submitted by {0}', $comment->name)
+            'subject' => __('New comment submitted by {0}', $comment->name),
         ],
         'vars' => [
-            'comment' => $comment->toArray()
-        ]
+            'comment' => $comment->toArray(),
+        ],
     ];
     $QueuedJobs->createJob('CommentNotification', $data);
 }
@@ -837,7 +837,7 @@ return [
     ...
     'IdeHelper' => [
         'generatorTasks' => [
-            QueuedJobTask::class
+            QueuedJobTask::class,
         ],
     ],
 ];
