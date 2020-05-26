@@ -57,6 +57,7 @@ class QueueHelper extends Helper {
 		$taskConfig = $this->taskConfig($queuedJob->job_type);
 		if ($taskConfig) {
 			$allowedFails = $taskConfig['retries'] + 1;
+
 			return $queuedJob->failed . '/' . $allowedFails;
 		}
 

@@ -51,11 +51,13 @@ class SimpleQueueTransportTest extends TestCase {
 		$mailer->setCc(['mark@cakephp.org' => 'Mark Story', 'juan@cakephp.org' => 'Juan Basso']);
 		$mailer->setBcc('phpnut@cakephp.org');
 		$mailer->setSubject('Testing Message');
-		$mailer->setAttachments(['wow.txt' => [
-			'data' => 'much wow!',
-			'mimetype' => 'text/plain',
-			'contentId' => 'important',
-		]]);
+		$mailer->setAttachments([
+			'wow.txt' => [
+				'data' => 'much wow!',
+				'mimetype' => 'text/plain',
+				'contentId' => 'important',
+			],
+		]);
 
 		$mailer->render('Foo Bar Content');
 		/*

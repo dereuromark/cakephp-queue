@@ -1,4 +1,5 @@
 <?php
+
 use Cake\Core\Configure;
 use Queue\Generator\Task\QueuedJobTask;
 

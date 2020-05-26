@@ -1,4 +1,5 @@
 <?php
+
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
@@ -107,6 +108,7 @@ Cake\Mailer\TransportFactory::setConfig('default', [
 // E.g. in your console: export db_dsn="mysql://root:secret@127.0.0.1/cake_test"
 if (!getenv('db_class') && getenv('db_dsn')) {
 	ConnectionManager::setConfig('test', ['url' => getenv('db_dsn')]);
+
 	return;
 }
 if (!getenv('db_class')) {

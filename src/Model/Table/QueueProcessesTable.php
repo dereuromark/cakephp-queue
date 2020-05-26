@@ -39,7 +39,7 @@ class QueueProcessesTable extends Table {
 		$connection = Configure::read('Queue.connection');
 		if (!empty($connection)) {
 			return $connection;
-		};
+		}
 
 		return parent::defaultConnectionName();
 	}
@@ -140,8 +140,8 @@ class QueueProcessesTable extends Table {
 
 	/**
 	 * @param string $pid
-	 * @return void
 	 * @throws \Queue\Model\ProcessEndingException
+	 * @return void
 	 */
 	public function update($pid) {
 		$conditions = [

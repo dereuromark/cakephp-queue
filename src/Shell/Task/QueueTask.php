@@ -79,18 +79,18 @@ abstract class QueueTask extends Shell implements QueueTaskInterface {
 	 * @param \Cake\Console\ConsoleIo|null $io IO
 	 * @param \Cake\ORM\Locator\LocatorInterface|null $locator
 	 */
-	public function __construct(ConsoleIo $io = null, ?LocatorInterface $locator = null) {
+	public function __construct(?ConsoleIo $io = null, ?LocatorInterface $locator = null) {
 		parent::__construct($io, $locator);
 
 		$this->loadModel($this->queueModelClass);
 	}
 
 	/**
-	 * @return string
 	 * @throws \InvalidArgumentException
+	 * @return string
 	 */
 	protected function queueTaskName() {
-		$class = get_class($this);
+		$class = static::class;
 
 		preg_match('#\\\\Queue(.+)Task$#', $class, $matches);
 		if (!$matches) {
