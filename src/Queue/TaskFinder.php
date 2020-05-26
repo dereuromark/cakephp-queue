@@ -71,6 +71,7 @@ class TaskFinder {
 			$name = basename($r, 'Task.php');
 			if (in_array($name, $this->tasks)) {
 				unset($res[$key]);
+
 				continue;
 			}
 			$res[$key] = $plugin . '.' . $name;

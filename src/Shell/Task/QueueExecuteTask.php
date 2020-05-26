@@ -51,8 +51,8 @@ class QueueExecuteTask extends QueueTask implements AddInterface {
 	 *
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
-	 * @return void
 	 * @throws \Queue\Model\QueueException
+	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
 		$data += [

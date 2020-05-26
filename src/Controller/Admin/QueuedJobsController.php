@@ -83,8 +83,8 @@ class QueuedJobsController extends AppController {
 	 * Index method
 	 *
 	 * @param string|null $jobType
-	 * @return void
 	 * @throws \Cake\Http\Exception\NotFoundException
+	 * @return void
 	 */
 	public function stats($jobType = null) {
 		if (!Configure::read('Queue.isStatisticEnabled')) {
@@ -159,12 +159,14 @@ class QueuedJobsController extends AppController {
 				$queuedJob = $this->QueuedJobs->newEntity($data);
 				if ($queuedJob->getErrors()) {
 					$this->Flash->error('Validation failed: ' . print_r($queuedJob->getErrors(), true));
+
 					return $this->redirect($this->referer(['action' => 'index']));
 				}
 
 				$this->QueuedJobs->saveOrFail($queuedJob);
 
 				$this->Flash->success('Imported');
+
 				return $this->redirect(['action' => 'view', $queuedJob->id]);
 			}
 
@@ -184,6 +186,7 @@ class QueuedJobsController extends AppController {
 		]);
 		if ($queuedJob->completed) {
 			$this->Flash->error(__d('queue', 'The queued job is already completed.'));
+
 			return $this->redirect(['action' => 'view', $id]);
 		}
 
@@ -191,6 +194,7 @@ class QueuedJobsController extends AppController {
 			$queuedJob = $this->QueuedJobs->patchEntity($queuedJob, $this->request->getData());
 			if ($this->QueuedJobs->save($queuedJob)) {
 				$this->Flash->success(__d('queue', 'The queued job has been saved.'));
+
 				return $this->redirect(['action' => 'view', $id]);
 			}
 
@@ -222,12 +226,13 @@ class QueuedJobsController extends AppController {
 		} else {
 			$this->Flash->error(__d('queue', 'The queued job could not be deleted. Please try again.'));
 		}
+
 		return $this->redirect(['action' => 'index']);
 	}
 
 	/**
-	 * @return \Cake\Http\Response|null|void
 	 * @throws \Cake\Http\Exception\NotFoundException
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function execute() {
 		if (!Configure::read('debug')) {
@@ -238,6 +243,7 @@ class QueuedJobsController extends AppController {
 			$data = (array)$this->request->getData();
 			if (empty($data['command'])) {
 				$this->Flash->error('Command is required');
+
 				return null;
 			}
 

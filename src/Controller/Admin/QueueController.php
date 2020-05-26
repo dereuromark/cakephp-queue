@@ -58,10 +58,8 @@ class QueueController extends AppController {
 
 	/**
 	 * @param string|null $job
-	 *
-	 * @return \Cake\Http\Response
-	 *
 	 * @throws \Cake\Http\Exception\NotFoundException
+	 * @return \Cake\Http\Response
 	 */
 	public function addJob($job = null) {
 		$this->request->allowMethod('post');
@@ -87,10 +85,8 @@ class QueueController extends AppController {
 
 	/**
 	 * @param int|null $id
-	 *
-	 * @return \Cake\Http\Response
-	 *
 	 * @throws \Cake\Http\Exception\NotFoundException
+	 * @return \Cake\Http\Response
 	 */
 	public function resetJob($id = null) {
 		$this->request->allowMethod('post');

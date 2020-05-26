@@ -202,8 +202,8 @@ class QueueProgressHelper extends Helper {
 		return $statistics[$jobType];
 	}
 
-	const KEY = 'queue_queued-job-statistics';
-	const CONFIG = 'default';
+	public const KEY = 'queue_queued-job-statistics';
+	public const CONFIG = 'default';
 
 	/**
 	 * @return array

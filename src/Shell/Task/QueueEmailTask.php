@@ -6,6 +6,7 @@ use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Mailer\Mailer;
+use Cake\ORM\Locator\LocatorInterface;
 use Queue\Model\QueueException;
 use Throwable;
 
@@ -39,9 +40,10 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 
 	/**
 	 * @param \Cake\Console\ConsoleIo|null $io IO
+	 * @param \Cake\ORM\Locator\LocatorInterface|null $locator
 	 */
-	public function __construct(ConsoleIo $io = null) {
-		parent::__construct($io);
+	public function __construct(?ConsoleIo $io = null, ?LocatorInterface $locator = null) {
+		parent::__construct($io, $locator);
 
 		$adminEmail = Configure::read('Config.adminEmail');
 		if ($adminEmail) {
@@ -176,8 +178,8 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 	/**
 	 * Check if Mail class exists and create instance
 	 *
-	 * @return \Cake\Mailer\Mailer
 	 * @throws \Queue\Model\QueueException
+	 * @return \Cake\Mailer\Mailer
 	 */
 	protected function _getMailer() {
 		$class = Configure::read('Queue.mailerClass');
@@ -188,7 +190,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 			}
 		}
 		if (!class_exists($class)) {
-			throw new QueueException(sprintf('Configured mailer class `%s` in `%s` not found.', $class, get_class($this)));
+			throw new QueueException(sprintf('Configured mailer class `%s` in `%s` not found.', $class, static::class));
 		}
 
 		return new $class();

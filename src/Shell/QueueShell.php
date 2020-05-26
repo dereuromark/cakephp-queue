@@ -104,6 +104,7 @@ Simple and minimalistic job queue (or deferred-task) system.
 Available Tasks:
 $tasks
 TEXT;
+
 		return $text;
 	}
 
@@ -147,6 +148,7 @@ TEXT;
 		if (strpos($task, 'Queue') === 0) {
 			return substr($task, 5);
 		}
+
 		return $task;
 	}
 
@@ -196,10 +198,12 @@ TEXT;
 			} catch (RecordNotFoundException $exception) {
 				// Manually killed
 				$this->_exit = true;
+
 				continue;
 			} catch (ProcessEndingException $exception) {
 				// Soft killed, e.g. during deploy update
 				$this->_exit = true;
+
 				continue;
 			}
 
@@ -281,6 +285,7 @@ TEXT;
 			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->_getTaskConf());
 			$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
 			$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
+
 			return;
 		}
 

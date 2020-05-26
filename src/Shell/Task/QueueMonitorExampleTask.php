@@ -88,9 +88,10 @@ class QueueMonitorExampleTask extends QueueTask implements AddInterface {
 			if (strpos($line, ':') === false) {
 				continue;
 			}
-			list($key, $val) = explode(':', $line);
+			[$key, $val] = explode(':', $line);
 			$meminfo[$key] = trim($val);
 		}
+
 		return $meminfo;
 	}
 

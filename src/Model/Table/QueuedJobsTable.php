@@ -44,11 +44,11 @@ if (!defined('SIGTERM')) {
  */
 class QueuedJobsTable extends Table {
 
-	const DRIVER_MYSQL = 'Mysql';
-	const DRIVER_POSTGRES = 'Postgres';
-	const DRIVER_SQLSERVER = 'Sqlserver';
+	public const DRIVER_MYSQL = 'Mysql';
+	public const DRIVER_POSTGRES = 'Postgres';
+	public const DRIVER_SQLSERVER = 'Sqlserver';
 
-	const STATS_LIMIT = 100000;
+	public const STATS_LIMIT = 100000;
 
 	/**
 	 * @var array
@@ -69,7 +69,7 @@ class QueuedJobsTable extends Table {
 		$connection = Configure::read('Queue.connection');
 		if (!empty($connection)) {
 			return $connection;
-		};
+		}
 
 		return parent::defaultConnectionName();
 	}
@@ -170,7 +170,7 @@ class QueuedJobsTable extends Table {
 	 * @param array $config Config to save along with the job
 	 * @return \Queue\Model\Entity\QueuedJob Saved job entity
 	 */
-	public function createJob($jobType, array $data = null, array $config = []) {
+	public function createJob($jobType, ?array $data = null, array $config = []) {
 		$queuedJob = [
 			'job_type' => $jobType,
 			'data' => is_array($data) ? serialize($data) : null,
@@ -187,9 +187,8 @@ class QueuedJobsTable extends Table {
 	 * @param string $reference
 	 * @param string|null $jobType
 	 *
-	 * @return bool
-	 *
 	 * @throws \InvalidArgumentException
+	 * @return bool
 	 */
 	public function isQueued($reference, $jobType = null) {
 		if (!$reference) {
@@ -243,6 +242,7 @@ class QueuedJobsTable extends Table {
 			'keyField' => 'job_type',
 			'valueField' => 'job_type',
 		];
+
 		return $this->find('list', $findCond);
 	}
 
@@ -264,11 +264,13 @@ class QueuedJobsTable extends Table {
 						$alltime = $query->func()->avg("DATEDIFF(s, '1970-01-01 00:00:00', completed) - DATEDIFF(s, '1970-01-01 00:00:00', created)");
 						$runtime = $query->func()->avg("DATEDIFF(s, '1970-01-01 00:00:00', completed) - DATEDIFF(s, '1970-01-01 00:00:00', fetched)");
 						$fetchdelay = $query->func()->avg("DATEDIFF(s, '1970-01-01 00:00:00', fetched) - (CASE WHEN notbefore IS NULL THEN DATEDIFF(s, '1970-01-01 00:00:00', created) ELSE DATEDIFF(s, '1970-01-01 00:00:00', notbefore) END)");
+
 						break;
 					case static::DRIVER_POSTGRES:
 						$alltime = $query->func()->avg('EXTRACT(EPOCH FROM completed) - EXTRACT(EPOCH FROM created)');
 						$runtime = $query->func()->avg('EXTRACT(EPOCH FROM completed) - EXTRACT(EPOCH FROM fetched)');
 						$fetchdelay = $query->func()->avg('EXTRACT(EPOCH FROM fetched) - CASE WHEN notbefore IS NULL then EXTRACT(EPOCH FROM created) ELSE EXTRACT(EPOCH FROM notbefore) END');
+
 						break;
 				}
 
@@ -287,6 +289,7 @@ class QueuedJobsTable extends Table {
 				'job_type',
 			],
 		];
+
 		return $this->find('all', $options);
 	}
 
@@ -308,9 +311,11 @@ class QueuedJobsTable extends Table {
 			switch ($driverName) {
 				case static::DRIVER_SQLSERVER:
 					$runtime = $query->newExpr("DATEDIFF(s, '1970-01-01 00:00:00', completed) - DATEDIFF(s, '1970-01-01 00:00:00', fetched)");
+
 					break;
 				case static::DRIVER_POSTGRES:
 					$runtime = $query->newExpr('EXTRACT(EPOCH FROM completed) - EXTRACT(EPOCH FROM fetched)');
+
 					break;
 			}
 
@@ -389,10 +394,12 @@ class QueuedJobsTable extends Table {
 		switch ($driverName) {
 			case static::DRIVER_SQLSERVER:
 				$age = $query->newExpr()->add('ISNULL(DATEDIFF(SECOND, GETDATE(), notbefore), 0)');
+
 				break;
 			case static::DRIVER_POSTGRES:
 				$age = $query->newExpr()
 					->add('COALESCE(EXTRACT(EPOCH FROM notbefore) - (EXTRACT(EPOCH FROM now())), 0)');
+
 				break;
 		}
 		$options = [
@@ -444,6 +451,7 @@ class QueuedJobsTable extends Table {
 		foreach ($runningJobs as $runningJob) {
 			if (isset($uniqueConstraints[$runningJob->job_type])) {
 				$types[] = '-' . $runningJob->job_type;
+
 				continue;
 			}
 
@@ -472,7 +480,7 @@ class QueuedJobsTable extends Table {
 
 		// Generate the task specific conditions.
 		foreach ($capabilities as $task) {
-			list($plugin, $name) = pluginSplit($task['name']);
+			[$plugin, $name] = pluginSplit($task['name']);
 			$timeoutAt = $now->copy();
 			$tmp = [
 				'job_type' => $name,
@@ -496,12 +504,15 @@ class QueuedJobsTable extends Table {
 				switch ($driverName) {
 					case static::DRIVER_POSTGRES:
 						$tmp['EXTRACT(EPOCH FROM NOW()) >='] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
+
 						break;
 					case static::DRIVER_MYSQL:
 						$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
+
 						break;
 					case static::DRIVER_SQLSERVER:
 						$tmp["DATEDIFF(s, '1970-01-01 00:00:00', GETDATE()) >="] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
+
 						break;
 				}
 			}
@@ -673,6 +684,7 @@ class QueuedJobsTable extends Table {
 				'completed IS' => null,
 			],
 		];
+
 		return $this->find('all', $findCond);
 	}
 
@@ -755,6 +767,7 @@ class QueuedJobsTable extends Table {
 				$query['conditions'][]['job_group'] = $query['conditions']['job_group'];
 				unset($query['conditions']['job_group']);
 			}
+
 			return $query;
 		}
 		// state === after
@@ -770,6 +783,7 @@ class QueuedJobsTable extends Table {
 				$results[$k]['failure_message'] = $result['failure_message'];
 			}
 		}
+
 		return $results;
 	}
 

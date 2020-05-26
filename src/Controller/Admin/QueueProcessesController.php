@@ -71,6 +71,7 @@ class QueueProcessesController extends AppController {
 			$queueProcess = $this->QueueProcesses->patchEntity($queueProcess, $this->request->getData());
 			if ($this->QueueProcesses->save($queueProcess)) {
 				$this->Flash->success(__d('queue', 'The queue process has been saved.'));
+
 				return $this->redirect(['action' => 'index']);
 			}
 
@@ -95,6 +96,7 @@ class QueueProcessesController extends AppController {
 		} catch (Exception $exception) {
 			$this->Flash->error(__d('queue', 'The queue process could not be deleted. Please, try again.'));
 		}
+
 		return $this->redirect(['action' => 'index']);
 	}
 
@@ -116,6 +118,7 @@ class QueueProcessesController extends AppController {
 		} else {
 			$this->Flash->error(__d('queue', 'The queue process could not be deleted. Please, try again.'));
 		}
+
 		return $this->redirect(['action' => 'index']);
 	}
 
