@@ -114,6 +114,7 @@ class QueuedJobsController extends AppController {
 
 		$this->set(compact('queuedJob'));
 		$this->viewBuilder()->setOption('serialize', ['queuedJob']);
+		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Shim.Configure']);
 	}
 
 	/**
