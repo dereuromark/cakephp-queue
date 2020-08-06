@@ -21,7 +21,7 @@ class QueueProgressHelper extends Helper {
 	/**
 	 * @var array
 	 */
-	public $helpers = [
+	protected $helpers = [
 		'Tools.Progress',
 	];
 
