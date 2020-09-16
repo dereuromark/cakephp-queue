@@ -12,21 +12,21 @@
 use Cake\Core\Configure;
 ?>
 
-<nav class="col-md-3 col-xs-12 large-3 medium-4 columns" id="actions-sidebar">
-	<ul class="side-nav nav nav-pills nav-stacked">
-		<li class="heading"><?= __d('queue', 'Actions') ?></li>
-		<li><?php echo $this->Form->postLink(__d('queue', 'Reset {0}', __d('queue', 'Failed Jobs')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will make all failed jobs ready for re-run.'), 'class' => 'btn margin btn-default']); ?></li>
-		<li><?php echo $this->Form->postLink(__d('queue', 'Reset {0}', __d('queue', 'All Jobs')), ['action' => 'reset', '?' => ['full' => true]], ['confirm' => __d('queue', 'Sure? This will make all failed as well as still running jobs ready for re-run.'), 'class' => 'btn margin btn-default']); ?></li>
+<nav class="col-md-3 col-12 large-3 medium-4 columns" id="actions-sidebar">
+	<ul class="side-nav nav nav-pills flex-column">
+		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
+		<li><?php echo $this->Form->postLink(__d('queue', 'Reset {0}', __d('queue', 'Failed Jobs')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will make all failed jobs ready for re-run.'), 'class' => 'btn margin btn-secondary']); ?></li>
+		<li><?php echo $this->Form->postLink(__d('queue', 'Reset {0}', __d('queue', 'All Jobs')), ['action' => 'reset', '?' => ['full' => true]], ['confirm' => __d('queue', 'Sure? This will make all failed as well as still running jobs ready for re-run.'), 'class' => 'btn margin btn-secondary']); ?></li>
 		<li><?php echo $this->Form->postLink(__d('queue', 'Hard Reset {0}', __d('queue', 'Queue')), ['action' => 'hardReset'], ['confirm' => __d('queue', 'Sure? This will delete all jobs and completely reset the queue.'), 'class' => 'btn margin btn-warning']); ?></li>
 		<li><?php echo $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['controller' => 'QueuedJobs', 'action' => 'index'], ['class' => 'btn margin btn-primary']); ?></li>
 	</ul>
 </nav>
 
-<div class="content col-md-9 col-xs-12 large-9 medium-8 columns">
+<div class="content col-md-9 col-12 large-9 medium-8 columns">
 <h1><?php echo __d('queue', 'Queue');?></h1>
 
 <div class="row">
-	<div class="col-md-6 col-xs-12 medium-6 columns">
+	<div class="col-md-6 col-12 medium-6 columns">
 
 		<h2><?php echo __d('queue', 'Status'); ?></h2>
 		<?php if ($status) { ?>
@@ -61,9 +61,9 @@ use Cake\Core\Configure;
 				$reset = '';
 				if ($this->Queue->hasFailed($pendingJob)) {
 					$reset = ' ' . $this->Form->postLink(__d('queue', 'Soft reset'), ['action' => 'resetJob', $pendingJob->id], ['confirm' => 'Sure?', 'class' => 'button primary btn margin btn-primary']);
-					$reset .= ' ' . $this->Form->postLink(__d('queue', 'Remove'), ['action' => 'removeJob', $pendingJob->id], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-default']);
+					$reset .= ' ' . $this->Form->postLink(__d('queue', 'Remove'), ['action' => 'removeJob', $pendingJob->id], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-secondary']);
 				} elseif ($pendingJob->fetched) {
-					$reset .= ' ' . $this->Form->postLink(__d('queue', 'Remove'), ['action' => 'removeJob', $pendingJob->id], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-default']);
+					$reset .= ' ' . $this->Form->postLink(__d('queue', 'Remove'), ['action' => 'removeJob', $pendingJob->id], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-secondary']);
 				}
 
 				$notBefore = '';
@@ -128,7 +128,7 @@ use Cake\Core\Configure;
 		<?php } ?>
 	</div>
 
-	<div class="col-md-6 col-xs-12 medium-6 columns">
+	<div class="col-md-6 col-12 medium-6 columns">
 
 		<h2>Settings</h2>
 		Server:

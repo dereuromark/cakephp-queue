@@ -5,21 +5,21 @@
  */
 use Queue\Queue\Config;
 ?>
-<nav class="actions large-3 medium-4 columns col-sm-4 col-xs-12" id="actions-sidebar">
-	<ul class="side-nav nav nav-pills nav-stacked">
-		<li class="heading"><?= __d('queue', 'Actions') ?></li>
-		<li><?= $this->Html->link($this->Format->icon('edit') . ' ' . __d('queue', 'Edit Queue Process'), ['action' => 'edit', $queueProcess->id], ['escape' => false]) ?> </li>
+<nav class="actions large-3 medium-4 columns col-sm-4 col-12" id="actions-sidebar">
+	<ul class="side-nav nav nav-pills flex-column">
+		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
+		<li class="nav-item"><?= $this->Html->link($this->Format->icon('edit') . ' ' . __d('queue', 'Edit Queue Process'), ['action' => 'edit', $queueProcess->id], ['escape' => false]) ?> </li>
 
 		<?php if (!$queueProcess->terminate) { ?>
-			<li><?= $this->Form->postLink($this->Format->icon('close', ['title' => __d('queue', 'Terminate')]). ' ' . __d('queue', 'Terminate (clean remove)'), ['action' => 'terminate', $queueProcess->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id)]); ?></li>
+			<li class="nav-item"><?= $this->Form->postLink($this->Format->icon('close', ['title' => __d('queue', 'Terminate')]). ' ' . __d('queue', 'Terminate (clean remove)'), ['action' => 'terminate', $queueProcess->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id)]); ?></li>
 		<?php } else { ?>
-			<li><?php echo $this->Form->postLink($this->Format->icon('delete', ['title' => __d('queue', 'Delete')]). ' ' . __d('queue', 'Delete (not advised)'), ['action' => 'delete', $queueProcess->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queueProcess->id)]); ?></li>
+			<li class="nav-item"><?php echo $this->Form->postLink($this->Format->icon('delete', ['title' => __d('queue', 'Delete')]). ' ' . __d('queue', 'Delete (not advised)'), ['action' => 'delete', $queueProcess->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queueProcess->id)]); ?></li>
 		<?php } ?>
 
-		<li><?= $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queue Processes')), ['action' => 'index']) ?> </li>
+		<li class="nav-item"><?= $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queue Processes')), ['action' => 'index']) ?> </li>
 	</ul>
 </nav>
-<div class="content action-view view large-9 medium-8 columns col-sm-8 col-xs-12">
+<div class="content action-view view large-9 medium-8 columns col-sm-8 col-12">
 	<h1>PID <?= h($queueProcess->pid) ?></h1>
 	<table class="table vertical-table">
 		<tr>

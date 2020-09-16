@@ -10,14 +10,14 @@ use Cake\I18n\Time;
 ?>
 
 
-<nav class="col-md-3 col-xs-12 large-3 medium-4 columns" id="actions-sidebar">
-	<ul class="side-nav nav nav-pills nav-stacked">
-		<li><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index'], ['class' => 'btn margin btn-default']) ?></li>
-		<li><?php echo $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queue Processes')), ['controller' => 'QueueProcesses', 'action' => 'index'], ['class' => 'btn margin btn-primary']); ?></li>
+<nav class="col-md-3 col-12 large-3 medium-4 columns" id="actions-sidebar">
+	<ul class="side-nav nav nav-pills flex-column">
+		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index'], ['class' => 'btn margin btn-secondary']) ?></li>
+		<li class="nav-item"><?php echo $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queue Processes')), ['controller' => 'QueueProcesses', 'action' => 'index'], ['class' => 'btn margin btn-primary']); ?></li>
 	</ul>
 </nav>
 
-<div class="content col-md-9 col-xs-12 large-9 medium-8 columns">
+<div class="content col-md-9 col-12 large-9 medium-8 columns">
 <h1><?php echo __d('queue', 'Queue');?></h1>
 
 <h2><?php echo __d('queue', 'Current Queue Processes'); ?></h2>

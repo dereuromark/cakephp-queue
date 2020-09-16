@@ -170,6 +170,12 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 			$this->mailer->getMessage()->setHeaders($data['headers']);
 		}
 
+		if ($message === null) {
+			$this->mailer->send();
+
+			return;
+		}
+
 		if (!$this->mailer->deliver($message)) {
 			throw new QueueException('Could not send email.');
 		}

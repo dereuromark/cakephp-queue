@@ -4,20 +4,20 @@
  * @var \Queue\Model\Entity\QueuedJob $queuedJob
  */
 ?>
-<nav class="actions large-3 medium-4 columns col-sm-4 col-xs-12" id="actions-sidebar">
-	<ul class="side-nav nav nav-pills nav-stacked">
-		<li class="heading"><?= __d('queue', 'Actions') ?></li>
-		<li><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?> </li>
-		<li><?= $this->Html->link(__d('queue', 'Export'), ['action' => 'view', $queuedJob->id, '_ext' => 'json', '?' => ['download' => true]]) ?> </li>
+<nav class="actions large-3 medium-4 columns col-sm-4 col-12" id="actions-sidebar">
+	<ul class="side-nav nav nav-pills flex-column">
+		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
+		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?> </li>
+		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Export'), ['action' => 'view', $queuedJob->id, '_ext' => 'json', '?' => ['download' => true]]) ?> </li>
 
 		<?php if (!$queuedJob->completed) { ?>
-			<li><?= $this->Html->link(__d('queue', 'Edit Queued Job'), ['action' => 'edit', $queuedJob->id]) ?> </li>
+			<li class="nav-item"><?= $this->Html->link(__d('queue', 'Edit Queued Job'), ['action' => 'edit', $queuedJob->id]) ?> </li>
 		<?php } ?>
-		<li><?= $this->Form->postLink(__d('queue', 'Delete Queued Job'), ['action' => 'delete', $queuedJob->id], ['confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id)]) ?> </li>
-		<li><?= $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['action' => 'index']) ?> </li>
+		<li class="nav-item"><?= $this->Form->postLink(__d('queue', 'Delete Queued Job'), ['action' => 'delete', $queuedJob->id], ['confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id)]) ?> </li>
+		<li class="nav-item"><?= $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['action' => 'index']) ?> </li>
 	</ul>
 </nav>
-<div class="content action-view view large-9 medium-8 columns col-sm-8 col-xs-12">
+<div class="content action-view view large-9 medium-8 columns col-sm-8 col-12">
 	<h1>ID <?= h($queuedJob->id) ?></h1>
 	<table class="table vertical-table">
 		<tr>

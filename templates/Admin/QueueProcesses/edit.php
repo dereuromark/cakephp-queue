@@ -4,14 +4,14 @@
  * @var \Queue\Model\Entity\QueueProcess $queueProcess
  */
 ?>
-<nav class="actions large-3 medium-4 columns col-sm-4 col-xs-12" id="actions-sidebar">
-	<ul class="side-nav nav nav-pills nav-stacked">
-		<li class="heading"><?= __d('queue', 'Actions') ?></li>
-		<li><?= $this->Html->link(__d('queue', 'Back'), ['action' => 'view', $queueProcess->id]) ?></li>
-		<li><?= $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queue Processes')), ['action' => 'index']) ?></li>
+<nav class="actions large-3 medium-4 columns col-sm-4 col-12" id="actions-sidebar">
+	<ul class="side-nav nav nav-pills flex-column">
+		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
+		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Back'), ['action' => 'view', $queueProcess->id]) ?></li>
+		<li class="nav-item"><?= $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queue Processes')), ['action' => 'index']) ?></li>
 	</ul>
 </nav>
-<div class="content action-form form large-9 medium-8 columns col-sm-8 col-xs-12">
+<div class="content action-form form large-9 medium-8 columns col-sm-8 col-12">
 
 	<h1><?php echo __d('queue', 'Edit PID {0}', $queueProcess->pid); ?></h1>
 

@@ -8,12 +8,12 @@ use Cake\Core\Configure;
 use Cake\Core\Plugin;
 
 ?>
-<nav class="actions large-3 medium-4 columns col-sm-4 col-xs-12" id="actions-sidebar">
-	<ul class="side-nav nav nav-pills nav-stacked">
-		<li class="heading"><?= __d('queue', 'Actions') ?></li>
-		<li><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?></li>
+<nav class="actions large-3 medium-4 columns col-sm-4 col-12" id="actions-sidebar">
+	<ul class="side-nav nav nav-pills flex-column">
+		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
+		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?></li>
 		<?php if ($this->Configure->read('debug')) { ?>
-		<li><?= $this->Html->link(__d('queue', 'Import'), ['action' => 'import']) ?></li>
+		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Import'), ['action' => 'import']) ?></li>
 		<?php } ?>
 	</ul>
 
@@ -24,7 +24,7 @@ use Cake\Core\Plugin;
 	<?php echo $this->Time->nice(new \Cake\I18n\FrozenTime()); ?>
 
 </nav>
-<div class="content action-index index large-9 medium-8 columns col-sm-8 col-xs-12">
+<div class="content action-index index large-9 medium-8 columns col-sm-8 col-12">
 
 	<?php
 	if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {

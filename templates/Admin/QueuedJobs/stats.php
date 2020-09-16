@@ -9,19 +9,19 @@
  */
 ?>
 
-<nav class="col-md-3 col-xs-12 large-3 medium-4 columns" id="actions-sidebar">
-	<ul class="side-nav nav nav-pills nav-stacked">
-		<li class="heading"><?= __d('queue', 'Actions') ?></li>
-		<li><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?></li>
-		<li><?php echo $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['controller' => 'QueuedJobs', 'action' => 'index'], ['class' => 'btn margin btn-primary']); ?></li>
+<nav class="col-md-3 col-12 large-3 medium-4 columns" id="actions-sidebar">
+	<ul class="side-nav nav nav-pills flex-column">
+		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
+		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?></li>
+		<li class="nav-item"><?php echo $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['controller' => 'QueuedJobs', 'action' => 'index'], ['class' => 'btn margin btn-primary']); ?></li>
 	</ul>
 </nav>
 
-<div class="col-md-9 col-xs-12 large-9 medium-8 columns">
+<div class="col-md-9 col-12 large-9 medium-8 columns">
 <h1><?php echo __d('queue', 'Queue');?></h1>
 
 <div class="row">
-	<div class="col-md-6 col-xs-12 medium-6 columns">
+	<div class="col-md-6 col-12 medium-6 columns">
 
 		<h2><?php echo __d('queue', 'Job Statistics'); ?></h2>
 

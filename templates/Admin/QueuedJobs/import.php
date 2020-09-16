@@ -5,8 +5,8 @@
 ?>
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
 	<ul class="side-nav">
-		<li class="heading"><?= __d('queue', 'Actions') ?></li>
-		<li><?= $this->Html->link('Back', ['action' => 'index']); ?></li>
+		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
+		<li class="nav-item"><?= $this->Html->link('Back', ['action' => 'index']); ?></li>
 	</ul>
 </nav>
 <div class="releases form large-9 medium-8 columns content">
