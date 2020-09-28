@@ -224,7 +224,7 @@ class QueueProgressHelper extends Helper {
 		}
 
 		$statistics = [];
-		foreach ($queuedJobStatistics as $statistic) {
+		foreach ((array)$queuedJobStatistics as $statistic) {
 			$statistics[$statistic['job_type']][] = $statistic['runtime'];
 		}
 
