@@ -127,6 +127,9 @@ class QueuedJobsController extends AppController {
 			$file = $this->request->getData('file');
 			if ($file && $file['error'] == 0 && $file['size'] > 0) {
 				$content = file_get_contents($file['tmp_name']);
+				if ($content === false) {
+					throw new RuntimeException('Cannot parse file');
+				}
 				$json = json_decode($content, true);
 				if (empty($json) || empty($json['queuedJob'])) {
 					throw new RuntimeException('Invalid JSON content');

@@ -59,7 +59,7 @@ class QueueController extends AppController {
 	/**
 	 * @param string|null $job
 	 * @throws \Cake\Http\Exception\NotFoundException
-	 * @return \Cake\Http\Response
+	 * @return \Cake\Http\Response|null
 	 */
 	public function addJob($job = null) {
 		$this->request->allowMethod('post');
@@ -86,7 +86,7 @@ class QueueController extends AppController {
 	/**
 	 * @param int|null $id
 	 * @throws \Cake\Http\Exception\NotFoundException
-	 * @return \Cake\Http\Response
+	 * @return \Cake\Http\Response|null
 	 */
 	public function resetJob($id = null) {
 		$this->request->allowMethod('post');
@@ -104,7 +104,7 @@ class QueueController extends AppController {
 	/**
 	 * @param int|null $id
 	 *
-	 * @return \Cake\Http\Response
+	 * @return \Cake\Http\Response|null
 	 */
 	public function removeJob($id = null) {
 		$this->request->allowMethod('post');
@@ -145,7 +145,7 @@ class QueueController extends AppController {
 	/**
 	 * Mark all failed jobs as ready for re-run.
 	 *
-	 * @return \Cake\Http\Response
+	 * @return \Cake\Http\Response|null
 	 */
 	public function reset() {
 		$this->request->allowMethod('post');
@@ -160,7 +160,7 @@ class QueueController extends AppController {
 	/**
 	 * Truncate the queue list / table.
 	 *
-	 * @return \Cake\Http\Response
+	 * @return \Cake\Http\Response|null
 	 */
 	public function hardReset() {
 		$this->request->allowMethod('post');
@@ -175,10 +175,13 @@ class QueueController extends AppController {
 	/**
 	 * @param string|array $default
 	 *
-	 * @return \Cake\Http\Response|null|void
+	 * @return \Cake\Http\Response|null
 	 */
 	protected function refererRedirect($default) {
 		$url = $this->request->getQuery('redirect');
+		if (is_array($url)) {
+			throw new NotFoundException('Invalid array in query string');
+		}
 		if ($url && (mb_substr($url, 0, 1) !== '/' || mb_substr($url, 0, 2) === '//')) {
 			$url = null;
 		}

@@ -226,7 +226,7 @@ class QueueProcessesTable extends Table {
 	 * @return string|null
 	 */
 	public function buildServerString() {
-		$serverName = env('SERVER_NAME') ?: gethostname();
+		$serverName = (string)env('SERVER_NAME') ?: gethostname();
 		if (!$serverName) {
 			$user = env('USER');
 			$logName = env('LOGNAME');

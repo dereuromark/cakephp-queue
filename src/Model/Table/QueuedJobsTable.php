@@ -356,6 +356,10 @@ class QueuedJobsTable extends Table {
 		}
 
 		foreach ($result as $jobType => $jobs) {
+			/**
+			 * @var string $day
+			 * @var array $durations
+			 */
 			foreach ($jobs as $day => $durations) {
 				$average = array_sum($durations) / count($durations);
 				$result[$jobType][$day] = (int)$average;
@@ -521,6 +525,7 @@ class QueuedJobsTable extends Table {
 
 		/** @var \Queue\Model\Entity\QueuedJob|null $job */
 		$job = $this->getConnection()->transactional(function () use ($query, $options, $now) {
+			/** @var \Queue\Model\Entity\QueuedJob|null $job */
 			$job = $query->find('all', $options)
 				->enableAutoFields(true)
 				->epilog('FOR UPDATE')
@@ -794,7 +799,7 @@ class QueuedJobsTable extends Table {
 	 */
 	public function clearDoublettes() {
 		/** @var array $x */
-		$x = $this->_connection->query('SELECT max(id) as id FROM `' . $this->getTable() . '`
+		$x = $this->getConnection()->query('SELECT max(id) as id FROM `' . $this->getTable() . '`
 	WHERE completed is NULL
 	GROUP BY data
 	HAVING COUNT(id) > 1');
@@ -846,9 +851,9 @@ class QueuedJobsTable extends Table {
 	public function truncate() {
 		/** @var \Cake\Database\Schema\TableSchema $schema */
 		$schema = $this->getSchema();
-		$sql = $schema->truncateSql($this->_connection);
+		$sql = $schema->truncateSql($this->getConnection());
 		foreach ($sql as $snippet) {
-			$this->_connection->execute($snippet);
+			$this->getConnection()->execute($snippet);
 		}
 	}
 
@@ -929,7 +934,7 @@ class QueuedJobsTable extends Table {
 	 */
 	protected function _getDriverName() {
 		$className = explode('\\', $this->getConnection()->config()['driver']);
-		$name = end($className);
+		$name = end($className) ?: '';
 
 		return $name;
 	}

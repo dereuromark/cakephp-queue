@@ -61,7 +61,11 @@ class QueueEmailTaskTest extends TestCase {
 			'to' => 'test@test.de',
 		];
 
-		$this->Task->run(['settings' => $settings, 'content' => 'Foo Bar'], 0);
+		$data = [
+			'settings' => $settings,
+			'content' => 'Foo Bar',
+		];
+		$this->Task->run($data, 0);
 
 		$this->assertInstanceOf(Mailer::class, $this->Task->mailer);
 

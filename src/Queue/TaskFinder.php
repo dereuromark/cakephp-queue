@@ -51,7 +51,7 @@ class TaskFinder {
 	 * @return string[]
 	 */
 	protected function getAppPaths(Folder $Folder) {
-		$res = array_merge($this->tasks, $Folder->find('Queue.+\.php'));
+		$res = array_merge((array)$this->tasks, $Folder->find('Queue.+\.php'));
 		foreach ($res as &$r) {
 			$r = basename($r, 'Task.php');
 		}
@@ -69,7 +69,7 @@ class TaskFinder {
 		$res = $Folder->find('Queue.+Task\.php');
 		foreach ($res as $key => $r) {
 			$name = basename($r, 'Task.php');
-			if (in_array($name, $this->tasks)) {
+			if (in_array($name, (array)$this->tasks, true)) {
 				unset($res[$key]);
 
 				continue;

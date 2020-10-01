@@ -82,7 +82,7 @@ class QueueMonitorExampleTask extends QueueTask implements AddInterface {
 	 * @return string[]
 	 */
 	protected function getSystemMemInfo() {
-		$data = explode("\n", file_get_contents('/proc/meminfo'));
+		$data = explode("\n", file_get_contents('/proc/meminfo') ?: '');
 		$meminfo = [];
 		foreach ($data as $line) {
 			if (strpos($line, ':') === false) {

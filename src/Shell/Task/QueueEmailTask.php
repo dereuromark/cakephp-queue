@@ -104,7 +104,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 
 		/** @var \Cake\Mailer\Mailer|null $mailer */
 		$mailer = $data['settings'];
-		if (is_object($mailer) && $mailer instanceof Mailer) {
+		if ($mailer && is_object($mailer) && $mailer instanceof Mailer) {
 			$this->mailer = $mailer;
 
 			$result = null;
@@ -131,17 +131,6 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 		$this->mailer = $this->_getMailer();
 
 		$settings = $data['settings'] + $this->defaults;
-		$map = [
-			'to' => 'setTo',
-			'from' => 'setFrom',
-			'cc' => 'setCc',
-			'bcc' => 'setBcc',
-			'subject' => 'setSubject',
-			'sender' => 'setSender',
-			'replyTo' => 'setReplyTo',
-			'returnPath' => 'setReturnPath',
-			'readReceipt' => 'setReadReceipt',
-		];
 		foreach ($settings as $method => $setting) {
 			$setter = 'set' . ucfirst($method);
 			if (in_array($method, ['theme', 'template', 'layout'], true)) {

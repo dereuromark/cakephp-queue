@@ -187,8 +187,8 @@ TEXT;
 		$this->_exit = false;
 
 		$startTime = time();
-		$groups = $this->_stringToArray($this->param('group'));
-		$types = $this->_stringToArray($this->param('type'));
+		$groups = $this->_stringToArray((string)$this->param('group'));
+		$types = $this->_stringToArray((string)$this->param('type'));
 
 		while (!$this->_exit) {
 			$this->_setPhpTimeout();
@@ -260,7 +260,7 @@ TEXT;
 		try {
 			$this->_time = time();
 
-			$data = unserialize($queuedJob->data);
+			$data = $queuedJob->data ? unserialize($queuedJob->data) : null;
 			/** @var \Queue\Shell\Task\QueueTask $task */
 			$task = $this->{$taskName};
 			if (!$task instanceof QueueTaskInterface) {
@@ -622,7 +622,9 @@ TEXT;
 	 */
 	protected function _getTaskConf() {
 		if (!is_array($this->_taskConf)) {
-			$this->_taskConf = Config::taskConfig($this->tasks);
+			/** @var array $tasks */
+			$tasks = $this->tasks;
+			$this->_taskConf = Config::taskConfig($tasks);
 		}
 
 		return $this->_taskConf;

@@ -27,22 +27,21 @@ class BakeQueueTaskShell extends Shell {
 	 * @return bool|int|null|void
 	 */
 	public function generate($name = null) {
-		$name = Inflector::camelize(Inflector::underscore($name));
-
-		$name = 'Queue' . $name . 'Task';
-		$plugin = $this->param('plugin') ?: null;
+		$name = Inflector::camelize(Inflector::underscore((string)$name));
+		$taskName = 'Queue' . $name . 'Task';
+		$plugin = (string)$this->param('plugin') ?: null;
 		if ($plugin) {
 			$plugin = Inflector::camelize(Inflector::underscore($plugin));
 		}
 
-		$this->generateTask($name, $plugin);
+		$this->generateTask($taskName, $plugin);
 
-		$this->generateTaskTest($name, $plugin);
+		$this->generateTaskTest($taskName, $plugin);
 	}
 
 	/**
 	 * @param string $name
-	 * @param string $plugin
+	 * @param string|null $plugin
 	 * @return void
 	 */
 	protected function generateTask($name, $plugin) {
@@ -52,7 +51,7 @@ class BakeQueueTaskShell extends Shell {
 		}
 
 		$path = array_shift($path);
-		if (!is_dir($path)) {
+		if ($path && !is_dir($path)) {
 			mkdir($path, 0770, true);
 		}
 
@@ -73,7 +72,7 @@ class BakeQueueTaskShell extends Shell {
 
 	/**
 	 * @param string $name
-	 * @param string $plugin
+	 * @param string|null $plugin
 	 * @return void
 	 */
 	protected function generateTaskTest($name, $plugin) {
