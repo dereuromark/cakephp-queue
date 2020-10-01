@@ -143,7 +143,6 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 			'readReceipt' => 'setReadReceipt',
 		];
 		foreach ($settings as $method => $setting) {
-			//$method = $map[$key] ?? $key;
 			$setter = 'set' . ucfirst($method);
 			if (in_array($method, ['theme', 'template', 'layout'], true)) {
 				call_user_func_array([$this->mailer->viewBuilder(), $setter], (array)$setting);
@@ -170,15 +169,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 			$this->mailer->getMessage()->setHeaders($data['headers']);
 		}
 
-		if ($message === null) {
-			$this->mailer->send();
-
-			return;
-		}
-
-		if (!$this->mailer->deliver($message)) {
-			throw new QueueException('Could not send email.');
-		}
+		$this->mailer->deliver((string)$message);
 	}
 
 	/**
@@ -200,32 +191,6 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 		}
 
 		return new $class();
-	}
-
-	/**
-	 * Log message
-	 *
-	 * @param array $contents log-data
-	 * @param mixed $log int for loglevel, array for merge with log-data
-	 * @return void
-	 */
-	protected function _log($contents, $log) {
-		$config = [
-			'level' => LOG_DEBUG,
-			'scope' => 'email',
-		];
-		if ($log !== true) {
-			if (!is_array($log)) {
-				$log = ['level' => $log];
-			}
-			$config = array_merge($config, $log);
-		}
-
-		Log::write(
-			$config['level'],
-			PHP_EOL . $contents['headers'] . PHP_EOL . $contents['message'],
-			$config['scope']
-		);
 	}
 
 }

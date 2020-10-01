@@ -1,6 +1,6 @@
 <?php
 
-namespace Queue\Test\TestCase\Shell;
+namespace Queue\Test\TestCase\Shell\Task;
 
 use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
@@ -92,13 +92,12 @@ class QueueEmailTaskTest extends TestCase {
 
 		/** @var \App\Mailer\TestMailer $testMailer */
 		$testMailer = $this->Task->mailer;
-		//$this->assertNull($debugEmail->getError());
 
 		$transportConfig = $testMailer->getTransport()->getConfig();
 		$this->assertSame('Debug', $transportConfig['className']);
 
-		//$result = $testMailer->debug();
-		//$this->assertTextContains('Foo Bar', $result['message']);
+		$result = $testMailer->getDebug();
+		$this->assertTextContains('Foo Bar', $result['message']);
 	}
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Queue\Test\TestCase\Shell;
+namespace Queue\Test\TestCase\Shell\Task;
 
 use Cake\Console\ConsoleIo;
 use Cake\Console\Exception\StopException;
