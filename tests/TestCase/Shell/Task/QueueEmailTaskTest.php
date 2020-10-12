@@ -83,7 +83,14 @@ class QueueEmailTaskTest extends TestCase {
 		$mailer->setFrom('test@test.de');
 		$mailer->setTo('test@test.de');
 
-		Configure::write('Config.live', true);
+		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
+		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$queuedJobsTable->createJob('Email', ['settings' => $mailer]);
+
+		$queuedJob = $queuedJobsTable->find()->orderDesc('id')->firstOrFail();
+		$data = unserialize($queuedJob->data);
+		/** @var \TestApp\Mailer\TestMailer $mailer */
+		$mailer = $data['settings'];
 
 		$data = [
 			'settings' => $mailer,
@@ -94,7 +101,7 @@ class QueueEmailTaskTest extends TestCase {
 
 		$this->assertInstanceOf(TestMailer::class, $this->Task->mailer);
 
-		/** @var \App\Mailer\TestMailer $testMailer */
+		/** @var \TestApp\Mailer\TestMailer $testMailer */
 		$testMailer = $this->Task->mailer;
 
 		$transportConfig = $testMailer->getTransport()->getConfig();
