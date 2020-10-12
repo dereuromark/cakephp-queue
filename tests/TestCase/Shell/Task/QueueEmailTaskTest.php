@@ -3,7 +3,6 @@
 namespace Queue\Test\TestCase\Shell\Task;
 
 use Cake\Console\ConsoleIo;
-use Cake\Core\Configure;
 use Cake\Mailer\Mailer;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueEmailTask;
