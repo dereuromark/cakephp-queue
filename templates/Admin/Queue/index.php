@@ -161,6 +161,22 @@ use Cake\Core\Configure;
 			?>
 		</ul>
 
+		<h2>Trigger Jobs</h2>
+		<p>These jobs implement the AddInterface</p>
+		<ul>
+			<?php
+			foreach ($tasks as $task) {
+				if (substr($task, 0, 11) === 'Queue.Queue') {
+					continue;
+				}
+
+				echo '<li>';
+				echo $this->Form->postLink($task, ['action' => 'addJob', substr($task, 11)], ['confirm' => 'Sure?']);
+				echo '</li>';
+			}
+			?>
+		</ul>
+
 		<h2>Trigger Test/Demo Jobs</h2>
 		<ul>
 			<?php
