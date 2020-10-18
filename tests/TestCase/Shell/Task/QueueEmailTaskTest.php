@@ -3,6 +3,7 @@
 namespace Queue\Test\TestCase\Shell\Task;
 
 use Cake\Console\ConsoleIo;
+use Cake\Datasource\ConnectionManager;
 use Cake\Mailer\Mailer;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueEmailTask;
@@ -78,6 +79,8 @@ class QueueEmailTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRunToolsEmailObject() {
+		$this->_skipPostgres();
+
 		$mailer = new TestMailer();
 		$mailer->setFrom('test@test.de');
 		$mailer->setTo('test@test.de');
@@ -108,6 +111,17 @@ class QueueEmailTaskTest extends TestCase {
 
 		$result = $testMailer->getDebug();
 		$this->assertTextContains('Foo Bar', $result['message']);
+	}
+
+	/**
+	 * Helper method for skipping tests that need a non Postgres connection.
+	 *
+	 * @return void
+	 */
+	protected function _skipPostgres() {
+		$config = ConnectionManager::getConfig('test');
+		$skip = strpos($config['driver'], 'Postgres') !== false;
+		$this->skipIf($skip, 'Only non Postgres is working yet for this.');
 	}
 
 }
