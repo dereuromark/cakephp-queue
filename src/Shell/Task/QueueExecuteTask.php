@@ -60,6 +60,7 @@ class QueueExecuteTask extends QueueTask implements AddInterface {
 			'params' => [],
 			'redirect' => true,
 			'escape' => true,
+			'log' => false,
 			'accepted' => [static::CODE_SUCCESS],
 		];
 
@@ -87,6 +88,10 @@ class QueueExecuteTask extends QueueTask implements AddInterface {
 		exec($command, $output, $returnCode);
 		$this->nl();
 		$this->out($output);
+
+		if ($data['log']) {
+			$this->log('Executing: `' . $data['command'] . '`: ' . print_r($data, true), 'info');
+		}
 
 		$acceptedReturnCodes = $data['accepted'];
 		$success = !$acceptedReturnCodes || in_array($returnCode, $acceptedReturnCodes, true);
