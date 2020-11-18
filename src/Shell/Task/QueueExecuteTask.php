@@ -10,6 +10,8 @@ use Queue\Model\QueueException;
 
 /**
  * Execute a Local command on the server.
+ *
+ * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
  */
 class QueueExecuteTask extends QueueTask implements AddInterface {
 
@@ -64,8 +66,9 @@ class QueueExecuteTask extends QueueTask implements AddInterface {
 			'accepted' => [static::CODE_SUCCESS],
 		];
 
+		$command = $data['command'];
 		if ($data['escape']) {
-			$data['command'] = escapeshellcmd($data['command']);
+			$command = escapeshellcmd($data['command']);
 		}
 
 		if ($data['params']) {
@@ -75,12 +78,11 @@ class QueueExecuteTask extends QueueTask implements AddInterface {
 					$params[$key] = escapeshellcmd($value);
 				}
 			}
-			$data['command'] .= ' ' . implode(' ', $params);
+			$command .= ' ' . implode(' ', $params);
 		}
 
-		$this->out('Executing: `' . $data['command'] . '`');
+		$this->out('Executing: `' . $command . '`');
 
-		$command = $data['command'];
 		if ($data['redirect']) {
 			$command .= ' 2>&1';
 		}
@@ -90,7 +92,9 @@ class QueueExecuteTask extends QueueTask implements AddInterface {
 		$this->out($output);
 
 		if ($data['log']) {
-			$this->log('Executing: `' . $data['command'] . '`: ' . print_r($data, true), 'info');
+			$this->loadModel('Queue.QueueProcesses');
+			$server = $this->QueueProcesses->buildServerString();
+			$this->log($server . ': `' . $command . '`: ' . print_r($data, true), 'info');
 		}
 
 		$acceptedReturnCodes = $data['accepted'];
@@ -102,7 +106,7 @@ class QueueExecuteTask extends QueueTask implements AddInterface {
 		}
 
 		if (!$success) {
-			throw new QueueException('Failed with error code ' . $returnCode . ': `' . $data['command'] . '`');
+			throw new QueueException('Failed with error code ' . $returnCode . ': `' . $command . '`');
 		}
 	}
 
