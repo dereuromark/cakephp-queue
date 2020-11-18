@@ -94,7 +94,7 @@ class QueueExecuteTask extends QueueTask implements AddInterface {
 		if ($data['log']) {
 			$this->loadModel('Queue.QueueProcesses');
 			$server = $this->QueueProcesses->buildServerString();
-			$this->log($server . ': `' . $command . '` exits with `' . $exitCode .'` and returns `' . print_r($output, true) . '`: ' . print_r($data, true), 'info');
+			$this->log($server . ': `' . $command . '` exits with `' . $exitCode .'` and returns `' . print_r($output, true) . '`' . PHP_EOL .'Data : ' . print_r($data, true), 'info');
 		}
 
 		$acceptedReturnCodes = $data['accepted'];
