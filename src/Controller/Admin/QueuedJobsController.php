@@ -253,6 +253,10 @@ class QueuedJobsController extends AppController {
 
 			$amount = $data['amount'];
 			unset($data['amount']);
+
+			$data['escape'] = (bool)$data['escape'];
+			$data['log'] = (bool)$data['log'];
+
 			$data['redirect'] = !$data['log'];
 			$data['accepted'] = $data['exit_code'] === '' ? [] : (array)(int)$data['exit_code'];
 			unset($data['exit_code']);
