@@ -71,8 +71,8 @@ class QueueExecuteTaskTest extends TestCase {
 			$exception = $e;
 		}
 
-		$this->assertInstanceOf(Exception::class, $e);
-		$this->assertSame('Failed with error code 127: `fooooobbbaraar -eeee`', $e->getMessage());
+		$this->assertInstanceOf(Exception::class, $exception);
+		$this->assertSame('Failed with error code 127: `fooooobbbaraar -eeee 2>&1`', $exception->getMessage());
 
 		$this->assertTextContains('Error (code 127)', $this->err->output());
 		$this->assertTextContains('fooooobbbaraar: not found', $this->out->output());
