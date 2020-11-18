@@ -87,26 +87,26 @@ class QueueExecuteTask extends QueueTask implements AddInterface {
 			$command .= ' 2>&1';
 		}
 
-		exec($command, $output, $returnCode);
+		exec($command, $output, $exitCode);
 		$this->nl();
 		$this->out($output);
 
 		if ($data['log']) {
 			$this->loadModel('Queue.QueueProcesses');
 			$server = $this->QueueProcesses->buildServerString();
-			$this->log($server . ': `' . $command . '`: ' . print_r($data, true), 'info');
+			$this->log($server . ': `' . $command . '` exits with `' . $exitCode .'` and returns `' . print_r($output, true) . '`: ' . print_r($data, true), 'info');
 		}
 
 		$acceptedReturnCodes = $data['accepted'];
-		$success = !$acceptedReturnCodes || in_array($returnCode, $acceptedReturnCodes, true);
+		$success = !$acceptedReturnCodes || in_array($exitCode, $acceptedReturnCodes, true);
 		if (!$success) {
-			$this->err('Error (code ' . $returnCode . ')', static::VERBOSE);
+			$this->err('Error (code ' . $exitCode . ')', static::VERBOSE);
 		} else {
-			$this->success('Success (code ' . $returnCode . ')', static::VERBOSE);
+			$this->success('Success (code ' . $exitCode . ')', static::VERBOSE);
 		}
 
 		if (!$success) {
-			throw new QueueException('Failed with error code ' . $returnCode . ': `' . $command . '`');
+			throw new QueueException('Failed with error code ' . $exitCode . ': `' . $command . '`');
 		}
 	}
 
