@@ -1,13 +1,13 @@
 parameters:
+	level: 1
+	paths:
+		- TestCase/
 	bootstrapFiles:
 		- bootstrap.php
+		- ../phpunit.phar
 	checkMissingIterableValueType: false
 	checkGenericClassInNonGenericObjectType: false
 	earlyTerminatingMethodCalls:
 		Cake\Console\Shell:
 			- abort
 	ignoreErrors:
-		- '#Access to an undefined property Cake\\ORM\\BehaviorRegistry::\$Search#'
-		- '#Negated boolean expression is always false.#'
-		- '#Parameter \#1 \$function of function call_user_func_array expects .+, array\(.+\) given.#'
-		- '#Cannot cast array\|string\|null to .+.#'
