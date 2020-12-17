@@ -123,12 +123,12 @@ class QueuedJobsTable extends Table {
 					if ($status === 'completed') {
 						$query->where(['completed IS NOT' => null]);
 
-						return $query;
+						return true;
 					}
 					if ($status === 'in_progress') {
 						$query->where(['completed IS' => null]);
 
-						return $query;
+						return true;
 					}
 
 					throw new NotImplementedException('Invalid status type');
