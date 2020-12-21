@@ -38,7 +38,7 @@ class QueueProcessesController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function index() {
-		$queueProcesses = $this->paginate();
+		$queueProcesses = $this->paginate()->toArray();
 
 		$this->set(compact('queueProcesses'));
 	}
