@@ -466,15 +466,17 @@ This includes also failed ones if not filtered further using `where()` condition
 
 Also note that you dont need to add the type ("Task"): `bin/cake queue add SpecialExample` for QueueSpecialExampleTask.
 
-Custom tasks should be placed in src/Shell/Task.
-Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact. Custom tasks should extend the `QueueTask` class (you will need to include this at the top of your custom task file: `use Queue\Shell\Task\QueueTask;`).
+Custom tasks should be placed in `src/Shell/Task/`.
+Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact.
+Custom tasks should extend the `QueueTask` class (you will need to include this at the top of your custom task file: `use Queue\Shell\Task\QueueTask;`).
 
-Plugin tasks go in plugins/PluginName/src/Shell/Task.
+Plugin tasks go in `plugins/PluginName/src/Shell/Task/`.
 
-A detailed Example task can be found in src/Shell/Task/QueueExampleTask.php inside this folder.
+A detailed Example task can be found in `src/Shell/Task/QueueExampleTask.php` inside this folder.
 
-If you copy an example, do not forget to adapt the namespace!
-
+Some more tips:
+- If you copy an example, do not forget to adapt the namespace!
+- For plugin tasks, make sure to load the plugin as the collector needs to know what plugins to check.
 
 ## Setting up the trigger cronjob
 
