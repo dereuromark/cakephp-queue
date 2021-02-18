@@ -38,7 +38,7 @@ use Queue\Queue\Config;
 				<td>
 					<?= $this->Time->nice($queueProcess->created) ?>
 					<?php if (!$queueProcess->created->addSeconds(Config::workermaxruntime())->isFuture()) {
-						echo $this->Format->icon('warning', ['title' => 'Long running (!)']);
+						echo $this->Format->icon('exclamation-triangle', ['title' => 'Long running (!)']);
 					} ?>
 				</td>
 				<td>
@@ -55,7 +55,7 @@ use Queue\Queue\Config;
 				<td class="actions">
 					<?= $this->Html->link($this->Format->icon('view'), ['action' => 'view', $queueProcess->id], ['escapeTitle' => false]); ?>
 				<?php if (!$queueProcess->terminate) { ?>
-					<?= $this->Form->postLink($this->Format->icon('close', ['title' => __d('queue', 'Terminate')]), ['action' => 'terminate', $queueProcess->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id)]); ?>
+					<?= $this->Form->postLink($this->Format->icon('times', ['title' => __d('queue', 'Terminate')]), ['action' => 'terminate', $queueProcess->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id)]); ?>
 				<?php } ?>
 
 				</td>

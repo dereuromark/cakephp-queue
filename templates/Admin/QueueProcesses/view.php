@@ -11,7 +11,7 @@ use Queue\Queue\Config;
 		<li class="nav-item"><?= $this->Html->link($this->Format->icon('edit') . ' ' . __d('queue', 'Edit Queue Process'), ['action' => 'edit', $queueProcess->id], ['escape' => false]) ?> </li>
 
 		<?php if (!$queueProcess->terminate) { ?>
-			<li class="nav-item"><?= $this->Form->postLink($this->Format->icon('close', ['title' => __d('queue', 'Terminate')]). ' ' . __d('queue', 'Terminate (clean remove)'), ['action' => 'terminate', $queueProcess->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id)]); ?></li>
+			<li class="nav-item"><?= $this->Form->postLink($this->Format->icon('times', ['title' => __d('queue', 'Terminate')]). ' ' . __d('queue', 'Terminate (clean remove)'), ['action' => 'terminate', $queueProcess->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id)]); ?></li>
 		<?php } else { ?>
 			<li class="nav-item"><?php echo $this->Form->postLink($this->Format->icon('delete', ['title' => __d('queue', 'Delete')]). ' ' . __d('queue', 'Delete (not advised)'), ['action' => 'delete', $queueProcess->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queueProcess->id)]); ?></li>
 		<?php } ?>
@@ -27,7 +27,7 @@ use Queue\Queue\Config;
 			<td>
 				<?= $this->Time->nice($queueProcess->created) ?>
 				<?php if (!$queueProcess->created->addSeconds(Config::defaultworkertimeout())->isFuture()) {
-					echo $this->Format->icon('warning', ['title' => 'Long running (!)']);
+					echo $this->Format->icon('exclamation-triangle', ['title' => 'Long running (!)']);
 				} ?>
 			</td>
 		</tr>
