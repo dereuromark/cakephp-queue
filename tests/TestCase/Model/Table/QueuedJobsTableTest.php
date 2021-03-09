@@ -612,7 +612,9 @@ class QueuedJobsTableTest extends TestCase {
 		$queuedProcessesTable->saveOrFail($queuedProcess);
 
 		$gotSignal = false;
-		pcntl_signal(SIGUSR1, function() use (&$gotSignal) { $gotSignal = true; });
+		pcntl_signal(SIGUSR1, function() use (&$gotSignal) {
+			$gotSignal = true;
+		});
 
 		$this->QueuedJobs->wakeUpWorkers();
 		pcntl_signal_dispatch();
