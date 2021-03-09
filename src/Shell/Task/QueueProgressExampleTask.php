@@ -31,16 +31,14 @@ class QueueProgressExampleTask extends QueueTask implements AddInterface {
 		$this->out('This job will need at least 2 minutes to complete.');
 		$this->out(' ');
 		$this->out('To run a Worker use:');
-		$this->out('	bin/cake queue runworker');
+		$this->out('    bin/cake queue runworker');
 		$this->out(' ');
 		$this->out('You can find the sourcecode of this task in:');
 		$this->out(__FILE__);
 		$this->out(' ');
-		/*
-		 * Adding a task of type 'example' with no additionally passed data
-		 */
+
 		$data = [
-			'duration' => 2 * MINUTE
+			'duration' => 2 * MINUTE,
 		];
 		$this->QueuedJobs->createJob('ProgressExample', $data);
 		$this->success('OK, job created, now run the worker');
@@ -57,7 +55,7 @@ class QueueProgressExampleTask extends QueueTask implements AddInterface {
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @return void
 	 */
-	public function run(array $data, $jobId) {
+	public function run(array $data, int $jobId): void {
 		$this->hr();
 		$this->out('CakePHP Queue ProgressExample task.');
 		$seconds = !empty($data['duration']) ? (int)$data['duration'] : 2 * MINUTE;

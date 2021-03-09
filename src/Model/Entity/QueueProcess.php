@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Model\Entity;
 
 use Cake\ORM\Entity;
@@ -17,13 +18,11 @@ use Cake\ORM\Entity;
 class QueueProcess extends Entity {
 
 	/**
-	 * {@inheritDoc}
-	 *
 	 * @var array
 	 */
 	protected $_accessible = [
 		'*' => true,
-		'id' => false
+		'id' => false,
 	];
 
 }

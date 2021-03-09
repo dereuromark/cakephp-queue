@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
@@ -12,15 +13,20 @@ use Queue\Queue\Config;
  * QueueProcesses Model
  *
  * @method \Queue\Model\Entity\QueueProcess get($primaryKey, $options = [])
- * @method \Queue\Model\Entity\QueueProcess newEntity($data = null, array $options = [])
+ * @method \Queue\Model\Entity\QueueProcess newEntity(array $data, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess[] newEntities(array $data, array $options = [])
- * @method \Queue\Model\Entity\QueueProcess|bool save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \Queue\Model\Entity\QueueProcess|false save(\Cake\Datasource\EntityInterface $entity, $options = [])
  * @method \Queue\Model\Entity\QueueProcess patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \Queue\Model\Entity\QueueProcess[] patchEntities($entities, array $data, array $options = [])
- * @method \Queue\Model\Entity\QueueProcess findOrCreate($search, callable $callback = null, $options = [])
+ * @method \Queue\Model\Entity\QueueProcess[] patchEntities(iterable $entities, array $data, array $options = [])
+ * @method \Queue\Model\Entity\QueueProcess findOrCreate($search, ?callable $callback = null, $options = [])
  *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  * @method \Queue\Model\Entity\QueueProcess saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \Queue\Model\Entity\QueueProcess newEmptyEntity()
+ * @method \Queue\Model\Entity\QueueProcess[]|\Cake\Datasource\ResultSetInterface|false saveMany(iterable $entities, $options = [])
+ * @method \Queue\Model\Entity\QueueProcess[]|\Cake\Datasource\ResultSetInterface saveManyOrFail(iterable $entities, $options = [])
+ * @method \Queue\Model\Entity\QueueProcess[]|\Cake\Datasource\ResultSetInterface|false deleteMany(iterable $entities, $options = [])
+ * @method \Queue\Model\Entity\QueueProcess[]|\Cake\Datasource\ResultSetInterface deleteManyOrFail(iterable $entities, $options = [])
  */
 class QueueProcessesTable extends Table {
 
@@ -29,11 +35,11 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return string
 	 */
-	public static function defaultConnectionName() {
+	public static function defaultConnectionName(): string {
 		$connection = Configure::read('Queue.connection');
 		if (!empty($connection)) {
 			return $connection;
-		};
+		}
 
 		return parent::defaultConnectionName();
 	}
@@ -44,7 +50,7 @@ class QueueProcessesTable extends Table {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('queue_processes');
@@ -60,18 +66,18 @@ class QueueProcessesTable extends Table {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): Validator {
 		$validator
 			->integer('id')
-			->allowEmpty('id', 'create');
+			->allowEmptyString('id', null, 'create');
 
 		$validator
 			->requirePresence('pid', 'create')
-			->notEmpty('pid');
+			->notEmptyString('pid');
 
 		$validator
 			->requirePresence('workerkey', 'create')
-			->notEmpty('workerkey');
+			->notEmptyString('workerkey');
 
 		$validator
 			->add('server', 'validateCount', [
@@ -134,8 +140,8 @@ class QueueProcessesTable extends Table {
 
 	/**
 	 * @param string $pid
-	 * @return void
 	 * @throws \Queue\Model\ProcessEndingException
+	 * @return void
 	 */
 	public function update($pid) {
 		$conditions = [
@@ -171,7 +177,7 @@ class QueueProcessesTable extends Table {
 	 * @return int
 	 */
 	public function cleanEndedProcesses() {
-		$timeout = Config::defaultworkertimeout() * 2;
+		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
 		return $this->deleteAll(['modified <' => $thresholdTime]);
@@ -220,7 +226,7 @@ class QueueProcessesTable extends Table {
 	 * @return string|null
 	 */
 	public function buildServerString() {
-		$serverName = env('SERVER_NAME') ?: gethostname();
+		$serverName = (string)env('SERVER_NAME') ?: gethostname();
 		if (!$serverName) {
 			$user = env('USER');
 			$logName = env('LOGNAME');

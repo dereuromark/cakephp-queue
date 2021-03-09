@@ -1,48 +1,48 @@
 <?php
 
-namespace Queue\Test\TestCase\Shell;
+namespace Queue\Test\TestCase\Shell\Task;
 
-use App\Mailer\TestEmail;
 use Cake\Console\ConsoleIo;
-use Cake\Core\Configure;
-use Cake\Mailer\Email;
+use Cake\Datasource\ConnectionManager;
+use Cake\Mailer\Mailer;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueEmailTask;
-use Tools\TestSuite\ConsoleOutput;
-use Tools\TestSuite\ToolsTestTrait;
+use Shim\TestSuite\ConsoleOutput;
+use Shim\TestSuite\TestTrait;
+use TestApp\Mailer\TestMailer;
 
 class QueueEmailTaskTest extends TestCase {
 
-	use ToolsTestTrait;
+	use TestTrait;
 
 	/**
 	 * @var array
 	 */
-	public $fixtures = [
+	protected $fixtures = [
 		'plugin.Queue.QueuedJobs',
 	];
 
 	/**
-	 * @var \Queue\Shell\Task\QueueEmailTask|\PHPUnit_Framework_MockObject_MockObject
+	 * @var \Queue\Shell\Task\QueueEmailTask|\PHPUnit\Framework\MockObject\MockObject
 	 */
-	public $Task;
+	protected $Task;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
-	public $out;
+	protected $out;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
-	public $err;
+	protected $err;
 
 	/**
 	 * Setup Defaults
 	 *
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->out = new ConsoleOutput();
@@ -61,11 +61,15 @@ class QueueEmailTaskTest extends TestCase {
 			'to' => 'test@test.de',
 		];
 
-		$this->Task->run(['settings' => $settings, 'content' => 'Foo Bar'], null);
+		$data = [
+			'settings' => $settings,
+			'content' => 'Foo Bar',
+		];
+		$this->Task->run($data, 0);
 
-		$this->assertInstanceOf(Email::class, $this->Task->Email);
+		$this->assertInstanceOf(Mailer::class, $this->Task->mailer);
 
-		$debugEmail = $this->Task->Email;
+		$debugEmail = $this->Task->mailer;
 
 		$transportConfig = $debugEmail->getTransport()->getConfig();
 		$this->assertSame('Debug', $transportConfig['className']);
@@ -75,25 +79,49 @@ class QueueEmailTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRunToolsEmailObject() {
-		$email = new TestEmail();
-		$email->setFrom('test@test.de');
-		$email->setTo('test@test.de');
+		$this->_skipPostgres();
 
-		Configure::write('Config.live', true);
+		$mailer = new TestMailer();
+		$mailer->setFrom('test@test.de');
+		$mailer->setTo('test@test.de');
 
-		$this->Task->run(['settings' => $email, 'content' => 'Foo Bar'], null);
+		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
+		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$queuedJobsTable->createJob('Email', ['settings' => $mailer]);
 
-		$this->assertInstanceOf(TestEmail::class, $this->Task->Email);
+		$queuedJob = $queuedJobsTable->find()->orderDesc('id')->firstOrFail();
+		$data = unserialize($queuedJob->data);
+		/** @var \TestApp\Mailer\TestMailer $mailer */
+		$mailer = $data['settings'];
 
-		/** @var \App\Mailer\TestEmail $debugEmail */
-		$debugEmail = $this->Task->Email;
-		$this->assertNull($debugEmail->getError());
+		$data = [
+			'settings' => $mailer,
+			'content' => 'Foo Bar',
+		];
 
-		$transportConfig = $debugEmail->getTransport()->getConfig();
+		$this->Task->run($data, 0);
+
+		$this->assertInstanceOf(TestMailer::class, $this->Task->mailer);
+
+		/** @var \TestApp\Mailer\TestMailer $testMailer */
+		$testMailer = $this->Task->mailer;
+
+		$transportConfig = $testMailer->getTransport()->getConfig();
 		$this->assertSame('Debug', $transportConfig['className']);
 
-		$result = $debugEmail->debug();
+		$result = $testMailer->getDebug();
 		$this->assertTextContains('Foo Bar', $result['message']);
+	}
+
+	/**
+	 * Helper method for skipping tests that need a non Postgres connection.
+	 *
+	 * @return void
+	 */
+	protected function _skipPostgres() {
+		$config = ConnectionManager::getConfig('test');
+		$skip = strpos($config['driver'], 'Postgres') !== false;
+		$this->skipIf($skip, 'Only non Postgres is working yet for this.');
 	}
 
 }

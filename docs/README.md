@@ -5,14 +5,13 @@
 ```
 composer require dereuromark/cakephp-queue
 ```
-
-Enable the plugin within your config/bootstrap.php (unless you use loadAll):
+Load the plugin in your `src/Application.php`'s bootstrap() using:
 ```php
-Plugin::load('Queue');
+$this->addPlugin('Queue');
 ```
 If you want to also access the backend controller (not just using CLI), you need to use
 ```php
-Plugin::load('Queue', ['routes' => true]);
+$this->addPlugin('Queue', ['routes' => true]);
 ```
 
 Run the following command in the CakePHP console to create the tables using the Migrations plugin:
@@ -20,7 +19,7 @@ Run the following command in the CakePHP console to create the tables using the 
 bin/cake migrations migrate -p Queue
 ```
 
-It is also advised to have the `posix` PHP extension enabled. 
+It is also advised to have the `posix` PHP extension enabled.
 
 
 ## Configuration
@@ -60,16 +59,16 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     ```
 
     *Warning:* Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle.
-    
-- Seconds of running time after which the PHP script of the worker will terminate (0 = unlimited):
+
+- Seconds of running time after which the PHP process of the worker will terminate (0 = unlimited):
 
     ```php
     $config['Queue']['workertimeout'] = 120 * 100;
     ```
 
-    *Warning:* Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle. This is the last defense of the tool to prevent flooding too many processes. So make sure this is long enough to never cut off jobs, but also not too long, so the process count stays in manageable range.
+    *Warning:* Do not use 0 if you are using a cronjob to permanently start a new worker once in a while and if you do not exit on idle. This is the last defense of the tool to prevent flooding too many processes. So make sure this is long enough to never cut off jobs, but also not too long, so the process count stays in manageable range.
 
-- Should a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running):
+- Should a worker process quit when there are no more tasks for it to execute (true = exit, false = keep running):
 
     ```php
     $config['Queue']['exitwhennothingtodo'] = false;
@@ -92,7 +91,7 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     ```php
     $config['Queue']['multiserver'] = true // Defaults to false (single server)
     ```
-    
+
     For multiple servers running either CLI/web separately, or even multiple CLI workers on top, make sure to enable this.
 
 - Use a different connection:
@@ -102,7 +101,7 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     ```
 
 Don't forget to load that config file with `Configure::load('app_queue');` in your bootstrap.
-You can also use `Plugin::load('Queue', ['bootstrap' => true]);` which will load your `app_queue.php` config file automatically.
+You can also use `$this->addPlugin('Queue', ['bootstrap' => true]);` which will load your `app_queue.php` config file automatically.
 
 Example `app_queue.php`:
 
@@ -130,7 +129,7 @@ You can also overwrite the template and as such change the asset library as well
 #### Configuration tips
 
 For the beginning maybe use not too many runners in parallel, and keep the runtimes rather short while starting new jobs every few minutes.
-You can then always increase spawning of runners if there is a shortage. 
+You can then always increase spawning of runners if there is a shortage.
 
 ### Task configuration
 
@@ -142,7 +141,7 @@ You can set two main things on each task as property: timeout and retries.
      * @var int
      */
     public $timeout = 120;
-    
+
     /**
      * Number of times a failed instance of this task should be restarted before giving up.
      *
@@ -234,7 +233,7 @@ $this->loadModel('Queue.QueuedJobs');
 $this->QueuedJobs->createJob('Email', ['to' => 'user@example.org', ...]);
 
 // Somewhere in the model or lib
-TableRegistry::get('Queue.QueuedJobs')->createJob('Email',
+TableRegistry::getTableLocator()->get('Queue.QueuedJobs')->createJob('Email',
     ['to' => 'user@example.org', ...]);
 ```
 
@@ -256,7 +255,7 @@ That can be helpful when migrating servers and you only want to execute certain 
 
 ### Avoiding parallel (re)queueing
 
-For some background-tasks you will want to make sure only a single instance of this type is currently run. 
+For some background-tasks you will want to make sure only a single instance of this type is currently run.
 In your logic you can check on this using `isQueued()` and a unique reference:
 ```php
     /**
@@ -350,7 +349,7 @@ class FooTask extends QueueTask {
             ['status' => 'Done doing things'],
             ['id' => $jobId]
         );
-        
+
         return true;
     }
 }
@@ -361,10 +360,56 @@ Get progress status in web site and display:
 $job = $this->QueuedJobs->get($id);
 
 $progress = $job->progress; // A float from 0 to 1
-echo number_format($progress * 100, 0) . '%'; // Outputs 87% for example
+echo $this->Number->toPercentage($progress, 0, ['multiply' => true]) . '%'; // Outputs 87% for example
 
 $status = $job->status; // A string, make sure to escape
 echo h($status); // Outputs "Doing the last thing" for example
+```
+
+#### Progress Bar
+Using Tools plugin 1.9.6+ you can also use the more visual progress bar (or any custom one of yours):
+
+```php
+echo $this->QueueProgress->progressBar($queuedJob, 18);
+```
+![HTML5](bar_text.png)
+
+The length refers to the amount of chars to display.
+
+Using Tools plugin 1.9.7+ you can even use HTML5 progress bar (easier to style using CSS).
+For this it is recommended to add the textual one from above as fallback, though:
+```php
+$textProgressBar = $this->QueueProgress->progressBar($queuedJob, 18);
+echo $this->QueueProgress->htmlProgressBar($queuedJob, $textProgressBar);
+```
+
+![HTML5](bar_html.png)
+
+The text one will only be visible for older browsers that do not support the HTML5 tag.
+
+Make sure you loaded the helper in your AppView class.
+
+By default it first tries to use the actual `progress` stored as value 0...1.
+If that field is `null`, it tries to use the statistics of previously finished jobs of the same task
+to determine average length and displays the progress based on this.
+
+That also means you should set a high value for `cleanuptimeout` config (weeks/months) to make sure the average
+runtime data is available and meaningful.
+
+#### Timeout Progress Bar
+For those jobs that are created with a run time in the future (`notbefore`), you can also display progress
+until they are supposed to be run:
+
+```php
+echo $this->QueueProgress->timeoutProgressBar($queuedJob, 18);
+```
+It shows the progress as current time between `created` and `notbefore` boundaries more visually.
+
+Using Tools plugin 1.9.7+ you can even use HTML5 progress bar (easier to style using CSS).
+For this it is recommended to add the textual one from above as fallback, though:
+```php
+$textTimeoutProgressBar = $this->QueueProgress->timeoutProgressBar($queuedJob, 18);
+echo $this->QueueProgress->htmlTimeoutProgressBar($queuedJob, $textTimeoutProgressBar);
 ```
 
 ### Logging
@@ -408,6 +453,12 @@ bin/cake queue rerun FooBar
 ```
 You can add an additional reference to rerun a specific job.
 
+### Using custom finder
+You can use a convenience finder for tasks that are still queued, that means not yet finished.
+```php
+$query = $this->QueuedJobs->find('queued')->...;
+```
+This includes also failed ones if not filtered further using `where()` conditions.
 
 ### Notes
 
@@ -415,15 +466,17 @@ You can add an additional reference to rerun a specific job.
 
 Also note that you dont need to add the type ("Task"): `bin/cake queue add SpecialExample` for QueueSpecialExampleTask.
 
-Custom tasks should be placed in src/Shell/Task.
-Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact. Custom tasks should extend the `QueueTask` class (you will need to include this at the top of your custom task file: `use Queue\Shell\Task\QueueTask;`).
+Custom tasks should be placed in `src/Shell/Task/`.
+Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact.
+Custom tasks should extend the `QueueTask` class (you will need to include this at the top of your custom task file: `use Queue\Shell\Task\QueueTask;`).
 
-Plugin tasks go in plugins/PluginName/src/Shell/Task.
+Plugin tasks go in `plugins/PluginName/src/Shell/Task/`.
 
-A detailed Example task can be found in src/Shell/Task/QueueExampleTask.php inside this folder.
+A detailed Example task can be found in `src/Shell/Task/QueueExampleTask.php` inside this folder.
 
-If you copy an example, do not forget to adapt the namespace!
-
+Some more tips:
+- If you copy an example, do not forget to adapt the namespace!
+- For plugin tasks, make sure to load the plugin as the collector needs to know what plugins to check.
 
 ## Setting up the trigger cronjob
 
@@ -446,6 +499,7 @@ If, for any reason, some of the jobs should take way longer, you want to avoid a
 It will then just not start now ones beyond this count until the already running ones are finished.
 This is an important server protection to avoid overloading.
 
+
 ## Admin backend
 
 The plugin works completely without it, by just using the CLI shell commands.
@@ -454,8 +508,33 @@ to see how status of your queue, statistics and settings.
 Please note that this requires the [Tools plugin](https://github.com/dereuromark/cakephp-tools) to be loaded if you do not customize the view templates on project level.
 Also make sure you loaded the helpers needed (Tools.Format, Tools.Time as Time, etc).
 
-By default the templates should work fine in both Foundation (v5+) and Boostrap (v3+).
+By default, the templates should work fine in both Foundation (v5+) and Bootstrap (v3+).
 Copy-and-paste to project level for any customization here.
+
+### Using backend actions
+You can add buttons to your specific app views to re-run a failed job, or to remove it.
+```php
+$this->loadHelper('Queue.Queue');
+if ($this->Queue->failed($queuedJob)) {
+    $query = ['redirect' => $this->request->getAttribute('here')];
+    echo $this->Form->postLink(
+        'Re-Run job',
+        ['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id, '?' => $query],
+        ['class' => 'button warning']
+    );
+    echo ' ';
+    echo $this->Form->postLink(
+        'Remove job',
+        ['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'removeJob', $queuedJob->id, '?' => $query],
+        ['class' => 'button alert']
+    );
+}
+```
+The `redirect` query string element makes sure you are getting redirected back to this page (instead of Queue admin dashboard).
+
+Make sure you allow those actions to be accessed by the user (role) that can trigger this.
+Ideally, you also only display those buttons if that user has the access to do so.
+[TinyAuth](https://github.com/dereuromark/cakephp-tinyauth) can be used for that, for example.
 
 
 ## Tips for Development
@@ -476,42 +555,41 @@ Instead of manually adding job every time you want to send mail you can use exis
 
 ```php
 'EmailTransport' => [
-        'default' => [
-            'className' => 'Smtp',
-            // The following keys are used in SMTP transports
-            'host' => 'host@gmail.com',
-            'port' => 587,
-            'timeout' => 30,
-            'username' => 'username',
-            'password' => 'password',
-            //'client' => null,
-            'tls' => true,
-        ],
-        'queue' => [
-            'className' => 'Queue.Queue',
-            'transport' => 'default'
-        ]
+    'default' => [
+        'className' => 'Smtp',
+        // The following keys are used in SMTP transports
+        'host' => 'host@gmail.com',
+        'port' => 587,
+        'timeout' => 30,
+        'username' => 'username',
+        'password' => 'password',
+        'tls' => true,
     ],
+    'queue' => [
+        'className' => 'Queue.Queue',
+        'transport' => 'default',
+    ],
+],
 
-    'Email' => [
-        'default' => [
-            'transport' => 'queue',
-            'from' => 'no-reply@host.com',
-            'charset' => 'utf-8',
-            'headerCharset' => 'utf-8',
-        ],
+'Email' => [
+    'default' => [
+        'transport' => 'queue',
+        'from' => 'no-reply@host.com',
+        'charset' => 'utf-8',
+        'headerCharset' => 'utf-8',
     ],
+],
 ```
 
-This way each time you will `$email->send()` it will use `QueueTransport` as main to create job and worker will use `'transport'` setting to send mail.
+This way each time with `$mailer->deliver()` it will use `QueueTransport` as main to create job and worker will use `'transport'` setting to send mail.
 
 
 #### Difference between QueueTransport and SimpleQueueTransport
 
-* `QueueTransport` serializes whole email into the database and is useful when you have custom `Email` class.
-* `SimpleQueueTransport` extracts all data from email (to, bcc, template etc.) and then uses this to recreate email inside task, this
+* `QueueTransport` serializes whole email into the database and is useful when you have custom `Message` class.
+* `SimpleQueueTransport` extracts all data from Message (to, bcc, template etc.) and then uses this to recreate Message inside task, this
 is useful when dealing with emails which serialization would overflow database `data` field length.
-
+This can only be used for non-templated emails.
 
 ### Using built in Email task
 
@@ -525,11 +603,12 @@ $data = [
     ],
     'content' => $content,
 ];
-$queuedJobsTable = TableRegistry::get('Queue.QueuedJobs');
+$queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 $queuedJobsTable->createJob('Email', $data);
 ```
 
-This will sent a plain email. Each settings key must have a matching setter method on the Email class.
+This will sent a plain email. Each settings key must have a matching setter method on the Message class.
+The prefix `set` will be auto-added here when calling it.
 
 If you want a templated email, you need to pass view vars instead of content:
 ```php
@@ -541,22 +620,36 @@ $data = [
     ],
     'vars' => [
         'myEntity' => $myEntity,
-        ...    
+        ...
     ],
 ];
  ```
- 
-You can also assemble an Email object manually and pass that along as settings directly:
+
+You can also assemble a Mailer object manually and pass that along as settings directly:
 ```php
 $data = [
-    'settings' => $emailObject,
+    'settings' => $mailerObject,
     'content' => $content,
 ];
 ```
 
+Inside a controller you can for example do this for your mailers:
+```php
+$mailer = $this->getMailer('User');
+$mailer->viewBuilder()
+    ->setTemplate('register');
+$mailer->set...(...);
+
+$this->loadModel('Queue.QueuedJobs')->createJob(
+    'Email',
+    ['settings' => $mailer]
+);
+```
+Do not send your emails here, only assemble them. The Email Queue task triggers the `deliver()` method.
+
 ### Manually assembling your emails
 
-This is the most advised way to generate your asynchronous emails.
+This is the most customizable way to generate your asynchronous emails.
 
 Don't generate them directly in your code and pass them to the queue, instead just pass the minimum requirements, like non persistent data needed and the primary keys of the records that need to be included.
 So let's say someone posted a comment and you want to get notified.
@@ -571,40 +664,40 @@ Inside your CommentsTable class after saving the data you execute this hook:
 protected function _notifyAdmin(Comment $comment)
 {
     /** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
-    $QueuedJobs = TableRegistry::get('Queue.QueuedJobs');
+    $QueuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
     $data = [
         'settings' => [
-            'subject' => __('New comment submitted by {0}', $comment->name)
+            'subject' => __('New comment submitted by {0}', $comment->name),
         ],
         'vars' => [
-            'comment' => $comment->toArray()
-        ]
+            'comment' => $comment->toArray(),
+        ],
     ];
     $QueuedJobs->createJob('CommentNotification', $data);
 }
 ```
 
-And your `QueueAdminEmailTask::run()` method:
+And your `QueueAdminEmailTask::run()` method (using `MailerAwareTrait`):
 
 ```php
-$this->Email = new Email();
-$this->Email->template('comment_notification');
+$this->getMailer('User');
+$this->Mailer->viewBuilder()->setTemplate('comment_notification');
 // ...
 if (!empty($data['vars'])) {
-    $this->Email->viewVars($data['vars']);
+    $this->Mailer->setViewVars($data['vars']);
 }
 
-return (bool)$this->Email->send();
+$this->Mailer->deliver();
 ```
 
 Make sure you got the template for it then, e.g.:
 
 ```php
-<?= $comment['name'] ?> ( <?= $comment['email'] ?> ) wrote:
+<?= $comment->name ?> ( <?= $comment->email ?> ) wrote:
 
-<?= $comment['message'] ?>
+<?= $comment->message ?>
 
-<?= $this->Url->build(['prefix' => 'admin', 'controller' => 'Comments', 'action'=> 'view', $comment['id']], true) ?>
+<?= $this->Url->build(['prefix' => 'Admin', 'controller' => 'Comments', 'action'=> 'view', $comment['id']], true) ?>
 ```
 
 This way all the generation is in the specific task and template and can be tested separately.
@@ -616,7 +709,7 @@ $data = [
     'command' => 'bin/cake importer run',
     'content' => $content,
 ];
-$queuedJobsTable = TableRegistry::get('Queue.QueuedJobs');
+$queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 $queuedJobsTable->createJob('Execute', $data);
 ```
 
@@ -660,7 +753,7 @@ will also be aborting early.
 #### Ending workers per server
 A useful feature when having multiple servers and workers, and deploying separately, is to only end the workers on the server you are deploying to.
 
-For this make sure you have either `env('SERVER_NAME')` or `gethostname()` return a unique name per server instance (see above). 
+For this make sure you have either `env('SERVER_NAME')` or `gethostname()` return a unique name per server instance (see above).
 These are stored in the processes and as such you can then end them per instance that deploys.
 
 This snippet should be in the deploy script then instead.
@@ -672,6 +765,19 @@ You can check/verify the current server name using `bin/cake queue stats`.
 
 If you want to test locally, type `export SERVER_NAME=myserver1` and then run the above.
 
+#### Rate limiting and throttling
+
+The following configs can be made specific per Task, hardcoded on the class itself:
+- rate (defaults to `0` = disabled)
+- unique (defaults to `false` = disabled)
+- costs (defaults to `0` = disabled)
+
+Check if you need to use "rate" config (> 0) to avoid tasks being run too often/fast per worker per timeframe.
+Currently you cannot rate limit it more globally however. You can use `unique` and `costs` config, however, to more globally restrict parallel runs for job types.
+
+
+Note: Once any task has either "unique" or "costs" enabled, the worker has to do a pre-query to fetch the data for this.
+Thus it is disabled by default for trivial use cases.
 
 ### Killing workers
 
@@ -697,7 +803,7 @@ Then you can kill them gracefully with `-15` (or forcefully with `-9`, not recom
 Locally, if you want to kill them all, usually `killapp -15 php` does the trick.
 Do not run this with production ones, though.
 
-The console kill commands are also registered here. So if you run a worker locally, 
+The console kill commands are also registered here. So if you run a worker locally,
 and you enter `Ctrl+C` or alike, it will also hard-kill this worker process.
 
 ### Known Limitations
@@ -710,11 +816,11 @@ If you want to use multiple workers, please double check that all jobs have a hi
 
 If you need limiting of how many times a specific job type can be run in parallel, you need to find a custom solution here.
 
-#### Rate limiting
 
-Check if you need to use "rate" config (> 0) to avoid them being run too fast per worker. 
-Currently you cannot rate limit it more globally however.
-
+## Generating links/URLS in CLI
+When you have Queue tasks and templates that need to create URLs, make sure you followed the core documentation
+on setting the `App.fullBaseUrl` config on your server.
+CLI itself does not know the URL your website is running on, so this value must be configured here for the generation to work.
 
 ## IDE support
 
@@ -723,7 +829,7 @@ Especially if you use PHPStorm, this will make it possible to get support here.
 
 Include that plugin, set up your generator config and run e.g. `bin/cake phpstorm generate`.
 
-If you use `Plugin::load('Queue', ['bootstrap' => true, ...])`, the necessary config is already auto-included (recommended).
+If you use `$this->addPlugin('Queue', ['bootstrap' => true, ...])`, the necessary config is already auto-included (recommended).
 Otherwise you can manually include the Queue plugin generator tasks in your `config/app.php` on project level:
 
 ```php
@@ -733,18 +839,22 @@ return [
     ...
     'IdeHelper' => [
         'generatorTasks' => [
-            QueuedJobTask::class
+            QueuedJobTask::class,
         ],
     ],
 ];
 ```
 
+## Baking new Queue task and test
+You can bake a new task and its test via
+```
+bin/cake bake_queue_task generate MyTaskName [-p PluginName]
+```
+
+It will generate a `QueueMyTaskNameTask` class in the right namespace.
+
+It will not overwrite existing classes unless you explicitly force this (after prompting).
 
 ## Contributing
 
-I am looking forward to your contributions.
-
-There are a few guidelines that I need contributors to follow:
-* Coding standards (`composer cs-check` to check and `composer cs-fix` to fix)
-* PHPStan (`composer phpstan`, might need `composer phpstan-setup` first)
-* Passing tests (`php phpunit.phar`)
+See [CONTRIBUTING.md](CONTRIBUTING.md).

@@ -3,52 +3,49 @@
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
  */
+
 namespace Queue\Mailer\Transport;
 
 use Cake\Mailer\AbstractTransport;
-use Cake\Mailer\Email;
+use Cake\Mailer\Message;
 use Cake\ORM\TableRegistry;
 
 /**
- * Send mail using Queue plugin
+ * Send mail using Queue plugin and Message settings.
+ * This is only recommended for non-templated emails.
  */
 class SimpleQueueTransport extends AbstractTransport {
 
 	/**
 	 * Send mail
 	 *
-	 * @param \Cake\Mailer\Email $email Email
+	 * @param \Cake\Mailer\Message $message
 	 * @return array
 	 */
-	public function send(Email $email) {
+	public function send(Message $message): array {
 		if (!empty($this->_config['queue'])) {
 			$this->_config = $this->_config['queue'] + $this->_config;
-			$email->setConfig((array)$this->_config['queue'] + ['queue' => []]);
+			$message->setConfig((array)$this->_config['queue'] + ['queue' => []]);
 			unset($this->_config['queue']);
 		}
 
 		$settings = [
-			'from' => [$email->getFrom()],
-			'to' => [$email->getTo()],
-			'cc' => [$email->getCc()],
-			'bcc' => [$email->getBcc()],
-			'charset' => [$email->getCharset()],
-			'replyTo' => [$email->getReplyTo()],
-			'readReceipt' => [$email->getReadReceipt()],
-			'returnPath' => [$email->getReturnPath()],
-			'messageId' => [$email->getMessageId()],
-			'domain' => [$email->getDomain()],
-			'headers' => [$email->getHeaders()],
-			'headerCharset' => [$email->getHeaderCharset()],
-			'theme' => [$email->getTheme()],
-			'profile' => [$email->getProfile()],
-			'emailFormat' => [$email->getEmailFormat()],
-			'subject' => method_exists($email, 'getOriginalSubject') ? [$email->getOriginalSubject()] : [$email->getSubject()],
+			'from' => [$message->getFrom()],
+			'to' => [$message->getTo()],
+			'cc' => [$message->getCc()],
+			'bcc' => [$message->getBcc()],
+			'charset' => [$message->getCharset()],
+			'replyTo' => [$message->getReplyTo()],
+			'readReceipt' => [$message->getReadReceipt()],
+			'returnPath' => [$message->getReturnPath()],
+			'messageId' => [$message->getMessageId()],
+			'domain' => [$message->getDomain()],
+			'headers' => [$message->getHeaders()],
+			'headerCharset' => [$message->getHeaderCharset()],
+			'emailFormat' => [$message->getEmailFormat()],
+			'subject' => [$message->getOriginalSubject()],
 			'transport' => [$this->_config['transport']],
-			'attachments' => [$email->getAttachments()],
-			'template' => [$email->getTemplate()],
-			'layout' => [$email->getLayout()],
-			'viewVars' => [$email->getViewVars()]
+			'attachments' => [$message->getAttachments()],
 		];
 
 		foreach ($settings as $setting => $value) {
@@ -59,8 +56,8 @@ class SimpleQueueTransport extends AbstractTransport {
 
 		$QueuedJobs = $this->getQueuedJobsModel();
 		$result = $QueuedJobs->createJob('Email', ['settings' => $settings]);
-		$result['headers'] = '';
-		$result['message'] = '';
+		$result['headers'] = $message->getHeadersString();
+		$result['message'] = $message->getBodyString();
 
 		return $result->toArray();
 	}
@@ -70,7 +67,7 @@ class SimpleQueueTransport extends AbstractTransport {
 	 */
 	protected function getQueuedJobsModel() {
 		/** @var \Queue\Model\Table\QueuedJobsTable $table */
-		$table = TableRegistry::get('Queue.QueuedJobs');
+		$table = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 
 		return $table;
 	}

@@ -1,18 +1,30 @@
 <?php
-namespace App\Controller;
+
+namespace TestApp\Controller;
 
 use Cake\Controller\Controller;
+use Cake\Event\EventInterface;
 
 class AppController extends Controller {
 
 	/**
-	 * @var array
+	 * @return void
 	 */
-	public $components = ['Flash'];
+	public function initialize(): void {
+		parent::initialize();
+
+		$this->loadComponent('Flash');
+	}
 
 	/**
-	 * @var array
+	 * @param \Cake\Event\EventInterface $event
+	 *
+	 * @return \Cake\Http\Response|null|void
 	 */
-	public $helpers = ['Tools.Time'];
+	public function beforeRender(EventInterface $event) {
+		parent::beforeRender($event);
+
+		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format']);
+	}
 
 }

@@ -9,7 +9,7 @@ use Cake\Filesystem\Folder;
 class TaskFinder {
 
 	/**
-	 * @var array|null
+	 * @var string[]|null
 	 */
 	protected $tasks;
 
@@ -18,14 +18,14 @@ class TaskFinder {
 	 *
 	 * Makes sure that app tasks are prioritized over plugin ones.
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	public function allAppAndPluginTasks() {
 		if ($this->tasks !== null) {
 			return $this->tasks;
 		}
 
-		$paths = App::path('Shell/Task');
+		$paths = App::classPath('Shell/Task');
 		$this->tasks = [];
 
 		foreach ($paths as $path) {
@@ -34,7 +34,7 @@ class TaskFinder {
 		}
 		$plugins = Plugin::loaded();
 		foreach ($plugins as $plugin) {
-			$pluginPaths = App::path('Shell/Task', $plugin);
+			$pluginPaths = App::classPath('Shell/Task', $plugin);
 			foreach ($pluginPaths as $pluginPath) {
 				$Folder = new Folder($pluginPath);
 				$pluginTasks = $this->getPluginPaths($Folder, $plugin);
@@ -48,10 +48,10 @@ class TaskFinder {
 	/**
 	 * @param \Cake\Filesystem\Folder $Folder
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	protected function getAppPaths(Folder $Folder) {
-		$res = array_merge($this->tasks, $Folder->find('Queue.+\.php'));
+		$res = array_merge((array)$this->tasks, $Folder->find('Queue.+\.php'));
 		foreach ($res as &$r) {
 			$r = basename($r, 'Task.php');
 		}
@@ -63,14 +63,15 @@ class TaskFinder {
 	 * @param \Cake\Filesystem\Folder $Folder
 	 * @param string $plugin
 	 *
-	 * @return array
+	 * @return string[]
 	 */
 	protected function getPluginPaths(Folder $Folder, $plugin) {
 		$res = $Folder->find('Queue.+Task\.php');
 		foreach ($res as $key => $r) {
 			$name = basename($r, 'Task.php');
-			if (in_array($name, $this->tasks)) {
+			if (in_array($name, (array)$this->tasks, true)) {
 				unset($res[$key]);
+
 				continue;
 			}
 			$res[$key] = $plugin . '.' . $name;

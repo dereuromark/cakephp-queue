@@ -20,6 +20,6 @@ interface QueueTaskInterface {
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @return void
 	 */
-	public function run(array $data, $jobId);
+	public function run(array $data, int $jobId): void;
 
 }

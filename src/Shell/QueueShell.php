@@ -2,6 +2,7 @@
 
 namespace Queue\Shell;
 
+use Cake\Console\ConsoleOptionParser;
 use Cake\Console\Shell;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
@@ -11,7 +12,6 @@ use Cake\Log\Log;
 use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
-use Exception;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\ProcessEndingException;
 use Queue\Model\QueueException;
@@ -29,7 +29,6 @@ declare(ticks = 1);
  *
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
- * @link http://github.com/MSeven/cakephp_queue
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
  */
@@ -38,7 +37,7 @@ class QueueShell extends Shell {
 	/**
 	 * @var string
 	 */
-	public $modelClass = 'Queue.QueuedJobs';
+	protected $modelClass = 'Queue.QueuedJobs';
 
 	/**
 	 * @var array|null
@@ -65,7 +64,7 @@ class QueueShell extends Shell {
 	 *
 	 * @return void
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		$taskFinder = new TaskFinder();
 		$this->tasks = $taskFinder->allAppAndPluginTasks();
 
@@ -77,7 +76,7 @@ class QueueShell extends Shell {
 	/**
 	 * @return void
 	 */
-	public function startup() {
+	public function startup(): void {
 		if ($this->param('quiet')) {
 			$this->interactive = false;
 		}
@@ -91,8 +90,12 @@ class QueueShell extends Shell {
 	public function _getDescription() {
 		$tasks = [];
 		foreach ($this->taskNames as $loadedTask) {
-			$tasks[] = "\t" . '* ' . $this->_taskName($loadedTask);
+			$name = $this->_taskName($loadedTask);
+
+			$tasks[$name] = "\t" . '* ' . $name;
 		}
+		ksort($tasks);
+
 		$tasks = implode(PHP_EOL, $tasks);
 
 		$text = <<<TEXT
@@ -101,6 +104,7 @@ Simple and minimalistic job queue (or deferred-task) system.
 Available Tasks:
 $tasks
 TEXT;
+
 		return $text;
 	}
 
@@ -113,7 +117,7 @@ TEXT;
 	public function add() {
 		if (count($this->args) < 1) {
 			$this->out('Please call like this:');
-			$this->out('       bin/cake queue add <taskname>');
+			$this->out('    bin/cake queue add <taskname>');
 			$this->_displayAvailableTasks();
 
 			return;
@@ -144,6 +148,7 @@ TEXT;
 		if (strpos($task, 'Queue') === 0) {
 			return substr($task, 5);
 		}
+
 		return $task;
 	}
 
@@ -152,7 +157,7 @@ TEXT;
 	 * Runs a Queue Worker process which will try to find unassigned jobs in the queue
 	 * which it may run and try to fetch and execute them.
 	 *
-	 * @return int|null
+	 * @return int
 	 */
 	public function runworker() {
 		try {
@@ -163,6 +168,9 @@ TEXT;
 			if ($limit) {
 				$this->out('Cannot start worker: Too many workers already/still running on this server (' . $limit . '/' . $limit . ')');
 			}
+
+			$this->QueueProcesses->cleanEndedProcesses();
+
 			return static::CODE_ERROR;
 		}
 
@@ -180,8 +188,8 @@ TEXT;
 		$this->_exit = false;
 
 		$startTime = time();
-		$groups = $this->_stringToArray($this->param('group'));
-		$types = $this->_stringToArray($this->param('type'));
+		$groups = $this->_stringToArray((string)$this->param('group'));
+		$types = $this->_stringToArray((string)$this->param('type'));
 
 		while (!$this->_exit) {
 			$this->_setPhpTimeout();
@@ -191,10 +199,12 @@ TEXT;
 			} catch (RecordNotFoundException $exception) {
 				// Manually killed
 				$this->_exit = true;
+
 				continue;
 			} catch (ProcessEndingException $exception) {
 				// Soft killed, e.g. during deploy update
 				$this->_exit = true;
+
 				continue;
 			}
 
@@ -233,6 +243,8 @@ TEXT;
 		if ($this->param('verbose')) {
 			$this->_log('endworker', $pid);
 		}
+
+		return static::CODE_SUCCESS;
 	}
 
 	/**
@@ -245,21 +257,18 @@ TEXT;
 		$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id, $pid, false);
 		$taskName = 'Queue' . $queuedJob->job_type;
 
+		$return = $failureMessage = null;
 		try {
 			$this->_time = time();
 
-			$data = unserialize($queuedJob->data);
+			$data = $queuedJob->data ? unserialize($queuedJob->data) : null;
 			/** @var \Queue\Shell\Task\QueueTask $task */
 			$task = $this->{$taskName};
 			if (!$task instanceof QueueTaskInterface) {
 				throw new RuntimeException('Task must implement ' . QueueTaskInterface::class);
 			}
 
-			$return = $task->run((array)$data, $queuedJob->id);
-			if ($return !== null) {
-				trigger_error('run() should be void and throw exception in error case now.', E_USER_DEPRECATED);
-			}
-			$failureMessage = $taskName . ' failed';
+			$task->run((array)$data, $queuedJob->id);
 
 		} catch (Throwable $e) {
 			$return = false;
@@ -270,11 +279,6 @@ TEXT;
 			}
 
 			$this->_logError($taskName . ' (job ' . $queuedJob->id . ')' . "\n" . $failureMessage, $pid);
-		} catch (Exception $e) {
-			$return = false;
-
-			$failureMessage = get_class($e) . ': ' . $e->getMessage();
-			$this->_logError($taskName . "\n" . $failureMessage, $pid);
 		}
 
 		if ($return === false) {
@@ -282,41 +286,7 @@ TEXT;
 			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->_getTaskConf());
 			$this->_log('job ' . $queuedJob->job_type . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
 			$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
-			return;
-		}
 
-		$this->QueuedJobs->markJobDone($queuedJob);
-		$this->out('Job Finished.');
-	}
-
-	/**
-	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
-	 * @param string $pid
-	 * @return void
-	 */
-	protected function _runJob(QueuedJob $queuedJob, $pid) {
-		$this->out('Running Job of type "' . $queuedJob['job_type'] . '"');
-		$this->_log('job ' . $queuedJob['job_type'] . ', id ' . $queuedJob['id'], $pid);
-		$taskname = 'Queue' . $queuedJob['job_type'];
-
-		try {
-			$data = unserialize($queuedJob['data']);
-			/** @var \Queue\Shell\Task\QueueTask $task */
-			$task = $this->{$taskname};
-			if (!$task instanceof QueueTaskInterface) {
-				throw new RuntimeException('Task must implement ' . QueueTaskInterface::class);
-			}
-
-			$task->run((array)$data, $queuedJob['id']);
-
-		} catch (Exception $e) {
-			$failureMessage = get_class($e) . ': ' . $e->getMessage();
-			$this->_logError($taskname . "\n" . $failureMessage . "\n" . $e->getTraceAsString());
-
-			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
-			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->_getTaskConf());
-			$this->_log('job ' . $queuedJob['job_type'] . ', id ' . $queuedJob['id'] . ' failed and ' . $failedStatus, $pid);
-			$this->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
 			return;
 		}
 
@@ -378,7 +348,7 @@ TEXT;
 			return;
 		}
 
-		$this->QueuedJobs->endProcess($in);
+		$this->QueuedJobs->endProcess((int)$in);
 	}
 
 	/**
@@ -467,7 +437,7 @@ TEXT;
 			$this->out('* ' . $key . ': ' . print_r($val, true));
 		}
 
-		$this->out();
+		$this->out('');
 
 		$status = $this->QueueProcesses->status();
 		$this->out('Current running workers: ' . ($status ? $status['workers'] : '-'));
@@ -480,25 +450,26 @@ TEXT;
 	 * @return void
 	 */
 	public function stats() {
-		$this->out('Jobs currently in the queue:');
-
-		$types = $this->QueuedJobs->getTypes()->toArray();
-		foreach ($types as $type) {
-			$this->out('      ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $this->QueuedJobs->getLength($type));
-		}
-		$this->hr();
 		$this->out('Total unfinished jobs: ' . $this->QueuedJobs->getLength());
 		$this->out('Running workers (processes): ' . $this->QueueProcesses->findActive()->count());
 		$this->out('Server name: ' . $this->QueueProcesses->buildServerString());
 		$this->hr();
+
+		$this->out('Jobs currently in the queue:');
+		$types = $this->QueuedJobs->getTypes()->toArray();
+		foreach ($types as $type) {
+			$this->out(' - ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $this->QueuedJobs->getLength($type));
+		}
+		$this->hr();
+
 		$this->out('Finished job statistics:');
 		$data = $this->QueuedJobs->getStats();
 		foreach ($data as $item) {
-			$this->out(' ' . $item['job_type'] . ': ');
-			$this->out('   Finished Jobs in Database: ' . $item['num']);
-			$this->out('   Average Job existence    : ' . str_pad(Number::precision($item['alltime']), 8, ' ', STR_PAD_LEFT) . 's');
-			$this->out('   Average Execution delay  : ' . str_pad(Number::precision($item['fetchdelay']), 8, ' ', STR_PAD_LEFT) . 's');
-			$this->out('   Average Execution time   : ' . str_pad(Number::precision($item['runtime']), 8, ' ', STR_PAD_LEFT) . 's');
+			$this->out(' - ' . $item['job_type'] . ': ');
+			$this->out('   - Finished Jobs in Database: ' . $item['num']);
+			$this->out('   - Average Job existence    : ' . str_pad(Number::precision($item['alltime'], 0), 8, ' ', STR_PAD_LEFT) . 's');
+			$this->out('   - Average Execution delay  : ' . str_pad(Number::precision($item['fetchdelay'], 0), 8, ' ', STR_PAD_LEFT) . 's');
+			$this->out('   - Average Execution time   : ' . str_pad(Number::precision($item['runtime'], 0), 8, ' ', STR_PAD_LEFT) . 's');
 		}
 	}
 
@@ -519,7 +490,7 @@ TEXT;
 	 *
 	 * @return \Cake\Console\ConsoleOptionParser
 	 */
-	public function getOptionParser() {
+	public function getOptionParser(): ConsoleOptionParser {
 		$subcommandParser = [
 			'options' => [
 				/*
@@ -646,33 +617,17 @@ TEXT;
 	}
 
 	/**
-	 * Returns a List of available QueueTasks and their individual configurations.
+	 * Returns a List of available QueueTasks and their individual configuration.
 	 *
 	 * @return array
 	 */
 	protected function _getTaskConf() {
 		if (!is_array($this->_taskConf)) {
-			$this->_taskConf = [];
-			foreach ($this->tasks as $task) {
-				list($pluginName, $taskName) = pluginSplit($task);
-
-				$this->_taskConf[$taskName]['name'] = substr($taskName, 5);
-				$this->_taskConf[$taskName]['plugin'] = $pluginName;
-				if (property_exists($this->{$taskName}, 'timeout')) {
-					$this->_taskConf[$taskName]['timeout'] = $this->{$taskName}->timeout;
-				} else {
-					$this->_taskConf[$taskName]['timeout'] = Config::defaultworkertimeout();
-				}
-				if (property_exists($this->{$taskName}, 'retries')) {
-					$this->_taskConf[$taskName]['retries'] = $this->{$taskName}->retries;
-				} else {
-					$this->_taskConf[$taskName]['retries'] = Config::defaultworkerretries();
-				}
-				if (property_exists($this->{$taskName}, 'rate')) {
-					$this->_taskConf[$taskName]['rate'] = $this->{$taskName}->rate;
-				}
-			}
+			/** @var array $tasks */
+			$tasks = $this->tasks;
+			$this->_taskConf = Config::taskConfig($tasks);
 		}
+
 		return $this->_taskConf;
 	}
 
@@ -702,7 +657,11 @@ TEXT;
 	 */
 	protected function _displayAvailableTasks() {
 		$this->out('Available Tasks:');
-		foreach ($this->taskNames as $loadedTask) {
+
+		$tasks = $this->taskNames;
+		sort($tasks);
+
+		foreach ($tasks as $loadedTask) {
 			$this->out("\t" . '* ' . $this->_taskName($loadedTask));
 		}
 	}
@@ -797,7 +756,7 @@ TEXT;
 
 	/**
 	 * @param string|null $param
-	 * @return array
+	 * @return string[]
 	 */
 	protected function _stringToArray($param) {
 		if (!$param) {
@@ -811,6 +770,7 @@ TEXT;
 
 	/**
 	 * Makes sure accidental overriding isn't possible, uses workermaxruntime times 100 by default.
+	 * If available, uses workertimeout config directly.
 	 *
 	 * @return void
 	 */

@@ -1,21 +1,11 @@
-<phpunit backupGlobals="false"
-	backupStaticAttributes="false"
+<phpunit
 	bootstrap="tests/bootstrap.php"
 	colors="true"
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
-	processIsolation="false"
-	stopOnError="false"
-	stopOnFailure="false"
-	stopOnIncomplete="false"
-	stopOnSkipped="false"
-	syntaxCheck="false"
 >
 	<php>
 		<!-- E_ALL => 32767 -->
 		<!-- E_ALL & ~E_USER_DEPRECATED => 16383 -->
-		<ini name="error_reporting" value="16383"/>
+		<ini name="error_reporting" value="32767"/>
 	</php>
 	<testsuites>
 		<testsuite name="queue">
@@ -24,9 +14,9 @@
 	</testsuites>
 
 	<listeners>
-		<listener class="\Cake\TestSuite\Fixture\FixtureInjector">
+		<listener class="Cake\TestSuite\Fixture\FixtureInjector">
 			<arguments>
-				<object class="\Cake\TestSuite\Fixture\FixtureManager" />
+				<object class="Cake\TestSuite\Fixture\FixtureManager"/>
 			</arguments>
 		</listener>
 	</listeners>

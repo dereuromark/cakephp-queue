@@ -1,45 +1,46 @@
 <?php
 
-namespace Queue\Test\TestCase\Shell;
+namespace Queue\Test\TestCase\Shell\Task;
 
 use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueExceptionExampleTask;
-use Tools\TestSuite\ConsoleOutput;
-use Tools\TestSuite\ToolsTestTrait;
+use RuntimeException;
+use Shim\TestSuite\ConsoleOutput;
+use Shim\TestSuite\TestTrait;
 
 class QueueExceptionExampleTaskTest extends TestCase {
 
-	use ToolsTestTrait;
+	use TestTrait;
 
 	/**
 	 * @var array
 	 */
-	public $fixtures = [
+	protected $fixtures = [
 		'plugin.Queue.QueuedJobs',
 	];
 
 	/**
-	 * @var \Queue\Shell\Task\QueueExceptionExampleTask|\PHPUnit_Framework_MockObject_MockObject
+	 * @var \Queue\Shell\Task\QueueExceptionExampleTask|\PHPUnit\Framework\MockObject\MockObject
 	 */
-	public $Task;
+	protected $Task;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
-	public $out;
+	protected $out;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
-	public $err;
+	protected $err;
 
 	/**
 	 * Setup Defaults
 	 *
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->out = new ConsoleOutput();
@@ -51,10 +52,11 @@ class QueueExceptionExampleTaskTest extends TestCase {
 
 	/**
 	 * @return void
-	 * @expectedException \RuntimeException
 	 */
 	public function testRun() {
-		$this->Task->run([], null);
+		$this->expectException(RuntimeException::class);
+
+		$this->Task->run([], 0);
 	}
 
 }

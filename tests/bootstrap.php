@@ -1,5 +1,10 @@
 <?php
+
+use Cake\Cache\Cache;
+use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\Filesystem\Folder;
+use Cake\Mailer\TransportFactory;
 
 if (!defined('DS')) {
 	define('DS', DIRECTORY_SEPARATOR);
@@ -31,22 +36,22 @@ ini_set('intl.default_locale', 'de-DE');
 require ROOT . '/vendor/autoload.php';
 require CORE_PATH . 'config/bootstrap.php';
 
-Cake\Core\Configure::write('App', [
-	'namespace' => 'App',
+Configure::write('App', [
+	'namespace' => 'TestApp',
 	'encoding' => 'UTF-8',
 	'paths' => [
-		'templates' => [ROOT . DS . 'tests' . DS . 'test_app' . DS . 'src' . DS . 'Template' . DS],
-	]
+		'templates' => [ROOT . DS . 'tests' . DS . 'test_app' . DS . 'templates' . DS],
+	],
 ]);
 
-Cake\Core\Configure::write('debug', true);
+Configure::write('debug', true);
 
-Cake\Core\Configure::write('EmailTransport', [
+Configure::write('EmailTransport', [
 		'default' => [
 			'className' => 'Debug',
 		],
 ]);
-Cake\Core\Configure::write('Email', [
+Configure::write('Email', [
 		'default' => [
 			'transport' => 'default',
 			'from' => 'you@localhost',
@@ -55,7 +60,7 @@ Cake\Core\Configure::write('Email', [
 
 mb_internal_encoding('UTF-8');
 
-$Tmp = new \Cake\Filesystem\Folder(TMP);
+$Tmp = new Folder(TMP);
 $Tmp->create(TMP . 'cache/models', 0770);
 $Tmp->create(TMP . 'cache/persistent', 0770);
 $Tmp->create(TMP . 'cache/views', 0770);
@@ -81,24 +86,29 @@ $cache = [
 	],
 ];
 
-Cake\Cache\Cache::setConfig($cache);
+Cache::setConfig($cache);
 
-Cake\Core\Plugin::getCollection()->add(new \Queue\Plugin());
+class_alias(TestApp\Controller\AppController::class, 'App\Controller\AppController');
 
-Cake\Mailer\TransportFactory::setConfig('default', [
+Cake\Core\Plugin::getCollection()->add(new Queue\Plugin());
+
+TransportFactory::setConfig('default', [
 	'className' => 'Debug',
 ]);
-Cake\Mailer\TransportFactory::setConfig('queue', [
+TransportFactory::setConfig('queue', [
 	'className' => 'Queue.Queue',
 ]);
-Cake\Mailer\Email::setConfig('default', [
+/*
+Cake\Mailer\TransportFactory::setConfig('default', [
 	'transport' => 'default',
 ]);
+*/
 
 // Allow local overwrite
 // E.g. in your console: export db_dsn="mysql://root:secret@127.0.0.1/cake_test"
 if (!getenv('db_class') && getenv('db_dsn')) {
 	ConnectionManager::setConfig('test', ['url' => getenv('db_dsn')]);
+
 	return;
 }
 if (!getenv('db_class')) {
@@ -109,13 +119,10 @@ if (!getenv('db_class')) {
 // Uses Travis config then (MySQL, Postgres, ...)
 ConnectionManager::setConfig('test', [
 	'className' => 'Cake\Database\Connection',
-	'driver' => getenv('db_class'),
-	'dsn' => getenv('db_dsn'),
-	'database' => getenv('db_database'),
-	'username' => getenv('db_username'),
-	'password' => getenv('db_password'),
+	'driver' => getenv('db_class') ?: null,
+	'dsn' => getenv('db_dsn') ?: null,
 	'timezone' => 'UTC',
-	'quoteIdentifiers' => true,
+	'quoteIdentifiers' => false,
 	'cacheMetadata' => true,
 
 ]);

@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Test\TestCase\Model\Table;
 
 use Cake\Core\Configure;
@@ -17,15 +18,13 @@ class QueueProcessesTableTest extends TestCase {
 	 *
 	 * @var \Queue\Model\Table\QueueProcessesTable
 	 */
-	public $QueueProcesses;
+	protected $QueueProcesses;
 
 	/**
-	 * Fixtures
-	 *
 	 * @var array
 	 */
-	public $fixtures = [
-		'plugin.queue.QueueProcesses',
+	protected $fixtures = [
+		'plugin.Queue.QueueProcesses',
 	];
 
 	/**
@@ -33,10 +32,10 @@ class QueueProcessesTableTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('QueueProcesses') ? [] : ['className' => QueueProcessesTable::class];
-		$this->QueueProcesses = TableRegistry::get('QueueProcesses', $config);
+		$this->QueueProcesses = TableRegistry::getTableLocator()->get('QueueProcesses', $config);
 
 		Configure::delete('Queue.maxworkers');
 	}
@@ -46,7 +45,7 @@ class QueueProcessesTableTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->QueueProcesses);
 
 		parent::tearDown();

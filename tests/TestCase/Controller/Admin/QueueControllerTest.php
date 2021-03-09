@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Datasource\ConnectionManager;
@@ -6,6 +7,7 @@ use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestCase;
 
 /**
+ * @uses \Queue\Controller\Admin\QueueController
  */
 class QueueControllerTest extends IntegrationTestCase {
 
@@ -14,15 +16,15 @@ class QueueControllerTest extends IntegrationTestCase {
 	 *
 	 * @var array
 	 */
-	public $fixtures = [
-		'plugin.queue.QueuedJobs',
-		'plugin.queue.QueueProcesses'
+	protected $fixtures = [
+		'plugin.Queue.QueuedJobs',
+		'plugin.Queue.QueueProcesses',
 	];
 
 	/**
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->disableErrorHandlerMiddleware();
@@ -36,7 +38,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	public function testIndex() {
 		$this->_needsConnection();
 
-		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
 
 		$this->assertResponseCode(200);
 	}
@@ -47,7 +49,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testProcesses() {
-		$this->get(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'processes']);
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'processes']);
 
 		$this->assertResponseCode(200);
 	}
@@ -56,7 +58,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testProcessesEnd() {
-		$queueProcessesTable = TableRegistry::get('Queue.QueueProcesses');
+		$queueProcessesTable = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
 		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
 		$queueProcess = $queueProcessesTable->newEntity([
 			'pid' => '1234',
@@ -64,7 +66,7 @@ class QueueControllerTest extends IntegrationTestCase {
 		]);
 		$queueProcessesTable->saveOrFail($queueProcess);
 
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'processes', '?' => ['end' => $queueProcess->pid]]);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'processes', '?' => ['end' => $queueProcess->pid]]);
 
 		$this->assertResponseCode(302);
 
@@ -76,9 +78,9 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testAddJob() {
-		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'addJob', 'Example']);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'addJob', 'Example']);
 
 		$this->assertResponseCode(302);
 
@@ -91,14 +93,14 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testRemoveJob() {
-		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_type' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'removeJob', $job->id]);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'removeJob', $job->id]);
 
 		$this->assertResponseCode(302);
 
@@ -110,14 +112,14 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testResetJob() {
-		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_type' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id]);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id]);
 
 		$this->assertResponseCode(302);
 
@@ -129,15 +131,85 @@ class QueueControllerTest extends IntegrationTestCase {
 	/**
 	 * @return void
 	 */
-	public function testReset() {
-		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+	public function testResetJobRedirect() {
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_type' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'reset']);
+		$query = ['redirect' => '/foo/bar/baz'];
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id, '?' => $query]);
+
+		$this->assertResponseCode(302);
+		$this->assertHeader('Location', 'http://localhost/foo/bar/baz');
+
+		/** @var \Queue\Model\Entity\QueuedJob $job */
+		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
+		$this->assertSame(0, $job->failed);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testResetJobRedirectInvalid() {
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$job = $jobsTable->newEntity([
+			'job_type' => 'foo',
+			'failed' => 1,
+		]);
+		$jobsTable->saveOrFail($job);
+
+		$query = ['redirect' => 'http://x.y.z/foo/bar/baz'];
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id, '?' => $query]);
+
+		$this->assertResponseCode(302);
+		$this->assertHeader('Location', 'http://localhost/admin/queue');
+
+		/** @var \Queue\Model\Entity\QueuedJob $job */
+		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
+		$this->assertSame(0, $job->failed);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testResetJobRedirectReferer() {
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$job = $jobsTable->newEntity([
+			'job_type' => 'foo',
+			'failed' => 1,
+		]);
+		$jobsTable->saveOrFail($job);
+
+		$this->configRequest([
+			'headers' => [
+				'referer' => '/foo/bar/baz',
+			],
+		]);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id]);
+
+		$this->assertResponseCode(302);
+		$this->assertHeader('Location', 'http://localhost/foo/bar/baz');
+
+		/** @var \Queue\Model\Entity\QueuedJob $job */
+		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
+		$this->assertSame(0, $job->failed);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testReset() {
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$job = $jobsTable->newEntity([
+			'job_type' => 'foo',
+			'failed' => 1,
+		]);
+		$jobsTable->saveOrFail($job);
+
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'reset']);
 
 		$this->assertResponseCode(302);
 
@@ -150,15 +222,15 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testHardReset() {
-		$jobsTable = TableRegistry::get('Queue.QueuedJobs');
+		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo'
+			'job_type' => 'foo',
 		]);
 		$jobsTable->saveOrFail($job);
 		$count = $jobsTable->find()->count();
 		$this->assertSame(1, $count);
 
-		$this->post(['prefix' => 'admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'hardReset']);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'hardReset']);
 
 		$this->assertResponseCode(302);
 
@@ -173,7 +245,8 @@ class QueueControllerTest extends IntegrationTestCase {
 	 */
 	protected function _needsConnection() {
 		$config = ConnectionManager::getConfig('test');
-		$this->skipIf(strpos($config['driver'], 'Mysql') === false, 'Only Mysql is working yet for this.');
+		$skip = strpos($config['driver'], 'Mysql') === false && strpos($config['driver'], 'Postgres') === false;
+		$this->skipIf($skip, 'Only Mysql/Postgres is working yet for this.');
 	}
 
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Queue\Controller\Admin;
 
 use App\Controller\AppController;
@@ -23,56 +24,58 @@ class QueueProcessesController extends AppController {
 	];
 
 	/**
+	 * @return void
+	 */
+	public function initialize(): void {
+		parent::initialize();
+
+		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Shim.Configure']);
+	}
+
+	/**
 	 * Index method
 	 *
-	 * @return \Cake\Http\Response|null
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function index() {
-		$queueProcesses = $this->paginate();
+		$queueProcesses = $this->paginate()->toArray();
 
 		$this->set(compact('queueProcesses'));
-		$this->helpers[] = 'Tools.Format';
-		$this->helpers[] = 'Tools.Time';
-		$this->helpers[] = 'Shim.Configure';
 	}
 
 	/**
 	 * View method
 	 *
 	 * @param int|null $id Queue Process id.
-	 * @return \Cake\Http\Response|null
-	 * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function view($id = null) {
 		$queueProcess = $this->QueueProcesses->get($id, [
-			'contain' => []
+			'contain' => [],
 		]);
 
 		$this->set(compact('queueProcess'));
-		$this->helpers[] = 'Tools.Format';
-		$this->helpers[] = 'Tools.Time';
-		$this->helpers[] = 'Shim.Configure';
 	}
 
 	/**
 	 * Edit method
 	 *
 	 * @param int|null $id Queue Process id.
-	 * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-	 * @throws \Cake\Http\Exception\NotFoundException When record not found.
+	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit($id = null) {
 		$queueProcess = $this->QueueProcesses->get($id, [
-			'contain' => []
+			'contain' => [],
 		]);
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$queueProcess = $this->QueueProcesses->patchEntity($queueProcess, $this->request->getData());
 			if ($this->QueueProcesses->save($queueProcess)) {
-				$this->Flash->success(__('The queue process has been saved.'));
+				$this->Flash->success(__d('queue', 'The queue process has been saved.'));
+
 				return $this->redirect(['action' => 'index']);
 			}
 
-			$this->Flash->error(__('The queue process could not be saved. Please, try again.'));
+			$this->Flash->error(__d('queue', 'The queue process could not be saved. Please, try again.'));
 		}
 
 		$this->set(compact('queueProcess'));
@@ -80,7 +83,7 @@ class QueueProcessesController extends AppController {
 
 	/**
 	 * @param int|null $id Queue Process id.
-	 * @return \Cake\Http\Response|null Redirects to index.
+	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
 	public function terminate($id = null) {
 		$this->request->allowMethod(['post', 'delete']);
@@ -89,17 +92,17 @@ class QueueProcessesController extends AppController {
 			$queueProcess = $this->QueueProcesses->get($id);
 			$queueProcess->terminate = true;
 			$this->QueueProcesses->saveOrFail($queueProcess);
-			$this->Flash->success(__('The queue process has been deleted.'));
+			$this->Flash->success(__d('queue', 'The queue process has been deleted.'));
 		} catch (Exception $exception) {
-			$this->Flash->error(__('The queue process could not be deleted. Please, try again.'));
+			$this->Flash->error(__d('queue', 'The queue process could not be deleted. Please, try again.'));
 		}
+
 		return $this->redirect(['action' => 'index']);
 	}
 
 	/**
 	 * @param int|null $id Queue Process id.
-	 * @return \Cake\Http\Response|null Redirects to index.
-	 * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
 	public function delete($id = null) {
 		$this->request->allowMethod(['post', 'delete']);
@@ -111,15 +114,16 @@ class QueueProcessesController extends AppController {
 		}
 
 		if ($this->QueueProcesses->delete($queueProcess)) {
-			$this->Flash->success(__('The queue process has been deleted.'));
+			$this->Flash->success(__d('queue', 'The queue process has been deleted.'));
 		} else {
-			$this->Flash->error(__('The queue process could not be deleted. Please, try again.'));
+			$this->Flash->error(__d('queue', 'The queue process could not be deleted. Please, try again.'));
 		}
+
 		return $this->redirect(['action' => 'index']);
 	}
 
 	/**
-	 * @return \Cake\Http\Response|null Redirects to index.
+	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
 	public function cleanup() {
 		$this->request->allowMethod(['post', 'delete']);

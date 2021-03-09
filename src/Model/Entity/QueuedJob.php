@@ -25,13 +25,11 @@ use Cake\ORM\Entity;
 class QueuedJob extends Entity {
 
 	/**
-	 * {@inheritDoc}
-	 *
 	 * @var array
 	 */
 	protected $_accessible = [
 		'*' => true,
-		'id' => false
+		'id' => false,
 	];
 
 }

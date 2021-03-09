@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Shell\Task;
+namespace TestApp\Shell\Task;
 
 use Queue\Shell\Task\QueueTask;
-use Queue\Shell\Task\QueueTaskInterface;
 
-class QueueFooTask extends QueueTask implements QueueTaskInterface {
+class QueueFooTask extends QueueTask {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -30,7 +29,7 @@ class QueueFooTask extends QueueTask implements QueueTaskInterface {
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @return void
 	 */
-	public function run(array $data, $jobId) {
+	public function run(array $data, int $jobId): void {
 		$this->out('CakePHP Foo app Example.');
 	}
 

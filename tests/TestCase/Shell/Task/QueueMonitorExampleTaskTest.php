@@ -1,38 +1,38 @@
 <?php
 
-namespace Queue\Test\TestCase\Shell;
+namespace Queue\Test\TestCase\Shell\Task;
 
 use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueMonitorExampleTask;
-use Tools\TestSuite\ConsoleOutput;
-use Tools\TestSuite\ToolsTestTrait;
+use Shim\TestSuite\ConsoleOutput;
+use Shim\TestSuite\TestTrait;
 
 class QueueMonitorExampleTaskTest extends TestCase {
 
-	use ToolsTestTrait;
+	use TestTrait;
 
 	/**
-	 * @var \Queue\Shell\Task\QueueMonitorExampleTask|\PHPUnit_Framework_MockObject_MockObject
+	 * @var \Queue\Shell\Task\QueueMonitorExampleTask|\PHPUnit\Framework\MockObject\MockObject
 	 */
-	public $Task;
+	protected $Task;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
-	public $out;
+	protected $out;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
-	public $err;
+	protected $err;
 
 	/**
 	 * Setup Defaults
 	 *
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->out = new ConsoleOutput();
@@ -46,7 +46,7 @@ class QueueMonitorExampleTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRun() {
-		$this->Task->run([], null);
+		$this->Task->run([], 0);
 
 		$this->assertTextContains('Success, the MonitorExample Job was run', $this->out->output());
 	}

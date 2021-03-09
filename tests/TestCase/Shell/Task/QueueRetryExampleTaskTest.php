@@ -1,39 +1,39 @@
 <?php
 
-namespace Queue\Test\TestCase\Shell;
+namespace Queue\Test\TestCase\Shell\Task;
 
 use Cake\Console\ConsoleIo;
 use Cake\Console\Exception\StopException;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\Task\QueueRetryExampleTask;
-use Tools\TestSuite\ConsoleOutput;
-use Tools\TestSuite\ToolsTestTrait;
+use Shim\TestSuite\ConsoleOutput;
+use Shim\TestSuite\TestTrait;
 
 class QueueRetryExampleTaskTest extends TestCase {
 
-	use ToolsTestTrait;
+	use TestTrait;
 
 	/**
-	 * @var \Queue\Shell\Task\QueueRetryExampleTask|\PHPUnit_Framework_MockObject_MockObject
+	 * @var \Queue\Shell\Task\QueueRetryExampleTask|\PHPUnit\Framework\MockObject\MockObject
 	 */
-	public $Task;
+	protected $Task;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
-	public $out;
+	protected $out;
 
 	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
+	 * @var \Shim\TestSuite\ConsoleOutput
 	 */
-	public $err;
+	protected $err;
 
 	/**
 	 * Setup Defaults
 	 *
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$this->out = new ConsoleOutput();
@@ -52,7 +52,7 @@ class QueueRetryExampleTaskTest extends TestCase {
 
 		$exception = null;
 		try {
-			$this->Task->run([], null);
+			$this->Task->run([], 0);
 		} catch (\Exception $e) {
 			$exception = $e;
 		}
@@ -68,7 +68,7 @@ class QueueRetryExampleTaskTest extends TestCase {
 		$file = TMP . 'task_retry.txt';
 		file_put_contents($file, '3');
 
-		$this->Task->run([], null);
+		$this->Task->run([], 0);
 
 		$this->assertTextContains('Success, the RetryExample Job was run', $this->out->output());
 	}

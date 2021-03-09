@@ -15,7 +15,7 @@ class QueuedJobGeneratorTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->task = new QueuedJobTask();
 	}
@@ -26,20 +26,27 @@ class QueuedJobGeneratorTest extends TestCase {
 	public function testCollect() {
 		$result = $this->task->collect();
 
+		$this->assertCount(2, $result);
+
+		/** @var \IdeHelper\Generator\Directive\ExpectedArguments $directive */
+		$directive = array_shift($result);
+		$this->assertSame('\Queue\Model\Table\QueuedJobsTable::createJob()', $directive->toArray()['method']);
+
+		$list = $directive->toArray()['list'];
 		$expected = [
-			'\Queue\Model\Table\QueuedJobsTable::createJob(0)' => [
-				'Email' => '\Queue\Shell\Task\QueueEmailTask::class',
-				'Example' => '\Queue\Shell\Task\QueueExampleTask::class',
-				'ExceptionExample' => '\Queue\Shell\Task\QueueExceptionExampleTask::class',
-				'Execute' => '\Queue\Shell\Task\QueueExecuteTask::class',
-				'MonitorExample' => '\Queue\Shell\Task\QueueMonitorExampleTask::class',
-				'ProgressExample' => '\Queue\Shell\Task\QueueProgressExampleTask::class',
-				'RetryExample' => '\Queue\Shell\Task\QueueRetryExampleTask::class',
-				'SuperExample' => '\Queue\Shell\Task\QueueSuperExampleTask::class',
-				'Foo' => '\App\Shell\Task\QueueFooTask::class',
-			],
+			'Execute' => "'Execute'",
+			'ProgressExample' => "'ProgressExample'",
 		];
-		$this->assertSame($expected, $result);
+		foreach ($expected as $name => $value) {
+			$this->assertSame($value, $list[$name]);
+		}
+
+		/** @var \IdeHelper\Generator\Directive\ExpectedArguments $directive */
+		$directive = array_shift($result);
+		$this->assertSame('\Queue\Model\Table\QueuedJobsTable::isQueued()', $directive->toArray()['method']);
+
+		$list = $directive->toArray()['list'];
+		$this->assertNotEmpty($list);
 	}
 
 }

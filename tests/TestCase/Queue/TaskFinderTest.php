@@ -8,43 +8,9 @@ use Queue\Queue\TaskFinder;
 class TaskFinderTest extends TestCase {
 
 	/**
-	 * @var \Queue\Shell\QueueShell|\PHPUnit_Framework_MockObject_MockObject
-	 */
-	public $QueueShell;
-
-	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
-	 */
-	public $out;
-
-	/**
-	 * @var \Tools\TestSuite\ConsoleOutput
-	 */
-	public $err;
-
-	/**
 	 * @var \Queue\Queue\TaskFinder
 	 */
 	protected $taskFinder;
-
-	/**
-	 * Fixtures to load
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'plugin.Queue.QueuedJobs',
-		'plugin.Queue.QueueProcesses',
-	];
-
-	/**
-	 * Setup Defaults
-	 *
-	 * @return void
-	 */
-	public function setUp() {
-		parent::setUp();
-	}
 
 	/**
 	 * @return void
@@ -53,9 +19,10 @@ class TaskFinderTest extends TestCase {
 		$this->taskFinder = new TaskFinder();
 
 		$result = $this->taskFinder->allAppAndPluginTasks();
-		$this->assertCount(9, $result);
-		$this->assertArraySubset(['QueueFoo'], $result);
-		$this->assertTrue(!in_array('Foo.QueueFoo', $result));
+		$this->assertCount(11, $result);
+
+		$this->assertTrue(in_array('QueueFoo', $result, true));
+		$this->assertTrue(!in_array('Foo.QueueFoo', $result, true));
 	}
 
 }

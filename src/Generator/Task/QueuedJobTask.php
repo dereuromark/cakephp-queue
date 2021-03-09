@@ -1,33 +1,39 @@
 <?php
+
 namespace Queue\Generator\Task;
 
 use Cake\Core\App;
+use IdeHelper\Generator\Directive\ExpectedArguments;
 use IdeHelper\Generator\Task\TaskInterface;
 use Queue\Queue\TaskFinder;
 
 class QueuedJobTask implements TaskInterface {
 
 	/**
-	 * @var array
+	 * @var int[]
 	 */
 	protected $aliases = [
-		'\Queue\Model\Table\QueuedJobsTable::createJob(0)',
+		'\Queue\Model\Table\QueuedJobsTable::createJob()' => 0,
+		'\Queue\Model\Table\QueuedJobsTable::isQueued()' => 1,
 	];
 
 	/**
-	 * @return array
+	 * @return \IdeHelper\Generator\Directive\BaseDirective[]
 	 */
-	public function collect() {
-		$map = [];
+	public function collect(): array {
+		$list = [];
 
-		$models = $this->collectQueuedJobTasks();
-		foreach ($models as $model => $className) {
-			$map[$model] = '\\' . $className . '::class';
+		$names = $this->collectQueuedJobTasks();
+		foreach ($names as $name => $className) {
+			$list[$name] = "'$name'";
 		}
 
+		ksort($list);
+
 		$result = [];
-		foreach ($this->aliases as $alias) {
-			$result[$alias] = $map;
+		foreach ($this->aliases as $alias => $position) {
+			$directive = new ExpectedArguments($alias, $position, $list);
+			$result[$directive->key()] = $directive;
 		}
 
 		return $result;
@@ -36,16 +42,18 @@ class QueuedJobTask implements TaskInterface {
 	/**
 	 * @return string[]
 	 */
-	protected function collectQueuedJobTasks() {
+	protected function collectQueuedJobTasks(): array {
 		$result = [];
 
 		$taskFinder = new TaskFinder();
 		$tasks = $taskFinder->allAppAndPluginTasks();
-		sort($tasks);
 
 		foreach ($tasks as $task) {
 			$className = App::className($task, 'Shell/Task', 'Task');
-			list(, $task) = pluginSplit($task);
+			if ($className === null) {
+				continue;
+			}
+			[, $task] = pluginSplit($task);
 			$task = substr($task, 5);
 			$result[$task] = $className;
 		}

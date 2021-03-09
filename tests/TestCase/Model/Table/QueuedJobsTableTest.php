@@ -25,13 +25,11 @@ class QueuedJobsTableTest extends TestCase {
 	protected $QueuedJobs;
 
 	/**
-	 * Fixtures
-	 *
 	 * @var array
 	 */
-	public $fixtures = [
-		'plugin.queue.QueuedJobs',
-		'plugin.queue.QueueProcesses',
+	protected $fixtures = [
+		'plugin.Queue.QueuedJobs',
+		'plugin.Queue.QueueProcesses',
 	];
 
 	/**
@@ -39,11 +37,11 @@ class QueuedJobsTableTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		$config = TableRegistry::exists('QueuedJobs') ? [] : ['className' => QueuedJobsTable::class];
-		$this->QueuedJobs = TableRegistry::get('QueuedJobs', $config);
+		$this->QueuedJobs = TableRegistry::getTableLocator()->get('QueuedJobs', $config);
 	}
 
 	/**
@@ -110,6 +108,9 @@ class QueuedJobsTableTest extends TestCase {
 				'name' => 'task1',
 				'timeout' => 100,
 				'retries' => 2,
+				'rate' => 0,
+				'costs' => 0,
+				'unique' => false,
 			],
 		];
 		$testData = [
@@ -164,6 +165,9 @@ class QueuedJobsTableTest extends TestCase {
 				'name' => 'task1',
 				'timeout' => 100,
 				'retries' => 2,
+				'rate' => 0,
+				'costs' => 0,
+				'unique' => false,
 			],
 		];
 		// at first, the queue should contain 0 items.
@@ -231,11 +235,17 @@ class QueuedJobsTableTest extends TestCase {
 				'name' => 'task1',
 				'timeout' => 100,
 				'retries' => 2,
+				'rate' => 0,
+				'costs' => 0,
+				'unique' => false,
 			],
 			'dummytask' => [
 				'name' => 'dummytask',
 				'timeout' => 100,
 				'retries' => 2,
+				'rate' => 0,
+				'costs' => 0,
+				'unique' => false,
 			],
 		];
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('dummytask'));
@@ -279,6 +289,14 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testFindQueued() {
+		$queued = $this->QueuedJobs->find('queued')->count();
+		$this->assertSame(0, $queued);
+	}
+
+	/**
 	 * Job Rate limiting.
 	 * Do not execute jobs of a certain type more often than once every X seconds.
 	 *
@@ -293,11 +311,15 @@ class QueuedJobsTableTest extends TestCase {
 				'timeout' => 101,
 				'retries' => 2,
 				'rate' => 2,
+				'costs' => 0,
+				'unique' => false,
 			],
 			'dummytask' => [
 				'name' => 'dummytask',
 				'timeout' => 101,
 				'retries' => 2,
+				'costs' => 0,
+				'unique' => false,
 			],
 		];
 
@@ -386,7 +408,7 @@ class QueuedJobsTableTest extends TestCase {
 		];
 
 		$data = [
-			'key' => '1'
+			'key' => '1',
 		];
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('task1', $data));
 
@@ -460,6 +482,8 @@ class QueuedJobsTableTest extends TestCase {
 				'timeout' => 1,
 				'retries' => 2,
 				'rate' => 0,
+				'costs' => 0,
+				'unique' => false,
 			],
 		];
 
@@ -531,6 +555,8 @@ class QueuedJobsTableTest extends TestCase {
 				'timeout' => 1,
 				'retries' => 2,
 				'rate' => 0,
+				'costs' => 0,
+				'unique' => false,
 			],
 		];
 
@@ -577,7 +603,7 @@ class QueuedJobsTableTest extends TestCase {
 	 */
 	public function testEndProcess() {
 		/** @var \Queue\Model\Table\QueueProcessesTable $queuedProcessesTable */
-		$queuedProcessesTable = TableRegistry::get('Queue.QueueProcesses');
+		$queuedProcessesTable = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
 
 		$queuedProcess = $queuedProcessesTable->newEntity([
 			'pid' => 1,
@@ -598,7 +624,8 @@ class QueuedJobsTableTest extends TestCase {
 	 */
 	protected function _needsConnection() {
 		$config = ConnectionManager::getConfig('test');
-		$this->skipIf(strpos($config['driver'], 'Mysql') === false, 'Only Mysql is working yet for this.');
+		$skip = strpos($config['driver'], 'Mysql') === false && strpos($config['driver'], 'Postgres') === false;
+		$this->skipIf($skip, 'Only Mysql/Postgres is working yet for this.');
 	}
 
 }

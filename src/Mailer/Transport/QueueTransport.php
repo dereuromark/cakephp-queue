@@ -7,35 +7,34 @@
 namespace Queue\Mailer\Transport;
 
 use Cake\Mailer\AbstractTransport;
-use Cake\Mailer\Email;
+use Cake\Mailer\Message;
 use Cake\ORM\TableRegistry;
 
 /**
- * Send mail using Queue plugin
+ * Send mail using Queue plugin and Message objects.
  */
 class QueueTransport extends AbstractTransport {
 
 	/**
 	 * Send mail
 	 *
-	 * @param \Cake\Mailer\Email $email Email
+	 * @param \Cake\Mailer\Message $message
 	 * @return array
 	 */
-	public function send(Email $email) {
+	public function send(Message $message): array {
 		if (!empty($this->_config['queue'])) {
 			$this->_config = $this->_config['queue'] + $this->_config;
-			$email->setConfig((array)$this->_config['queue'] + ['queue' => []]);
+			$message->setConfig((array)$this->_config['queue'] + ['queue' => []]);
 			unset($this->_config['queue']);
 		}
 
-		$transport = $this->_config['transport'];
-		$email->setTransport($transport);
+		$transport = $this->_config['transport'] ?? null;
 
 		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
 		$QueuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
-		$result = $QueuedJobs->createJob('Email', ['transport' => $transport, 'settings' => $email]);
-		$result['headers'] = '';
-		$result['message'] = '';
+		$result = $QueuedJobs->createJob('Email', ['transport' => $transport, 'settings' => $message]);
+		$result['headers'] = $message->getHeadersString();
+		$result['message'] = $message->getBodyString();
 
 		return $result->toArray();
 	}
