@@ -183,7 +183,7 @@ TEXT;
 			pcntl_signal(SIGINT, [&$this, '_abort']);
 			pcntl_signal(SIGTSTP, [&$this, '_abort']);
 			pcntl_signal(SIGQUIT, [&$this, '_abort']);
-			if (Configure::read('Queue.sigUsr1WakesUp')) {
+			if (Configure::read('Queue.canInterruptSleep')) {
 				// Defining a signal handler here will make the worker wake up
 				// from its sleep() when SIGUSR1 is received. Since waking it
 				// up is all we need, there is no further code to execute,
