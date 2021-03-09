@@ -987,7 +987,8 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * Sends a SIGUSR1 to all workers of this server.
+	 * Sends a SIGUSR1 to all workers. This will only affect workers
+	 * running with config option canInterruptSleep set to true.
 	 *
 	 * @return void
 	 */
@@ -995,7 +996,7 @@ class QueuedJobsTable extends Table {
 		if (!function_exists('posix_kill')) {
 			return;
 		}
-		$processes = $this->getProcesses(true);
+		$processes = $this->getProcesses();
 		foreach ($processes as $pid => $modified) {
 			if ($pid > 0) {
 				posix_kill($pid, SIGUSR1);
