@@ -51,5 +51,8 @@ return [
 
 		// enable Search. requires frontend assets
 		'isStatisticEnabled' => false,
+
+		// enable waking up worker from sleep using SIGUSR1
+		'sigUsr1WakesUp' => false,
 	],
 ];
