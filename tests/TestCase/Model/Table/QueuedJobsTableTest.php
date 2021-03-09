@@ -601,6 +601,31 @@ class QueuedJobsTableTest extends TestCase {
 	/**
 	 * @return void
 	 */
+	public function testWakeUpWorkersSendsSigUsr1() {
+		/** @var \Queue\Model\Table\QueueProcessesTable $queuedProcessesTable */
+		$queuedProcessesTable = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
+		$queuedProcess = $queuedProcessesTable->newEntity([
+			'pid' => getmypid(),
+			'workerkey' => '123',
+			'server' => $queuedProcessesTable->buildServerString(),
+		]);
+		$queuedProcessesTable->saveOrFail($queuedProcess);
+
+		$gotSignal = false;
+		pcntl_signal(SIGUSR1, function() use (&$gotSignal) {
+			$gotSignal = true;
+		});
+
+		$this->QueuedJobs->wakeUpWorkers();
+		pcntl_signal_dispatch();
+
+		$this->assertTrue($gotSignal);
+		pcntl_signal(SIGUSR1, SIG_DFL);
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testEndProcess() {
 		/** @var \Queue\Model\Table\QueueProcessesTable $queuedProcessesTable */
 		$queuedProcessesTable = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');

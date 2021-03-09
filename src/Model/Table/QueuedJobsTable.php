@@ -983,4 +983,21 @@ class QueuedJobsTable extends Table {
 		return new FrozenTime($notBefore);
 	}
 
+	/**
+	 * Sends a SIGUSR1 to all workers of this server.
+	 *
+	 * @return void
+	 */
+	public function wakeUpWorkers() {
+		if (!function_exists('posix_kill')) {
+			return;
+		}
+		$processes = $this->getProcesses(true);
+		foreach ($processes as $pid => $modified) {
+			if ($pid > 0) {
+				posix_kill($pid, SIGUSR1);
+			}
+		}
+	}
+
 }
