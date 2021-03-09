@@ -983,6 +983,11 @@ class QueuedJobsTable extends Table {
 		return new FrozenTime($notBefore);
 	}
 
+	/**
+	 * Sends a SIGUSR1 to all workers of this server.
+	 *
+	 * @return void
+	 */
 	public function wakeUpWorkers() {
 		if (!function_exists('posix_kill')) {
 			return;
