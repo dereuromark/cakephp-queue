@@ -1,6 +1,6 @@
 <?php
 
-namespace Queue\Shell\Task;
+namespace Queue\Queue\Task;
 
 /**
  * Any task needs to at least implement add().
@@ -17,6 +17,6 @@ interface AddInterface {
 	 *
 	 * @return void
 	 */
-	public function add();
+	public function add(): void;
 
 }

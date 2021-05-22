@@ -1,6 +1,6 @@
 <?php
 
-namespace Queue\Shell\Task;
+namespace Queue\Queue\Task;
 
 /**
  * Any task needs to at least implement run().
@@ -11,7 +11,7 @@ namespace Queue\Shell\Task;
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-interface QueueTaskInterface {
+interface TaskInterface {
 
 	/**
 	 * Main execution of the task.

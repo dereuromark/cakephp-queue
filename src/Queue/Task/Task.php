@@ -4,12 +4,12 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
-namespace Queue\Shell\Task;
+namespace Queue\Queue\Task;
 
-use Cake\Console\ConsoleIo;
-use Cake\Console\Shell;
-use Cake\ORM\Locator\LocatorInterface;
+use Cake\Datasource\ModelAwareTrait;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
+use Queue\Console\Io;
 
 /**
  * Queue Task.
@@ -17,7 +17,9 @@ use InvalidArgumentException;
  * Common Queue plugin tasks properties and methods to be extended by custom
  * tasks.
  */
-abstract class QueueTask extends Shell implements QueueTaskInterface {
+abstract class Task implements TaskInterface {
+
+	use ModelAwareTrait;
 
 	/**
 	 * @var string
@@ -76,11 +78,22 @@ abstract class QueueTask extends Shell implements QueueTaskInterface {
 	public $unique = false;
 
 	/**
-	 * @param \Cake\Console\ConsoleIo|null $io IO
-	 * @param \Cake\ORM\Locator\LocatorInterface|null $locator
+	 * @var \Queue\Console\Io
 	 */
-	public function __construct(?ConsoleIo $io = null, ?LocatorInterface $locator = null) {
-		parent::__construct($io, $locator);
+	protected $io;
+
+	/**
+	 * @var \Psr\Log\LoggerInterface|null
+	 */
+	protected $logger;
+
+	/**
+	 * @param \Queue\Console\Io $io IO
+	 * @param \Psr\Log\LoggerInterface|null $logger
+	 */
+	public function __construct(Io $io, ?LoggerInterface $logger = null) {
+		$this->io = $io;
+		$this->logger = $logger;
 
 		$this->loadModel($this->queueModelClass);
 	}
@@ -89,10 +102,11 @@ abstract class QueueTask extends Shell implements QueueTaskInterface {
 	 * @throws \InvalidArgumentException
 	 * @return string
 	 */
-	protected function queueTaskName() {
+	protected function taskName() {
 		$class = static::class;
 
-		preg_match('#\\\\Queue(.+)Task$#', $class, $matches);
+		//TODO: Plugin syntax?
+		preg_match('#\\\\(.+)Task$#', $class, $matches);
 		if (!$matches) {
 			throw new InvalidArgumentException('Invalid class name: ' . $class);
 		}

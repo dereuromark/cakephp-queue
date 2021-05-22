@@ -4,12 +4,12 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
-namespace Queue\Shell\Task;
+namespace Queue\Queue\Task;
 
 /**
  * A Simple QueueTask example.
  */
-class QueueExampleTask extends QueueTask implements AddInterface {
+class ExampleTask extends Task implements AddInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -27,22 +27,22 @@ class QueueExampleTask extends QueueTask implements AddInterface {
 	 *
 	 * @return void
 	 */
-	public function add() {
-		$this->out('CakePHP Queue Example task.');
-		$this->hr();
-		$this->out('This is a very simple example of a QueueTask.');
-		$this->out('I will now add an example Job into the Queue.');
-		$this->out('This job will only produce some console output on the worker that it runs on.');
-		$this->out(' ');
-		$this->out('To run a Worker use:');
-		$this->out('    bin/cake queue runworker');
-		$this->out(' ');
-		$this->out('You can find the sourcecode of this task in: ');
-		$this->out(__FILE__);
-		$this->out(' ');
+	public function add(): void {
+		$this->io->out('CakePHP Queue Example task.');
+		$this->io->hr();
+		$this->io->out('This is a very simple example of a QueueTask.');
+		$this->io->out('I will now add an example Job into the Queue.');
+		$this->io->out('This job will only produce some console output on the worker that it runs on.');
+		$this->io->out(' ');
+		$this->io->out('To run a Worker use:');
+		$this->io->out('    bin/cake queue runworker');
+		$this->io->out(' ');
+		$this->io->out('You can find the sourcecode of this task in: ');
+		$this->io->out(__FILE__);
+		$this->io->out(' ');
 
 		$this->QueuedJobs->createJob('Example');
-		$this->success('OK, job created, now run the worker');
+		$this->io->success('OK, job created, now run the worker');
 	}
 
 	/**
@@ -55,10 +55,10 @@ class QueueExampleTask extends QueueTask implements AddInterface {
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
-		$this->hr();
-		$this->out('CakePHP Queue Example task.');
-		$this->hr();
-		$this->success(' -> Success, the Example Job was run. <-');
+		$this->io->hr();
+		$this->io->out('CakePHP Queue Example task.');
+		$this->io->hr();
+		$this->io->success(' -> Success, the Example Job was run. <-');
 	}
 
 }
