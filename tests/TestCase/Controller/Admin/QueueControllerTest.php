@@ -44,8 +44,6 @@ class QueueControllerTest extends IntegrationTestCase {
 	}
 
 	/**
-	 * Test index method
-	 *
 	 * @return void
 	 */
 	public function testProcesses() {

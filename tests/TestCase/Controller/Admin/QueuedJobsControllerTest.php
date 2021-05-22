@@ -104,8 +104,6 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testStats() {
-		$this->_needsConnection();
-
 		Configure::write('Queue.isStatisticEnabled', true);
 
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'stats']);
