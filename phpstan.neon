@@ -7,7 +7,7 @@ parameters:
 	checkMissingIterableValueType: false
 	checkGenericClassInNonGenericObjectType: false
 	earlyTerminatingMethodCalls:
-		Cake\Console\Shell:
+		Cake\Command\Command:
 			- abort
 	ignoreErrors:
 		- '#Access to an undefined property Cake\\ORM\\BehaviorRegistry::\$Search#'
