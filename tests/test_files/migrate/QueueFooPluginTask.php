@@ -1,24 +1,10 @@
 <?php
 
-namespace Foo\Shell\Task;
+namespace Foo\Bar\Shell\Task;
 
 use Queue\Shell\Task\QueueTask;
 
-class QueueFooTask extends QueueTask {
-
-	/**
-	 * Timeout for run, after which the Task is reassigned to a new worker.
-	 *
-	 * @var int
-	 */
-	public $timeout = 10;
-
-	/**
-	 * Number of times a failed instance of this task should be restarted before giving up.
-	 *
-	 * @var int
-	 */
-	public $retries = 1;
+class QueueFooPluginTask extends QueueTask {
 
 	/**
 	 * Example run function.

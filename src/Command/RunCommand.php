@@ -72,6 +72,7 @@ class RunCommand extends Command {
 	public function execute(Arguments $args, ConsoleIo $io) {
 		$logger = $this->getLogger($args);
 		$io = new Io($io);
+		//FIXME
 		$processor = new Processor($io, $logger);
 
 		return $processor->run();

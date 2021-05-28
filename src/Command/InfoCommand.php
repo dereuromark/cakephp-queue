@@ -6,9 +6,19 @@ use Cake\Command\Command;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
+use Cake\I18n\Number;
 use Queue\Queue\TaskFinder;
 
+/**
+ * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
+ * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
+ */
 class InfoCommand extends Command {
+
+	/**
+	 * @var string
+	 */
+	protected $modelClass = 'Queue.QueuedJobs';
 
 	/**
 	 * @inheritDoc
@@ -37,6 +47,50 @@ class InfoCommand extends Command {
 	 */
 	public function execute(Arguments $args, ConsoleIo $io) {
 		$tasks = $this->getTasks();
+		$addableTasks = $this->getAddableTasks();
+
+		$io->out(count($tasks) . ' tasks available:');
+		foreach ($tasks as $task => $className) {
+			if (array_key_exists($task, $addableTasks)) {
+				$task .= ' <info>[addable via CLI]</info>';
+			}
+			$io->out(' * ' . $task);
+		}
+
+		$io->out();
+		$io->hr();
+		$io->out();
+
+		$io->out('Total unfinished jobs: ' . $this->QueuedJobs->getLength());
+		$this->loadModel('Queue.QueueProcesses');
+		$io->out('Running workers (processes): ' . $this->QueueProcesses->findActive()->count());
+		$io->out('Server name: ' . $this->QueueProcesses->buildServerString());
+
+		$io->out();
+		$io->hr();
+		$io->out();
+
+		$io->out('Jobs currently in the queue:');
+		$types = $this->QueuedJobs->getTypes()->toArray();
+		//TODO: refactor using $io->helper table?
+		foreach ($types as $type) {
+			$io->out(' - ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $this->QueuedJobs->getLength($type));
+		}
+
+		$io->out();
+		$io->hr();
+		$io->out();
+
+		$io->out('Finished job statistics:');
+		$data = $this->QueuedJobs->getStats();
+		//TODO: refactor using $io->helper table?
+		foreach ($data as $item) {
+			$io->out(' - ' . $item['job_type'] . ': ');
+			$io->out('   - Finished Jobs in Database: ' . $item['num']);
+			$io->out('   - Average Job existence    : ' . str_pad(Number::precision($item['alltime'], 0), 8, ' ', STR_PAD_LEFT) . 's');
+			$io->out('   - Average Execution delay  : ' . str_pad(Number::precision($item['fetchdelay'], 0), 8, ' ', STR_PAD_LEFT) . 's');
+			$io->out('   - Average Execution time   : ' . str_pad(Number::precision($item['runtime'], 0), 8, ' ', STR_PAD_LEFT) . 's');
+		}
 	}
 
 	/**
@@ -45,7 +99,16 @@ class InfoCommand extends Command {
 	protected function getTasks(): array {
 		$taskFinder = new TaskFinder();
 
-		return $taskFinder->allAppAndPluginTasks();
+		return $taskFinder->all();
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getAddableTasks(): array {
+		$taskFinder = new TaskFinder();
+
+		return $taskFinder->allAddable();
 	}
 
 }

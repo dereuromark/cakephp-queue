@@ -276,7 +276,7 @@ class QueuedJobsController extends AppController {
 	 */
 	public function test() {
 		$taskFinder = new TaskFinder();
-		$allTasks = $taskFinder->allAppAndPluginTasks();
+		$allTasks = $taskFinder->all();
 		$tasks = [];
 		foreach ($allTasks as $key => $task) {
 			if (substr($task, 0, 11) !== 'Queue.Queue') {

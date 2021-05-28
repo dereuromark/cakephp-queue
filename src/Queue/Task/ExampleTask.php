@@ -25,9 +25,11 @@ class ExampleTask extends Task implements AddInterface {
 	 * To invoke from CLI execute:
 	 * - bin/cake queue add Example
 	 *
+	 * @param string|null $data Optional data for the task, make sure to "quote multi words"
+	 *
 	 * @return void
 	 */
-	public function add(): void {
+	public function add(?string $data): void {
 		$this->io->out('CakePHP Queue Example task.');
 		$this->io->hr();
 		$this->io->out('This is a very simple example of a QueueTask.');

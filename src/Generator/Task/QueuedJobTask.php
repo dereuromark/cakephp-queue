@@ -46,7 +46,7 @@ class QueuedJobTask implements TaskInterface {
 		$result = [];
 
 		$taskFinder = new TaskFinder();
-		$tasks = $taskFinder->allAppAndPluginTasks();
+		$tasks = $taskFinder->all();
 
 		foreach ($tasks as $task) {
 			$className = App::className($task, 'Shell/Task', 'Task');

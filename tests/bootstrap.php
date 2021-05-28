@@ -91,6 +91,7 @@ Cache::setConfig($cache);
 class_alias(TestApp\Controller\AppController::class, 'App\Controller\AppController');
 
 Cake\Core\Plugin::getCollection()->add(new Queue\Plugin());
+Cake\Core\Plugin::getCollection()->add(new Foo\Plugin());
 
 TransportFactory::setConfig('default', [
 	'className' => 'Debug',

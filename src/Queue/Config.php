@@ -75,13 +75,13 @@ class Config {
 		$config = [];
 
 		foreach ($tasks as $task) {
-			$className = App::className($task, 'Shell/Task', 'Task');
+			$className = App::className($task, 'Queue/Task', 'Task');
 			if (!$className) {
 				throw new RuntimeException('Cannot find class name for task `' . $task . '`');
 			}
 			[$pluginName, $taskName] = pluginSplit($task);
 
-			/** @var \Queue\Shell\Task\QueueTask $taskObject */
+			/** @var \Queue\Queue\Task\Task $taskObject */
 			$taskObject = new $className();
 
 			$config[$taskName]['name'] = substr($taskName, 5);

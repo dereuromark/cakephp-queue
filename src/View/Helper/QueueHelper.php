@@ -94,7 +94,7 @@ class QueueHelper extends Helper {
 	 */
 	protected function taskConfig(string $jobType): array {
 		if (!$this->taskConfig) {
-			$tasks = (new TaskFinder())->allAppAndPluginTasks();
+			$tasks = (new TaskFinder())->all();
 			$this->taskConfig = Config::taskConfig($tasks);
 		}
 

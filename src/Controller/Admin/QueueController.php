@@ -50,7 +50,7 @@ class QueueController extends AppController {
 		$data = $this->QueuedJobs->getStats();
 
 		$taskFinder = new TaskFinder();
-		$tasks = $taskFinder->allAppAndPluginTasks();
+		$tasks = $taskFinder->all();
 
 		$servers = $this->QueueProcesses->find()->distinct(['server'])->find('list', ['keyField' => 'server', 'valueField' => 'server'])->toArray();
 		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks', 'servers'));

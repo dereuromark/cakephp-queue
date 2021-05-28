@@ -1,6 +1,6 @@
 <?php
 
-namespace Queue\Test\TestCase\Shell;
+namespace Queue\Test\TestCase\Queue;
 
 use Cake\TestSuite\TestCase;
 use Queue\Queue\TaskFinder;
@@ -18,11 +18,11 @@ class TaskFinderTest extends TestCase {
 	public function testAllAppAndPluginTasks() {
 		$this->taskFinder = new TaskFinder();
 
-		$result = $this->taskFinder->allAppAndPluginTasks();
-		$this->assertCount(11, $result);
+		$result = $this->taskFinder->all();
 
-		$this->assertTrue(in_array('QueueFoo', $result, true));
-		$this->assertTrue(!in_array('Foo.QueueFoo', $result, true));
+		$this->assertArrayHasKey('Queue.Example', $result);
+		$this->assertArrayHasKey('Foo', $result);
+		$this->assertArrayHasKey('Foo.Foo', $result);
 	}
 
 }

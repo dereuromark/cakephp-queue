@@ -2,8 +2,10 @@
 
 namespace Queue\Console;
 
+use Cake\Console\CommandInterface;
 use Cake\Console\ConsoleIo;
 use Cake\Console\Exception\StopException;
+use Cake\Console\Helper;
 
 /**
  * Composition class as proxy towards ConsoleIO - basically a shell replacement for inside business logic.
@@ -186,10 +188,40 @@ class Io {
 	 * @throws \Cake\Console\Exception\StopException
 	 * @return void
 	 */
-	public function abort($message, $exitCode = ConsoleIo::CODE_ERROR) {
+	public function abort($message, $exitCode = CommandInterface::CODE_ERROR) {
 		$this->_io->err('<error>' . $message . '</error>');
 
 		throw new StopException($message, $exitCode);
+	}
+
+	/**
+	 * Create and render the output for a helper object. If the helper
+	 * object has not already been loaded, it will be loaded and constructed.
+	 *
+	 * @param string $name The name of the helper to render
+	 * @param array $settings Configuration data for the helper.
+	 * @return \Cake\Console\Helper The created helper instance.
+	 */
+	public function helper(string $name, array $settings = []): Helper {
+		return $this->_io->helper($name, $settings);
+	}
+
+	/**
+	 * Overwrite some already output text.
+	 *
+	 * Useful for building progress bars, or when you want to replace
+	 * text already output to the screen with new text.
+	 *
+	 * **Warning** You cannot overwrite text that contains newlines.
+	 *
+	 * @param array|string $message The message to output.
+	 * @param int $newlines Number of newlines to append.
+	 * @param int|null $size The number of bytes to overwrite. Defaults to the
+	 *    length of the last message output.
+	 * @return void
+	 */
+	public function overwrite($message, int $newlines = 1, ?int $size = null): void {
+		$this->_io->overwrite($message, $newlines, $size);
 	}
 
 }

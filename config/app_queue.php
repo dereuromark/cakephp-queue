@@ -56,5 +56,8 @@ return [
 		// This method sends a SIGUSR1 to workers to interrupt any sleep() operation like it was their time to finish.
 		// This option breaks tasks expecting sleep() to always sleep for the provided duration without interrupting.
 		'canInterruptSleep' => false,
+
+		// Additional plugins to include tasks from (if they are not already loaded anyway)
+		'plugins' => [],
 	],
 ];

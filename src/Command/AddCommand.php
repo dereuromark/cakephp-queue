@@ -6,6 +6,7 @@ use Cake\Command\Command;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
+use Queue\Console\Io;
 use Queue\Queue\TaskFinder;
 
 class AddCommand extends Command {
@@ -27,6 +28,10 @@ class AddCommand extends Command {
 			'help' => 'Task name',
 			'required' => false,
 		]);
+		$parser->addArgument('data', [
+			'help' => 'Additional data if needed',
+			'required' => false,
+		]);
 		$parser->setDescription(
 			'Adds a job into the queue. Only tasks that implement AddInterface can be added through CLI.'
 		);
@@ -42,15 +47,25 @@ class AddCommand extends Command {
 	public function execute(Arguments $args, ConsoleIo $io) {
 		$tasks = $this->getTasks();
 
-		$task = $args->getArgument('task');
-		if (!$task) {
-			$task = $io->ask('Task');
+		$taskName = $args->getArgument('task');
+		if (!$taskName) {
+			$io->out(count($tasks) . ' tasks available');
+			foreach ($tasks as $task => $className) {
+				$io->out(' - ' . $task);
+			}
+
+			return;
 		}
-		if (!in_array($task, $tasks)) {
+
+		if (!array_key_exists($taskName, $tasks)) {
 			$io->abort('Not a supported task.');
 		}
 
-		//TODO
+		/** @var class-string<\Queue\Queue\Task\AddInterface> $taskClass */
+		$taskClass = $tasks[$taskName];
+		/** @var \Queue\Queue\Task\AddInterface $task */
+		$task = new $taskClass(new Io($io));
+		$task->add($args->getArgument('data'));
 	}
 
 	/**
@@ -59,7 +74,7 @@ class AddCommand extends Command {
 	protected function getTasks(): array {
 		$taskFinder = new TaskFinder();
 
-		return $taskFinder->allAppAndPluginTasks();
+		return $taskFinder->allAddable();
 	}
 
 }
