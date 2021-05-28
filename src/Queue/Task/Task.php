@@ -6,6 +6,7 @@
 
 namespace Queue\Queue\Task;
 
+use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
 use Cake\Datasource\ModelAwareTrait;
 use InvalidArgumentException;
@@ -89,14 +90,17 @@ abstract class Task implements TaskInterface {
 	protected $logger;
 
 	/**
-	 * @param \Queue\Console\Io $io IO
+	 * @param \Queue\Console\Io|null $io IO
 	 * @param \Psr\Log\LoggerInterface|null $logger
 	 */
-	public function __construct(Io $io, ?LoggerInterface $logger = null) {
-		$this->io = $io;
+	public function __construct(Io $io = null, ?LoggerInterface $logger = null) {
+		$this->io = $io ?: new Io(new ConsoleIo());
 		$this->logger = $logger;
 
 		$this->loadModel($this->queueModelClass);
+		if (isset($this->modelClass)) {
+			$this->loadModel();
+		}
 	}
 
 	/**

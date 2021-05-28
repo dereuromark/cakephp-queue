@@ -4,7 +4,7 @@ namespace Queue\Test\TestCase\Queue;
 
 use Cake\TestSuite\TestCase;
 use Queue\Queue\Task\ExampleTask;
-use TestApp\Queue\Task\FooTask;
+use TestApp\Queue\Task\FooTaskTest;
 
 class TaskTest extends TestCase {
 
@@ -12,7 +12,7 @@ class TaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testTaskName() {
-		$name = FooTask::taskName();
+		$name = FooTaskTest::taskName();
 		$this->assertSame('Foo', $name);
 
 		$name = ExampleTask::taskName();

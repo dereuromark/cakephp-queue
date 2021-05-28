@@ -91,6 +91,32 @@ class MigrateTasksCommand extends Command {
 			}
 			$io->success($message);
 		}
+
+		foreach ($tasks as $task => $fileName) {
+			$plugin = null;
+			if (strpos($task, '.') !== false) {
+				[$plugin, $task] = pluginSplit($task);
+			}
+
+			$path = $plugin ? Plugin::path($plugin) . 'tests' . DS . 'TestCase' . DS : 'tests' . DS . 'TestCase' . DS;
+			$newPath = $path . 'Queue' . DS . 'Task' . DS;
+
+			$oldPath = $path . 'Shell' . DS . 'Task' . DS;
+			$testFileName = 'Queue' . $task . 'TaskTest.php';
+			if (!file_exists($oldPath . $testFileName)) {
+				continue;
+			}
+
+			$newTestFileName = $task . 'TaskTest.php';
+			$this->migrateTaskTest($task, $plugin, $oldPath . $testFileName, $newPath . $newTestFileName);
+
+			$message = $newTestFileName . ' created in ' . str_replace(ROOT . DS, '', $newPath . $newTestFileName);
+			if ($args->getOption('remove')) {
+				unlink($fileName);
+				$message .= ', old class removed';
+			}
+			$io->success($message);
+		}
 	}
 
 	/**
@@ -142,6 +168,49 @@ class MigrateTasksCommand extends Command {
 			if ($output) {
 				$message .= PHP_EOL . implode(PHP_EOL, $output);
 			}
+
+			throw new RuntimeException($message);
+		}
+	}
+
+	/**
+	 * @param string $name
+	 * @param string|null $plugin
+	 * @param string $oldPath
+	 * @param string $newPath
+	 * @return void
+	 */
+	protected function migrateTaskTest(string $name, ?string $plugin, string $oldPath, string $newPath): void {
+		$content = file_get_contents($oldPath);
+		if ($content === false) {
+			throw new RuntimeException('Cannot read file: ' . $oldPath);
+		}
+
+		$namespace = $plugin ? str_replace('/', '\\', $plugin) : (string)Configure::read('App.namespace');
+		$newContent = str_replace('namespace ' . $namespace . '\Test\TestCase\Shell\Task;', 'namespace ' . $namespace . '\Test\TestCase\Queue\Task;', $content);
+
+		$newContent = str_replace('use Queue\Shell\Task\QueueTask;', 'use Queue\Queue\Task\Task;', $newContent);
+		$newContent = (string)preg_replace('/use ' . preg_quote($namespace) . '\\\\Shell\\\\Task\\\\Queue(\w+)Task;/', 'use ' . $namespace . '\\\\Queue\\\\Task\\\\\1Task;', $newContent);
+
+		$newContent = str_replace('Task extends QueueTask', 'Task extends Task', $newContent);
+		$newContent = (string)preg_replace('/class Queue(\w+)TaskTest /', 'class \1TaskTest ', $newContent);
+
+		$newContent = str_replace('use Queue\Shell\Task\AddInterface;', 'use Queue\Queue\Task\AddInterface;', $newContent);
+
+		$newContent = (string)preg_replace('/\bnew Queue(\w+)Task\(/', 'new \1Task(', $newContent);
+
+		if (!is_dir(dirname($newPath))) {
+			mkdir(dirname($newPath), 0770, true);
+		}
+		file_put_contents($newPath, $newContent);
+
+		exec('php -l ' . $newPath, $output, $returnCode);
+		if ($returnCode !== Command::CODE_SUCCESS) {
+			$message = 'Invalid syntax for migrated class in ' . $newPath;
+			if ($output) {
+				$message .= PHP_EOL . implode(PHP_EOL, $output);
+			}
+			$message .= PHP_EOL . '----------' . PHP_EOL . $newContent . PHP_EOL . '-----------';
 
 			throw new RuntimeException($message);
 		}

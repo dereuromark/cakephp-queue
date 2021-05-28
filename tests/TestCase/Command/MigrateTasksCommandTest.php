@@ -63,6 +63,42 @@ class MigrateTasksCommandTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testMigrateTaskTest(): void {
+		$path = sys_get_temp_dir() . DS . 'FooTaskTest.php';
+		$params = [
+			'Foo',
+			null,
+			ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'test' . DS . 'QueueFooTaskTest.php',
+			$path,
+		];
+		$command = new MigrateTasksCommand();
+		$this->invokeMethod($command, 'migrateTaskTest', $params);
+
+		$expected = ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'test' . DS . 'FooTaskTest.php';
+		$this->assertFileEquals($expected, $path);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testMigrateTaskTestPlugin(): void {
+		$path = sys_get_temp_dir() . DS . 'FooPluginTaskTest.php';
+		$params = [
+			'Foo',
+			'Foo/Bar',
+			ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'test' . DS . 'QueueFooPluginTaskTest.php',
+			$path,
+		];
+		$command = new MigrateTasksCommand();
+		$this->invokeMethod($command, 'migrateTaskTest', $params);
+
+		$expected = ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'test' . DS . 'FooPluginTaskTest.php';
+		$this->assertFileEquals($expected, $path);
+	}
+
+	/**
 	 * Test execute method
 	 *
 	 * @return void
