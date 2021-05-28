@@ -310,7 +310,7 @@ class QueuedJobsTable extends Table {
 	public function getFullStats($jobType = null) {
 		$driverName = $this->_getDriverName();
 		$fields = function (Query $query) use ($driverName) {
-			$runtime = $query->newExpr('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)');
+			$runtime = $query->newExpr('julianday(completed) - julianday(fetched)');
 			switch ($driverName) {
 				case static::DRIVER_SQLSERVER:
 					$runtime = $query->newExpr("DATEDIFF(s, '1970-01-01 00:00:00', completed) - DATEDIFF(s, '1970-01-01 00:00:00', fetched)");
