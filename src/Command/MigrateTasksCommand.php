@@ -190,14 +190,14 @@ class MigrateTasksCommand extends Command {
 		$newContent = str_replace('namespace ' . $namespace . '\Test\TestCase\Shell\Task;', 'namespace ' . $namespace . '\Test\TestCase\Queue\Task;', $content);
 
 		$newContent = str_replace('use Queue\Shell\Task\QueueTask;', 'use Queue\Queue\Task\Task;', $newContent);
-		$newContent = (string)preg_replace('/use ' . preg_quote($namespace) . '\\\\Shell\\\\Task\\\\Queue(\w+)Task;/', 'use ' . $namespace . '\\\\Queue\\\\Task\\\\\1Task;', $newContent);
+		$newContent = (string)preg_replace('/\b' . preg_quote($namespace) . '\\\\Shell\\\\Task\\\\Queue(\w+)Task\b/', $namespace . '\\\\Queue\\\\Task\\\\\1Task', $newContent);
 
 		$newContent = str_replace('Task extends QueueTask', 'Task extends Task', $newContent);
 		$newContent = (string)preg_replace('/class Queue(\w+)TaskTest /', 'class \1TaskTest ', $newContent);
 
 		$newContent = str_replace('use Queue\Shell\Task\AddInterface;', 'use Queue\Queue\Task\AddInterface;', $newContent);
 
-		$newContent = (string)preg_replace('/\bnew Queue(\w+)Task\(/', 'new \1Task(', $newContent);
+		$newContent = (string)preg_replace('/\bQueue(\w+)Task\b/', '\1Task', $newContent);
 
 		if (!is_dir(dirname($newPath))) {
 			mkdir(dirname($newPath), 0770, true);

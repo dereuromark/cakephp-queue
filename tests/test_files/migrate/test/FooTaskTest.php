@@ -19,4 +19,15 @@ class FooTaskTest extends TestCase {
 		$task = new FooTask($io);
 	}
 
+	/**
+	 * @return \PHPUnit\Framework\MockObject\MockObject|\TestApp\Queue\Task\FooTask
+	 */
+	protected function getQueueFooTask(): FooTask {
+		/** @var \TestApp\Queue\Task\FooTask|\PHPUnit\Framework\MockObject\MockObject $mock */
+		$mock = $this->getMockBuilder(FooTask::class)->setMethods(['getArray'])->getMock();
+		$mock->expects($this->any())->method('getArray')->willReturn([]);
+
+		return $mock;
+	}
+
 }
