@@ -93,7 +93,7 @@ abstract class Task implements TaskInterface {
 	 * @param \Queue\Console\Io|null $io IO
 	 * @param \Psr\Log\LoggerInterface|null $logger
 	 */
-	public function __construct(Io $io = null, ?LoggerInterface $logger = null) {
+	public function __construct(?Io $io = null, ?LoggerInterface $logger = null) {
 		$this->io = $io ?: new Io(new ConsoleIo());
 		$this->logger = $logger;
 

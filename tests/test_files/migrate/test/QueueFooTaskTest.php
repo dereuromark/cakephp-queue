@@ -2,9 +2,9 @@
 
 namespace TestApp\Test\TestCase\Shell\Task;
 
-use TestApp\Shell\Task\QueueFooTask;
 use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
+use TestApp\Shell\Task\QueueFooTask;
 
 class QueueFooTaskTest extends TestCase {
 

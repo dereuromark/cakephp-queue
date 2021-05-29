@@ -2,9 +2,9 @@
 
 namespace Foo\Bar\Test\TestCase\Queue\Task;
 
-use Foo\Bar\Queue\Task\FooPluginTask;
 use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
+use Foo\Bar\Queue\Task\FooPluginTask;
 
 class FooPluginTaskTest extends TestCase {
 

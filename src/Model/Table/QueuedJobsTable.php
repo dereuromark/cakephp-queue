@@ -15,15 +15,8 @@ use Cake\Validation\Validator;
 use InvalidArgumentException;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Queue\Config;
+use Queue\Queue\TaskFinder;
 use RuntimeException;
-
-// PHP 7.1+ has this defined
-if (!defined('SIGTERM')) {
-	define('SIGTERM', 15);
-}
-if (!defined('SIGUSR1')) {
-	define('SIGUSR1', 10);
-}
 
 /**
  * @author MGriesbach@gmail.com
@@ -57,6 +50,11 @@ class QueuedJobsTable extends Table {
 	 * @var array
 	 */
 	public $rateHistory = [];
+
+	/**
+	 * @var \Queue\Queue\TaskFinder|null
+	 */
+	protected $taskFinder;
 
 	/**
 	 * @var string|null
@@ -168,14 +166,14 @@ class QueuedJobsTable extends Table {
 	 * - group: Used to group similar QueuedJobs
 	 * - reference: An optional reference string
 	 *
-	 * @param string $jobType Job name
+	 * @param string $jobType Job task name or FQCN
 	 * @param array|null $data Array of data
 	 * @param array $config Config to save along with the job
 	 * @return \Queue\Model\Entity\QueuedJob Saved job entity
 	 */
-	public function createJob($jobType, ?array $data = null, array $config = []) {
+	public function createJob(string $jobType, ?array $data = null, array $config = []) {
 		$queuedJob = [
-			'job_type' => $jobType,
+			'job_type' => $this->jobType($jobType),
 			'data' => is_array($data) ? serialize($data) : null,
 			'job_group' => !empty($config['group']) ? $config['group'] : null,
 			'notbefore' => !empty($config['notBefore']) ? $this->getDateTime($config['notBefore']) : null,
@@ -187,13 +185,30 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * @param string $jobType
+	 *
+	 * @return string
+	 */
+	protected function jobType(string $jobType): string {
+		if (strpos($jobType, '\\') === false) {
+			return $jobType;
+		}
+
+		if ($this->taskFinder === null) {
+			$this->taskFinder = new TaskFinder();
+		}
+
+		return $this->taskFinder->resolve($jobType);
+	}
+
+	/**
 	 * @param string $reference
 	 * @param string|null $jobType
 	 *
 	 * @throws \InvalidArgumentException
 	 * @return bool
 	 */
-	public function isQueued($reference, $jobType = null) {
+	public function isQueued(string $reference, ?string $jobType = null): bool {
 		if (!$reference) {
 			throw new InvalidArgumentException('A reference is needed');
 		}

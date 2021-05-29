@@ -13,6 +13,7 @@ use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Queue\Model\Table\QueuedJobsTable;
+use Queue\Queue\Task\ExampleTask;
 
 /**
  * Queue\Model\Table\QueuedJobsTable Test Case
@@ -149,6 +150,20 @@ class QueuedJobsTableTest extends TestCase {
 
 		// Should be 0 again.
 		$this->assertSame(0, $this->QueuedJobs->getLength());
+	}
+
+	/**
+	 * Tests that FQCN for job type resolves to job name.
+	 *
+	 * @return void
+	 */
+	public function testCreateWithFqcn() {
+		$queuedJob = $this->QueuedJobs->createJob(ExampleTask::class, [
+			'some' => 'random',
+			'test' => 'data',
+		]);
+		$this->assertTrue((bool)$queuedJob);
+		$this->assertSame(ExampleTask::taskName(), $queuedJob->job_type);
 	}
 
 	/**

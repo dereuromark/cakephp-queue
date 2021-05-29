@@ -6,6 +6,7 @@ use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Filesystem\Folder;
+use InvalidArgumentException;
 use Queue\Queue\Task\AddInterface;
 
 class TaskFinder {
@@ -90,6 +91,24 @@ class TaskFinder {
 		}
 
 		return $tasks;
+	}
+
+	/**
+	 * Resolves FQCN to a task name.
+	 *
+	 * @param string $jobType
+	 *
+	 * @return string
+	 */
+	public function resolve(string $jobType): string {
+		$all = $this->all();
+		foreach ($all as $name => $className) {
+			if ($jobType === $className) {
+				return $name;
+			}
+		}
+
+		throw new InvalidArgumentException('No job type can be resolved for ' . $jobType);
 	}
 
 }
