@@ -17,30 +17,33 @@ if (!defined('WINDOWS')) {
 	}
 }
 
-define('ROOT', dirname(__DIR__));
-define('TMP', ROOT . DS . 'tmp' . DS);
+define('PLUGIN_ROOT', dirname(__DIR__));
+define('ROOT', PLUGIN_ROOT . DS . 'tests' . DS . 'test_app');
+define('TMP', PLUGIN_ROOT . DS . 'tmp' . DS);
 define('LOGS', TMP . 'logs' . DS);
 define('CACHE', TMP . 'cache' . DS);
-define('APP', ROOT . DS . 'tests' . DS . 'test_app' . DS . 'src' . DS);
+define('APP', ROOT . DS . 'src' . DS);
 define('APP_DIR', 'src');
-define('CAKE_CORE_INCLUDE_PATH', ROOT . '/vendor/cakephp/cakephp');
+define('CAKE_CORE_INCLUDE_PATH', PLUGIN_ROOT . '/vendor/cakephp/cakephp');
 define('CORE_PATH', CAKE_CORE_INCLUDE_PATH . DS);
 define('CAKE', CORE_PATH . APP_DIR . DS);
 
-define('WWW_ROOT', ROOT . DS . 'webroot' . DS);
+define('WWW_ROOT', PLUGIN_ROOT . DS . 'webroot' . DS);
 define('CONFIG', __DIR__ . DS . 'config' . DS);
 define('TESTS', __DIR__ . DS);
 
 ini_set('intl.default_locale', 'de-DE');
 
-require ROOT . '/vendor/autoload.php';
+require PLUGIN_ROOT . '/vendor/autoload.php';
 require CORE_PATH . 'config/bootstrap.php';
 
 Configure::write('App', [
 	'namespace' => 'TestApp',
 	'encoding' => 'UTF-8',
 	'paths' => [
-		'templates' => [ROOT . DS . 'tests' . DS . 'test_app' . DS . 'templates' . DS],
+		'templates' => [
+			PLUGIN_ROOT . DS . 'tests' . DS . 'test_app' . DS . 'templates' . DS,
+		],
 	],
 ]);
 

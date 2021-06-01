@@ -1,6 +1,6 @@
 <?php
 
-namespace Queue\Queue\Task;
+namespace Queue\Queue;
 
 /**
  * Any task needs to at least implement run().

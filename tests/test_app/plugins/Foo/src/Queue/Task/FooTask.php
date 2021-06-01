@@ -2,7 +2,7 @@
 
 namespace Foo\Queue\Task;
 
-use Queue\Queue\Task\Task;
+use Queue\Queue\Task;
 
 class FooTask extends Task {
 

@@ -2,7 +2,7 @@
 
 namespace Foo\Bar\Queue\Task;
 
-use Queue\Queue\Task\Task;
+use Queue\Queue\Task;
 
 class FooPluginTask extends Task {
 

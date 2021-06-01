@@ -25,7 +25,7 @@ class Application extends BaseApplication {
 		parent::bootstrap();
 
 		$this->addPlugin('Tools');
-		$this->addPlugin('Foo', ['path' => ROOT . DS . 'tests' . DS . 'test_app' . DS . 'plugins' . DS . 'Foo' . DS]);
+		$this->addPlugin('Foo', ['path' => PLUGIN_ROOT . DS . 'tests' . DS . 'test_app' . DS . 'plugins' . DS . 'Foo' . DS]);
 	}
 
 }

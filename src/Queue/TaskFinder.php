@@ -7,19 +7,18 @@ use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Filesystem\Folder;
 use InvalidArgumentException;
-use Queue\Queue\Task\AddInterface;
 
 class TaskFinder {
 
 	/**
-	 * @phpstan-var array<string, class-string<\Queue\Queue\Task\Task>>|null
+	 * @phpstan-var array<string, class-string<\Queue\Queue\Task>>|null
 	 *
 	 * @var string[]|null
 	 */
 	protected $tasks;
 
 	/**
-	 * @phpstan-return array<string, class-string<\Queue\Queue\Task\Task>>
+	 * @phpstan-return array<string, class-string<\Queue\Queue\Task>>
 	 *
 	 * @return string[]
 	 */
@@ -39,7 +38,7 @@ class TaskFinder {
 	 *
 	 * Makes sure that app tasks are prioritized over plugin ones.
 	 *
-	 * @phpstan-return array<string, class-string<\Queue\Queue\Task\Task>>
+	 * @phpstan-return array<string, class-string<\Queue\Queue\Task>>
 	 *
 	 * @return string[]
 	 */
@@ -68,7 +67,7 @@ class TaskFinder {
 	}
 
 	/**
-	 * @phpstan-return array<string, class-string<\Queue\Queue\Task\Task>>
+	 * @phpstan-return array<string, class-string<\Queue\Queue\Task>>
 	 *
 	 * @param string $path
 	 * @param string|null $plugin
@@ -84,7 +83,7 @@ class TaskFinder {
 			$name = basename($file, 'Task.php');
 			$namespace = $plugin ? str_replace('/', '\\', $plugin) : Configure::read('App.namespace');
 
-			/** @phpstan-var class-string<\Queue\Queue\Task\Task> $className */
+			/** @phpstan-var class-string<\Queue\Queue\Task> $className */
 			$className = $namespace . '\Queue\Task\\' . $name . 'Task';
 			$key = $plugin ? $plugin . '.' . $name : $name;
 			$tasks[$key] = $className;

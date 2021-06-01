@@ -81,7 +81,7 @@ class Config {
 			}
 			[$pluginName, $taskName] = pluginSplit($task);
 
-			/** @var \Queue\Queue\Task\Task $taskObject */
+			/** @var \Queue\Queue\Task $taskObject */
 			$taskObject = new $className();
 
 			$config[$taskName]['name'] = substr($taskName, 5);

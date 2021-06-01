@@ -34,13 +34,13 @@ class MigrateTasksCommandTest extends TestCase {
 		$params = [
 			'Foo',
 			null,
-			ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'QueueFooTask.php',
+			PLUGIN_ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'QueueFooTask.php',
 			$path,
 		];
 		$command = new MigrateTasksCommand();
 		$this->invokeMethod($command, 'migrateTask', $params);
 
-		$expected = ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'FooTask.php';
+		$expected = PLUGIN_ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'FooTask.php';
 		$this->assertFileEquals($expected, $path);
 	}
 
@@ -52,13 +52,13 @@ class MigrateTasksCommandTest extends TestCase {
 		$params = [
 			'Foo',
 			'Foo/Bar',
-			ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'QueueFooPluginTask.php',
+			PLUGIN_ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'QueueFooPluginTask.php',
 			$path,
 		];
 		$command = new MigrateTasksCommand();
 		$this->invokeMethod($command, 'migrateTask', $params);
 
-		$expected = ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'FooPluginTask.php';
+		$expected = PLUGIN_ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'FooPluginTask.php';
 		$this->assertFileEquals($expected, $path);
 	}
 
@@ -70,13 +70,13 @@ class MigrateTasksCommandTest extends TestCase {
 		$params = [
 			'Foo',
 			null,
-			ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'test' . DS . 'QueueFooTaskTest.php',
+			PLUGIN_ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'test' . DS . 'QueueFooTaskTest.php',
 			$path,
 		];
 		$command = new MigrateTasksCommand();
 		$this->invokeMethod($command, 'migrateTaskTest', $params);
 
-		$expected = ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'test' . DS . 'FooTaskTest.php';
+		$expected = PLUGIN_ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'test' . DS . 'FooTaskTest.php';
 		$this->assertFileEquals($expected, $path);
 	}
 
@@ -88,13 +88,13 @@ class MigrateTasksCommandTest extends TestCase {
 		$params = [
 			'Foo',
 			'Foo/Bar',
-			ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'test' . DS . 'QueueFooPluginTaskTest.php',
+			PLUGIN_ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'test' . DS . 'QueueFooPluginTaskTest.php',
 			$path,
 		];
 		$command = new MigrateTasksCommand();
 		$this->invokeMethod($command, 'migrateTaskTest', $params);
 
-		$expected = ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'test' . DS . 'FooPluginTaskTest.php';
+		$expected = PLUGIN_ROOT . DS . 'tests' . DS . 'test_files' . DS . 'migrate' . DS . 'test' . DS . 'FooPluginTaskTest.php';
 		$this->assertFileEquals($expected, $path);
 	}
 
@@ -106,8 +106,8 @@ class MigrateTasksCommandTest extends TestCase {
 	public function testExecute(): void {
 		$this->exec('queue migrate_tasks');
 
-		$output = $this->_out->messages();
-		dd($output);
+		$output = $this->_out->output();
+		$this->assertStringContainsString('1 shell tasks to migrate...', $output);
 	}
 
 }

@@ -5,6 +5,7 @@ namespace Foo\Bar\Test\TestCase\Shell\Task;
 use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
 use Foo\Bar\Shell\Task\QueueFooPluginTask;
+use Shim\TestSuite\ConsoleOutput;
 
 class QueueFooPluginTaskTest extends TestCase {
 

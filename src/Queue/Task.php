@@ -4,7 +4,7 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
-namespace Queue\Queue\Task;
+namespace Queue\Queue;
 
 use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
@@ -110,7 +110,6 @@ abstract class Task implements TaskInterface {
 	public static function taskName() {
 		$class = static::class;
 
-		//TODO: Plugin syntax?
 		preg_match('#^(.+?)\\\\Queue\\\\Task\\\\(.+?)Task$#', $class, $matches);
 		if (!$matches) {
 			throw new InvalidArgumentException('Invalid class name: ' . $class);

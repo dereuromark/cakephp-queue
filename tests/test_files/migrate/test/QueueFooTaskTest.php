@@ -4,6 +4,7 @@ namespace TestApp\Test\TestCase\Shell\Task;
 
 use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
+use Shim\TestSuite\ConsoleOutput;
 use TestApp\Shell\Task\QueueFooTask;
 
 class QueueFooTaskTest extends TestCase {
@@ -17,17 +18,6 @@ class QueueFooTaskTest extends TestCase {
 		$io = new ConsoleIo($this->out, $this->err);
 
 		$task = new QueueFooTask($io);
-	}
-
-	/**
-	 * @return \PHPUnit\Framework\MockObject\MockObject|\TestApp\Shell\Task\QueueFooTask
-	 */
-	protected function getQueueFooTask(): QueueFooTask {
-		/** @var \TestApp\Shell\Task\QueueFooTask|\PHPUnit\Framework\MockObject\MockObject $mock */
-		$mock = $this->getMockBuilder(QueueFooTask::class)->setMethods(['getArray'])->getMock();
-		$mock->expects($this->any())->method('getArray')->willReturn([]);
-
-		return $mock;
 	}
 
 }

@@ -135,11 +135,11 @@ class MigrateTasksCommand extends Command {
 		$namespace = $plugin ? str_replace('/', '\\', $plugin) : (string)Configure::read('App.namespace');
 		$newContent = str_replace('namespace ' . $namespace . '\Shell\Task;', 'namespace ' . $namespace . '\Queue\Task;', $content);
 
-		$newContent = str_replace('use Queue\Shell\Task\QueueTask;', 'use Queue\Queue\Task\Task;', $newContent);
+		$newContent = str_replace('use Queue\Shell\Task\QueueTask;', 'use Queue\Queue\Task;', $newContent);
 		$newContent = str_replace('Task extends QueueTask', 'Task extends Task', $newContent);
 		$newContent = (string)preg_replace('/class Queue(\w+)Task extends/', 'class \1Task extends', $newContent);
 
-		$newContent = str_replace('use Queue\Shell\Task\AddInterface;', 'use Queue\Queue\Task\AddInterface;', $newContent);
+		$newContent = str_replace('use Queue\Shell\Task\AddInterface;', 'use Queue\Queue\AddInterface;', $newContent);
 		// Maybe public function add() => public function add(): void ?
 
 		$methods = [
@@ -189,15 +189,17 @@ class MigrateTasksCommand extends Command {
 		$namespace = $plugin ? str_replace('/', '\\', $plugin) : (string)Configure::read('App.namespace');
 		$newContent = str_replace('namespace ' . $namespace . '\Test\TestCase\Shell\Task;', 'namespace ' . $namespace . '\Test\TestCase\Queue\Task;', $content);
 
-		$newContent = str_replace('use Queue\Shell\Task\QueueTask;', 'use Queue\Queue\Task\Task;', $newContent);
+		$newContent = str_replace('use Queue\Shell\Task\QueueTask;', 'use Queue\Queue\Task;', $newContent);
 		$newContent = (string)preg_replace('/\b' . preg_quote($namespace) . '\\\\Shell\\\\Task\\\\Queue(\w+)Task\b/', $namespace . '\\\\Queue\\\\Task\\\\\1Task', $newContent);
 
 		$newContent = str_replace('Task extends QueueTask', 'Task extends Task', $newContent);
 		$newContent = (string)preg_replace('/class Queue(\w+)TaskTest /', 'class \1TaskTest ', $newContent);
 
-		$newContent = str_replace('use Queue\Shell\Task\AddInterface;', 'use Queue\Queue\Task\AddInterface;', $newContent);
+		$newContent = str_replace('use Queue\Shell\Task\AddInterface;', 'use Queue\Queue\AddInterface;', $newContent);
 
 		$newContent = (string)preg_replace('/\bQueue(\w+)Task\b/', '\1Task', $newContent);
+
+		$newContent = preg_replace('/= new ConsoleIo\((.+)\)/', '= new \Queue\Console\Io(new ConsoleIo(\1))', $newContent);
 
 		if (!is_dir(dirname($newPath))) {
 			mkdir(dirname($newPath), 0770, true);

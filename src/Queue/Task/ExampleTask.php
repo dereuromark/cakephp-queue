@@ -6,6 +6,9 @@
 
 namespace Queue\Queue\Task;
 
+use Queue\Queue\AddInterface;
+use Queue\Queue\Task;
+
 /**
  * A Simple QueueTask example.
  */

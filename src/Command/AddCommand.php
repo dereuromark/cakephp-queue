@@ -61,9 +61,9 @@ class AddCommand extends Command {
 			$io->abort('Not a supported task.');
 		}
 
-		/** @var class-string<\Queue\Queue\Task\AddInterface> $taskClass */
+		/** @var class-string<\Queue\Queue\AddInterface> $taskClass */
 		$taskClass = $tasks[$taskName];
-		/** @var \Queue\Queue\Task\AddInterface $task */
+		/** @var \Queue\Queue\AddInterface $task */
 		$task = new $taskClass(new Io($io));
 		$task->add($args->getArgument('data'));
 	}

@@ -44,7 +44,7 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Queue\\Test\\": "tests/",
+			"Queue\\Test\\TestCase\\": "tests/TestCase/",
 			"TestApp\\": "tests/test_app/src/",
 			"Foo\\": "tests/test_app/plugins/Foo/src/"
 		}
@@ -56,8 +56,8 @@
 		"stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^0.12 && mv composer.backup composer.json",
 		"test": "php phpunit.phar",
 		"test-setup": "[ ! -f phpunit.phar ] && wget https://phar.phpunit.de/phpunit-8.5.2.phar && mv phpunit-8.5.2.phar phpunit.phar || true",
-		"cs-check": "phpcs -p -s --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=/config/Migrations/ --extensions=php src/ tests/ config/",
-		"cs-fix": "phpcbf -p --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=/config/Migrations/ --extensions=php src/ tests/ config/"
+		"cs-check": "phpcs -p -s --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=/config/Migrations/,/tests/test_files/ --extensions=php src/ tests/ config/",
+		"cs-fix": "phpcbf -p --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=/config/Migrations/,/tests/test_files/ --extensions=php src/ tests/ config/"
 	},
 	"config": {
 		"sort-packages": true,
