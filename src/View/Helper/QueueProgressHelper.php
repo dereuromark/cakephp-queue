@@ -42,7 +42,7 @@ class QueueProgressHelper extends Helper {
 		}
 
 		if ($queuedJob->progress === null && $queuedJob->fetched) {
-			$queuedJob->progress = $this->calculateJobProgress($queuedJob->job_type, $queuedJob->fetched);
+			$queuedJob->progress = $this->calculateJobProgress($queuedJob->job_task, $queuedJob->fetched);
 		}
 
 		if ($queuedJob->progress === null) {
@@ -67,7 +67,7 @@ class QueueProgressHelper extends Helper {
 		}
 
 		if ($queuedJob->progress === null && $queuedJob->fetched) {
-			$queuedJob->progress = $this->calculateJobProgress($queuedJob->job_type, $queuedJob->fetched);
+			$queuedJob->progress = $this->calculateJobProgress($queuedJob->job_task, $queuedJob->fetched);
 		}
 
 		if ($queuedJob->progress === null) {
@@ -89,7 +89,7 @@ class QueueProgressHelper extends Helper {
 		}
 
 		if ($queuedJob->progress === null && $queuedJob->fetched) {
-			$queuedJob->progress = $this->calculateJobProgress($queuedJob->job_type, $queuedJob->fetched);
+			$queuedJob->progress = $this->calculateJobProgress($queuedJob->job_task, $queuedJob->fetched);
 		}
 
 		if ($queuedJob->progress === null) {
@@ -225,7 +225,7 @@ class QueueProgressHelper extends Helper {
 
 		$statistics = [];
 		foreach ((array)$queuedJobStatistics as $statistic) {
-			$statistics[$statistic['job_type']][] = $statistic['runtime'];
+			$statistics[$statistic['job_task']][] = $statistic['runtime'];
 		}
 
 		$this->statistics = $statistics;

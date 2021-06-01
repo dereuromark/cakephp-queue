@@ -7,6 +7,7 @@ use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\FrozenTime;
+use Laminas\Diactoros\UploadedFile;
 use Queue\Queue\TaskFinder;
 use RuntimeException;
 
@@ -74,7 +75,7 @@ class QueuedJobsController extends AppController {
 		$this->set(compact('queuedJobs'));
 
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
-			$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_type', 'valueField' => 'job_type'])->distinct('job_type')->toArray();
+			$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_task', 'valueField' => 'job_task'])->distinct('job_task')->toArray();
 			$this->set(compact('jobTypes'));
 		}
 	}
@@ -93,7 +94,7 @@ class QueuedJobsController extends AppController {
 
 		$stats = $this->QueuedJobs->getFullStats($jobType);
 
-		$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_type', 'valueField' => 'job_type'])->distinct('job_type')->toArray();
+		$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_task', 'valueField' => 'job_task'])->distinct('job_task')->toArray();
 		$this->set(compact('stats', 'jobTypes'));
 	}
 
@@ -124,14 +125,18 @@ class QueuedJobsController extends AppController {
 	 */
 	public function import() {
 		if ($this->request->is(['post'])) {
+			/** @var array|\Laminas\Diactoros\UploadedFile $file */
 			$file = $this->request->getData('file');
+			if ($file instanceof UploadedFile) {
+				$file = $this->fileToArray($file);
+			}
 			if ($file && $file['error'] == 0 && $file['size'] > 0) {
 				$content = file_get_contents($file['tmp_name']);
 				if ($content === false) {
 					throw new RuntimeException('Cannot parse file');
 				}
 				$json = json_decode($content, true);
-				if (empty($json) || empty($json['queuedJob'])) {
+				if (!$json || empty($json['queuedJob'])) {
 					throw new RuntimeException('Invalid JSON content');
 				}
 
@@ -293,7 +298,7 @@ class QueuedJobsController extends AppController {
 
 		if ($this->request->is(['post', 'patch', 'put'])) {
 			$queuedJob = $this->QueuedJobs->patchEntity($queuedJob, $this->request->getData());
-			$jobType = $queuedJob->job_type;
+			$jobType = $queuedJob->job_task;
 			$notBefore = $queuedJob->notbefore;
 
 			if ($jobType && isset($tasks[$jobType]) && $notBefore) {
@@ -312,6 +317,19 @@ class QueuedJobsController extends AppController {
 		}
 
 		$this->set(compact('tasks', 'queuedJob'));
+	}
+
+	/**
+	 * @param \Laminas\Diactoros\UploadedFile $file
+	 *
+	 * @return array
+	 */
+	protected function fileToArray(UploadedFile $file): array {
+		return [
+			'size' => $file->getSize(),
+			'error' => $file->getError(),
+			'tmp_name' => $file->getStream()->getMetadata('uri'),
+		];
 	}
 
 }

@@ -133,7 +133,7 @@ class QueuedJobsTableTest extends TestCase {
 		// fetch and check the first job.
 		$job = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame(1, $job->id);
-		$this->assertSame('task1', $job->job_type);
+		$this->assertSame('task1', $job->job_task);
 		$this->assertSame(0, $job->failed);
 		$this->assertNull($job->completed);
 		$this->assertSame($testData, unserialize($job->data));
@@ -163,7 +163,7 @@ class QueuedJobsTableTest extends TestCase {
 			'test' => 'data',
 		]);
 		$this->assertTrue((bool)$queuedJob);
-		$this->assertSame(ExampleTask::taskName(), $queuedJob->job_type);
+		$this->assertSame(ExampleTask::taskName(), $queuedJob->job_task);
 	}
 
 	/**
@@ -298,7 +298,7 @@ class QueuedJobsTableTest extends TestCase {
 			$this->QueuedJobs->clearKey();
 			$tmp = $this->QueuedJobs->requestJob($capabilities);
 
-			$this->assertSame($item['name'], $tmp['job_type']);
+			$this->assertSame($item['name'], $tmp['job_task']);
 			$this->assertEquals($item['data'], unserialize($tmp['data']));
 		}
 	}
@@ -355,20 +355,20 @@ class QueuedJobsTableTest extends TestCase {
 		//At first we get task1-1.
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
-		$this->assertSame('task1', $tmp['job_type']);
+		$this->assertSame('task1', $tmp['job_task']);
 		$this->assertSame($data1, unserialize($tmp['data']));
 
 		//The rate limit should now skip over task1-2 and fetch a dummytask.
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
-		$this->assertSame('dummytask', $tmp['job_type']);
+		$this->assertSame('dummytask', $tmp['job_task']);
 		$this->assertFalse(unserialize($tmp['data']));
 
 		usleep(100000);
 		//and again.
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
-		$this->assertSame('dummytask', $tmp['job_type']);
+		$this->assertSame('dummytask', $tmp['job_task']);
 		$this->assertFalse(unserialize($tmp['data']));
 
 		//Then some time passes
@@ -377,13 +377,13 @@ class QueuedJobsTableTest extends TestCase {
 		//Now we should get task1-2
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
-		$this->assertSame('task1', $tmp['job_type']);
+		$this->assertSame('task1', $tmp['job_task']);
 		$this->assertSame($data2, unserialize($tmp['data']));
 
 		//and again rate limit to dummytask.
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
-		$this->assertSame('dummytask', $tmp['job_type']);
+		$this->assertSame('dummytask', $tmp['job_task']);
 		$this->assertFalse(unserialize($tmp['data']));
 
 		//Then some more time passes
@@ -392,13 +392,13 @@ class QueuedJobsTableTest extends TestCase {
 		//Now we should get task1-3
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
-		$this->assertSame('task1', $tmp['job_type']);
+		$this->assertSame('task1', $tmp['job_task']);
 		$this->assertSame($data3, unserialize($tmp['data']));
 
 		//and again rate limit to dummytask.
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
-		$this->assertSame('dummytask', $tmp['job_type']);
+		$this->assertSame('dummytask', $tmp['job_task']);
 		$this->assertFalse(unserialize($tmp['data']));
 
 		//and now the queue is empty
@@ -429,14 +429,14 @@ class QueuedJobsTableTest extends TestCase {
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
-		$this->assertSame('task1', $tmp['job_type']);
+		$this->assertSame('task1', $tmp['job_task']);
 		$this->assertSame($data, unserialize($tmp['data']));
 		$this->assertSame('0', $tmp['failed']);
 		sleep(2);
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
-		$this->assertSame('task1', $tmp['job_type']);
+		$this->assertSame('task1', $tmp['job_task']);
 		$this->assertSame($data, unserialize($tmp['data']));
 		$this->assertSame('1', $tmp['failed']);
 		$this->assertSame('Restart after timeout', $tmp['failure_message']);
@@ -470,14 +470,14 @@ class QueuedJobsTableTest extends TestCase {
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
-		$this->assertSame('task1', $tmp['job_type']);
+		$this->assertSame('task1', $tmp['job_task']);
 		$this->assertSame(['1'], unserialize($tmp['data']));
 		$this->assertSame('0', $tmp['failed']);
 		sleep(2);
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
-		$this->assertSame('task1', $tmp['job_type']);
+		$this->assertSame('task1', $tmp['job_task']);
 		$this->assertSame(['1'], unserialize($tmp['data']));
 		$this->assertSame('1', $tmp['failed']);
 		$this->assertSame('Restart after timeout', $tmp['failure_message']);
@@ -512,12 +512,12 @@ class QueuedJobsTableTest extends TestCase {
 		// Fetching without group should completely ignore the Group field.
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
-		$this->assertSame('task1', $tmp['job_type']);
+		$this->assertSame('task1', $tmp['job_task']);
 		$this->assertSame($data, unserialize($tmp['data']));
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
-		$this->assertSame('task1', $tmp['job_type']);
+		$this->assertSame('task1', $tmp['job_task']);
 
 		$this->assertSame($data2, unserialize($tmp['data']));
 
@@ -536,12 +536,12 @@ class QueuedJobsTableTest extends TestCase {
 		// we should only get tasks 4 and 6, in that order, when requesting inside the group
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities, ['testgroup']);
-		$this->assertSame('task1', $tmp['job_type']);
+		$this->assertSame('task1', $tmp['job_task']);
 		$this->assertSame($data4, unserialize($tmp['data']));
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities, ['testgroup', '-excluded']);
-		$this->assertSame('task1', $tmp['job_type']);
+		$this->assertSame('task1', $tmp['job_task']);
 		$this->assertSame($data6, unserialize($tmp['data']));
 
 		// use FindProgress on the testgroup:
@@ -598,7 +598,7 @@ class QueuedJobsTableTest extends TestCase {
 
 		$queuedJob = $this->QueuedJobs->newEntity([
 			'key' => 'key',
-			'job_type' => 'FooBar',
+			'job_task' => 'FooBar',
 			'reference' => 'foo-bar',
 		]);
 		$this->QueuedJobs->saveOrFail($queuedJob);
@@ -620,7 +620,7 @@ class QueuedJobsTableTest extends TestCase {
 		/** @var \Queue\Model\Table\QueueProcessesTable $queuedProcessesTable */
 		$queuedProcessesTable = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
 		$queuedProcess = $queuedProcessesTable->newEntity([
-			'pid' => getmypid(),
+			'pid' => (string)getmypid(),
 			'workerkey' => '123',
 			'server' => $queuedProcessesTable->buildServerString(),
 		]);
@@ -646,12 +646,12 @@ class QueuedJobsTableTest extends TestCase {
 		$queuedProcessesTable = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
 
 		$queuedProcess = $queuedProcessesTable->newEntity([
-			'pid' => 1,
+			'pid' => '1',
 			'workerkey' => '123',
 		]);
 		$queuedProcessesTable->saveOrFail($queuedProcess);
 
-		$this->QueuedJobs->endProcess(1);
+		$this->QueuedJobs->endProcess('1');
 
 		$queuedProcess = $queuedProcessesTable->get($queuedProcess->id);
 		$this->assertTrue($queuedProcess->terminate);

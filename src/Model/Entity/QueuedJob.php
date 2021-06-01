@@ -6,7 +6,7 @@ use Cake\ORM\Entity;
 
 /**
  * @property int $id
- * @property string $job_type
+ * @property string $job_task
  * @property string|null $data
  * @property string|null $job_group
  * @property string|null $reference

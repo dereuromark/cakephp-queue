@@ -141,8 +141,8 @@ class MigrateTasksCommand extends Command {
 
 		$newContent = str_replace('use Queue\Shell\Task\AddInterface;', 'use Queue\Queue\AddInterface;', $newContent);
 
-		$newContent = preg_replace('/public function add\(\) {/', 'public function add(?string $data): void {', $newContent);
-		$newContent = preg_replace('/public function add\(\)\n/', 'public function add(?string $data): void' . PHP_EOL, $newContent);
+		$newContent = (string)preg_replace('/public function add\(\) {/', 'public function add(?string $data): void {', $newContent);
+		$newContent = (string)preg_replace('/public function add\(\)\n/', 'public function add(?string $data): void' . PHP_EOL, $newContent);
 
 		$methods = [
 			'out',

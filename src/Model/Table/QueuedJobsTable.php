@@ -116,7 +116,7 @@ class QueuedJobsTable extends Table {
 	public function searchManager() {
 		$searchManager = $this->behaviors()->Search->searchManager();
 		$searchManager
-			->value('job_type')
+			->value('job_task')
 			->like('search', ['fields' => ['job_group', 'reference'], 'before' => true, 'after' => true])
 			->add('status', 'Search.Callback', [
 				'callback' => function (Query $query, array $args, $filter) {
@@ -151,8 +151,8 @@ class QueuedJobsTable extends Table {
 			->allowEmptyString('id', null, 'create');
 
 		$validator
-			->requirePresence('job_type', 'create')
-			->notEmptyString('job_type');
+			->requirePresence('job_task', 'create')
+			->notEmptyString('job_task');
 
 		return $validator;
 	}
@@ -173,7 +173,7 @@ class QueuedJobsTable extends Table {
 	 */
 	public function createJob(string $jobType, ?array $data = null, array $config = []) {
 		$queuedJob = [
-			'job_type' => $this->jobType($jobType),
+			'job_task' => $this->jobType($jobType),
 			'data' => is_array($data) ? serialize($data) : null,
 			'job_group' => !empty($config['group']) ? $config['group'] : null,
 			'notbefore' => !empty($config['notBefore']) ? $this->getDateTime($config['notBefore']) : null,
@@ -218,7 +218,7 @@ class QueuedJobsTable extends Table {
 			'completed IS' => null,
 		];
 		if ($jobType) {
-			$conditions['job_type'] = $jobType;
+			$conditions['job_task'] = $jobType;
 		}
 
 		return (bool)$this->find()->where($conditions)->select(['id'])->first();
@@ -238,7 +238,7 @@ class QueuedJobsTable extends Table {
 			],
 		];
 		if ($type !== null) {
-			$findConf['conditions']['job_type'] = $type;
+			$findConf['conditions']['job_task'] = $type;
 		}
 
 		return $this->find('all', $findConf)->count();
@@ -252,13 +252,13 @@ class QueuedJobsTable extends Table {
 	public function getTypes() {
 		$findCond = [
 			'fields' => [
-				'job_type',
+				'job_task',
 			],
 			'group' => [
-				'job_type',
+				'job_task',
 			],
-			'keyField' => 'job_type',
-			'valueField' => 'job_type',
+			'keyField' => 'job_task',
+			'valueField' => 'job_task',
 		];
 
 		return $this->find('list', $findCond);
@@ -293,7 +293,7 @@ class QueuedJobsTable extends Table {
 				}
 
 				return [
-					'job_type',
+					'job_task',
 					'num' => $query->func()->count('*'),
 					'alltime' => $alltime,
 					'runtime' => $runtime,
@@ -304,7 +304,7 @@ class QueuedJobsTable extends Table {
 				'completed IS NOT' => null,
 			],
 			'group' => [
-				'job_type',
+				'job_task',
 			],
 		];
 
@@ -338,7 +338,7 @@ class QueuedJobsTable extends Table {
 			}
 
 			return [
-				'job_type',
+				'job_task',
 				'created',
 				'duration' => $runtime,
 			];
@@ -346,7 +346,7 @@ class QueuedJobsTable extends Table {
 
 		$conditions = ['completed IS NOT' => null];
 		if ($jobType) {
-			$conditions['job_type'] = $jobType;
+			$conditions['job_task'] = $jobType;
 		}
 
 		$jobs = $this->find()
@@ -370,7 +370,7 @@ class QueuedJobsTable extends Table {
 				$days[$day] = $day;
 			}
 
-			$result[$job['job_type']][$day][] = $job['duration'];
+			$result[$job['job_task']][$day][] = $job['duration'];
 		}
 
 		foreach ($result as $jobType => $jobs) {
@@ -401,12 +401,12 @@ class QueuedJobsTable extends Table {
 	 * Look for a new job that can be processed with the current abilities and
 	 * from the specified group (or any if null).
 	 *
-	 * @param array $capabilities Available QueueWorkerTasks.
+	 * @param array $tasks Available QueueWorkerTasks.
 	 * @param string[] $groups Request a job from these groups (or exclude certain groups), or any otherwise.
 	 * @param string[] $types Request a job from these types (or exclude certain types), or any otherwise.
 	 * @return \Queue\Model\Entity\QueuedJob|null
 	 */
-	public function requestJob(array $capabilities, array $groups = [], array $types = []) {
+	public function requestJob(array $tasks, array $groups = [], array $types = []) {
 		$now = $this->getDateTime();
 		$nowStr = $now->toDateTimeString();
 		$driverName = $this->_getDriverName();
@@ -440,21 +440,21 @@ class QueuedJobsTable extends Table {
 		];
 
 		$costConstraints = [];
-		foreach ($capabilities as $capability) {
-			if (!$capability['costs']) {
+		foreach ($tasks as $name => $task) {
+			if (!$task['costs']) {
 				continue;
 			}
 
-			$costConstraints[$capability['name']] = $capability['costs'];
+			$costConstraints[$name] = $task['costs'];
 		}
 
 		$uniqueConstraints = [];
-		foreach ($capabilities as $capability) {
-			if (!$capability['unique']) {
+		foreach ($tasks as $name => $task) {
+			if (!$task['unique']) {
 				continue;
 			}
 
-			$uniqueConstraints[$capability['name']] = $capability['name'];
+			$uniqueConstraints[$name] = $name;
 		}
 
 		/** @var \Queue\Model\Entity\QueuedJob[] $runningJobs */
@@ -463,7 +463,7 @@ class QueuedJobsTable extends Table {
 			$constraintJobs = array_keys($costConstraints + $uniqueConstraints);
 			$runningJobs = $this->find('queued')
 				->contain(['WorkerProcesses'])
-				->where(['QueuedJobs.job_type IN' => $constraintJobs, 'QueuedJobs.workerkey IS NOT' => null, 'QueuedJobs.workerkey !=' => $this->_key, 'WorkerProcesses.modified >' => Config::defaultworkertimeout()])
+				->where(['QueuedJobs.job_task IN' => $constraintJobs, 'QueuedJobs.workerkey IS NOT' => null, 'QueuedJobs.workerkey !=' => $this->_key, 'WorkerProcesses.modified >' => Config::defaultworkertimeout()])
 				->all()
 				->toArray();
 		}
@@ -471,25 +471,25 @@ class QueuedJobsTable extends Table {
 		$costs = 0;
 		$server = $this->WorkerProcesses->buildServerString();
 		foreach ($runningJobs as $runningJob) {
-			if (isset($uniqueConstraints[$runningJob->job_type])) {
-				$types[] = '-' . $runningJob->job_type;
+			if (isset($uniqueConstraints[$runningJob->job_task])) {
+				$types[] = '-' . $runningJob->job_task;
 
 				continue;
 			}
 
-			if ($runningJob->worker_process->server === $server && isset($costConstraints[$runningJob->job_type])) {
-				$costs += $costConstraints[$runningJob->job_type];
+			if ($runningJob->worker_process->server === $server && isset($costConstraints[$runningJob->job_task])) {
+				$costs += $costConstraints[$runningJob->job_task];
 			}
 		}
 
 		if ($costs) {
 			$left = 100 - $costs;
-			foreach ($capabilities as $capability) {
-				if (!$capability['costs'] || $capability['costs'] < $left) {
+			foreach ($tasks as $name => $task) {
+				if (!$task['costs'] || $task['costs'] < $left) {
 					continue;
 				}
 
-				$types[] = '-' . $capability['name'];
+				$types[] = '-' . $name;
 			}
 		}
 
@@ -497,15 +497,14 @@ class QueuedJobsTable extends Table {
 			$options['conditions'] = $this->addFilter($options['conditions'], 'job_group', $groups);
 		}
 		if ($types) {
-			$options['conditions'] = $this->addFilter($options['conditions'], 'job_type', $types);
+			$options['conditions'] = $this->addFilter($options['conditions'], 'job_task', $types);
 		}
 
 		// Generate the task specific conditions.
-		foreach ($capabilities as $task) {
-			[$plugin, $name] = pluginSplit($task['name']);
+		foreach ($tasks as $name => $task) {
 			$timeoutAt = $now->copy();
 			$tmp = [
-				'job_type' => $name,
+				'job_task' => $name,
 				'AND' => [
 					[
 						'OR' => [
@@ -522,18 +521,18 @@ class QueuedJobsTable extends Table {
 				],
 				'failed <' => ($task['retries'] + 1),
 			];
-			if (array_key_exists('rate', $task) && $tmp['job_type'] && array_key_exists($tmp['job_type'], $this->rateHistory)) {
+			if (array_key_exists('rate', $task) && $tmp['job_task'] && array_key_exists($tmp['job_task'], $this->rateHistory)) {
 				switch ($driverName) {
 					case static::DRIVER_POSTGRES:
-						$tmp['EXTRACT(EPOCH FROM NOW()) >='] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
+						$tmp['EXTRACT(EPOCH FROM NOW()) >='] = $this->rateHistory[$tmp['job_task']] + $task['rate'];
 
 						break;
 					case static::DRIVER_MYSQL:
-						$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
+						$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['job_task']] + $task['rate'];
 
 						break;
 					case static::DRIVER_SQLSERVER:
-						$tmp["DATEDIFF(s, '1970-01-01 00:00:00', GETDATE()) >="] = $this->rateHistory[$tmp['job_type']] + $task['rate'];
+						$tmp["DATEDIFF(s, '1970-01-01 00:00:00', GETDATE()) >="] = $this->rateHistory[$tmp['job_task']] + $task['rate'];
 
 						break;
 				}
@@ -568,7 +567,7 @@ class QueuedJobsTable extends Table {
 			return null;
 		}
 
-		$this->rateHistory[$job->job_type] = $now->toUnixString();
+		$this->rateHistory[$job->job_task] = $now->toUnixString();
 
 		return $job;
 	}
@@ -674,7 +673,7 @@ class QueuedJobsTable extends Table {
 		];
 		$conditions = [
 			'completed IS NOT' => null,
-			'job_type' => $type,
+			'job_task' => $type,
 		];
 		if ($reference) {
 			$conditions['reference'] = $reference;
@@ -692,7 +691,7 @@ class QueuedJobsTable extends Table {
 		$findCond = [
 			'fields' => [
 				'id',
-				'job_type',
+				'job_task',
 				'created',
 				'status',
 				'priority',
@@ -734,7 +733,7 @@ class QueuedJobsTable extends Table {
 	public function getFailedStatus($queuedTask, array $taskConfiguration) {
 		$failureMessageRequeued = 'requeued';
 
-		$queuedTaskName = 'Queue' . $queuedTask->job_type;
+		$queuedTaskName = 'Queue' . $queuedTask->job_task;
 		if (empty($taskConfiguration[$queuedTaskName])) {
 			return $failureMessageRequeued;
 		}
@@ -840,7 +839,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return string Identifier
 	 */
-	public function key() {
+	public function key(): string {
 		if ($this->_key !== null) {
 			return $this->_key;
 		}
@@ -857,7 +856,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return void
 	 */
-	public function clearKey() {
+	public function clearKey(): void {
 		$this->_key = null;
 	}
 
@@ -866,7 +865,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return void
 	 */
-	public function truncate() {
+	public function truncate(): void {
 		/** @var \Cake\Database\Schema\TableSchema $schema */
 		$schema = $this->getSchema();
 		$sql = $schema->truncateSql($this->getConnection());
@@ -883,7 +882,7 @@ class QueuedJobsTable extends Table {
 	 * @param bool $forThisServer
 	 * @return array
 	 */
-	public function getProcesses($forThisServer = false) {
+	public function getProcesses(bool $forThisServer = false): array {
 		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 		$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
 		$query = $QueueProcesses->findActive()
@@ -904,10 +903,10 @@ class QueuedJobsTable extends Table {
 	/**
 	 * Soft ending of a running job, e.g. when migration is starting
 	 *
-	 * @param int|null $pid
+	 * @param string $pid
 	 * @return void
 	 */
-	public function endProcess($pid) {
+	public function endProcess(string $pid): void {
 		if (!$pid) {
 			return;
 		}
@@ -923,18 +922,18 @@ class QueuedJobsTable extends Table {
 	 * Note this does not work from the web backend to kill CLI workers.
 	 * We might need to run some exec() kill command here instead.
 	 *
-	 * @param int $pid
+	 * @param string $pid
 	 * @param int $sig Signal (defaults to graceful SIGTERM = 15)
 	 * @return void
 	 */
-	public function terminateProcess($pid, $sig = SIGTERM) {
+	public function terminateProcess(string $pid, int $sig = SIGTERM): void {
 		if (!$pid) {
 			return;
 		}
 
 		$killed = false;
 		if (function_exists('posix_kill')) {
-			$killed = posix_kill($pid, $sig);
+			$killed = posix_kill((int)$pid, $sig);
 		}
 		if (!$killed) {
 			exec('kill -' . $sig . ' ' . $pid);
@@ -963,7 +962,7 @@ class QueuedJobsTable extends Table {
 	 * @param string[] $values
 	 * @return array
 	 */
-	protected function addFilter(array $conditions, $key, array $values) {
+	protected function addFilter(array $conditions, string $key, array $values): array {
 		$include = [];
 		$exclude = [];
 		foreach ($values as $value) {
@@ -1007,12 +1006,13 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return void
 	 */
-	public function wakeUpWorkers() {
+	public function wakeUpWorkers(): void {
 		if (!function_exists('posix_kill')) {
 			return;
 		}
 		$processes = $this->getProcesses();
 		foreach ($processes as $pid => $modified) {
+			$pid = (int)$pid;
 			if ($pid > 0) {
 				posix_kill($pid, SIGUSR1);
 			}

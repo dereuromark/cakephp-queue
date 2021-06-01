@@ -127,7 +127,7 @@ class QueueProgressHelperTest extends TestCase {
 
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
 		$queuedJob = TableRegistry::getTableLocator()->get('Queue.QueuedJobs')->newEntity([
-			'job_type' => 'Foo',
+			'job_task' => 'Foo',
 			'created' => (new FrozenTime())->subHour(),
 			'fetched' => (new FrozenTime())->subHour(),
 			'completed' => (new FrozenTime())->subHour()->addMinutes(10),

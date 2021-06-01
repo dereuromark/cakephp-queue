@@ -6,6 +6,7 @@ use Cake\Command\Command;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
+use Cake\Core\Configure;
 use Cake\I18n\Number;
 use Queue\Queue\TaskFinder;
 
@@ -61,9 +62,27 @@ class InfoCommand extends Command {
 		$io->hr();
 		$io->out();
 
+		$io->out('Current Settings:');
+		$conf = (array)Configure::read('Queue');
+		foreach ($conf as $key => $val) {
+			if ($val === false) {
+				$val = 'no';
+			}
+			if ($val === true) {
+				$val = 'yes';
+			}
+			$io->out('* ' . $key . ': ' . print_r($val, true));
+		}
+
+		$io->out();
+		$io->hr();
+		$io->out();
+
 		$io->out('Total unfinished jobs: ' . $this->QueuedJobs->getLength());
 		$this->loadModel('Queue.QueueProcesses');
-		$io->out('Running workers (processes): ' . $this->QueueProcesses->findActive()->count());
+		$status = $this->QueueProcesses->status();
+		$io->out('Current running workers: ' . ($status ? $status['workers'] : '-'));
+		$io->out('Last run: ' . ($status ? $status['time']->nice() : '-'));
 		$io->out('Server name: ' . $this->QueueProcesses->buildServerString());
 
 		$io->out();
@@ -85,7 +104,7 @@ class InfoCommand extends Command {
 		$data = $this->QueuedJobs->getStats();
 		//TODO: refactor using $io->helper table?
 		foreach ($data as $item) {
-			$io->out(' - ' . $item['job_type'] . ': ');
+			$io->out(' - ' . $item['job_task'] . ': ');
 			$io->out('   - Finished Jobs in Database: ' . $item['num']);
 			$io->out('   - Average Job existence    : ' . str_pad(Number::precision($item['alltime'], 0), 8, ' ', STR_PAD_LEFT) . 's');
 			$io->out('   - Average Execution delay  : ' . str_pad(Number::precision($item['fetchdelay'], 0), 8, ' ', STR_PAD_LEFT) . 's');

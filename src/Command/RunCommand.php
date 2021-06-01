@@ -10,6 +10,7 @@ use Cake\Log\Log;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Queue\Console\Io;
+use Queue\Queue\Processor;
 
 /**
  * Main execution of queued jobs.
@@ -44,8 +45,22 @@ class RunCommand extends Command {
 			'default' => null,
 			'short' => 'r',
 		]);
+
+		$parser->addOption('group', [
+			'short' => 'g',
+			'help' => 'Group (comma separated list possible)',
+			'default' => null,
+		]);
+		$parser->addOption('type', [
+			'short' => 't',
+			'help' => 'Type (comma separated list possible)',
+			'default' => null,
+		]);
+
 		$parser->setDescription(
-			'Runs a queue worker.'
+			'Simple and minimalistic job queue (or deferred-task) system.'
+			. PHP_EOL
+			. 'This command runs a queue worker.'
 		);
 
 		return $parser;
@@ -65,17 +80,20 @@ class RunCommand extends Command {
 	}
 
 	/**
+	 * Run a QueueWorker loop.
+	 * Runs a Queue Worker process which will try to find unassigned jobs in the queue
+	 * which it may run and try to fetch and execute them.
+	 *
 	 * @param \Cake\Console\Arguments $args Arguments
 	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
-	 * @return int|null|void
+	 * @return int
 	 */
-	public function execute(Arguments $args, ConsoleIo $io) {
+	public function execute(Arguments $args, ConsoleIo $io): int {
 		$logger = $this->getLogger($args);
 		$io = new Io($io);
-		//FIXME
 		$processor = new Processor($io, $logger);
 
-		return $processor->run();
+		return $processor->run($args->getOptions());
 	}
 
 }

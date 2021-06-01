@@ -66,7 +66,7 @@ class QueueController extends AppController {
 	public function addJob($job = null) {
 		$this->request->allowMethod('post');
 
-		$job = $this->request->getQuery('task') ?: $job;
+		$job = (string)$this->request->getQuery('task') ?: $job;
 		if (!$job) {
 			throw new NotFoundException();
 		}
@@ -129,7 +129,7 @@ class QueueController extends AppController {
 		$processes = $this->QueuedJobs->getProcesses();
 
 		if ($this->request->is('post') && $this->request->getQuery('end')) {
-			$pid = (int)$this->request->getQuery('end');
+			$pid = (string)$this->request->getQuery('end');
 			$this->QueuedJobs->endProcess($pid);
 
 			return $this->redirect(['action' => 'processes']);

@@ -95,7 +95,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return bool
 	 */
-	public function validateCount($value, array $context) {
+	public function validateCount($value, array $context): bool {
 		$maxWorkers = Config::maxworkers();
 		if (!$value || !$maxWorkers) {
 			return true;
@@ -125,7 +125,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return int
 	 */
-	public function add($pid, $key) {
+	public function add(string $pid, string $key): int {
 		$data = [
 			'pid' => $pid,
 			'server' => $this->buildServerString(),
@@ -143,7 +143,7 @@ class QueueProcessesTable extends Table {
 	 * @throws \Queue\Model\ProcessEndingException
 	 * @return void
 	 */
-	public function update($pid) {
+	public function update(string $pid): void {
 		$conditions = [
 			'pid' => $pid,
 			'server IS' => $this->buildServerString(),
@@ -164,7 +164,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return void
 	 */
-	public function remove($pid) {
+	public function remove(string $pid): void {
 		$conditions = [
 			'pid' => $pid,
 			'server IS' => $this->buildServerString(),
@@ -176,7 +176,7 @@ class QueueProcessesTable extends Table {
 	/**
 	 * @return int
 	 */
-	public function cleanEndedProcesses() {
+	public function cleanEndedProcesses(): int {
 		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
@@ -190,7 +190,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return array
 	 */
-	public function status() {
+	public function status(): array {
 		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
@@ -225,7 +225,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return string|null
 	 */
-	public function buildServerString() {
+	public function buildServerString(): ?string {
 		$serverName = (string)env('SERVER_NAME') ?: gethostname();
 		if (!$serverName) {
 			$user = env('USER');

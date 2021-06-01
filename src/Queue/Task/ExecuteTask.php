@@ -46,6 +46,7 @@ class ExecuteTask extends Task implements AddInterface {
 			return;
 		}
 
+		$command = $data;
 		$params = null;
 		if (strpos($data, ' ') !== false) {
 			[$command, $params] = explode(' ', $data, 2);

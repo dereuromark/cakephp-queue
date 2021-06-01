@@ -31,7 +31,7 @@ class UniqueExampleTask extends Task implements AddInterface {
 		$this->io->out('This job will only produce some console output on the worker that it runs on.');
 		$this->io->out(' ');
 		$this->io->out('To run a Worker use:');
-		$this->io->out('    bin/cake queue runworker');
+		$this->io->out('    bin/cake queue run');
 		$this->io->out(' ');
 		$this->io->out('You can find the sourcecode of this task in: ');
 		$this->io->out(__FILE__);

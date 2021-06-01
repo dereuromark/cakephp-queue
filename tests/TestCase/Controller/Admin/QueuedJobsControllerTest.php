@@ -185,7 +185,7 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
 		$queuedJob = $queuedJobs->find()->orderDesc('id')->firstOrFail();
 
-		$this->assertSame('Webhook', $queuedJob->job_type);
+		$this->assertSame('Webhook', $queuedJob->job_task);
 		$this->assertSame('web-hook-102803234', $queuedJob->reference);
 	}
 
@@ -207,7 +207,7 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 	 */
 	protected function createJob(array $data = []) {
 		$data += [
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 		];
 
 		$queuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');

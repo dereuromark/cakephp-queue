@@ -36,7 +36,7 @@ class QueueHelper extends Helper {
 		}
 
 		// Requeued
-		$taskConfig = $this->taskConfig($queuedJob->job_type);
+		$taskConfig = $this->taskConfig($queuedJob->job_task);
 		if ($taskConfig && $queuedJob->failed <= $taskConfig['retries']) {
 			return false;
 		}
@@ -54,7 +54,7 @@ class QueueHelper extends Helper {
 			return '0x';
 		}
 
-		$taskConfig = $this->taskConfig($queuedJob->job_type);
+		$taskConfig = $this->taskConfig($queuedJob->job_task);
 		if ($taskConfig) {
 			$allowedFails = $taskConfig['retries'] + 1;
 
@@ -79,7 +79,7 @@ class QueueHelper extends Helper {
 			return __d('queue', 'Restarted');
 		}
 
-		$taskConfig = $this->taskConfig($queuedJob->job_type);
+		$taskConfig = $this->taskConfig($queuedJob->job_task);
 		if ($taskConfig && $queuedJob->failed <= $taskConfig['retries']) {
 			return __d('queue', 'Requeued');
 		}

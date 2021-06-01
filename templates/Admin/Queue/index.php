@@ -56,7 +56,7 @@ use Cake\Core\Configure;
 		<ol>
 			<?php
 			foreach ($pendingDetails as $pendingJob) {
-				echo '<li>' . $this->Html->link($pendingJob->job_type, ['controller' => 'QueuedJobs', 'action' => 'view', $pendingJob->id]) . ' (ref <code>' . h($pendingJob->reference ?: '-') . '</code>, prio ' . $pendingJob->priority . '):';
+				echo '<li>' . $this->Html->link($pendingJob->job_task, ['controller' => 'QueuedJobs', 'action' => 'view', $pendingJob->id]) . ' (ref <code>' . h($pendingJob->reference ?: '-') . '</code>, prio ' . $pendingJob->priority . '):';
 				echo '<ul>';
 
 				$reset = '';
@@ -109,7 +109,7 @@ use Cake\Core\Configure;
 		<ul>
 			<?php
 			foreach ($data as $row) {
-				echo '<li>' . h($row['job_type']) . ':';
+				echo '<li>' . h($row['job_task']) . ':';
 				echo '<ul>';
 				echo '<li>Finished Jobs in Database: ' . $row['num'] . '</li>';
 				echo '<li>Average Job existence: ' . $row['alltime'] . 's</li>';

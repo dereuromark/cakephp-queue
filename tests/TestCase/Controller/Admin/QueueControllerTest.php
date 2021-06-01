@@ -84,7 +84,7 @@ class QueueControllerTest extends IntegrationTestCase {
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->find()->orderDesc('id')->firstOrFail();
-		$this->assertSame('Queue.Example', $job->job_type);
+		$this->assertSame('Queue.Example', $job->job_task);
 	}
 
 	/**
@@ -93,7 +93,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	public function testRemoveJob() {
 		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
@@ -112,7 +112,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	public function testResetJob() {
 		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
@@ -132,7 +132,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	public function testResetJobRedirect() {
 		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
@@ -154,7 +154,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	public function testResetJobRedirectInvalid() {
 		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
@@ -176,7 +176,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	public function testResetJobRedirectReferer() {
 		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
@@ -202,7 +202,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	public function testReset() {
 		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
@@ -222,7 +222,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	public function testHardReset() {
 		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 		]);
 		$jobsTable->saveOrFail($job);
 		$count = $jobsTable->find()->count();
