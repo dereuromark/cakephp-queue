@@ -45,7 +45,7 @@ class QueueProcessesTableTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	protected function tearDown(): void {
+	public function tearDown(): void {
 		unset($this->QueueProcesses);
 
 		parent::tearDown();

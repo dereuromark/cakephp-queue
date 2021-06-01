@@ -46,7 +46,7 @@ class QueueProgressHelperTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	protected function tearDown(): void {
+	public function tearDown(): void {
 		parent::tearDown();
 
 		ini_set('intl.default_locale', $this->locale);

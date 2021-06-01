@@ -38,7 +38,7 @@ class BakeQueueTaskCommandTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	protected function tearDown(): void {
+	public function tearDown(): void {
 		parent::tearDown();
 
 		$this->removeFiles();
