@@ -278,16 +278,15 @@ class QueuedJobsController extends AppController {
 		$taskFinder = new TaskFinder();
 		$allTasks = $taskFinder->all();
 		$tasks = [];
-		foreach ($allTasks as $key => $task) {
-			if (substr($task, 0, 11) !== 'Queue.Queue') {
+		foreach ($allTasks as $task => $className) {
+			if (substr($task, 0, 6) !== 'Queue.') {
 				continue;
 			}
 			if (substr($task, -7) !== 'Example') {
 				continue;
 			}
 
-			$name = substr($task, 11);
-			$tasks[$name] = $task;
+			$tasks[$task] = $task;
 		}
 
 		$queuedJob = $this->QueuedJobs->newEmptyEntity();

@@ -167,7 +167,7 @@ use Cake\Core\Configure;
 		<ul>
 			<?php
 			foreach ($addableTasks as $task => $className) {
-				if (substr($task, 0, 6) === 'Queue.' && substr($task, -7) === 'Example') {
+				if (substr($task, 0, 6) === 'Queue.' && (substr($task, -7) === 'Example' || $task ==='Queue.Execute')) {
 					continue;
 				}
 

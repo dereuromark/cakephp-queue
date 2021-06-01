@@ -29,7 +29,7 @@ class Utf8mb4Fix extends AbstractMigration {
 
 		$table = $this->table('queued_jobs');
 		$table->changeColumn('job_type', 'string', [
-			'length' => 45,
+			'length' => 90,
 			'null' => false,
 			'default' => null,
 			'encoding' => 'utf8mb4',
