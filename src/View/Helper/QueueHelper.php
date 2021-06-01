@@ -88,19 +88,17 @@ class QueueHelper extends Helper {
 	}
 
 	/**
-	 * @param string $jobType
+	 * @param string $jobTask
 	 *
 	 * @return array
 	 */
-	protected function taskConfig(string $jobType): array {
+	protected function taskConfig(string $jobTask): array {
 		if (!$this->taskConfig) {
 			$tasks = (new TaskFinder())->all();
 			$this->taskConfig = Config::taskConfig($tasks);
 		}
 
-		$name = 'Queue' . $jobType;
-
-		return $this->taskConfig[$name] ?? [];
+		return $this->taskConfig[$jobTask] ?? [];
 	}
 
 }

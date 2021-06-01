@@ -46,6 +46,8 @@ class QueueShellTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 
+		$this->skipIf(true);
+
 		$this->out = new ConsoleOutput();
 		$this->err = new ConsoleOutput();
 		$io = new ConsoleIo($this->out, $this->err);
@@ -65,24 +67,6 @@ class QueueShellTest extends TestCase {
 			'exitwhennothingtodo' => false,
 			'log' => false,
 		]);
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testObject() {
-		$this->assertTrue(is_object($this->shell));
-		$this->assertInstanceOf(QueueShell::class, $this->shell);
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testStats() {
-		$this->_needsConnection();
-
-		$this->shell->stats();
-		$this->assertStringContainsString('Total unfinished jobs: 0', $this->out->output());
 	}
 
 	/**

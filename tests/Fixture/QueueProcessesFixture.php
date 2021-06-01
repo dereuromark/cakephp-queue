@@ -42,7 +42,7 @@ class QueueProcessesFixture extends TestFixture {
 	public function init(): void {
 		$this->records = [
 			[
-				'pid' => 'Lorem ipsum dolor sit amet',
+				'pid' => '0',
 				'created' => '2019-01-04 17:27:40',
 				'modified' => '2019-01-04 17:27:40',
 				'terminate' => 1,
