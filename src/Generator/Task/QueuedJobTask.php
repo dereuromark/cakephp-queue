@@ -2,7 +2,6 @@
 
 namespace Queue\Generator\Task;
 
-use Cake\Core\App;
 use IdeHelper\Generator\Directive\ExpectedArguments;
 use IdeHelper\Generator\Task\TaskInterface;
 use Queue\Queue\TaskFinder;
@@ -43,22 +42,10 @@ class QueuedJobTask implements TaskInterface {
 	 * @return string[]
 	 */
 	protected function collectQueuedJobTasks(): array {
-		$result = [];
-
 		$taskFinder = new TaskFinder();
 		$tasks = $taskFinder->all();
 
-		foreach ($tasks as $task) {
-			$className = App::className($task, 'Shell/Task', 'Task');
-			if ($className === null) {
-				continue;
-			}
-			[, $task] = pluginSplit($task);
-			$task = substr($task, 5);
-			$result[$task] = $className;
-		}
-
-		return $result;
+		return $tasks;
 	}
 
 }

@@ -1,17 +1,18 @@
 <?php
 
-namespace Queue\Test\TestCase\Shell\Task;
+namespace Queue\Test\TestCase\Queue\Task;
 
 use Cake\Console\ConsoleIo;
 use Cake\Datasource\ConnectionManager;
 use Cake\Mailer\Mailer;
 use Cake\TestSuite\TestCase;
-use Queue\Shell\Task\QueueEmailTask;
+use Queue\Console\Io;
+use Queue\Queue\Task\EmailTask;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
 use TestApp\Mailer\TestMailer;
 
-class QueueEmailTaskTest extends TestCase {
+class EmailTaskTest extends TestCase {
 
 	use TestTrait;
 
@@ -23,7 +24,7 @@ class QueueEmailTaskTest extends TestCase {
 	];
 
 	/**
-	 * @var \Queue\Shell\Task\QueueEmailTask|\PHPUnit\Framework\MockObject\MockObject
+	 * @var \Queue\Queue\Task\EmailTask|\PHPUnit\Framework\MockObject\MockObject
 	 */
 	protected $Task;
 
@@ -47,9 +48,9 @@ class QueueEmailTaskTest extends TestCase {
 
 		$this->out = new ConsoleOutput();
 		$this->err = new ConsoleOutput();
-		$io = new ConsoleIo($this->out, $this->err);
+		$io = new Io(new ConsoleIo($this->out, $this->err));
 
-		$this->Task = new QueueEmailTask($io);
+		$this->Task = new EmailTask($io);
 	}
 
 	/**

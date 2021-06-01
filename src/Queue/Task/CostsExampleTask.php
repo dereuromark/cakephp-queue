@@ -1,8 +1,4 @@
 <?php
-/**
- * @author MGriesbach@gmail.com
- * @license http://www.opensource.org/licenses/mit-license.php The MIT License
- */
 
 namespace Queue\Queue\Task;
 
@@ -10,33 +6,28 @@ use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 
 /**
- * A Simple QueueTask example.
+ * A Costs QueueTask example.
  */
-class ExampleTask extends Task implements AddInterface {
+class CostsExampleTask extends Task implements AddInterface {
 
 	/**
-	 * Timeout for run, after which the Task is reassigned to a new worker.
-	 *
 	 * @var int
 	 */
-	public $timeout = 10;
+	public $costs = 55;
 
 	/**
-	 * Example add functionality.
-	 * Will create one example job in the queue, which later will be executed using run();
-	 *
 	 * To invoke from CLI execute:
-	 * - bin/cake queue add Queue.Example
+	 * - bin/cake queue add Queue.CostsExample
 	 *
-	 * @param string|null $data Optional data for the task, make sure to "quote multi words"
+	 * @param string|null $data
 	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {
-		$this->io->out('CakePHP Queue Example task.');
+		$this->io->out('CakePHP Queue CostsExample task.');
 		$this->io->hr();
-		$this->io->out('This is a very simple example of a QueueTask.');
 		$this->io->out('I will now add an example Job into the Queue.');
+		$this->io->out('This job cannot run more than once per server (across all its workers).');
 		$this->io->out('This job will only produce some console output on the worker that it runs on.');
 		$this->io->out(' ');
 		$this->io->out('To run a Worker use:');
@@ -46,14 +37,13 @@ class ExampleTask extends Task implements AddInterface {
 		$this->io->out(__FILE__);
 		$this->io->out(' ');
 
-		$this->QueuedJobs->createJob('Queue.Example');
+		$this->QueuedJobs->createJob('Queue.CostsExample');
 		$this->io->success('OK, job created, now run the worker');
 	}
 
 	/**
-	 * Example run function.
+	 * CostsExample run function.
 	 * This function is executed, when a worker is executing a task.
-	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
@@ -61,9 +51,12 @@ class ExampleTask extends Task implements AddInterface {
 	 */
 	public function run(array $data, int $jobId): void {
 		$this->io->hr();
-		$this->io->out('CakePHP Queue Example task.');
+		$this->io->out('CakePHP Queue CostsExample task.');
+
+		sleep(10);
+
 		$this->io->hr();
-		$this->io->success(' -> Success, the Example Job was run. <-');
+		$this->io->success(' -> Success, the CostsExample Job was run. <-');
 	}
 
 }

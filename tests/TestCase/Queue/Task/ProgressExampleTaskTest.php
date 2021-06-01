@@ -1,26 +1,20 @@
 <?php
 
-namespace Queue\Test\TestCase\Shell\Task;
+namespace Queue\Test\TestCase\Queue\Task;
 
 use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
-use Queue\Shell\Task\QueueSuperExampleTask;
+use Queue\Console\Io;
+use Queue\Queue\Task\ProgressExampleTask;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
 
-class QueueSuperExampleTaskTest extends TestCase {
+class ProgressExampleTaskTest extends TestCase {
 
 	use TestTrait;
 
 	/**
-	 * @var array
-	 */
-	protected $fixtures = [
-		'plugin.Queue.QueuedJobs',
-	];
-
-	/**
-	 * @var \Queue\Shell\Task\QueueSuperExampleTask|\PHPUnit\Framework\MockObject\MockObject
+	 * @var \Queue\Queue\Task\ProgressExampleTask|\PHPUnit\Framework\MockObject\MockObject
 	 */
 	protected $Task;
 
@@ -44,18 +38,18 @@ class QueueSuperExampleTaskTest extends TestCase {
 
 		$this->out = new ConsoleOutput();
 		$this->err = new ConsoleOutput();
-		$io = new ConsoleIo($this->out, $this->err);
+		$io = new Io(new ConsoleIo($this->out, $this->err));
 
-		$this->Task = new QueueSuperExampleTask($io);
+		$this->Task = new ProgressExampleTask($io);
 	}
 
 	/**
 	 * @return void
 	 */
 	public function testRun() {
-		$this->Task->run([], 0);
+		$this->Task->run(['duration' => 1], 0);
 
-		$this->assertTextContains('Success, the SuperExample Job was run', $this->out->output());
+		$this->assertTextContains('Success, the ProgressExample Job was run', $this->out->output());
 	}
 
 }

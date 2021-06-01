@@ -51,27 +51,32 @@ class QueueController extends AppController {
 
 		$taskFinder = new TaskFinder();
 		$tasks = $taskFinder->all();
+		$addableTasks = $taskFinder->allAddable();
 
 		$servers = $this->QueueProcesses->find()->distinct(['server'])->find('list', ['keyField' => 'server', 'valueField' => 'server'])->toArray();
-		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks', 'servers'));
+		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks', 'addableTasks', 'servers'));
 	}
 
 	/**
-	 * @param string|null $job
+	 * @param string|null $job Deprecated: Use ?task=... query string instead.
+	 *   Note: This fails with plugin syntax, so only to be used for project level ones.
 	 * @throws \Cake\Http\Exception\NotFoundException
 	 * @return \Cake\Http\Response|null
 	 */
 	public function addJob($job = null) {
 		$this->request->allowMethod('post');
+
+		$job = $this->request->getQuery('task') ?: $job;
 		if (!$job) {
 			throw new NotFoundException();
 		}
 
-		$className = App::className('Queue.Queue' . $job, 'Shell/Task', 'Task');
+		$className = App::className($job, 'Queue/Task', 'Task');
 		if (!$className) {
 			throw new NotFoundException('Class not found for job `' . $job . '`');
 		}
 
+		// Deprecated/Remove?
 		if (method_exists($className, 'init')) {
 			$className::init();
 		}

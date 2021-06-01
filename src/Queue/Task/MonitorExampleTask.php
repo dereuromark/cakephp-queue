@@ -3,12 +3,18 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
-namespace Queue\Shell\Task;
+namespace Queue\Queue\Task;
+
+use Cake\Log\LogTrait;
+use Queue\Queue\AddInterface;
+use Queue\Queue\Task;
 
 /**
  * A Simple QueueTask example.
  */
-class QueueMonitorExampleTask extends QueueTask implements AddInterface {
+class MonitorExampleTask extends Task implements AddInterface {
+
+	use LogTrait;
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -22,25 +28,27 @@ class QueueMonitorExampleTask extends QueueTask implements AddInterface {
 	 * Will create one example job in the queue, which later will be executed using run();
 	 *
 	 * To invoke from CLI execute:
-	 * - bin/cake queue add MonitorExample
+	 * - bin/cake queue add Queue.MonitorExample
+	 *
+	 * @param string|null $data
 	 *
 	 * @return void
 	 */
-	public function add() {
-		$this->out('CakePHP Queue MonitorExample task.');
-		$this->hr();
-		$this->out('This is an example of doing some server monitor tasks and logging.');
-		$this->out('This job will only produce some console output on the worker that it runs on.');
-		$this->out(' ');
-		$this->out('To run a Worker use:');
-		$this->out('    bin/cake queue runworker');
-		$this->out(' ');
-		$this->out('You can find the sourcecode of this task in: ');
-		$this->out(__FILE__);
-		$this->out(' ');
+	public function add(?string $data): void {
+		$this->io->out('CakePHP Queue MonitorExample task.');
+		$this->io->hr();
+		$this->io->out('This is an example of doing some server monitor tasks and logging.');
+		$this->io->out('This job will only produce some console output on the worker that it runs on.');
+		$this->io->out(' ');
+		$this->io->out('To run a Worker use:');
+		$this->io->out('    bin/cake queue runworker');
+		$this->io->out(' ');
+		$this->io->out('You can find the sourcecode of this task in: ');
+		$this->io->out(__FILE__);
+		$this->io->out(' ');
 
-		$this->QueuedJobs->createJob('MonitorExample');
-		$this->success('OK, job created, now run the worker');
+		$this->QueuedJobs->createJob('Queue.MonitorExample');
+		$this->io->success('OK, job created, now run the worker');
 	}
 
 	/**
@@ -53,13 +61,13 @@ class QueueMonitorExampleTask extends QueueTask implements AddInterface {
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
-		$this->hr();
-		$this->out('CakePHP Queue MonitorExample task.');
-		$this->hr();
+		$this->io->hr();
+		$this->io->out('CakePHP Queue MonitorExample task.');
+		$this->io->hr();
 
 		$this->doMonitoring();
 
-		$this->success(' -> Success, the MonitorExample Job was run. <-');
+		$this->io->success(' -> Success, the MonitorExample Job was run. <-');
 	}
 
 	/**

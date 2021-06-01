@@ -1,11 +1,14 @@
 <?php
 
-namespace Queue\Shell\Task;
+namespace Queue\Queue\Task;
+
+use Queue\Queue\AddInterface;
+use Queue\Queue\Task;
 
 /**
  * A Simple QueueTask example that runs for a while and updates the progress field.
  */
-class QueueProgressExampleTask extends QueueTask implements AddInterface {
+class ProgressExampleTask extends Task implements AddInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -19,29 +22,31 @@ class QueueProgressExampleTask extends QueueTask implements AddInterface {
 	 * Will create one example job in the queue, which later will be executed using run();
 	 *
 	 * To invoke from CLI execute:
-	 * - bin/cake queue add ProgressExample
+	 * - bin/cake queue add Queue.ProgressExample
+	 *
+	 * @param string|null $data
 	 *
 	 * @return void
 	 */
-	public function add() {
-		$this->out('CakePHP Queue ProgressExample task.');
-		$this->hr();
-		$this->out('This is a very simple but long running example of a QueueTask.');
-		$this->out('I will now add the Job into the Queue.');
-		$this->out('This job will need at least 2 minutes to complete.');
-		$this->out(' ');
-		$this->out('To run a Worker use:');
-		$this->out('    bin/cake queue runworker');
-		$this->out(' ');
-		$this->out('You can find the sourcecode of this task in:');
-		$this->out(__FILE__);
-		$this->out(' ');
+	public function add(?string $data): void {
+		$this->io->out('CakePHP Queue ProgressExample task.');
+		$this->io->hr();
+		$this->io->out('This is a very simple but long running example of a QueueTask.');
+		$this->io->out('I will now add the Job into the Queue.');
+		$this->io->out('This job will need at least 2 minutes to complete.');
+		$this->io->out(' ');
+		$this->io->out('To run a Worker use:');
+		$this->io->out('    bin/cake queue runworker');
+		$this->io->out(' ');
+		$this->io->out('You can find the sourcecode of this task in:');
+		$this->io->out(__FILE__);
+		$this->io->out(' ');
 
 		$data = [
 			'duration' => 2 * MINUTE,
 		];
-		$this->QueuedJobs->createJob('ProgressExample', $data);
-		$this->success('OK, job created, now run the worker');
+		$this->QueuedJobs->createJob('Queue.ProgressExample', $data);
+		$this->io->success('OK, job created, now run the worker');
 	}
 
 	/**
@@ -56,19 +61,19 @@ class QueueProgressExampleTask extends QueueTask implements AddInterface {
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
-		$this->hr();
-		$this->out('CakePHP Queue ProgressExample task.');
+		$this->io->hr();
+		$this->io->out('CakePHP Queue ProgressExample task.');
 		$seconds = !empty($data['duration']) ? (int)$data['duration'] : 2 * MINUTE;
 
-		$this->out('A total of ' . $seconds . ' seconds need to pass...');
+		$this->io->out('A total of ' . $seconds . ' seconds need to pass...');
 		for ($i = 0; $i < $seconds; $i++) {
 			sleep(1);
 			$this->QueuedJobs->updateProgress($jobId, ($i + 1) / $seconds, 'Status Test ' . ($i + 1) . 's');
 		}
 		$this->QueuedJobs->updateProgress($jobId, 1, 'Status Test Done');
 
-		$this->hr();
-		$this->success(' -> Success, the ProgressExample Job was run. <-');
+		$this->io->hr();
+		$this->io->success(' -> Success, the ProgressExample Job was run. <-');
 	}
 
 }

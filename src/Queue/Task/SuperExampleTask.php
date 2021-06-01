@@ -10,9 +10,9 @@ use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 
 /**
- * A Simple QueueTask example.
+ * A cascading QueueTask example.
  */
-class ExampleTask extends Task implements AddInterface {
+class SuperExampleTask extends Task implements AddInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -22,21 +22,22 @@ class ExampleTask extends Task implements AddInterface {
 	public $timeout = 10;
 
 	/**
-	 * Example add functionality.
-	 * Will create one example job in the queue, which later will be executed using run();
+	 * SuperExample add functionality.
+	 * Will create another example job in the queue, which later will be executed using run();
 	 *
 	 * To invoke from CLI execute:
-	 * - bin/cake queue add Queue.Example
+	 * - bin/cake queue add Queue.SuperExample
 	 *
-	 * @param string|null $data Optional data for the task, make sure to "quote multi words"
+	 * @param string|null $data
 	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {
-		$this->io->out('CakePHP Queue Example task.');
+		$this->io->out('CakePHP Queue SuperExample task.');
 		$this->io->hr();
-		$this->io->out('This is a very simple example of a QueueTask.');
+		$this->io->out('This is a very superb example of a QueueTask.');
 		$this->io->out('I will now add an example Job into the Queue.');
+		$this->io->out('It will also create another Example job upon successful execution.');
 		$this->io->out('This job will only produce some console output on the worker that it runs on.');
 		$this->io->out(' ');
 		$this->io->out('To run a Worker use:');
@@ -46,12 +47,12 @@ class ExampleTask extends Task implements AddInterface {
 		$this->io->out(__FILE__);
 		$this->io->out(' ');
 
-		$this->QueuedJobs->createJob('Queue.Example');
+		$this->QueuedJobs->createJob('Queue.SuperExample');
 		$this->io->success('OK, job created, now run the worker');
 	}
 
 	/**
-	 * Example run function.
+	 * SuperExample run function.
 	 * This function is executed, when a worker is executing a task.
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
@@ -61,9 +62,14 @@ class ExampleTask extends Task implements AddInterface {
 	 */
 	public function run(array $data, int $jobId): void {
 		$this->io->hr();
-		$this->io->out('CakePHP Queue Example task.');
+		$this->io->out('CakePHP Queue SuperExample task.');
+
+		// Lets create an Example task on successful execution
+		$this->QueuedJobs->createJob('Queue.Example');
+		$this->io->out('... New Example task has been scheduled.');
+
 		$this->io->hr();
-		$this->io->success(' -> Success, the Example Job was run. <-');
+		$this->io->success(' -> Success, the SuperExample Job was run. <-');
 	}
 
 }

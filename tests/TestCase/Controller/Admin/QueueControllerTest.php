@@ -78,13 +78,13 @@ class QueueControllerTest extends IntegrationTestCase {
 	public function testAddJob() {
 		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 
-		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'addJob', 'Example']);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'addJob', '?' => ['task' => 'Queue.Example']]);
 
 		$this->assertResponseCode(302);
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->find()->orderDesc('id')->firstOrFail();
-		$this->assertSame('Example', $job->job_type);
+		$this->assertSame('Queue.Example', $job->job_type);
 	}
 
 	/**

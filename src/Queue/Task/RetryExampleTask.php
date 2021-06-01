@@ -4,14 +4,16 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
-namespace Queue\Shell\Task;
+namespace Queue\Queue\Task;
 
+use Queue\Queue\AddInterface;
+use Queue\Queue\Task;
 use RuntimeException;
 
 /**
  * A retry QueueTask example.
  */
-class QueueRetryExampleTask extends QueueTask implements AddInterface {
+class RetryExampleTask extends Task implements AddInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -58,31 +60,33 @@ class QueueRetryExampleTask extends QueueTask implements AddInterface {
 	 * Will create one example job in the queue, which later will be executed using run();
 	 *
 	 * To invoke from CLI execute:
-	 * - bin/cake queue add RetryExample
+	 * - bin/cake queue add Queue.RetryExample
+	 *
+	 * @param string|null $data
 	 *
 	 * @return void
 	 */
-	public function add() {
-		$this->out('CakePHP Queue RetryExample task.');
-		$this->hr();
-		$this->out('This is a very simple example of a QueueTask and how retries work.');
-		$this->out('I will now add an example Job into the Queue.');
-		$this->out('This job will only produce some console output on the worker that it runs on.');
-		$this->out(' ');
-		$this->out('To run a Worker use:');
-		$this->out('    bin/cake queue runworker');
-		$this->out(' ');
-		$this->out('You can find the sourcecode of this task in: ');
-		$this->out(__FILE__);
-		$this->out(' ');
+	public function add(?string $data): void {
+		$this->io->out('CakePHP Queue RetryExample task.');
+		$this->io->hr();
+		$this->io->out('This is a very simple example of a QueueTask and how retries work.');
+		$this->io->out('I will now add an example Job into the Queue.');
+		$this->io->out('This job will only produce some console output on the worker that it runs on.');
+		$this->io->out(' ');
+		$this->io->out('To run a Worker use:');
+		$this->io->out('    bin/cake queue runworker');
+		$this->io->out(' ');
+		$this->io->out('You can find the sourcecode of this task in: ');
+		$this->io->out(__FILE__);
+		$this->io->out(' ');
 
 		$init = static::init();
 		if (!$init) {
-			$this->warn('File seems to already exist. Make sure you run this task standalone. You cannot run it multiple times in parallel!');
+			$this->io->warn('File seems to already exist. Make sure you run this task standalone. You cannot run it multiple times in parallel!');
 		}
 
-		$this->QueuedJobs->createJob('RetryExample');
-		$this->success('OK, job created, now run the worker');
+		$this->QueuedJobs->createJob('Queue.RetryExample');
+		$this->io->success('OK, job created, now run the worker');
 	}
 
 	/**
@@ -96,24 +100,24 @@ class QueueRetryExampleTask extends QueueTask implements AddInterface {
 	 */
 	public function run(array $data, int $jobId): void {
 		if (!file_exists(static::$file)) {
-			$this->abort(' -> No demo file found. Aborting. <-');
+			$this->io->abort(' -> No demo file found. Aborting. <-');
 		}
 
 		$count = (int)file_get_contents(static::$file);
 
-		$this->hr();
-		$this->out('CakePHP Queue RetryExample task.');
-		$this->hr();
+		$this->io->hr();
+		$this->io->out('CakePHP Queue RetryExample task.');
+		$this->io->hr();
 
 		// Let's fake 3 fails before it actually runs successfully
 		if ($count < 3) {
 			$count++;
 			file_put_contents(static::$file, (string)$count);
-			$this->abort(' -> Sry, the RetryExample Job failed. Try again. <-');
+			$this->io->abort(' -> Sry, the RetryExample Job failed. Try again. <-');
 		}
 
 		unlink(static::$file);
-		$this->success(' -> Success, the RetryExample Job was run. <-');
+		$this->io->success(' -> Success, the RetryExample Job was run. <-');
 	}
 
 }

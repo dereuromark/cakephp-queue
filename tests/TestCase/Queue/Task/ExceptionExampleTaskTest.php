@@ -1,15 +1,16 @@
 <?php
 
-namespace Queue\Test\TestCase\Shell\Task;
+namespace Queue\Test\TestCase\Queue\Task;
 
 use Cake\Console\ConsoleIo;
 use Cake\TestSuite\TestCase;
-use Queue\Shell\Task\QueueExceptionExampleTask;
+use Queue\Console\Io;
+use Queue\Queue\Task\ExceptionExampleTask;
 use RuntimeException;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
 
-class QueueExceptionExampleTaskTest extends TestCase {
+class ExceptionExampleTaskTest extends TestCase {
 
 	use TestTrait;
 
@@ -21,7 +22,7 @@ class QueueExceptionExampleTaskTest extends TestCase {
 	];
 
 	/**
-	 * @var \Queue\Shell\Task\QueueExceptionExampleTask|\PHPUnit\Framework\MockObject\MockObject
+	 * @var \Queue\Queue\Task\ExceptionExampleTask|\PHPUnit\Framework\MockObject\MockObject
 	 */
 	protected $Task;
 
@@ -45,9 +46,9 @@ class QueueExceptionExampleTaskTest extends TestCase {
 
 		$this->out = new ConsoleOutput();
 		$this->err = new ConsoleOutput();
-		$io = new ConsoleIo($this->out, $this->err);
+		$io = new Io(new ConsoleIo($this->out, $this->err));
 
-		$this->Task = new QueueExceptionExampleTask($io);
+		$this->Task = new ExceptionExampleTask($io);
 	}
 
 	/**

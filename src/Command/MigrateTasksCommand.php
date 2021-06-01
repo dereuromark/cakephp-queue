@@ -112,7 +112,7 @@ class MigrateTasksCommand extends Command {
 
 			$message = $newTestFileName . ' created in ' . str_replace(ROOT . DS, '', $newPath . $newTestFileName);
 			if ($args->getOption('remove')) {
-				unlink($fileName);
+				unlink($oldPath . $testFileName);
 				$message .= ', old class removed';
 			}
 			$io->success($message);
@@ -140,7 +140,9 @@ class MigrateTasksCommand extends Command {
 		$newContent = (string)preg_replace('/class Queue(\w+)Task extends/', 'class \1Task extends', $newContent);
 
 		$newContent = str_replace('use Queue\Shell\Task\AddInterface;', 'use Queue\Queue\AddInterface;', $newContent);
-		// Maybe public function add() => public function add(): void ?
+
+		$newContent = preg_replace('/public function add\(\) {/', 'public function add(?string $data): void {', $newContent);
+		$newContent = preg_replace('/public function add\(\)\n/', 'public function add(?string $data): void' . PHP_EOL, $newContent);
 
 		$methods = [
 			'out',

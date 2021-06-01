@@ -1,13 +1,15 @@
 <?php
 
-namespace Queue\Shell\Task;
+namespace Queue\Queue\Task;
 
-use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Mailer\Mailer;
-use Cake\ORM\Locator\LocatorInterface;
+use Psr\Log\LoggerInterface;
+use Queue\Console\Io;
 use Queue\Model\QueueException;
+use Queue\Queue\AddInterface;
+use Queue\Queue\Task;
 use Throwable;
 
 /**
@@ -19,7 +21,7 @@ use Throwable;
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-class QueueEmailTask extends QueueTask implements AddInterface {
+class EmailTask extends Task implements AddInterface {
 
 	/**
 	 * @var int
@@ -39,11 +41,11 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 	protected $defaults = [];
 
 	/**
-	 * @param \Cake\Console\ConsoleIo|null $io IO
-	 * @param \Cake\ORM\Locator\LocatorInterface|null $locator
+	 * @param \Queue\Console\Io|null $io IO
+	 * @param \Psr\Log\LoggerInterface|null $logger
 	 */
-	public function __construct(?ConsoleIo $io = null, ?LocatorInterface $locator = null) {
-		parent::__construct($io, $locator);
+	public function __construct(?Io $io = null, ?LoggerInterface $logger = null) {
+		parent::__construct($io, $logger);
 
 		$adminEmail = Configure::read('Config.adminEmail');
 		if ($adminEmail) {
@@ -52,11 +54,13 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 	}
 
 	/**
-	 * "Add" the task, not possible for QueueEmailTask
+	 * "Add" the task, not possible for EmailTask without adminEmail configured.
+	 *
+	 * @param string|null $data
 	 *
 	 * @return void
 	 */
-	public function add() {
+	public function add(?string $data): void {
 		$adminEmail = Configure::read('Config.adminEmail');
 		if ($adminEmail) {
 			$data = [
@@ -67,17 +71,17 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 				],
 				'content' => 'Hello world',
 			];
-			$this->QueuedJobs->createJob('Email', $data);
-			$this->success('OK, job created for email `' . $adminEmail . '`, now run the worker');
+			$this->QueuedJobs->createJob('Queue.Email', $data);
+			$this->io->success('OK, job created for email `' . $adminEmail . '`, now run the worker');
 
 			return;
 		}
 
-		$this->err('Queue Email Task cannot be added via Console without `Config.adminEmail` being set.');
-		$this->out('Please set this config value in your app.php Configure config. It will use this for to+from then.');
-		$this->out('Or use createJob() on the QueuedTasks Table to create a proper QueueEmail job.');
-		$this->out('The payload $data array should look something like this:');
-		$this->out(var_export([
+		$this->io->err('Queue Email Task cannot be added via Console without `Config.adminEmail` being set.');
+		$this->io->out('Please set this config value in your app.php Configure config. It will use this for to+from then.');
+		$this->io->out('Or use createJob() on the QueuedTasks Table to create a proper QueueEmail job.');
+		$this->io->out('The payload $data array should look something like this:');
+		$this->io->out(var_export([
 			'settings' => [
 				'to' => 'email@example.com',
 				'subject' => 'Email Subject',
@@ -86,7 +90,7 @@ class QueueEmailTask extends QueueTask implements AddInterface {
 			],
 			'content' => 'hello world',
 		], true));
-		$this->out('Alternatively, you can pass the whole Mailer in `settings` key.');
+		$this->io->out('Alternatively, you can pass the whole Mailer in `settings` key.');
 	}
 
 	/**

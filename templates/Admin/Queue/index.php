@@ -3,6 +3,7 @@
  * @var \App\View\AppView $this
  * @var \Queue\Model\Entity\QueuedJob[] $pendingDetails
  * @var string[] $tasks
+ * @var string[] $addableTasks
  * @var string[] $servers
  * @var array $status
  * @var int $new
@@ -165,13 +166,13 @@ use Cake\Core\Configure;
 		<p>These jobs implement the AddInterface</p>
 		<ul>
 			<?php
-			foreach ($tasks as $task) {
-				if (substr($task, 0, 11) === 'Queue.Queue') {
+			foreach ($addableTasks as $task => $className) {
+				if (substr($task, 0, 6) === 'Queue.' && substr($task, -7) === 'Example') {
 					continue;
 				}
 
 				echo '<li>';
-				echo $this->Form->postLink($task, ['action' => 'addJob', substr($task, 11)], ['confirm' => 'Sure?']);
+				echo $this->Form->postLink($task, ['action' => 'addJob', '?' => ['task' => $task]], ['confirm' => 'Sure?']);
 				echo '</li>';
 			}
 			?>
@@ -180,16 +181,13 @@ use Cake\Core\Configure;
 		<h2>Trigger Test/Demo Jobs</h2>
 		<ul>
 			<?php
-			foreach ($tasks as $task) {
-				if (substr($task, 0, 11) !== 'Queue.Queue') {
-					continue;
-				}
+			foreach ($tasks as $task => $className) {
 				if (substr($task, -7) !== 'Example') {
 					continue;
 				}
 
 				echo '<li>';
-				echo $this->Form->postLink($task, ['action' => 'addJob', substr($task, 11)], ['confirm' => 'Sure?']);
+				echo $this->Form->postLink($task, ['action' => 'addJob', '?' => ['task' => $task]], ['confirm' => 'Sure?']);
 				echo '</li>';
 			}
 			?>

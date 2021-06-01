@@ -1,18 +1,15 @@
 <?php
-/**
- * @author MGriesbach@gmail.com
- * @license http://www.opensource.org/licenses/mit-license.php The MIT License
- */
 
 namespace Queue\Queue\Task;
 
+use Queue\Model\QueueException;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 
 /**
- * A Simple QueueTask example.
+ * An exception throwing QueueTask example.
  */
-class ExampleTask extends Task implements AddInterface {
+class ExceptionExampleTask extends Task implements AddInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -26,16 +23,16 @@ class ExampleTask extends Task implements AddInterface {
 	 * Will create one example job in the queue, which later will be executed using run();
 	 *
 	 * To invoke from CLI execute:
-	 * - bin/cake queue add Queue.Example
+	 * - bin/cake queue add Queue.ExceptionExample
 	 *
-	 * @param string|null $data Optional data for the task, make sure to "quote multi words"
+	 * @param string|null $data
 	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {
-		$this->io->out('CakePHP Queue Example task.');
+		$this->io->out('CakePHP Queue ExceptionExample task.');
 		$this->io->hr();
-		$this->io->out('This is a very simple example of a QueueTask.');
+		$this->io->out('This is a very simple example of a QueueTask and how exceptions are handled.');
 		$this->io->out('I will now add an example Job into the Queue.');
 		$this->io->out('This job will only produce some console output on the worker that it runs on.');
 		$this->io->out(' ');
@@ -46,7 +43,7 @@ class ExampleTask extends Task implements AddInterface {
 		$this->io->out(__FILE__);
 		$this->io->out(' ');
 
-		$this->QueuedJobs->createJob('Queue.Example');
+		$this->QueuedJobs->createJob('Queue.ExceptionExample');
 		$this->io->success('OK, job created, now run the worker');
 	}
 
@@ -57,13 +54,15 @@ class ExampleTask extends Task implements AddInterface {
 	 *
 	 * @param array $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 * @throws \Queue\Model\QueueException
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
 		$this->io->hr();
-		$this->io->out('CakePHP Queue Example task.');
+		$this->io->out('CakePHP Queue ExceptionExample task.');
 		$this->io->hr();
-		$this->io->success(' -> Success, the Example Job was run. <-');
+
+		throw new QueueException('Exception demo :-)');
 	}
 
 }
