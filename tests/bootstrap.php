@@ -109,22 +109,22 @@ Cake\Mailer\TransportFactory::setConfig('default', [
 */
 
 // Allow local overwrite
-// E.g. in your console: export db_dsn="mysql://root:secret@127.0.0.1/cake_test"
-if (!getenv('db_class') && getenv('db_dsn')) {
-	ConnectionManager::setConfig('test', ['url' => getenv('db_dsn')]);
+// E.g. in your console: export DB_URL="mysql://root:secret@127.0.0.1/cake_test"
+if (!getenv('DB_CLASS') && getenv('DB_URL')) {
+	ConnectionManager::setConfig('test', ['url' => getenv('DB_URL')]);
 
 	return;
 }
-if (!getenv('db_class')) {
-	putenv('db_class=Cake\Database\Driver\Sqlite');
-	putenv('db_dsn=sqlite::memory:');
+if (!getenv('DB_CLASS')) {
+	putenv('DB_CLASS=Cake\Database\Driver\Sqlite');
+	putenv('DB_URL=sqlite::memory:');
 }
 
 // Uses Travis config then (MySQL, Postgres, ...)
 ConnectionManager::setConfig('test', [
 	'className' => 'Cake\Database\Connection',
-	'driver' => getenv('db_class') ?: null,
-	'dsn' => getenv('db_dsn') ?: null,
+	'driver' => getenv('DB_CLASS') ?: null,
+	'dsn' => getenv('DB_URL') ?: null,
 	'timezone' => 'UTC',
 	'quoteIdentifiers' => false,
 	'cacheMetadata' => true,

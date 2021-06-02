@@ -71,42 +71,6 @@ class QueueShellTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function testSettings() {
-		$this->shell->settings();
-		$this->assertStringContainsString('* cleanuptimeout: 10', $this->out->output());
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testAddInexistent() {
-		$this->shell->args[] = 'FooBar';
-		$this->shell->add();
-		$this->assertStringContainsString('Error: Task not found: FooBar', $this->out->output());
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testAdd() {
-		$this->shell->args[] = 'Example';
-		$this->shell->add();
-
-		$this->assertStringContainsString('OK, job created, now run the worker', $this->out->output(), print_r($this->out->output, true));
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testHardReset() {
-		$this->shell->hardReset();
-
-		$this->assertStringContainsString('OK', $this->out->output(), print_r($this->out->output, true));
-	}
-
-	/**
-	 * @return void
-	 */
 	public function testHardResetIntegration() {
 		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
 		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
@@ -121,42 +85,6 @@ class QueueShellTest extends TestCase {
 
 		$queuedJobs = $queuedJobsTable->find()->count();
 		$this->assertSame(0, $queuedJobs);
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testReset() {
-		$this->shell->reset();
-
-		$this->assertStringContainsString('0 jobs reset.', $this->out->output(), print_r($this->out->output, true));
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testRerun() {
-		$this->shell->rerun('Foo');
-
-		$this->assertStringContainsString('0 jobs reset for re-run.', $this->out->output(), print_r($this->out->output, true));
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testEnd() {
-		$this->shell->end();
-
-		$this->assertStringContainsString('No processes found', $this->out->output(), print_r($this->out->output, true));
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testKill() {
-		$this->shell->kill();
-
-		$this->assertStringContainsString('No processes found', $this->out->output(), print_r($this->out->output, true));
 	}
 
 	/**

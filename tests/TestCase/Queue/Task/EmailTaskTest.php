@@ -88,7 +88,7 @@ class EmailTaskTest extends TestCase {
 
 		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
 		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
-		$queuedJobsTable->createJob('Email', ['settings' => $mailer]);
+		$queuedJobsTable->createJob('Queue.Email', ['settings' => $mailer]);
 
 		$queuedJob = $queuedJobsTable->find()->orderDesc('id')->firstOrFail();
 		$data = unserialize($queuedJob->data);

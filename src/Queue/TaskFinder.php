@@ -102,8 +102,24 @@ class TaskFinder {
 	public function resolve(string $jobType): string {
 		$all = $this->all();
 		foreach ($all as $name => $className) {
-			if ($jobType === $className) {
+			if ($jobType === $className || $jobType === $name) {
 				return $name;
+			}
+		}
+
+		if (strpos($jobType, '\\') === false) {
+			// Let's try matching without plugin prefix
+			foreach ($all as $name => $className) {
+				if (strpos($name, '.') === false) {
+					continue;
+				}
+				[$plugin, $name] = explode('.', $name, 2);
+				if ($jobType === $name) {
+					$message = 'You seem to be adding a plugin job without plugin syntax (' . $jobType . '), migrate to using ' . $plugin . '.' . $name . ' instead.';
+					trigger_error($message, E_USER_DEPRECATED);
+
+					return $plugin . '.' . $name;
+				}
 			}
 		}
 

@@ -42,6 +42,7 @@ class QueuedJobsTable extends Table {
 	public const DRIVER_MYSQL = 'Mysql';
 	public const DRIVER_POSTGRES = 'Postgres';
 	public const DRIVER_SQLSERVER = 'Sqlserver';
+	public const DRIVER_SQLITE = 'Sqlite';
 
 	public const STATS_LIMIT = 100000;
 
@@ -189,10 +190,6 @@ class QueuedJobsTable extends Table {
 	 * @return string
 	 */
 	protected function jobType(string $jobType): string {
-		if (strpos($jobType, '\\') === false) {
-			return $jobType;
-		}
-
 		if ($this->taskFinder === null) {
 			$this->taskFinder = new TaskFinder();
 		}
@@ -324,7 +321,7 @@ class QueuedJobsTable extends Table {
 	public function getFullStats($jobType = null) {
 		$driverName = $this->_getDriverName();
 		$fields = function (Query $query) use ($driverName) {
-			$runtime = $query->newExpr('julianday(completed) - julianday(fetched)');
+			$runtime = $query->newExpr('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)');
 			switch ($driverName) {
 				case static::DRIVER_SQLSERVER:
 					$runtime = $query->newExpr("DATEDIFF(s, '1970-01-01 00:00:00', completed) - DATEDIFF(s, '1970-01-01 00:00:00', fetched)");
@@ -332,6 +329,10 @@ class QueuedJobsTable extends Table {
 					break;
 				case static::DRIVER_POSTGRES:
 					$runtime = $query->newExpr('EXTRACT(EPOCH FROM completed) - EXTRACT(EPOCH FROM fetched)');
+
+					break;
+				case static::DRIVER_SQLITE:
+					$runtime = $query->newExpr('julianday(completed) - julianday(fetched)');
 
 					break;
 			}
