@@ -42,7 +42,7 @@ class QueuedJobsTableTest extends TestCase {
 		parent::setUp();
 
 		$config = TableRegistry::exists('QueuedJobs') ? [] : ['className' => QueuedJobsTable::class];
-		$this->QueuedJobs = TableRegistry::getTableLocator()->get('QueuedJobs', $config);
+		$this->QueuedJobs = $this->getTableLocator()->get('QueuedJobs', $config);
 	}
 
 	/**
@@ -611,50 +611,6 @@ class QueuedJobsTableTest extends TestCase {
 
 		$result = $this->QueuedJobs->isQueued('foo-bar');
 		$this->assertFalse($result);
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testWakeUpWorkersSendsSigUsr1() {
-		/** @var \Queue\Model\Table\QueueProcessesTable $queuedProcessesTable */
-		$queuedProcessesTable = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
-		$queuedProcess = $queuedProcessesTable->newEntity([
-			'pid' => (string)getmypid(),
-			'workerkey' => '123',
-			'server' => $queuedProcessesTable->buildServerString(),
-		]);
-		$queuedProcessesTable->saveOrFail($queuedProcess);
-
-		$gotSignal = false;
-		pcntl_signal(SIGUSR1, function() use (&$gotSignal) {
-			$gotSignal = true;
-		});
-
-		$this->QueuedJobs->wakeUpWorkers();
-		pcntl_signal_dispatch();
-
-		$this->assertTrue($gotSignal);
-		pcntl_signal(SIGUSR1, SIG_DFL);
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testEndProcess() {
-		/** @var \Queue\Model\Table\QueueProcessesTable $queuedProcessesTable */
-		$queuedProcessesTable = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
-
-		$queuedProcess = $queuedProcessesTable->newEntity([
-			'pid' => '1',
-			'workerkey' => '123',
-		]);
-		$queuedProcessesTable->saveOrFail($queuedProcess);
-
-		$this->QueuedJobs->endProcess('1');
-
-		$queuedProcess = $queuedProcessesTable->get($queuedProcess->id);
-		$this->assertTrue($queuedProcess->terminate);
 	}
 
 	/**

@@ -5,7 +5,6 @@ namespace Queue\Test\TestCase\Shell;
 use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Queue\Shell\QueueShell;
 use Shim\TestSuite\ConsoleOutput;
@@ -110,7 +109,7 @@ class QueueShellTest extends TestCase {
 	 */
 	public function testHardResetIntegration() {
 		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
-		$queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$queuedJobsTable->createJob('Example');
 
 		$queuedJobs = $queuedJobsTable->find()->count();

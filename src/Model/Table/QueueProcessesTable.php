@@ -5,6 +5,7 @@ namespace Queue\Model\Table;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use Queue\Model\ProcessEndingException;
 use Queue\Queue\Config;
@@ -214,6 +215,93 @@ class QueueProcessesTable extends Table {
 			'time' => $time,
 			'workers' => $count,
 		];
+	}
+
+	/**
+	 * Gets all active processes.
+	 *
+	 * $forThisServer only works for DB approach.
+	 *
+	 * @param bool $forThisServer
+	 * @return array
+	 */
+	public function getProcesses(bool $forThisServer = false): array {
+		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
+		$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
+		$query = $QueueProcesses->findActive()
+			->where(['terminate' => false]);
+		if ($forThisServer) {
+			$query = $query->where(['server' => $QueueProcesses->buildServerString()]);
+		}
+
+		$processes = $query
+			->enableHydration(false)
+			->find('list', ['keyField' => 'pid', 'valueField' => 'modified'])
+			->all()
+			->toArray();
+
+		return $processes;
+	}
+
+	/**
+	 * Soft ending of a running job, e.g. when migration is starting
+	 *
+	 * @param string $pid
+	 * @return void
+	 */
+	public function endProcess(string $pid): void {
+		if (!$pid) {
+			return;
+		}
+
+		/** @var \Queue\Model\Entity\QueueProcess $queuedProcess */
+		$queuedProcess = $this->find()->where(['pid' => $pid])->firstOrFail();
+		$queuedProcess->terminate = true;
+		$this->saveOrFail($queuedProcess);
+	}
+
+	/**
+	 * Note this does not work from the web backend to kill CLI workers.
+	 * We might need to run some exec() kill command here instead.
+	 *
+	 * @param string $pid
+	 * @param int $sig Signal (defaults to graceful SIGTERM = 15)
+	 * @return void
+	 */
+	public function terminateProcess(string $pid, int $sig = SIGTERM): void {
+		if (!$pid) {
+			return;
+		}
+
+		$killed = false;
+		if (function_exists('posix_kill')) {
+			$killed = posix_kill((int)$pid, $sig);
+		}
+		if (!$killed) {
+			exec('kill -' . $sig . ' ' . $pid);
+		}
+		sleep(1);
+
+		$this->deleteAll(['pid' => $pid]);
+	}
+
+	/**
+	 * Sends a SIGUSR1 to all workers. This will only affect workers
+	 * running with config option canInterruptSleep set to true.
+	 *
+	 * @return void
+	 */
+	public function wakeUpWorkers(): void {
+		if (!function_exists('posix_kill')) {
+			return;
+		}
+		$processes = $this->getProcesses();
+		foreach ($processes as $pid => $modified) {
+			$pid = (int)$pid;
+			if ($pid > 0) {
+				posix_kill($pid, SIGUSR1);
+			}
+		}
 	}
 
 	/**

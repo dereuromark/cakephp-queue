@@ -77,6 +77,11 @@ class BakeQueueTaskCommandTest extends TestCase {
 		if (file_exists($file)) {
 			unlink($file);
 		}
+
+		$testFile = $this->testFilePath . 'FooBarBazTaskTest.php';
+		if (file_exists($testFile)) {
+			unlink($testFile);
+		}
 	}
 
 }

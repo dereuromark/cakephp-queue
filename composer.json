@@ -19,9 +19,10 @@
 	],
 	"require": {
 		"php": ">=7.2",
-		"cakephp/cakephp": "^4.0.4"
+		"cakephp/cakephp": "^4.1.7"
 	},
 	"require-dev": {
+		"cakephp/bake": "^2.5.0",
 		"cakephp/migrations": "^3.0.0",
 		"friendsofcake/search": "^6.0.0",
 		"dereuromark/cakephp-tools": "^2.1.3",

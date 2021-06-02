@@ -10,7 +10,6 @@ use Cake\Http\Exception\NotImplementedException;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
-use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use InvalidArgumentException;
 use Queue\Model\Entity\QueuedJob;
@@ -634,7 +633,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return int Success
 	 */
-	public function reset($id = null, $full = false) {
+	public function reset(?int $id = null, bool $full = false): int {
 		$fields = [
 			'completed' => null,
 			'fetched' => null,
@@ -657,12 +656,12 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * @param string $type
+	 * @param string $task
 	 * @param string|null $reference
 	 *
 	 * @return int
 	 */
-	public function rerun($type, $reference = null) {
+	public function rerunByTask(string $task, ?string $reference = null): int {
 		$fields = [
 			'completed' => null,
 			'fetched' => null,
@@ -673,11 +672,33 @@ class QueuedJobsTable extends Table {
 		];
 		$conditions = [
 			'completed IS NOT' => null,
-			'job_task' => $type,
+			'job_task' => $task,
 		];
 		if ($reference) {
 			$conditions['reference'] = $reference;
 		}
+
+		return $this->updateAll($fields, $conditions);
+	}
+
+	/**
+	 * @param int $id
+	 *
+	 * @return int
+	 */
+	public function rerun(int $id): int {
+		$fields = [
+			'completed' => null,
+			'fetched' => null,
+			'progress' => null,
+			'failed' => 0,
+			'workerkey' => null,
+			'failure_message' => null,
+		];
+		$conditions = [
+			'completed IS NOT' => null,
+			'id' => $id,
+		];
 
 		return $this->updateAll($fields, $conditions);
 	}
@@ -875,76 +896,6 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * Gets all active processes.
-	 *
-	 * $forThisServer only works for DB approach.
-	 *
-	 * @param bool $forThisServer
-	 * @return array
-	 */
-	public function getProcesses(bool $forThisServer = false): array {
-		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
-		$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
-		$query = $QueueProcesses->findActive()
-			->where(['terminate' => false]);
-		if ($forThisServer) {
-			$query = $query->where(['server' => $QueueProcesses->buildServerString()]);
-		}
-
-		$processes = $query
-			->enableHydration(false)
-			->find('list', ['keyField' => 'pid', 'valueField' => 'modified'])
-			->all()
-			->toArray();
-
-		return $processes;
-	}
-
-	/**
-	 * Soft ending of a running job, e.g. when migration is starting
-	 *
-	 * @param string $pid
-	 * @return void
-	 */
-	public function endProcess(string $pid): void {
-		if (!$pid) {
-			return;
-		}
-
-		$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
-		/** @var \Queue\Model\Entity\QueueProcess $queuedProcess */
-		$queuedProcess = $QueueProcesses->find()->where(['pid' => $pid])->firstOrFail();
-		$queuedProcess->terminate = true;
-		$QueueProcesses->saveOrFail($queuedProcess);
-	}
-
-	/**
-	 * Note this does not work from the web backend to kill CLI workers.
-	 * We might need to run some exec() kill command here instead.
-	 *
-	 * @param string $pid
-	 * @param int $sig Signal (defaults to graceful SIGTERM = 15)
-	 * @return void
-	 */
-	public function terminateProcess(string $pid, int $sig = SIGTERM): void {
-		if (!$pid) {
-			return;
-		}
-
-		$killed = false;
-		if (function_exists('posix_kill')) {
-			$killed = posix_kill((int)$pid, $sig);
-		}
-		if (!$killed) {
-			exec('kill -' . $sig . ' ' . $pid);
-		}
-		sleep(1);
-
-		$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
-		$QueueProcesses->deleteAll(['pid' => $pid]);
-	}
-
-	/**
 	 * get the name of the driver
 	 *
 	 * @return string
@@ -998,25 +949,6 @@ class QueuedJobsTable extends Table {
 		}
 
 		return new FrozenTime($notBefore);
-	}
-
-	/**
-	 * Sends a SIGUSR1 to all workers. This will only affect workers
-	 * running with config option canInterruptSleep set to true.
-	 *
-	 * @return void
-	 */
-	public function wakeUpWorkers(): void {
-		if (!function_exists('posix_kill')) {
-			return;
-		}
-		$processes = $this->getProcesses();
-		foreach ($processes as $pid => $modified) {
-			$pid = (int)$pid;
-			if ($pid > 0) {
-				posix_kill($pid, SIGUSR1);
-			}
-		}
 	}
 
 }

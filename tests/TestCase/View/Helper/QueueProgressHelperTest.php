@@ -4,7 +4,6 @@ namespace Queue\Test\TestCase\View\Helper;
 
 use Cake\Datasource\ConnectionManager;
 use Cake\I18n\FrozenTime;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Cake\View\View;
 use Queue\Model\Entity\QueuedJob;
@@ -126,13 +125,13 @@ class QueueProgressHelperTest extends TestCase {
 		$this->_needsConnection();
 
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
-		$queuedJob = TableRegistry::getTableLocator()->get('Queue.QueuedJobs')->newEntity([
+		$queuedJob = $this->getTableLocator()->get('Queue.QueuedJobs')->newEntity([
 			'job_task' => 'Foo',
 			'created' => (new FrozenTime())->subHour(),
 			'fetched' => (new FrozenTime())->subHour(),
 			'completed' => (new FrozenTime())->subHour()->addMinutes(10),
 		]);
-		TableRegistry::getTableLocator()->get('Queue.QueuedJobs')->saveOrFail($queuedJob);
+		$this->getTableLocator()->get('Queue.QueuedJobs')->saveOrFail($queuedJob);
 
 		$queuedJob->completed = null;
 		$queuedJob->fetched = (new FrozenTime())->subMinute();

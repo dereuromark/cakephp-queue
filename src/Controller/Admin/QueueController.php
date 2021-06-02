@@ -126,22 +126,22 @@ class QueueController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function processes() {
-		$processes = $this->QueuedJobs->getProcesses();
+		$this->loadModel('Queue.QueueProcesses');
 
 		if ($this->request->is('post') && $this->request->getQuery('end')) {
 			$pid = (string)$this->request->getQuery('end');
-			$this->QueuedJobs->endProcess($pid);
+			$this->QueueProcesses->endProcess($pid);
 
 			return $this->redirect(['action' => 'processes']);
 		}
 		if ($this->request->is('post') && $this->request->getQuery('kill')) {
 			$pid = (int)$this->request->getQuery('kill');
-			$this->QueuedJobs->terminateProcess($pid);
+			$this->QueueProcesses->terminateProcess($pid);
 
 			return $this->redirect(['action' => 'processes']);
 		}
 
-		$this->loadModel('Queue.QueueProcesses');
+		$processes = $this->QueueProcesses->getProcesses();
 		$terminated = $this->QueueProcesses->find()->where(['terminate' => true])->all()->toArray();
 
 		$this->set(compact('terminated', 'processes'));
