@@ -144,6 +144,9 @@ class MigrateTasksCommand extends Command {
 		$newContent = (string)preg_replace('/public function add\(\) {/', 'public function add(?string $data): void {', $newContent);
 		$newContent = (string)preg_replace('/public function add\(\)\n/', 'public function add(?string $data): void' . PHP_EOL, $newContent);
 
+		$newContent = (string)preg_replace('/public function add\(\): void {/', 'public function add(?string $data): void {', $newContent);
+		$newContent = (string)preg_replace('/public function add\(\): void\n/', 'public function add(?string $data): void' . PHP_EOL, $newContent);
+
 		$methods = [
 			'out',
 			'hr',
