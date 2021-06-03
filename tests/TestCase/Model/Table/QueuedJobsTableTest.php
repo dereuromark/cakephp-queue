@@ -655,10 +655,10 @@ class QueuedJobsTableTest extends TestCase {
 
 		$queuedJob = array_shift($stats);
 		$this->assertSame(1, $queuedJob->num);
-		$this->assertSame(10800, (int)$queuedJob->alltime);
+		$this->assertWithinRange(10800, (int)$queuedJob->alltime, 1);
 
-		$this->assertSame(3600, (int)$queuedJob->runtime);
-		$this->assertSame(7200, (int)$queuedJob->fetchdelay);
+		$this->assertWithinRange(3600, (int)$queuedJob->runtime, 1);
+		$this->assertWithinRange(7200, (int)$queuedJob->fetchdelay, 1);
 	}
 
 	/**
