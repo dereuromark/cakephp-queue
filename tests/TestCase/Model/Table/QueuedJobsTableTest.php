@@ -419,6 +419,8 @@ class QueuedJobsTableTest extends TestCase {
 				'timeout' => 1,
 				'retries' => 2,
 				'rate' => 0,
+				'costs' => 0,
+				'unique' => false,
 			],
 		];
 
@@ -431,14 +433,14 @@ class QueuedJobsTableTest extends TestCase {
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
 		$this->assertSame($data, unserialize($tmp['data']));
-		$this->assertSame('0', $tmp['failed']);
+		$this->assertSame(0, $tmp['failed']);
 		sleep(2);
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
 		$this->assertSame($data, unserialize($tmp['data']));
-		$this->assertSame('1', $tmp['failed']);
+		$this->assertSame(1, $tmp['failed']);
 		$this->assertSame('Restart after timeout', $tmp['failure_message']);
 	}
 
@@ -481,6 +483,29 @@ class QueuedJobsTableTest extends TestCase {
 		$this->assertSame(['1'], unserialize($tmp['data']));
 		$this->assertSame('1', $tmp['failed']);
 		$this->assertSame('Restart after timeout', $tmp['failure_message']);
+	}
+
+	/**
+	 * Testing requesting, only works for non-SQlite so far.
+	 *
+	 * @return void
+	 */
+	public function testRequestJob() {
+		$this->_needsConnection();
+
+		$capabilities = [
+			'Foo' => [
+				'name' => 'Foo',
+				'timeout' => 1,
+				'retries' => 2,
+				'rate' => 0,
+				'costs' => 0,
+				'unique' => false,
+			],
+		];
+
+		$queuedJob = $this->QueuedJobs->requestJob($capabilities);
+		$this->assertNull($queuedJob);
 	}
 
 	/**
@@ -611,6 +636,29 @@ class QueuedJobsTableTest extends TestCase {
 
 		$result = $this->QueuedJobs->isQueued('foo-bar');
 		$this->assertFalse($result);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testGetStats() {
+		$queuedJob = $this->QueuedJobs->newEntity([
+			'job_task' => 'Foo',
+			'completed' => (new FrozenTime())->subHour(2),
+			'fetched' => (new FrozenTime())->subHour(3),
+			'created' => (new FrozenTime())->subHour(5),
+		]);
+		$this->QueuedJobs->saveOrFail($queuedJob);
+
+		$stats = $this->QueuedJobs->getStats();
+		$this->assertCount(1, $stats);
+
+		$queuedJob = array_shift($stats);
+		$this->assertSame(1, $queuedJob->num);
+		$this->assertSame(10800, (int)$queuedJob->alltime);
+
+		$this->assertSame(3600, (int)$queuedJob->runtime);
+		$this->assertSame(7200, (int)$queuedJob->fetchdelay);
 	}
 
 	/**

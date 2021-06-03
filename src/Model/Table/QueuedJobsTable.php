@@ -227,7 +227,7 @@ class QueuedJobsTable extends Table {
 	 * @param string|null $type Job type to Count
 	 * @return int
 	 */
-	public function getLength($type = null) {
+	public function getLength(?string $type = null): int {
 		$findConf = [
 			'conditions' => [
 				'completed IS' => null,
@@ -264,9 +264,11 @@ class QueuedJobsTable extends Table {
 	 * Return some statistics about finished jobs still in the Database.
 	 * TO-DO: rewrite as virtual field
 	 *
-	 * @return \Cake\ORM\Query
+	 * @param bool $disableHydration
+	 *
+	 * @return \Queue\Model\Entity\QueuedJob[]|mixed[]
 	 */
-	public function getStats() {
+	public function getStats(bool $disableHydration = false): array {
 		$driverName = $this->_getDriverName();
 		$options = [
 			'fields' => function (Query $query) use ($driverName) {
@@ -284,6 +286,12 @@ class QueuedJobsTable extends Table {
 						$alltime = $query->func()->avg('EXTRACT(EPOCH FROM completed) - EXTRACT(EPOCH FROM created)');
 						$runtime = $query->func()->avg('EXTRACT(EPOCH FROM completed) - EXTRACT(EPOCH FROM fetched)');
 						$fetchdelay = $query->func()->avg('EXTRACT(EPOCH FROM fetched) - CASE WHEN notbefore IS NULL then EXTRACT(EPOCH FROM created) ELSE EXTRACT(EPOCH FROM notbefore) END');
+
+						break;
+					case static::DRIVER_SQLITE:
+						$alltime = $query->func()->avg('julianday(completed) - julianday(created)');
+						$runtime = $query->func()->avg('julianday(completed) - julianday(fetched)');
+						$fetchdelay = $query->func()->avg('julianday(fetched) - (CASE WHEN notbefore IS NULL THEN julianday(created) ELSE julianday(notbefore) END)');
 
 						break;
 				}
@@ -304,7 +312,20 @@ class QueuedJobsTable extends Table {
 			],
 		];
 
-		return $this->find('all', $options);
+		$query = $this->find('all', $options);
+		if ($disableHydration) {
+			$query = $query->disableHydration();
+		}
+		$result = $query->toArray();
+		if ($result && $driverName === static::DRIVER_SQLITE) {
+			foreach ($result as $key => $row) {
+				$result[$key]['fetchdelay'] = (int)round($row['fetchdelay'] * DAY);
+				$result[$key]['runtime'] = (int)round($row['runtime'] * DAY);
+				$result[$key]['alltime'] = (int)round($row['alltime'] * DAY);
+			}
+		}
+
+		return $result;
 	}
 
 	/**
@@ -370,7 +391,12 @@ class QueuedJobsTable extends Table {
 				$days[$day] = $day;
 			}
 
-			$result[$job['job_task']][$day][] = $job['duration'];
+			$runtime = $job['duration'];
+			if ($driverName === static::DRIVER_SQLITE) {
+				$runtime = (int)round($runtime * DAY);
+			}
+
+			$result[$job['job_task']][$day][] = $runtime;
 		}
 
 		foreach ($result as $jobType => $jobs) {
@@ -421,6 +447,10 @@ class QueuedJobsTable extends Table {
 			case static::DRIVER_POSTGRES:
 				$age = $query->newExpr()
 					->add('COALESCE(EXTRACT(EPOCH FROM notbefore) - (EXTRACT(EPOCH FROM now())), 0)');
+
+				break;
+			case static::DRIVER_SQLITE:
+				//TODO
 
 				break;
 		}
@@ -533,6 +563,10 @@ class QueuedJobsTable extends Table {
 						break;
 					case static::DRIVER_SQLSERVER:
 						$tmp["DATEDIFF(s, '1970-01-01 00:00:00', GETDATE()) >="] = $this->rateHistory[$tmp['job_task']] + $task['rate'];
+
+						break;
+					case static::DRIVER_SQLITE:
+						//TODO
 
 						break;
 				}
