@@ -269,7 +269,7 @@ class QueuedJobsTable extends Table {
 	 * @return \Queue\Model\Entity\QueuedJob[]|mixed[]
 	 */
 	public function getStats(bool $disableHydration = false): array {
-		$driverName = $this->_getDriverName();
+		$driverName = $this->getDriverName();
 		$options = [
 			'fields' => function (Query $query) use ($driverName) {
 				$alltime = $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(created)');
@@ -339,8 +339,8 @@ class QueuedJobsTable extends Table {
 	 * @param string|null $jobType
 	 * @return array
 	 */
-	public function getFullStats($jobType = null) {
-		$driverName = $this->_getDriverName();
+	public function getFullStats(?string $jobType = null): array {
+		$driverName = $this->getDriverName();
 		$fields = function (Query $query) use ($driverName) {
 			$runtime = $query->newExpr('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)');
 			switch ($driverName) {
@@ -435,7 +435,7 @@ class QueuedJobsTable extends Table {
 	public function requestJob(array $tasks, array $groups = [], array $types = []) {
 		$now = $this->getDateTime();
 		$nowStr = $now->toDateTimeString();
-		$driverName = $this->_getDriverName();
+		$driverName = $this->getDriverName();
 
 		$query = $this->find();
 		$age = $query->newExpr()->add('IFNULL(TIMESTAMPDIFF(SECOND, "' . $nowStr . '", notbefore), 0)');
@@ -612,7 +612,7 @@ class QueuedJobsTable extends Table {
 	 * @param string|null $status
 	 * @return bool Success
 	 */
-	public function updateProgress($id, $progress, $status = null) {
+	public function updateProgress($id, $progress, ?string $status = null): bool {
 		if (!$id) {
 			return false;
 		}
@@ -633,7 +633,7 @@ class QueuedJobsTable extends Table {
 	 * @param \Queue\Model\Entity\QueuedJob $job Job
 	 * @return bool Success
 	 */
-	public function markJobDone(QueuedJob $job) {
+	public function markJobDone(QueuedJob $job): bool {
 		$fields = [
 			'progress' => 100,
 			'completed' => $this->getDateTime(),
@@ -650,7 +650,7 @@ class QueuedJobsTable extends Table {
 	 * @param string|null $failureMessage Optional message to append to the failure_message field.
 	 * @return bool Success
 	 */
-	public function markJobFailed(QueuedJob $job, $failureMessage = null) {
+	public function markJobFailed(QueuedJob $job, ?string $failureMessage = null): bool {
 		$fields = [
 			'failed' => $job->failed + 1,
 			'failure_message' => $failureMessage,
@@ -771,7 +771,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return void
 	 */
-	public function cleanOldJobs() {
+	public function cleanOldJobs(): void {
 		if (!Configure::read('Queue.cleanuptimeout')) {
 			return;
 		}
@@ -786,7 +786,7 @@ class QueuedJobsTable extends Table {
 	 * @param array $taskConfiguration
 	 * @return string
 	 */
-	public function getFailedStatus($queuedTask, array $taskConfiguration) {
+	public function getFailedStatus(QueuedJob $queuedTask, array $taskConfiguration): string {
 		$failureMessageRequeued = 'requeued';
 
 		$queuedTaskName = 'Queue' . $queuedTask->job_task;
@@ -810,59 +810,6 @@ class QueuedJobsTable extends Table {
 	 */
 	public function findQueued(Query $query, array $options) {
 		return $query->where(['completed IS' => null]);
-	}
-
-	/**
-	 * Custom find method, as in `find('progress', ...)`.
-	 *
-	 * @deprecated Unused right now, needs fixing.
-	 *
-	 * @param string $state Current state
-	 * @param array $query Parameters
-	 * @param array $results Results
-	 * @return array Query/Results based on state
-	 */
-	protected function _findProgress($state, $query = [], $results = []) {
-		if ($state === 'before') {
-			$query['fields'] = [
-				'reference',
-				'status',
-				'progress',
-				'failure_message',
-			];
-			if (isset($query['conditions']['exclude'])) {
-				$exclude = $query['conditions']['exclude'];
-				unset($query['conditions']['exclude']);
-				$exclude = trim($exclude, ',');
-				$exclude = explode(',', $exclude);
-				$query['conditions'][] = [
-					'NOT' => [
-						'reference' => $exclude,
-					],
-				];
-			}
-			if (isset($query['conditions']['job_group'])) {
-				$query['conditions'][]['job_group'] = $query['conditions']['job_group'];
-				unset($query['conditions']['job_group']);
-			}
-
-			return $query;
-		}
-		// state === after
-		foreach ($results as $k => $result) {
-			$results[$k] = [
-				'reference' => $result['reference'],
-				'status' => $result['status'],
-			];
-			if (!empty($result['progress'])) {
-				$results[$k]['progress'] = $result['progress'];
-			}
-			if (!empty($result['failure_message'])) {
-				$results[$k]['failure_message'] = $result['failure_message'];
-			}
-		}
-
-		return $results;
 	}
 
 	/**
@@ -935,7 +882,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return string
 	 */
-	protected function _getDriverName() {
+	protected function getDriverName(): string {
 		$className = explode('\\', $this->getConnection()->config()['driver']);
 		$name = end($className) ?: '';
 

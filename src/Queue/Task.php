@@ -107,7 +107,7 @@ abstract class Task implements TaskInterface {
 	 * @throws \InvalidArgumentException
 	 * @return string
 	 */
-	public static function taskName() {
+	public static function taskName(): string {
 		$class = static::class;
 
 		preg_match('#^(.+?)\\\\Queue\\\\Task\\\\(.+?)Task$#', $class, $matches);

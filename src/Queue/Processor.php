@@ -220,7 +220,7 @@ class Processor {
 	 * @param bool $addDetails
 	 * @return void
 	 */
-	protected function _log($message, $pid = null, $addDetails = true) {
+	protected function _log(string $message, ?string $pid = null, bool $addDetails = true): void {
 		if (!Configure::read('Queue.log')) {
 			return;
 		}
@@ -242,7 +242,7 @@ class Processor {
 	 * @param string|null $pid PID of the process
 	 * @return void
 	 */
-	protected function _logError($message, $pid = null) {
+	protected function _logError(string $message, ?string $pid = null): void {
 		$timeNeeded = $this->timeNeeded();
 		$memoryUsage = $this->memoryUsage();
 		$message .= ' [' . $timeNeeded . ', ' . $memoryUsage . ']';
@@ -297,7 +297,7 @@ class Processor {
 	/**
 	 * @return string
 	 */
-	protected function _initPid() {
+	protected function _initPid(): string {
 		$pid = $this->_retrievePid();
 		$key = $this->QueuedJobs->key();
 		$this->QueueProcesses->add($pid, $key);
@@ -310,7 +310,7 @@ class Processor {
 	/**
 	 * @return string
 	 */
-	protected function _retrievePid() {
+	protected function _retrievePid(): string {
 		if (function_exists('posix_getpid')) {
 			$pid = (string)posix_getpid();
 		} else {
@@ -402,7 +402,7 @@ class Processor {
 	 *
 	 * @return void
 	 */
-	protected function _setPhpTimeout() {
+	protected function _setPhpTimeout(): void {
 		$timeLimit = (int)Configure::readOrFail('Queue.workermaxruntime') * 100;
 		if (Configure::read('Queue.workertimeout') !== null) {
 			$timeLimit = (int)Configure::read('Queue.workertimeout');

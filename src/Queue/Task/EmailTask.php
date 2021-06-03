@@ -132,7 +132,7 @@ class EmailTask extends Task implements AddInterface {
 			return;
 		}
 
-		$this->mailer = $this->_getMailer();
+		$this->mailer = $this->getMailer();
 
 		$settings = $data['settings'] + $this->defaults;
 		foreach ($settings as $method => $setting) {
@@ -171,7 +171,7 @@ class EmailTask extends Task implements AddInterface {
 	 * @throws \Queue\Model\QueueException
 	 * @return \Cake\Mailer\Mailer
 	 */
-	protected function _getMailer() {
+	protected function getMailer() {
 		$class = Configure::read('Queue.mailerClass');
 		if (!$class) {
 			$class = 'Tools\Mailer\Mailer';
