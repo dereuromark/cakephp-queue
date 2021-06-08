@@ -132,7 +132,7 @@ class Processor {
 			}
 
 			if ($config['verbose']) {
-				$this->_log('runworker', $pid, false);
+				$this->_log('run', $pid, false);
 			}
 			$this->io->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
 
