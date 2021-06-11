@@ -177,12 +177,13 @@ class WorkerCommand extends Command {
 	protected function clean(ConsoleIo $io): int {
 		$timeout = Config::defaultworkertimeout();
 		if (!$timeout) {
-			$this->abort('You disabled `defaultworkertimeout` in config. Aborting.');
+			$io->abort('You disabled `defaultworkertimeout` in config. Aborting.');
 		}
 		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
 		$io->out('Deleting old/outdated processes, that have finished before ' . $thresholdTime);
-		$this->QueueProcesses->cleanEndedProcesses();
+		$result = $this->QueueProcesses->cleanEndedProcesses();
+		$io->success('Deleted: ' . $result);
 
 		return static::CODE_SUCCESS;
 	}

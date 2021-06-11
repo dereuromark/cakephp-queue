@@ -124,7 +124,7 @@ class QueueProcessesTableTest extends TestCase {
 		$queuedProcessesTable = $this->getTableLocator()->get('Queue.QueueProcesses');
 		$queuedProcess = $queuedProcessesTable->newEntity([
 			'pid' => (string)getmypid(),
-			'workerkey' => '123',
+			'workerkey' => $queuedProcessesTable->buildServerString(),
 			'server' => $queuedProcessesTable->buildServerString(),
 		]);
 		$queuedProcessesTable->saveOrFail($queuedProcess);

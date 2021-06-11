@@ -259,13 +259,14 @@ class JobCommand extends Command {
 	 */
 	protected function clean(ConsoleIo $io): int {
 		if (!Configure::read('Queue.cleanuptimeout')) {
-			$this->abort('You disabled cleanuptimout in config. Aborting.');
+			$io->abort('You disabled cleanuptimout in config. Aborting.');
 		}
 
 		$date = (new FrozenTime())->subSeconds((int)Configure::read('Queue.cleanuptimeout'));
 
 		$io->out('Deleting old jobs, that have finished before ' . $date);
-		$this->QueuedJobs->cleanOldJobs();
+		$result = $this->QueuedJobs->cleanOldJobs();
+		$io->success('Deleted: ' . $result);
 
 		return static::CODE_SUCCESS;
 	}

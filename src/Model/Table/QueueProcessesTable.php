@@ -294,8 +294,8 @@ class QueueProcessesTable extends Table {
 			return;
 		}
 		$processes = $this->getProcesses(true);
-		foreach ($processes as $pid => $modified) {
-			$pid = (int)$pid;
+		foreach ($processes as $process) {
+			$pid = (int)$process->pid;
 			if ($pid > 0) {
 				posix_kill($pid, SIGUSR1);
 			}
