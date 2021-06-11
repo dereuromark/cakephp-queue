@@ -352,7 +352,7 @@ class QueuedJobsController extends AppController {
 				continue;
 			}
 
-			[$plugin, $name]= explode('.', $task, 2);
+			[$plugin, $name] = explode('.', $task, 2);
 			if (!isset($existingTasks[$name])) {
 				continue;
 			}

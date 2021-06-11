@@ -69,25 +69,8 @@ class QueueShellTest extends TestCase {
 	}
 
 	/**
-	 * @return void
-	 */
-	public function testHardResetIntegration() {
-		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
-		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
-		$queuedJobsTable->createJob('Example');
-
-		$queuedJobs = $queuedJobsTable->find()->count();
-		$this->assertSame(1, $queuedJobs);
-
-		$this->shell->runCommand(['hard_reset']);
-
-		$this->assertStringContainsString('OK', $this->out->output(), print_r($this->out->output, true));
-
-		$queuedJobs = $queuedJobsTable->find()->count();
-		$this->assertSame(0, $queuedJobs);
-	}
-
-	/**
+	 * //FIXME: Migrate to worker test
+	 *
 	 * @return void
 	 */
 	public function testRetry() {
@@ -107,44 +90,6 @@ class QueueShellTest extends TestCase {
 		$this->shell->runworker();
 
 		$this->assertStringContainsString('Job did not finish, requeued after try 1.', $this->out->output());
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testTimeNeeded() {
-		$this->shell = $this->getMockBuilder(QueueShell::class)->setMethods(['_time'])->getMock();
-
-		$first = time();
-		$second = $first - HOUR + MINUTE;
-		$this->shell->expects($this->at(0))->method('_time')->will($this->returnValue($first));
-		$this->shell->expects($this->at(1))->method('_time')->will($this->returnValue($second));
-		$this->shell->expects($this->exactly(2))->method('_time')->withAnyParameters();
-
-		$result = $this->invokeMethod($this->shell, '_timeNeeded');
-		$this->assertSame('3540s', $result);
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testMemoryUsage() {
-		$result = $this->invokeMethod($this->shell, '_memoryUsage');
-		$this->assertRegExp('/^\d+MB/', $result, 'Should be e.g. `17MB` or `17MB/1GB` etc.');
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testStringToArray() {
-		$string = 'Foo,Bar,';
-		$result = $this->invokeMethod($this->shell, '_stringToArray', [$string]);
-
-		$expected = [
-			'Foo',
-			'Bar',
-		];
-		$this->assertSame($expected, $result);
 	}
 
 	/**

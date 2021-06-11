@@ -80,7 +80,7 @@ class Processor {
 		$config = $this->getConfig($args);
 
 		try {
-			$pid = $this->_initPid();
+			$pid = $this->initPid();
 		} catch (PersistenceFailedException $exception) {
 			$this->io->err($exception->getMessage());
 			$limit = (int)Configure::read('Queue.maxworkers');
@@ -98,10 +98,10 @@ class Processor {
 			gc_enable();
 		}
 		if (function_exists('pcntl_signal')) {
-			pcntl_signal(SIGTERM, [&$this, '_exit']);
-			pcntl_signal(SIGINT, [&$this, '_abort']);
-			pcntl_signal(SIGTSTP, [&$this, '_abort']);
-			pcntl_signal(SIGQUIT, [&$this, '_abort']);
+			pcntl_signal(SIGTERM, [&$this, 'exit']);
+			pcntl_signal(SIGINT, [&$this, 'abort']);
+			pcntl_signal(SIGTSTP, [&$this, 'abort']);
+			pcntl_signal(SIGQUIT, [&$this, 'abort']);
 			if (Configure::read('Queue.canInterruptSleep')) {
 				// Defining a signal handler here will make the worker wake up
 				// from its sleep() when SIGUSR1 is received. Since waking it
@@ -115,10 +115,10 @@ class Processor {
 		$startTime = time();
 
 		while (!$this->exit) {
-			$this->_setPhpTimeout();
+			$this->setPhpTimeout();
 
 			try {
-				$this->_updatePid($pid);
+				$this->updatePid($pid);
 			} catch (RecordNotFoundException $exception) {
 				// Manually killed
 				$this->exit = true;
@@ -132,7 +132,7 @@ class Processor {
 			}
 
 			if ($config['verbose']) {
-				$this->_log('run', $pid, false);
+				$this->log('run', $pid, false);
 			}
 			$this->io->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
 
@@ -164,7 +164,7 @@ class Processor {
 		$this->deletePid($pid);
 
 		if ($config['verbose']) {
-			$this->_log('endworker', $pid);
+			$this->log('endworker', $pid);
 		}
 
 		return CommandInterface::CODE_SUCCESS;
@@ -177,7 +177,7 @@ class Processor {
 	 */
 	protected function runJob(QueuedJob $queuedJob, string $pid) {
 		$this->io->out('Running Job of type "' . $queuedJob->job_task . '"');
-		$this->_log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id, $pid, false);
+		$this->log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id, $pid, false);
 		$taskName = $queuedJob->job_task;
 
 		$return = $failureMessage = null;
@@ -196,13 +196,13 @@ class Processor {
 				$failureMessage .= "\n" . $e->getTraceAsString();
 			}
 
-			$this->_logError($taskName . ' (job ' . $queuedJob->id . ')' . "\n" . $failureMessage, $pid);
+			$this->logError($taskName . ' (job ' . $queuedJob->id . ')' . "\n" . $failureMessage, $pid);
 		}
 
 		if ($return === false) {
 			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
 			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->getTaskConf());
-			$this->_log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
+			$this->log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
 			$this->io->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
 
 			return;
@@ -220,7 +220,7 @@ class Processor {
 	 * @param bool $addDetails
 	 * @return void
 	 */
-	protected function _log(string $message, ?string $pid = null, bool $addDetails = true): void {
+	protected function log(string $message, ?string $pid = null, bool $addDetails = true): void {
 		if (!Configure::read('Queue.log')) {
 			return;
 		}
@@ -242,7 +242,7 @@ class Processor {
 	 * @param string|null $pid PID of the process
 	 * @return void
 	 */
-	protected function _logError(string $message, ?string $pid = null): void {
+	protected function logError(string $message, ?string $pid = null): void {
 		$timeNeeded = $this->timeNeeded();
 		$memoryUsage = $this->memoryUsage();
 		$message .= ' [' . $timeNeeded . ', ' . $memoryUsage . ']';
@@ -279,7 +279,7 @@ class Processor {
 	 * @param int $signal
 	 * @return void
 	 */
-	protected function _exit($signal) {
+	protected function exit($signal) {
 		$this->exit = true;
 	}
 
@@ -289,7 +289,7 @@ class Processor {
 	 * @param int $signal
 	 * @return void
 	 */
-	protected function _abort($signal) {
+	protected function abort($signal) {
 		$this->deletePid($this->pid);
 		exit(1);
 	}
@@ -297,8 +297,8 @@ class Processor {
 	/**
 	 * @return string
 	 */
-	protected function _initPid(): string {
-		$pid = $this->_retrievePid();
+	protected function initPid(): string {
+		$pid = $this->retrievePid();
 		$key = $this->QueuedJobs->key();
 		$this->QueueProcesses->add($pid, $key);
 
@@ -310,7 +310,7 @@ class Processor {
 	/**
 	 * @return string
 	 */
-	protected function _retrievePid(): string {
+	protected function retrievePid(): string {
 		if (function_exists('posix_getpid')) {
 			$pid = (string)posix_getpid();
 		} else {
@@ -325,7 +325,7 @@ class Processor {
 	 *
 	 * @return void
 	 */
-	protected function _updatePid(string $pid): void {
+	protected function updatePid(string $pid): void {
 		$this->QueueProcesses->update($pid);
 	}
 
@@ -386,7 +386,7 @@ class Processor {
 	 * @param string $param
 	 * @return string[]
 	 */
-	protected function _stringToArray(string $param): array {
+	protected function stringToArray(string $param): array {
 		if (!$param) {
 			return [];
 		}
@@ -402,7 +402,7 @@ class Processor {
 	 *
 	 * @return void
 	 */
-	protected function _setPhpTimeout(): void {
+	protected function setPhpTimeout(): void {
 		$timeLimit = (int)Configure::readOrFail('Queue.workermaxruntime') * 100;
 		if (Configure::read('Queue.workertimeout') !== null) {
 			$timeLimit = (int)Configure::read('Queue.workertimeout');
@@ -426,10 +426,10 @@ class Processor {
 			$config['verbose'] = true;
 		}
 		if (!empty($args['group'])) {
-			$config['groups'] = $this->_stringToArray($args['group']);
+			$config['groups'] = $this->stringToArray($args['group']);
 		}
 		if (!empty($args['type'])) {
-			$config['types'] = $this->_stringToArray($args['type']);
+			$config['types'] = $this->stringToArray($args['type']);
 		}
 
 		return $config;
