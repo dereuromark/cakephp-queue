@@ -769,14 +769,14 @@ class QueuedJobsTable extends Table {
 	/**
 	 * Cleanup/Delete Completed Jobs.
 	 *
-	 * @return void
+	 * @return int
 	 */
-	public function cleanOldJobs(): void {
+	public function cleanOldJobs(): int {
 		if (!Configure::read('Queue.cleanuptimeout')) {
-			return;
+			return 0;
 		}
 
-		$this->deleteAll([
+		return $this->deleteAll([
 			'completed <' => time() - (int)Configure::read('Queue.cleanuptimeout'),
 		]);
 	}

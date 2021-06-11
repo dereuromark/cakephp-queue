@@ -6,7 +6,9 @@ use Cake\Command\Command;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
+use Cake\Core\Configure;
 use Cake\Error\Debugger;
+use Cake\I18n\FrozenTime;
 use Queue\Model\Entity\QueuedJob;
 
 /**
@@ -56,13 +58,13 @@ class JobCommand extends Command {
 	public function execute(Arguments $args, ConsoleIo $io) {
 		$action = $args->getArgument('action');
 		if (!$action) {
-			//$action = $io->askChoice('Action', ['view', 'rerun', 'reset']);
 			$io->out('Please use with [action] [ID] added.');
 			$io->out('Actions are:');
 			$io->out('- view: Display status of a job');
 			$io->out('- rerun: Rerun a successfully run job ("all" for all)');
 			$io->out('- reset: Reset a failed job ("all" for all)');
 			$io->out('- remove: Remove a job ("all" for truncating)');
+			$io->out('- clean: Cleanup (old jobs removal)');
 			$io->out();
 
 			/** @var \Queue\Model\Entity\QueuedJob[] $jobs */
@@ -83,21 +85,27 @@ class JobCommand extends Command {
 			return static::CODE_ERROR;
 		}
 
-		if (!in_array($action, ['view', 'rerun', 'reset', 'remove'], true)) {
+		if (!in_array($action, ['view', 'rerun', 'reset', 'remove', 'clean'], true)) {
 			$io->abort('No such action');
 		}
 
 		$id = $args->getArgument('id');
-		if (!$id) {
+		if (!$id && $action !== 'clean') {
 			$io->abort('Job ID must be given, or "all" used for all.');
 		}
 		if ($action === 'view' && $id === 'all') {
 			$io->abort('"All" does not exist for view action, only works with IDs.');
 		}
+		if ($action === 'clean' && $id) {
+			$io->abort('Clean action does not have a 2nd argument.');
+		}
 
 		if ($id === 'all') {
 			$action .= 'All';
 
+			return $this->$action($io);
+		}
+		if ($action === 'clean') {
 			return $this->$action($io);
 		}
 
@@ -240,6 +248,24 @@ class JobCommand extends Command {
 
 		$data = $queuedJob->data ? unserialize($queuedJob->data) : null;
 		$io->out('Data: ' . Debugger::exportVar($data, 9));
+
+		return static::CODE_SUCCESS;
+	}
+
+	/**
+	 * @param \Cake\Console\ConsoleIo $io
+	 *
+	 * @return int
+	 */
+	protected function clean(ConsoleIo $io): int {
+		if (!Configure::read('Queue.cleanuptimeout')) {
+			$this->abort('You disabled cleanuptimout in config. Aborting.');
+		}
+
+		$date = (new FrozenTime())->subSeconds((int)Configure::read('Queue.cleanuptimeout'));
+
+		$io->out('Deleting old jobs, that have finished before ' . $date);
+		$this->QueuedJobs->cleanOldJobs();
 
 		return static::CODE_SUCCESS;
 	}

@@ -1,9 +1,10 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var array $processes
+ * @var \Queue\Model\Entity\QueueProcess[] $processes
  * @var \Queue\Model\Entity\QueueProcess[] $terminated
  * @var \Queue\Model\Entity\QueuedJob $queuedJob
+ * @var string $key
  */
 use Cake\I18n\Time;
 
@@ -25,14 +26,14 @@ use Cake\I18n\Time;
 
 <ul>
 <?php
-foreach ($processes as $process => $timestamp) {
-	echo '<li>' . $process . ':';
+foreach ($processes as $process) {
+	echo '<li>' . $process->pid . ':';
 	echo '<ul>';
-	echo '<li>Last run: ' . $this->Time->nice(new Time($timestamp)) . '</li>';
+	echo '<li>Last run: ' . $this->Time->nice(new Time($process->modified)) . '</li>';
 
-	echo '<li>End: ' . $this->Form->postLink(__d('queue', 'Finish current job and end'), ['action' => 'processes', '?' => ['end' => $process]], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-secondary']) . ' (next loop run)</li>';
-	if (!$this->Configure->read('Queue.multiserver')) {
-		echo '<li>' . __d('queue', 'Kill') . ': ' . $this->Form->postLink(__d('queue', 'Soft kill'), ['action' => 'processes', '?' => ['kill' => $process]], ['confirm' => 'Sure?']) . ' (termination SIGTERM = 15)</li>';
+	echo '<li>End: ' . $this->Form->postLink(__d('queue', 'Finish current job and end'), ['action' => 'processes', '?' => ['end' => $process->pid]], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-secondary']) . ' (next loop run)</li>';
+	if ($process->workerkey === $key || !$this->Configure->read('Queue.multiserver')) {
+		echo '<li>' . __d('queue', 'Kill') . ': ' . $this->Form->postLink(__d('queue', 'Soft kill'), ['action' => 'processes', '?' => ['kill' => $process->pid]], ['confirm' => 'Sure?']) . ' (termination SIGTERM = 15)</li>';
 	}
 
 	echo '</ul>';

@@ -143,8 +143,9 @@ class QueueController extends AppController {
 
 		$processes = $this->QueueProcesses->getProcesses();
 		$terminated = $this->QueueProcesses->find()->where(['terminate' => true])->all()->toArray();
+		$key = $this->QueueProcesses->buildServerString();
 
-		$this->set(compact('terminated', 'processes'));
+		$this->set(compact('terminated', 'processes', 'key'));
 	}
 
 	/**

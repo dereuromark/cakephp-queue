@@ -7,6 +7,8 @@ use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;
+use Cake\I18n\FrozenTime;
+use Queue\Queue\Config;
 
 /**
  * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
@@ -57,8 +59,9 @@ class WorkerCommand extends Command {
 		if (!$action) {
 			$io->out('Please use with [action] [PID] added.');
 			$io->out('Actions are:');
-			$io->out('- end: Gracefully end a worker/process, use "all" for all');
-			$io->out('- kill: Kill a worker/process, use "all" for all');
+			$io->out('- end: Gracefully end a worker/process, use "all"/"server" for all');
+			$io->out('- kill: Kill a worker/process, use "all"/"server" for all');
+			$io->out('- clean: ');
 			$io->out();
 
 			/** @var \Queue\Model\Entity\QueueProcess[] $processes */
@@ -79,12 +82,15 @@ class WorkerCommand extends Command {
 			return static::CODE_ERROR;
 		}
 
-		if (!in_array($action, ['end', 'kill'], true)) {
+		if (!in_array($action, ['end', 'kill', 'clean'], true)) {
 			$io->abort('No such action');
 		}
 		$pid = $args->getArgument('pid');
-		if (!$pid) {
+		if (!$pid && $action !== 'clean') {
 			$io->abort('PID must be given, or "all" used for all.');
+		}
+		if ($action === 'clean' && $pid) {
+			$io->abort('Clean action does not have a 2nd argument.');
 		}
 
 		return $this->$action($io, $pid);
@@ -97,9 +103,8 @@ class WorkerCommand extends Command {
 	 * @return int
 	 */
 	protected function end(ConsoleIo $io, string $pid): int {
-		if ($pid === 'all') {
-			$workers = $this->QueueProcesses->find()->all()->toArray();
-			/** @var \Queue\Model\Entity\QueueProcess[] $workers */
+		if ($pid === 'all' || $pid === 'server') {
+			$workers = $this->QueueProcesses->getProcesses($pid === 'server');
 			foreach ($workers as $worker) {
 				$this->QueueProcesses->endProcess($worker->pid);
 				$io->success('Job ' . $worker->pid . ' marked for termination (will finish current job)');
@@ -128,11 +133,15 @@ class WorkerCommand extends Command {
 	 * @return int
 	 */
 	protected function kill(ConsoleIo $io, string $pid): int {
-		$serverString = $this->QueueProcesses->buildServerString();
-		if ($pid === 'all') {
-			$workers = $this->QueueProcesses->find()->where(['server' => $serverString])->all()->toArray();
-			/** @var \Queue\Model\Entity\QueueProcess[] $workers */
+		if ($pid === 'all' || $pid === 'server') {
+			$workers = $this->QueueProcesses->getProcesses($pid === 'server');
 			foreach ($workers as $worker) {
+				if ($pid === 'all' && Configure::read('Queue.multiserver')) {
+					$serverString = $this->QueueProcesses->buildServerString();
+					if ($serverString !== $worker->workerkey) {
+						$io->abort('Cannot kill by PID in multiserver environment for this CLI. You need to execute this on the same server.');
+					}
+				}
 				$this->QueueProcesses->terminateProcess($worker->pid);
 				$io->success('Job ' . $worker->pid . ' killed');
 			}
@@ -147,6 +156,7 @@ class WorkerCommand extends Command {
 		}
 
 		if (Configure::read('Queue.multiserver')) {
+			$serverString = $this->QueueProcesses->buildServerString();
 			if ($serverString !== $worker->workerkey) {
 				$io->abort('Cannot kill by PID in multiserver environment for this CLI. You need to execute this on the same server.');
 			}
@@ -155,6 +165,24 @@ class WorkerCommand extends Command {
 		$this->QueueProcesses->terminateProcess($worker->pid);
 
 		$io->success('Job ' . $worker->pid . ' killed');
+
+		return static::CODE_SUCCESS;
+	}
+
+	/**
+	 * @param \Cake\Console\ConsoleIo $io
+	 *
+	 * @return int
+	 */
+	protected function clean(ConsoleIo $io): int {
+		$timeout = Config::defaultworkertimeout();
+		if (!$timeout) {
+			$this->abort('You disabled `defaultworkertimeout` in config. Aborting.');
+		}
+		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
+
+		$io->out('Deleting old/outdated processes, that have finished before ' . $thresholdTime);
+		$this->QueueProcesses->cleanEndedProcesses();
 
 		return static::CODE_SUCCESS;
 	}

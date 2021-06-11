@@ -223,7 +223,7 @@ class QueueProcessesTable extends Table {
 	 * $forThisServer only works for DB approach.
 	 *
 	 * @param bool $forThisServer
-	 * @return array
+	 * @return \Queue\Model\Entity\QueueProcess[]
 	 */
 	public function getProcesses(bool $forThisServer = false): array {
 		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
@@ -235,8 +235,6 @@ class QueueProcessesTable extends Table {
 		}
 
 		$processes = $query
-			->enableHydration(false)
-			->find('list', ['keyField' => 'pid', 'valueField' => 'modified'])
 			->all()
 			->toArray();
 
@@ -295,7 +293,7 @@ class QueueProcessesTable extends Table {
 		if (!function_exists('posix_kill')) {
 			return;
 		}
-		$processes = $this->getProcesses();
+		$processes = $this->getProcesses(true);
 		foreach ($processes as $pid => $modified) {
 			$pid = (int)$pid;
 			if ($pid > 0) {
