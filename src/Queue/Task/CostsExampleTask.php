@@ -16,6 +16,11 @@ class CostsExampleTask extends Task implements AddInterface {
 	public $costs = 55;
 
 	/**
+	 * @var int
+	 */
+	protected $sleep = 10;
+
+	/**
 	 * To invoke from CLI execute:
 	 * - bin/cake queue add Queue.CostsExample
 	 *
@@ -53,10 +58,18 @@ class CostsExampleTask extends Task implements AddInterface {
 		$this->io->hr();
 		$this->io->out('CakePHP Queue CostsExample task.');
 
-		sleep(10);
+		sleep($this->sleep);
 
 		$this->io->hr();
 		$this->io->success(' -> Success, the CostsExample Job was run. <-');
+	}
+
+	/**
+	 * @param int $seconds
+	 * @return void
+	 */
+	public function setSleep(int $seconds): void {
+		$this->sleep = $seconds;
 	}
 
 }

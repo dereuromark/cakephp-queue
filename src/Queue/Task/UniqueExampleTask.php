@@ -11,6 +11,11 @@ use Queue\Queue\Task;
 class UniqueExampleTask extends Task implements AddInterface {
 
 	/**
+	 * @var int
+	 */
+	protected $sleep = 10;
+
+	/**
 	 * @var bool
 	 */
 	public $unique = true;
@@ -54,10 +59,18 @@ class UniqueExampleTask extends Task implements AddInterface {
 		$this->io->hr();
 		$this->io->out('CakePHP Queue UniqueExample task.');
 
-		sleep(10);
+		sleep($this->sleep);
 
 		$this->io->hr();
 		$this->io->success(' -> Success, the UniqueExample Job was run. <-');
+	}
+
+	/**
+	 * @param int $seconds
+	 * @return void
+	 */
+	public function setSleep(int $seconds): void {
+		$this->sleep = $seconds;
 	}
 
 }

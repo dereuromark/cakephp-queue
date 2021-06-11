@@ -59,25 +59,58 @@ class QueueProgressHelperTest extends TestCase {
 			'progress' => 0.9999,
 		]);
 		$result = $this->QueueProgressHelper->progress($queuedJob);
-		$this->assertTextContains('99%', $result);
+		$this->assertSame('99%', $result);
 
 		$queuedJob = new QueuedJob([
 			'progress' => 0.0001,
 		]);
 		$result = $this->QueueProgressHelper->progress($queuedJob);
-		$this->assertTextContains('1%', $result);
+		$this->assertSame('1%', $result);
 
 		$queuedJob = new QueuedJob([
 			'progress' => 1.0,
 		]);
 		$result = $this->QueueProgressHelper->progress($queuedJob);
-		$this->assertTextContains('100%', $result);
+		$this->assertSame('100%', $result);
 
 		$queuedJob = new QueuedJob([
 			'progress' => 0.0,
 		]);
 		$result = $this->QueueProgressHelper->progress($queuedJob);
-		$this->assertTextContains('0%', $result);
+		$this->assertSame('0%', $result);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testProgressCalculatedEmpty() {
+		$queuedJob = new QueuedJob([
+			'job_task' => 'Queue.Example',
+			'fetched' => (new FrozenTime())->subMinute(),
+		]);
+		$result = $this->QueueProgressHelper->progress($queuedJob);
+		$this->assertNull($result);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testProgressCalculated() {
+		$queuedJob = new QueuedJob([
+			'job_task' => 'Queue.Example',
+			'created' => (new FrozenTime())->subMinutes(2),
+			'fetched' => (new FrozenTime())->subMinute(),
+			'completed' => (new FrozenTime())->subSeconds(2),
+		]);
+		$this->getTableLocator()->get('Queue.QueuedJobs')->saveOrFail($queuedJob);
+
+		$queuedJob = new QueuedJob([
+			'job_task' => 'Queue.Example',
+			'fetched' => (new FrozenTime())->subMinute(),
+		]);
+
+		$result = $this->QueueProgressHelper->progress($queuedJob);
+		$this->assertSame('99%', $result);
 	}
 
 	/**
