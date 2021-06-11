@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Queue\Test\TestCase\Command;
 
 use Cake\Core\Configure;
+use Cake\Datasource\ConnectionManager;
 use Cake\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\TestSuite\TestCase;
 
@@ -43,10 +44,23 @@ class RunCommandTest extends TestCase {
 	 * @return void
 	 */
 	public function testExecute(): void {
+		$this->_needsConnection();
+
 		$this->exec('queue run');
 
 		$output = $this->_out->output();
 		$this->assertStringContainsString('Looking for Job', $output);
+	}
+
+	/**
+	 * Helper method for skipping tests that need a real connection.
+	 *
+	 * @return void
+	 */
+	protected function _needsConnection() {
+		$config = ConnectionManager::getConfig('test');
+		$skip = strpos($config['driver'], 'Mysql') === false && strpos($config['driver'], 'Postgres') === false;
+		$this->skipIf($skip, 'Only Mysql/Postgres is working yet for this.');
 	}
 
 }

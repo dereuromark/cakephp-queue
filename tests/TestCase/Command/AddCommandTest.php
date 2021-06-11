@@ -17,7 +17,6 @@ class AddCommandTest extends TestCase {
 	 * @var string[]
 	 */
 	protected $fixtures = [
-		//'plugin.Queue.QueueProcesses',
 		'plugin.Queue.QueuedJobs',
 	];
 
