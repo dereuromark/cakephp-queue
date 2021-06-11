@@ -332,4 +332,52 @@ class QueuedJobsController extends AppController {
 		];
 	}
 
+	/**
+	 * @return \Cake\Http\Response|null|void
+	 */
+	public function migrate() {
+		$taskFinder = new TaskFinder();
+		$allTasks = $taskFinder->all();
+
+		$existingTasks = $this->QueuedJobs->find()
+			->select(['job_task'])
+			->distinct('job_task')
+			->disableHydration()
+			->find('list', ['keyField' => 'job_task', 'valueField' => 'job_task'])
+			->toArray();
+
+		$tasks = [];
+		foreach ($allTasks as $task => $className) {
+			if (strpos($task, 'Queue.') !== 0) {
+				continue;
+			}
+
+			[$plugin, $name]= explode('.', $task, 2);
+			if (!isset($existingTasks[$name])) {
+				continue;
+			}
+
+			$tasks[$name] = $task;
+		}
+
+		if ($this->request->is('post')) {
+			$tasksToMigrate = $this->request->getData('tasks');
+
+			$count = 0;
+			foreach ($tasksToMigrate as $taskToMigrate => $status) {
+				if (!$status) {
+					continue;
+				}
+
+				$count += $this->QueuedJobs->updateAll(['job_task' => 'Queue.' . $taskToMigrate], ['job_task' => $taskToMigrate]);
+			}
+
+			$this->Flash->success('Done: ' . $count);
+
+			return $this->redirect(['action' => 'migrate']);
+		}
+
+		$this->set(compact('tasks'));
+	}
+
 }
