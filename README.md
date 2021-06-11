@@ -46,4 +46,4 @@ While you can run multiple workers, and can (to some extent) spread these worker
 See [Sandbox app](https://sandbox.dereuromark.de/sandbox/queue-examples).
 
 ## Installation and Usage
-See [Documentation](docs).
+See [Documentation](docs/).

@@ -1,5 +1,14 @@
 # CakePHP Queue Plugin Documentation
 
+## Coming from v5 to v6?
+Migration here is provided using
+- `bin/cake queue migrate_tasks` for the task classes.
+  They will be renamed and moved to the new location.
+  Also some upgrades of internals will be applied.
+- Then run `composer migrate -p Queue` to migrate DB schema.
+- Finally, go to `/admin/queue/queued-jobs/migrate` backend and fix up any old name to new one.
+
+Don't forget to replace the crontab worker command to `bin/cake queue run`.
 
 ## Installation
 ```
@@ -161,7 +170,7 @@ Put it into `src/Queue/Task/` as `{YourNameForIt}Task.php`.
 
 You need to at least implement the `run()` method:
 ```php
-namespace App\Shell\Task;
+namespace App\Queue\Task;
 
 use Queue\Queue\Task;
 
