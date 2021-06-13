@@ -35,7 +35,9 @@ class Plugin extends BasePlugin {
 		$commands->add('queue run', RunCommand::class);
 		$commands->add('queue worker', WorkerCommand::class);
 		$commands->add('queue job', JobCommand::class);
-		$commands->add('bake queue_task', BakeQueueTaskCommand::class);
+		if (class_exists('Bake\Command\SimpleBakeCommand')) {
+			$commands->add('bake queue_task', BakeQueueTaskCommand::class);
+		}
 		if (Configure::read('debug')) {
 			$commands->add('queue migrate_tasks', MigrateTasksCommand::class);
 		}
