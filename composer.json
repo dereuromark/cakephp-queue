@@ -58,6 +58,7 @@
 		"stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^0.12 && mv composer.backup composer.json",
 		"test": "php phpunit.phar",
 		"test-setup": "[ ! -f phpunit.phar ] && wget https://phar.phpunit.de/phpunit-8.5.15.phar && mv phpunit-8.5.15.phar phpunit.phar || true",
+		"test-setup-9": "[ ! -f phpunit.phar ] && wget https://phar.phpunit.de/phpunit-9.5.4.phar && mv phpunit-9.5.4.phar phpunit.phar || true",
 		"test-coverage": "php phpunit.phar --log-junit tmp/coverage/unitreport.xml --coverage-html tmp/coverage --coverage-clover tmp/coverage/coverage.xml",
 		"cs-check": "phpcs -p -s --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=/config/Migrations/,/tests/test_files/ --extensions=php src/ tests/ config/",
 		"cs-fix": "phpcbf -p --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=/config/Migrations/,/tests/test_files/ --extensions=php src/ tests/ config/"
