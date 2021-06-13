@@ -128,5 +128,4 @@ ConnectionManager::setConfig('test', [
 	'timezone' => 'UTC',
 	'quoteIdentifiers' => false,
 	'cacheMetadata' => true,
-
 ]);
