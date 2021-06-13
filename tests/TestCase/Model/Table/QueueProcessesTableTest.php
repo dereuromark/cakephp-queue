@@ -35,7 +35,7 @@ class QueueProcessesTableTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('QueueProcesses') ? [] : ['className' => QueueProcessesTable::class];
-		$this->QueueProcesses = TableRegistry::getTableLocator()->get('QueueProcesses', $config);
+		$this->QueueProcesses = $this->getTableLocator()->get('QueueProcesses', $config);
 
 		Configure::delete('Queue.maxworkers');
 	}
@@ -114,6 +114,50 @@ class QueueProcessesTableTest extends TestCase {
 
 		$result = $this->QueueProcesses->find()->where(['id' => $queueProcessId])->first();
 		$this->assertNull($result);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testWakeUpWorkersSendsSigUsr1() {
+		/** @var \Queue\Model\Table\QueueProcessesTable $queuedProcessesTable */
+		$queuedProcessesTable = $this->getTableLocator()->get('Queue.QueueProcesses');
+		$queuedProcess = $queuedProcessesTable->newEntity([
+			'pid' => (string)getmypid(),
+			'workerkey' => $queuedProcessesTable->buildServerString(),
+			'server' => $queuedProcessesTable->buildServerString(),
+		]);
+		$queuedProcessesTable->saveOrFail($queuedProcess);
+
+		$gotSignal = false;
+		pcntl_signal(SIGUSR1, function() use (&$gotSignal) {
+			$gotSignal = true;
+		});
+
+		$queuedProcessesTable->wakeUpWorkers();
+		pcntl_signal_dispatch();
+
+		$this->assertTrue($gotSignal);
+		pcntl_signal(SIGUSR1, SIG_DFL);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testEndProcess() {
+		/** @var \Queue\Model\Table\QueueProcessesTable $queuedProcessesTable */
+		$queuedProcessesTable = $this->getTableLocator()->get('Queue.QueueProcesses');
+
+		$queuedProcess = $queuedProcessesTable->newEntity([
+			'pid' => '1',
+			'workerkey' => '123',
+		]);
+		$queuedProcessesTable->saveOrFail($queuedProcess);
+
+		$queuedProcessesTable->endProcess('1');
+
+		$queuedProcess = $queuedProcessesTable->get($queuedProcess->id);
+		$this->assertTrue($queuedProcess->terminate);
 	}
 
 }

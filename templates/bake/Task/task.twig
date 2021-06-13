@@ -1,0 +1,30 @@
+<?php
+
+namespace {{ namespace }};
+
+{% if add %}
+use Queue\Queue\AddInterface;
+{% endif %}
+use Queue\Queue\Task;
+
+class {{ name }} extends Task{{ add ? ' implements AddInterface' : '' }} {
+
+	/**
+	 * @param array $data The array passed to QueuedJobsTable::createJob()
+	 * @param int $jobId The id of the QueuedJob entity
+	 * @return void
+	 */
+	public function run(array $data, int $jobId): void {
+	}
+{% if add %}
+
+	/**
+	 * @param string|null $data Optional data for the task, make sure to "quote multi words"
+	 *
+	 * @return void
+	 */
+	public function add(?string $data): void {
+	}
+{% endif %}
+
+}

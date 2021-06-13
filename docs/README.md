@@ -1,5 +1,14 @@
 # CakePHP Queue Plugin Documentation
 
+## Coming from v5 to v6?
+Migration here is provided using
+- `bin/cake queue migrate_tasks` for the task classes.
+  They will be renamed and moved to the new location.
+  Also some upgrades of internals will be applied.
+- Then run `composer migrate -p Queue` to migrate DB schema.
+- Finally, go to `/admin/queue/queued-jobs/migrate` backend and fix up any old name to new one.
+
+Don't forget to replace the crontab worker command to `bin/cake queue run`.
 
 ## Installation
 ```
@@ -157,15 +166,15 @@ Set the retries to at least 1, otherwise it will never execute again after failu
 ## Writing your own task
 
 In most cases you wouldn't want to use the existing task, but just quickly build your own.
-Put it into `/src/Shell/Task/` as `Queue{YourNameForIt}Task.php`.
+Put it into `src/Queue/Task/` as `{YourNameForIt}Task.php`.
 
-You need to at least implement the run method:
+You need to at least implement the `run()` method:
 ```php
-namespace App\Shell\Task;
+namespace App\Queue\Task;
 
-...
+use Queue\Queue\Task;
 
-class QueueYourNameForItTask extends QueueTask implements QueueTaskInterface {
+class YourNameForItTask extends Task {
 
     /**
      * @var int
@@ -182,7 +191,7 @@ class QueueYourNameForItTask extends QueueTask implements QueueTaskInterface {
      * @param int $jobId The id of the QueuedJob entity
      * @return void
      */
-    public function run(array $data, $jobId) {
+    public function run(array $data, int $jobId): void {
         $this->loadModel('FooBars');
         if (!$this->FooBars->doSth()) {
             throw new RuntimeException('Couldnt do sth.');
@@ -212,7 +221,7 @@ Run the following using the CakePHP shell:
 
 * Run a queue worker, which will look for a pending task it can execute:
 
-        bin/cake queue runworker
+        bin/cake queue run
 
     The worker will always try to find jobs matching its installed Tasks.
 
@@ -230,11 +239,11 @@ For sending emails, for example:
 ```php
 // In your controller
 $this->loadModel('Queue.QueuedJobs');
-$this->QueuedJobs->createJob('Email', ['to' => 'user@example.org', ...]);
+$this->QueuedJobs->createJob('Queue.Email', ['to' => 'user@example.org', ...]);
 
 // Somewhere in the model or lib
-TableRegistry::getTableLocator()->get('Queue.QueuedJobs')->createJob('Email',
-    ['to' => 'user@example.org', ...]);
+TableRegistry::getTableLocator()->get('Queue.QueuedJobs')
+    ->createJob('Queue.Email', ['to' => 'user@example.org', ...]);
 ```
 
 It will use your custom APP `QueueEmailTask` to send out emails via CLI.
@@ -245,9 +254,9 @@ Important: Do not forget to set your [domain](https://book.cakephp.org/3.0/en/co
 ### Running only specific tasks per worker
 You can filter "running" by group or even type:
 ```
-bin/cake queue runworker -g MyGroup
-bin/cake queue runworker -t MyType,AnotherType,-ThisOneToo
-bin/cake queue runworker -t "-ThisOneNot"
+bin/cake queue run -g MyGroup
+bin/cake queue run -t MyType,AnotherType,-ThisOneToo
+bin/cake queue run -t "-ThisOneNot"
 ```
 Use `-` prefix to exclude. Note that you might need to use `""` around the value then to avoid it being seen as option key.
 
@@ -265,14 +274,14 @@ In your logic you can check on this using `isQueued()` and a unique reference:
         $this->request->allowMethod('post');
 
         $this->loadModel('Queue.QueuedJobs');
-        if ($this->QueuedJobs->isQueued('my-import', 'Execute')) {
+        if ($this->QueuedJobs->isQueued('my-import', 'Queue.Execute')) {
             $this->Flash->error('Job already running');
 
             return $this->redirect($this->referer(['action' => 'index']));
         }
 
         $this->QueuedJobs->createJob(
-           'Execute',
+           'Queue.Execute',
             ['command' => 'bin/cake importer run'],
             ['reference' => 'my-import', 'priority' => 2]
         );
@@ -309,13 +318,13 @@ foreach ($records as $i => $record) {
 }
 ```
 
-You can, independently from the progress field, also use a status (string) field to give feedback.
+You can, independently of the progress field, also use a status (string) field to give feedback.
 See this example implementation:
 
 ```php
-class FooTask extends QueueTask {
+class FooTask extends Task {
 
-    public function run(array $data, $jobId) {
+    public function run(array $data, int $jobId): void {
         // Initializing
         $jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
         $foo = new Foo();
@@ -349,8 +358,6 @@ class FooTask extends QueueTask {
             ['status' => 'Done doing things'],
             ['id' => $jobId]
         );
-
-        return true;
     }
 }
 ```
@@ -428,7 +435,7 @@ Make sure you add this to your config:
 ],
 ```
 
-When debugging (using -v) on the runworker, it will also log the worker run and end.
+When debugging (using -v) on "run", it will also log the worker run and end.
 
 You can disable info logging by setting `Queue.log` to `false` in your config.
 
@@ -462,21 +469,49 @@ This includes also failed ones if not filtered further using `where()` condition
 
 ### Notes
 
-`<TaskName>` may either be the complete classname (eg. QueueExample) or the shorthand without the leading "Queue" (e.g. Example).
+`<TaskName>` is the complete class name without the Task suffix (eg. Example or PluginName.Example).
 
-Also note that you dont need to add the type ("Task"): `bin/cake queue add SpecialExample` for QueueSpecialExampleTask.
+Custom tasks should be placed in `src/Queue/Task/`.
+Tasks should be named `SomethingTask` and implement the Queue "Task".
 
-Custom tasks should be placed in `src/Shell/Task/`.
-Tasks should be named `QueueSomethingTask.php` and implement a "QueueSomethingTask", keeping CakePHP naming conventions intact.
-Custom tasks should extend the `QueueTask` class (you will need to include this at the top of your custom task file: `use Queue\Shell\Task\QueueTask;`).
+Plugin tasks go in `plugins/PluginName/src/Queue/Task/`.
 
-Plugin tasks go in `plugins/PluginName/src/Shell/Task/`.
-
-A detailed Example task can be found in `src/Shell/Task/QueueExampleTask.php` inside this folder.
+A detailed Example task can be found in `src/Queue/Task/QueueExampleTask.php` inside this plugin.
 
 Some more tips:
-- If you copy an example, do not forget to adapt the namespace!
-- For plugin tasks, make sure to load the plugin as the collector needs to know what plugins to check.
+- If you copy an example, do not forget to adapt the namespace ("App")!
+- For plugin tasks, make sure to load the plugin using the plugin prefix ("MyPlugin.MyName").
+
+
+## Adding jobs from CLI or as click
+If you want to also allow adding jobs from CLI, you need to implement the AddInterface:
+```php
+...
+use Queue/Queue/AddInterface;
+
+class MyExampleTask extends Task implements AddInterface {
+
+    ...
+
+    /**
+     * @param string|null $data
+     *
+     * @return void
+     */
+    public function add(?string $data): void {
+        ...
+    }
+
+}
+```
+Now you can add them from both CLI and Web backend (/queue).
+So `bin/cake queue add SpecialExample` for SpecialExampleTask.
+
+The payload is a simple string, make sure to quote if it contains whitespace:
+```
+bin/cake queue add SpecialExample "Foo:Bar, Baz"
+```
+You need to handle the content of this `$data` string manually inside your `add()` method.
 
 ## Setting up the trigger cronjob
 
@@ -485,7 +520,7 @@ to start a new worker.
 
 The following example uses "crontab":
 
-    */10  *  *  *  *  cd /full/path/to/app && bin/cake queue runworker -q
+    */10  *  *  *  *  cd /full/path/to/app && bin/cake queue run -q
 
 Make sure you use `crontab -e -u www-data` to set it up as `www-data` user, and not as root etc.
 
@@ -604,7 +639,7 @@ $data = [
     'content' => $content,
 ];
 $queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
-$queuedJobsTable->createJob('Email', $data);
+$queuedJobsTable->createJob('Queue.Email', $data);
 ```
 
 This will sent a plain email. Each settings key must have a matching setter method on the Message class.
@@ -641,7 +676,7 @@ $mailer->viewBuilder()
 $mailer->set...(...);
 
 $this->loadModel('Queue.QueuedJobs')->createJob(
-    'Email',
+    'Queue.Email',
     ['settings' => $mailer]
 );
 ```
@@ -810,7 +845,7 @@ and you enter `Ctrl+C` or alike, it will also hard-kill this worker process.
 
 #### Concurrent workers may execute the same job multiple times
 
-If you want to use multiple workers, please double check that all jobs have a high enough timeout (>> 2x max possible execution time of a job). Currently it would otherwise risk the jobs being run multiple times!
+If you want to use multiple workers, please double-check that all jobs have a high enough timeout (>> 2x max possible execution time of a job). Currently it would otherwise risk the jobs being run multiple times!
 
 #### Concurrent workers may execute the same job type multiple times
 

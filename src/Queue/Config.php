@@ -2,9 +2,7 @@
 
 namespace Queue\Queue;
 
-use Cake\Core\App;
 use Cake\Core\Configure;
-use RuntimeException;
 
 class Config {
 
@@ -74,23 +72,22 @@ class Config {
 	public static function taskConfig(array $tasks): array {
 		$config = [];
 
-		foreach ($tasks as $task) {
-			$className = App::className($task, 'Shell/Task', 'Task');
-			if (!$className) {
-				throw new RuntimeException('Cannot find class name for task `' . $task . '`');
-			}
+		foreach ($tasks as $task => $className) {
 			[$pluginName, $taskName] = pluginSplit($task);
 
-			/** @var \Queue\Shell\Task\QueueTask $taskObject */
+			/** @var \Queue\Queue\Task $taskObject */
 			$taskObject = new $className();
 
-			$config[$taskName]['name'] = substr($taskName, 5);
-			$config[$taskName]['plugin'] = $pluginName;
-			$config[$taskName]['timeout'] = $taskObject->timeout ?? static::defaultworkertimeout();
-			$config[$taskName]['retries'] = $taskObject->retries ?? static::defaultworkerretries();
-			$config[$taskName]['rate'] = $taskObject->rate;
-			$config[$taskName]['costs'] = $taskObject->costs;
-			$config[$taskName]['unique'] = $taskObject->unique;
+			$config[$task]['class'] = $className;
+			$config[$task]['name'] = $taskName;
+			$config[$task]['plugin'] = $pluginName;
+			$config[$task]['timeout'] = $taskObject->timeout ?? static::defaultworkertimeout();
+			$config[$task]['retries'] = $taskObject->retries ?? static::defaultworkerretries();
+			$config[$task]['rate'] = $taskObject->rate;
+			$config[$task]['costs'] = $taskObject->costs;
+			$config[$task]['unique'] = $taskObject->unique;
+
+			unset($taskObject);
 		}
 
 		return $config;

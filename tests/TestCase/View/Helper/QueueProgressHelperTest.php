@@ -4,7 +4,6 @@ namespace Queue\Test\TestCase\View\Helper;
 
 use Cake\Datasource\ConnectionManager;
 use Cake\I18n\FrozenTime;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Cake\View\View;
 use Queue\Model\Entity\QueuedJob;
@@ -60,25 +59,58 @@ class QueueProgressHelperTest extends TestCase {
 			'progress' => 0.9999,
 		]);
 		$result = $this->QueueProgressHelper->progress($queuedJob);
-		$this->assertTextContains('99%', $result);
+		$this->assertSame('99%', $result);
 
 		$queuedJob = new QueuedJob([
 			'progress' => 0.0001,
 		]);
 		$result = $this->QueueProgressHelper->progress($queuedJob);
-		$this->assertTextContains('1%', $result);
+		$this->assertSame('1%', $result);
 
 		$queuedJob = new QueuedJob([
 			'progress' => 1.0,
 		]);
 		$result = $this->QueueProgressHelper->progress($queuedJob);
-		$this->assertTextContains('100%', $result);
+		$this->assertSame('100%', $result);
 
 		$queuedJob = new QueuedJob([
 			'progress' => 0.0,
 		]);
 		$result = $this->QueueProgressHelper->progress($queuedJob);
-		$this->assertTextContains('0%', $result);
+		$this->assertSame('0%', $result);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testProgressCalculatedEmpty() {
+		$queuedJob = new QueuedJob([
+			'job_task' => 'Queue.Example',
+			'fetched' => (new FrozenTime())->subMinute(),
+		]);
+		$result = $this->QueueProgressHelper->progress($queuedJob);
+		$this->assertNull($result);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testProgressCalculated() {
+		$queuedJob = new QueuedJob([
+			'job_task' => 'Queue.Example',
+			'created' => (new FrozenTime())->subMinutes(2),
+			'fetched' => (new FrozenTime())->subMinute(),
+			'completed' => (new FrozenTime())->subSeconds(2),
+		]);
+		$this->getTableLocator()->get('Queue.QueuedJobs')->saveOrFail($queuedJob);
+
+		$queuedJob = new QueuedJob([
+			'job_task' => 'Queue.Example',
+			'fetched' => (new FrozenTime())->subMinute(),
+		]);
+
+		$result = $this->QueueProgressHelper->progress($queuedJob);
+		$this->assertSame('99%', $result);
 	}
 
 	/**
@@ -126,13 +158,13 @@ class QueueProgressHelperTest extends TestCase {
 		$this->_needsConnection();
 
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
-		$queuedJob = TableRegistry::getTableLocator()->get('Queue.QueuedJobs')->newEntity([
-			'job_type' => 'Foo',
+		$queuedJob = $this->getTableLocator()->get('Queue.QueuedJobs')->newEntity([
+			'job_task' => 'Foo',
 			'created' => (new FrozenTime())->subHour(),
 			'fetched' => (new FrozenTime())->subHour(),
 			'completed' => (new FrozenTime())->subHour()->addMinutes(10),
 		]);
-		TableRegistry::getTableLocator()->get('Queue.QueuedJobs')->saveOrFail($queuedJob);
+		$this->getTableLocator()->get('Queue.QueuedJobs')->saveOrFail($queuedJob);
 
 		$queuedJob->completed = null;
 		$queuedJob->fetched = (new FrozenTime())->subMinute();

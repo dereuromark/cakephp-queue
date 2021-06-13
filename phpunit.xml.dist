@@ -9,7 +9,7 @@
 	</php>
 	<testsuites>
 		<testsuite name="queue">
-			<directory>tests/</directory>
+			<directory>tests/TestCase/</directory>
 		</testsuite>
 	</testsuites>
 

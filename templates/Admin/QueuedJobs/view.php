@@ -22,7 +22,7 @@
 	<table class="table vertical-table">
 		<tr>
 			<th><?= __d('queue', 'Job Type') ?></th>
-			<td><?= h($queuedJob->job_type) ?></td>
+			<td><?= h($queuedJob->job_task) ?></td>
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Job Group') ?></th>

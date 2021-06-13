@@ -7,7 +7,3 @@ parameters:
 		- ../phpunit.phar
 	checkMissingIterableValueType: false
 	checkGenericClassInNonGenericObjectType: false
-	earlyTerminatingMethodCalls:
-		Cake\Console\Shell:
-			- abort
-	ignoreErrors:

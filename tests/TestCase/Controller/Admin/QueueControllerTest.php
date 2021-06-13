@@ -3,7 +3,6 @@
 namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Datasource\ConnectionManager;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestCase;
 
 /**
@@ -56,7 +55,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testProcessesEnd() {
-		$queueProcessesTable = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
+		$queueProcessesTable = $this->getTableLocator()->get('Queue.QueueProcesses');
 		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
 		$queueProcess = $queueProcessesTable->newEntity([
 			'pid' => '1234',
@@ -76,24 +75,24 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testAddJob() {
-		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 
-		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'addJob', 'Example']);
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'addJob', '?' => ['task' => 'Queue.Example']]);
 
 		$this->assertResponseCode(302);
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->find()->orderDesc('id')->firstOrFail();
-		$this->assertSame('Example', $job->job_type);
+		$this->assertSame('Queue.Example', $job->job_task);
 	}
 
 	/**
 	 * @return void
 	 */
 	public function testRemoveJob() {
-		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
@@ -110,9 +109,9 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testResetJob() {
-		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
@@ -130,9 +129,9 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testResetJobRedirect() {
-		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
@@ -152,9 +151,9 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testResetJobRedirectInvalid() {
-		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
@@ -174,9 +173,9 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testResetJobRedirectReferer() {
-		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
@@ -200,9 +199,9 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testReset() {
-		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 			'failed' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
@@ -220,9 +219,9 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testHardReset() {
-		$jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 		]);
 		$jobsTable->saveOrFail($job);
 		$count = $jobsTable->find()->count();

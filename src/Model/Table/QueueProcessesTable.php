@@ -5,6 +5,7 @@ namespace Queue\Model\Table;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use Queue\Model\ProcessEndingException;
 use Queue\Queue\Config;
@@ -95,7 +96,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return bool
 	 */
-	public function validateCount($value, array $context) {
+	public function validateCount($value, array $context): bool {
 		$maxWorkers = Config::maxworkers();
 		if (!$value || !$maxWorkers) {
 			return true;
@@ -125,7 +126,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return int
 	 */
-	public function add($pid, $key) {
+	public function add(string $pid, string $key): int {
 		$data = [
 			'pid' => $pid,
 			'server' => $this->buildServerString(),
@@ -143,7 +144,7 @@ class QueueProcessesTable extends Table {
 	 * @throws \Queue\Model\ProcessEndingException
 	 * @return void
 	 */
-	public function update($pid) {
+	public function update(string $pid): void {
 		$conditions = [
 			'pid' => $pid,
 			'server IS' => $this->buildServerString(),
@@ -164,7 +165,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return void
 	 */
-	public function remove($pid) {
+	public function remove(string $pid): void {
 		$conditions = [
 			'pid' => $pid,
 			'server IS' => $this->buildServerString(),
@@ -176,7 +177,7 @@ class QueueProcessesTable extends Table {
 	/**
 	 * @return int
 	 */
-	public function cleanEndedProcesses() {
+	public function cleanEndedProcesses(): int {
 		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
@@ -190,7 +191,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return array
 	 */
-	public function status() {
+	public function status(): array {
 		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
@@ -217,6 +218,91 @@ class QueueProcessesTable extends Table {
 	}
 
 	/**
+	 * Gets all active processes.
+	 *
+	 * $forThisServer only works for DB approach.
+	 *
+	 * @param bool $forThisServer
+	 * @return \Queue\Model\Entity\QueueProcess[]
+	 */
+	public function getProcesses(bool $forThisServer = false): array {
+		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
+		$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
+		$query = $QueueProcesses->findActive()
+			->where(['terminate' => false]);
+		if ($forThisServer) {
+			$query = $query->where(['server' => $QueueProcesses->buildServerString()]);
+		}
+
+		$processes = $query
+			->all()
+			->toArray();
+
+		return $processes;
+	}
+
+	/**
+	 * Soft ending of a running job, e.g. when migration is starting
+	 *
+	 * @param string $pid
+	 * @return void
+	 */
+	public function endProcess(string $pid): void {
+		if (!$pid) {
+			return;
+		}
+
+		/** @var \Queue\Model\Entity\QueueProcess $queuedProcess */
+		$queuedProcess = $this->find()->where(['pid' => $pid])->firstOrFail();
+		$queuedProcess->terminate = true;
+		$this->saveOrFail($queuedProcess);
+	}
+
+	/**
+	 * Note this does not work from the web backend to kill CLI workers.
+	 * We might need to run some exec() kill command here instead.
+	 *
+	 * @param string $pid
+	 * @param int $sig Signal (defaults to graceful SIGTERM = 15)
+	 * @return void
+	 */
+	public function terminateProcess(string $pid, int $sig = SIGTERM): void {
+		if (!$pid) {
+			return;
+		}
+
+		$killed = false;
+		if (function_exists('posix_kill')) {
+			$killed = posix_kill((int)$pid, $sig);
+		}
+		if (!$killed) {
+			exec('kill -' . $sig . ' ' . $pid);
+		}
+		sleep(1);
+
+		$this->deleteAll(['pid' => $pid]);
+	}
+
+	/**
+	 * Sends a SIGUSR1 to all workers. This will only affect workers
+	 * running with config option canInterruptSleep set to true.
+	 *
+	 * @return void
+	 */
+	public function wakeUpWorkers(): void {
+		if (!function_exists('posix_kill')) {
+			return;
+		}
+		$processes = $this->getProcesses(true);
+		foreach ($processes as $process) {
+			$pid = (int)$process->pid;
+			if ($pid > 0) {
+				posix_kill($pid, SIGUSR1);
+			}
+		}
+	}
+
+	/**
 	 * Use ENV to control the server name of the servers run workers with.
 	 *
 	 * export SERVER_NAME=myserver1
@@ -225,7 +311,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return string|null
 	 */
-	public function buildServerString() {
+	public function buildServerString(): ?string {
 		$serverName = (string)env('SERVER_NAME') ?: gethostname();
 		if (!$serverName) {
 			$user = env('USER');

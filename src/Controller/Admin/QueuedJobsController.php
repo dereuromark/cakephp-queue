@@ -7,6 +7,7 @@ use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\FrozenTime;
+use Laminas\Diactoros\UploadedFile;
 use Queue\Queue\TaskFinder;
 use RuntimeException;
 
@@ -74,7 +75,7 @@ class QueuedJobsController extends AppController {
 		$this->set(compact('queuedJobs'));
 
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
-			$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_type', 'valueField' => 'job_type'])->distinct('job_type')->toArray();
+			$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_task', 'valueField' => 'job_task'])->distinct('job_task')->toArray();
 			$this->set(compact('jobTypes'));
 		}
 	}
@@ -93,7 +94,7 @@ class QueuedJobsController extends AppController {
 
 		$stats = $this->QueuedJobs->getFullStats($jobType);
 
-		$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_type', 'valueField' => 'job_type'])->distinct('job_type')->toArray();
+		$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_task', 'valueField' => 'job_task'])->distinct('job_task')->toArray();
 		$this->set(compact('stats', 'jobTypes'));
 	}
 
@@ -124,14 +125,18 @@ class QueuedJobsController extends AppController {
 	 */
 	public function import() {
 		if ($this->request->is(['post'])) {
+			/** @var array|\Laminas\Diactoros\UploadedFile $file */
 			$file = $this->request->getData('file');
+			if ($file instanceof UploadedFile) {
+				$file = $this->fileToArray($file);
+			}
 			if ($file && $file['error'] == 0 && $file['size'] > 0) {
 				$content = file_get_contents($file['tmp_name']);
 				if ($content === false) {
 					throw new RuntimeException('Cannot parse file');
 				}
 				$json = json_decode($content, true);
-				if (empty($json) || empty($json['queuedJob'])) {
+				if (!$json || empty($json['queuedJob'])) {
 					throw new RuntimeException('Invalid JSON content');
 				}
 
@@ -276,25 +281,24 @@ class QueuedJobsController extends AppController {
 	 */
 	public function test() {
 		$taskFinder = new TaskFinder();
-		$allTasks = $taskFinder->allAppAndPluginTasks();
+		$allTasks = $taskFinder->all();
 		$tasks = [];
-		foreach ($allTasks as $key => $task) {
-			if (substr($task, 0, 11) !== 'Queue.Queue') {
+		foreach ($allTasks as $task => $className) {
+			if (substr($task, 0, 6) !== 'Queue.') {
 				continue;
 			}
 			if (substr($task, -7) !== 'Example') {
 				continue;
 			}
 
-			$name = substr($task, 11);
-			$tasks[$name] = $task;
+			$tasks[$task] = $task;
 		}
 
 		$queuedJob = $this->QueuedJobs->newEmptyEntity();
 
 		if ($this->request->is(['post', 'patch', 'put'])) {
 			$queuedJob = $this->QueuedJobs->patchEntity($queuedJob, $this->request->getData());
-			$jobType = $queuedJob->job_type;
+			$jobType = $queuedJob->job_task;
 			$notBefore = $queuedJob->notbefore;
 
 			if ($jobType && isset($tasks[$jobType]) && $notBefore) {
@@ -313,6 +317,67 @@ class QueuedJobsController extends AppController {
 		}
 
 		$this->set(compact('tasks', 'queuedJob'));
+	}
+
+	/**
+	 * @param \Laminas\Diactoros\UploadedFile $file
+	 *
+	 * @return array
+	 */
+	protected function fileToArray(UploadedFile $file): array {
+		return [
+			'size' => $file->getSize(),
+			'error' => $file->getError(),
+			'tmp_name' => $file->getStream()->getMetadata('uri'),
+		];
+	}
+
+	/**
+	 * @return \Cake\Http\Response|null|void
+	 */
+	public function migrate() {
+		$taskFinder = new TaskFinder();
+		$allTasks = $taskFinder->all();
+
+		$existingTasks = $this->QueuedJobs->find()
+			->select(['job_task'])
+			->distinct('job_task')
+			->disableHydration()
+			->find('list', ['keyField' => 'job_task', 'valueField' => 'job_task'])
+			->toArray();
+
+		$tasks = [];
+		foreach ($allTasks as $task => $className) {
+			if (strpos($task, 'Queue.') !== 0) {
+				continue;
+			}
+
+			[$plugin, $name] = explode('.', $task, 2);
+			if (!isset($existingTasks[$name])) {
+				continue;
+			}
+
+			$tasks[$name] = $task;
+		}
+
+		if ($this->request->is('post')) {
+			$tasksToMigrate = $this->request->getData('tasks');
+
+			$count = 0;
+			foreach ($tasksToMigrate as $taskToMigrate => $status) {
+				if (!$status) {
+					continue;
+				}
+
+				$count += $this->QueuedJobs->updateAll(['job_task' => 'Queue.' . $taskToMigrate], ['job_task' => $taskToMigrate]);
+			}
+
+			$this->Flash->success('Done: ' . $count);
+
+			return $this->redirect(['action' => 'migrate']);
+		}
+
+		$this->set(compact('tasks'));
 	}
 
 }

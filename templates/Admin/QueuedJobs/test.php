@@ -18,7 +18,7 @@
 	<fieldset>
 		<legend><?= __d('queue', 'Trigger Delayed Job') ?></legend>
 		<?php
-			echo $this->Form->control('job_type', ['options' => $tasks, 'empty' => true]);
+			echo $this->Form->control('job_task', ['options' => $tasks, 'empty' => true]);
 
 			echo '<p>Current (server) time: ' . (new \Cake\I18n\FrozenTime()) . '</>';
 

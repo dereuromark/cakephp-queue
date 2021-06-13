@@ -3,42 +3,63 @@
 namespace Queue\Queue;
 
 use Cake\Core\App;
+use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Filesystem\Folder;
+use InvalidArgumentException;
 
 class TaskFinder {
 
 	/**
+	 * @phpstan-var array<string, class-string<\Queue\Queue\Task>>|null
+	 *
 	 * @var string[]|null
 	 */
 	protected $tasks;
+
+	/**
+	 * @phpstan-return array<string, class-string<\Queue\Queue\Task>>
+	 *
+	 * @return string[]
+	 */
+	public function allAddable(): array {
+		$all = $this->all();
+		foreach ($all as $task => $class) {
+			if (!is_subclass_of($class, AddInterface::class, true)) {
+				unset($all[$task]);
+			}
+		}
+
+		return $all;
+	}
 
 	/**
 	 * Returns all possible Queue tasks.
 	 *
 	 * Makes sure that app tasks are prioritized over plugin ones.
 	 *
+	 * @phpstan-return array<string, class-string<\Queue\Queue\Task>>
+	 *
 	 * @return string[]
 	 */
-	public function allAppAndPluginTasks() {
+	public function all(): array {
 		if ($this->tasks !== null) {
 			return $this->tasks;
 		}
 
-		$paths = App::classPath('Shell/Task');
+		$paths = App::classPath('Queue/Task');
 		$this->tasks = [];
 
 		foreach ($paths as $path) {
-			$Folder = new Folder($path);
-			$this->tasks = $this->getAppPaths($Folder);
+			$this->tasks += $this->getTasks($path);
 		}
-		$plugins = Plugin::loaded();
+		$plugins = array_merge((array)Configure::read('Queue.plugins'), Plugin::loaded());
+		$plugins = array_unique($plugins);
 		foreach ($plugins as $plugin) {
-			$pluginPaths = App::classPath('Shell/Task', $plugin);
+			$pluginPaths = App::classPath('Queue/Task', $plugin);
 			foreach ($pluginPaths as $pluginPath) {
-				$Folder = new Folder($pluginPath);
-				$pluginTasks = $this->getPluginPaths($Folder, $plugin);
-				$this->tasks = array_merge($this->tasks, $pluginTasks);
+				$pluginTasks = $this->getTasks($pluginPath, $plugin);
+				$this->tasks += $pluginTasks;
 			}
 		}
 
@@ -46,38 +67,63 @@ class TaskFinder {
 	}
 
 	/**
-	 * @param \Cake\Filesystem\Folder $Folder
+	 * @phpstan-return array<string, class-string<\Queue\Queue\Task>>
+	 *
+	 * @param string $path
+	 * @param string|null $plugin
 	 *
 	 * @return string[]
 	 */
-	protected function getAppPaths(Folder $Folder) {
-		$res = array_merge((array)$this->tasks, $Folder->find('Queue.+\.php'));
-		foreach ($res as &$r) {
-			$r = basename($r, 'Task.php');
+	protected function getTasks(string $path, ?string $plugin = null): array {
+		$Folder = new Folder($path);
+
+		$tasks = [];
+		$files = $Folder->find('.+Task\.php');
+		foreach ($files as $file) {
+			$name = basename($file, 'Task.php');
+			$namespace = $plugin ? str_replace('/', '\\', $plugin) : Configure::read('App.namespace');
+
+			/** @phpstan-var class-string<\Queue\Queue\Task> $className */
+			$className = $namespace . '\Queue\Task\\' . $name . 'Task';
+			$key = $plugin ? $plugin . '.' . $name : $name;
+			$tasks[$key] = $className;
 		}
 
-		return $res;
+		return $tasks;
 	}
 
 	/**
-	 * @param \Cake\Filesystem\Folder $Folder
-	 * @param string $plugin
+	 * Resolves FQCN to a task name.
 	 *
-	 * @return string[]
+	 * @param string $jobType
+	 *
+	 * @return string
 	 */
-	protected function getPluginPaths(Folder $Folder, $plugin) {
-		$res = $Folder->find('Queue.+Task\.php');
-		foreach ($res as $key => $r) {
-			$name = basename($r, 'Task.php');
-			if (in_array($name, (array)$this->tasks, true)) {
-				unset($res[$key]);
-
-				continue;
+	public function resolve(string $jobType): string {
+		$all = $this->all();
+		foreach ($all as $name => $className) {
+			if ($jobType === $className || $jobType === $name) {
+				return $name;
 			}
-			$res[$key] = $plugin . '.' . $name;
 		}
 
-		return $res;
+		if (strpos($jobType, '\\') === false) {
+			// Let's try matching without plugin prefix
+			foreach ($all as $name => $className) {
+				if (strpos($name, '.') === false) {
+					continue;
+				}
+				[$plugin, $name] = explode('.', $name, 2);
+				if ($jobType === $name) {
+					$message = 'You seem to be adding a plugin job without plugin syntax (' . $jobType . '), migrate to using ' . $plugin . '.' . $name . ' instead.';
+					trigger_error($message, E_USER_DEPRECATED);
+
+					return $plugin . '.' . $name;
+				}
+			}
+		}
+
+		throw new InvalidArgumentException('No job type can be resolved for ' . $jobType);
 	}
 
 }

@@ -109,8 +109,7 @@ class QueueProcessesController extends AppController {
 		$queueProcess = $this->QueueProcesses->get($id);
 
 		if (!Configure::read('Queue.multiserver')) {
-			$this->loadModel('Queue.QueuedJobs');
-			$this->QueuedJobs->terminateProcess((int)$queueProcess->pid);
+			$this->QueueProcesses->terminateProcess($queueProcess->pid);
 		}
 
 		if ($this->QueueProcesses->delete($queueProcess)) {

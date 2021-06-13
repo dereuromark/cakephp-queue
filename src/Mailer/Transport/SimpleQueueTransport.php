@@ -55,7 +55,7 @@ class SimpleQueueTransport extends AbstractTransport {
 		}
 
 		$QueuedJobs = $this->getQueuedJobsModel();
-		$result = $QueuedJobs->createJob('Email', ['settings' => $settings]);
+		$result = $QueuedJobs->createJob('Queue.Email', ['settings' => $settings]);
 		$result['headers'] = $message->getHeadersString();
 		$result['message'] = $message->getBodyString();
 

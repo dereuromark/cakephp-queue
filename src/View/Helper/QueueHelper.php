@@ -36,7 +36,7 @@ class QueueHelper extends Helper {
 		}
 
 		// Requeued
-		$taskConfig = $this->taskConfig($queuedJob->job_type);
+		$taskConfig = $this->taskConfig($queuedJob->job_task);
 		if ($taskConfig && $queuedJob->failed <= $taskConfig['retries']) {
 			return false;
 		}
@@ -54,7 +54,7 @@ class QueueHelper extends Helper {
 			return '0x';
 		}
 
-		$taskConfig = $this->taskConfig($queuedJob->job_type);
+		$taskConfig = $this->taskConfig($queuedJob->job_task);
 		if ($taskConfig) {
 			$allowedFails = $taskConfig['retries'] + 1;
 
@@ -79,7 +79,7 @@ class QueueHelper extends Helper {
 			return __d('queue', 'Restarted');
 		}
 
-		$taskConfig = $this->taskConfig($queuedJob->job_type);
+		$taskConfig = $this->taskConfig($queuedJob->job_task);
 		if ($taskConfig && $queuedJob->failed <= $taskConfig['retries']) {
 			return __d('queue', 'Requeued');
 		}
@@ -88,19 +88,17 @@ class QueueHelper extends Helper {
 	}
 
 	/**
-	 * @param string $jobType
+	 * @param string $jobTask
 	 *
 	 * @return array
 	 */
-	protected function taskConfig(string $jobType): array {
+	protected function taskConfig(string $jobTask): array {
 		if (!$this->taskConfig) {
-			$tasks = (new TaskFinder())->allAppAndPluginTasks();
+			$tasks = (new TaskFinder())->all();
 			$this->taskConfig = Config::taskConfig($tasks);
 		}
 
-		$name = 'Queue' . $jobType;
-
-		return $this->taskConfig[$name] ?? [];
+		return $this->taskConfig[$jobTask] ?? [];
 	}
 
 }

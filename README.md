@@ -7,7 +7,7 @@
 [![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-queue/d/total)](https://packagist.org/packages/dereuromark/cakephp-queue)
 [![Coding Standards](https://img.shields.io/badge/cs-PSR--2--R-yellow.svg)](https://github.com/php-fig-rectified/fig-rectified-standards)
 
-This branch is for use with **CakePHP 4.0+**. For details see [version map](https://github.com/dereuromark/cakephp-queue/wiki#cakephp-version-map).
+This branch is for use with **CakePHP 4.1+**. For details see [version map](https://github.com/dereuromark/cakephp-queue/wiki#cakephp-version-map).
 
 
 ## Background
@@ -46,4 +46,4 @@ While you can run multiple workers, and can (to some extent) spread these worker
 See [Sandbox app](https://sandbox.dereuromark.de/sandbox/queue-examples).
 
 ## Installation and Usage
-See [Documentation](docs).
+See [Documentation](docs/).

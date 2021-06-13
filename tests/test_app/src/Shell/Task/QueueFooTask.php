@@ -4,6 +4,9 @@ namespace TestApp\Shell\Task;
 
 use Queue\Shell\Task\QueueTask;
 
+/**
+ * Not used, only to showcase migrating command.
+ */
 class QueueFooTask extends QueueTask {
 
 	/**

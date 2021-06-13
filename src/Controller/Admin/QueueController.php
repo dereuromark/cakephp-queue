@@ -50,28 +50,33 @@ class QueueController extends AppController {
 		$data = $this->QueuedJobs->getStats();
 
 		$taskFinder = new TaskFinder();
-		$tasks = $taskFinder->allAppAndPluginTasks();
+		$tasks = $taskFinder->all();
+		$addableTasks = $taskFinder->allAddable();
 
 		$servers = $this->QueueProcesses->find()->distinct(['server'])->find('list', ['keyField' => 'server', 'valueField' => 'server'])->toArray();
-		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks', 'servers'));
+		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks', 'addableTasks', 'servers'));
 	}
 
 	/**
-	 * @param string|null $job
+	 * @param string|null $job Deprecated: Use ?task=... query string instead.
+	 *   Note: This fails with plugin syntax, so only to be used for project level ones.
 	 * @throws \Cake\Http\Exception\NotFoundException
 	 * @return \Cake\Http\Response|null
 	 */
 	public function addJob($job = null) {
 		$this->request->allowMethod('post');
+
+		$job = (string)$this->request->getQuery('task') ?: $job;
 		if (!$job) {
 			throw new NotFoundException();
 		}
 
-		$className = App::className('Queue.Queue' . $job, 'Shell/Task', 'Task');
+		$className = App::className($job, 'Queue/Task', 'Task');
 		if (!$className) {
 			throw new NotFoundException('Class not found for job `' . $job . '`');
 		}
 
+		// Deprecated/Remove?
 		if (method_exists($className, 'init')) {
 			$className::init();
 		}
@@ -121,25 +126,26 @@ class QueueController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function processes() {
-		$processes = $this->QueuedJobs->getProcesses();
+		$this->loadModel('Queue.QueueProcesses');
 
 		if ($this->request->is('post') && $this->request->getQuery('end')) {
-			$pid = (int)$this->request->getQuery('end');
-			$this->QueuedJobs->endProcess($pid);
+			$pid = (string)$this->request->getQuery('end');
+			$this->QueueProcesses->endProcess($pid);
 
 			return $this->redirect(['action' => 'processes']);
 		}
 		if ($this->request->is('post') && $this->request->getQuery('kill')) {
 			$pid = (int)$this->request->getQuery('kill');
-			$this->QueuedJobs->terminateProcess($pid);
+			$this->QueueProcesses->terminateProcess($pid);
 
 			return $this->redirect(['action' => 'processes']);
 		}
 
-		$this->loadModel('Queue.QueueProcesses');
+		$processes = $this->QueueProcesses->getProcesses();
 		$terminated = $this->QueueProcesses->find()->where(['terminate' => true])->all()->toArray();
+		$key = $this->QueueProcesses->buildServerString();
 
-		$this->set(compact('terminated', 'processes'));
+		$this->set(compact('terminated', 'processes', 'key'));
 	}
 
 	/**

@@ -37,7 +37,7 @@ use Cake\Core\Plugin;
 	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th><?= $this->Paginator->sort('job_type') ?></th>
+				<th><?= $this->Paginator->sort('job_task') ?></th>
 				<th><?= $this->Paginator->sort('job_group') ?></th>
 				<th><?= $this->Paginator->sort('reference') ?></th>
 				<th><?= $this->Paginator->sort('created', null, ['direction' => 'desc']) ?></th>
@@ -53,7 +53,7 @@ use Cake\Core\Plugin;
 		<tbody>
 			<?php foreach ($queuedJobs as $queuedJob): ?>
 			<tr>
-				<td><?= h($queuedJob->job_type) ?></td>
+				<td><?= h($queuedJob->job_task) ?></td>
 				<td><?= h($queuedJob->job_group) ?: '---'  ?></td>
 				<td>
 					<?= h($queuedJob->reference) ?: '---' ?>

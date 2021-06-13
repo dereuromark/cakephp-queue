@@ -3,7 +3,6 @@
 namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\I18n\FrozenTime;
-use Cake\ORM\TableRegistry;
 use Shim\TestSuite\IntegrationTestCase;
 
 /**
@@ -73,15 +72,15 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 	 */
 	public function testTerminate() {
 		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
-		$queueProcess = TableRegistry::getTableLocator()->get('Queue.QueueProcesses')->find()->firstOrFail();
+		$queueProcess = $this->getTableLocator()->get('Queue.QueueProcesses')->find()->firstOrFail();
 		$queueProcess->terminate = false;
-		TableRegistry::getTableLocator()->get('Queue.QueueProcesses')->saveOrFail($queueProcess);
+		$this->getTableLocator()->get('Queue.QueueProcesses')->saveOrFail($queueProcess);
 
 		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'terminate', 1]);
 
 		$this->assertResponseCode(302);
 
-		$queueProcess = TableRegistry::getTableLocator()->get('Queue.QueueProcesses')->find()->firstOrFail();
+		$queueProcess = $this->getTableLocator()->get('Queue.QueueProcesses')->find()->firstOrFail();
 		$this->assertTrue($queueProcess->terminate);
 	}
 
@@ -93,7 +92,7 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 
 		$this->assertResponseCode(302);
 
-		$count = TableRegistry::getTableLocator()->get('Queue.QueueProcesses')->find()->count();
+		$count = $this->getTableLocator()->get('Queue.QueueProcesses')->find()->count();
 		$this->assertSame(0, $count);
 	}
 
@@ -102,15 +101,15 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 	 */
 	public function testCleanup() {
 		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
-		$queueProcess = TableRegistry::getTableLocator()->get('Queue.QueueProcesses')->find()->firstOrFail();
+		$queueProcess = $this->getTableLocator()->get('Queue.QueueProcesses')->find()->firstOrFail();
 		$queueProcess->modified = new FrozenTime(time() - 4 * DAY);
-		TableRegistry::getTableLocator()->get('Queue.QueueProcesses')->saveOrFail($queueProcess);
+		$this->getTableLocator()->get('Queue.QueueProcesses')->saveOrFail($queueProcess);
 
 		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'cleanup']);
 
 		$this->assertResponseCode(302);
 
-		$count = TableRegistry::getTableLocator()->get('Queue.QueueProcesses')->find()->count();
+		$count = $this->getTableLocator()->get('Queue.QueueProcesses')->find()->count();
 		$this->assertSame(0, $count);
 	}
 

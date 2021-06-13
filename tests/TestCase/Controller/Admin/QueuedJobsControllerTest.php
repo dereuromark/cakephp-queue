@@ -4,7 +4,6 @@ namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestCase;
 
 /**
@@ -63,7 +62,7 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 
 		$this->assertResponseCode(302);
 
-		$queuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$queuedJob = $queuedJobs->find()->where(['id' => $job->id])->first();
 		$this->assertNull($queuedJob);
 	}
@@ -81,7 +80,7 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 
 		$this->assertResponseCode(302);
 
-		$queuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
 		/** @var \Queue\Model\Entity\QueuedJob $modifiedJob */
 		$modifiedJob = $queuedJobs->get($job->id);
 		$this->assertSame(8, $modifiedJob->priority);
@@ -181,11 +180,11 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 
 		$this->assertResponseCode(302);
 
-		$queuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
 		$queuedJob = $queuedJobs->find()->orderDesc('id')->firstOrFail();
 
-		$this->assertSame('Webhook', $queuedJob->job_type);
+		$this->assertSame('Webhook', $queuedJob->job_task);
 		$this->assertSame('web-hook-102803234', $queuedJob->reference);
 	}
 
@@ -207,10 +206,10 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 	 */
 	protected function createJob(array $data = []) {
 		$data += [
-			'job_type' => 'foo',
+			'job_task' => 'foo',
 		];
 
-		$queuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$queuedJob = $queuedJobs->newEntity($data);
 		$queuedJobs->saveOrFail($queuedJob);
 

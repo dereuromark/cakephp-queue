@@ -36,13 +36,13 @@ class QueueProgressHelper extends Helper {
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 * @return string|null
 	 */
-	public function progress(QueuedJob $queuedJob) {
+	public function progress(QueuedJob $queuedJob): ?string {
 		if ($queuedJob->completed) {
 			return null;
 		}
 
 		if ($queuedJob->progress === null && $queuedJob->fetched) {
-			$queuedJob->progress = $this->calculateJobProgress($queuedJob->job_type, $queuedJob->fetched);
+			$queuedJob->progress = $this->calculateJobProgress($queuedJob->job_task, $queuedJob->fetched);
 		}
 
 		if ($queuedJob->progress === null) {
@@ -61,13 +61,13 @@ class QueueProgressHelper extends Helper {
 	 * @param int $length
 	 * @return string|null
 	 */
-	public function progressBar(QueuedJob $queuedJob, $length) {
+	public function progressBar(QueuedJob $queuedJob, int $length): ?string {
 		if ($queuedJob->completed) {
 			return null;
 		}
 
 		if ($queuedJob->progress === null && $queuedJob->fetched) {
-			$queuedJob->progress = $this->calculateJobProgress($queuedJob->job_type, $queuedJob->fetched);
+			$queuedJob->progress = $this->calculateJobProgress($queuedJob->job_task, $queuedJob->fetched);
 		}
 
 		if ($queuedJob->progress === null) {
@@ -83,13 +83,13 @@ class QueueProgressHelper extends Helper {
 	 *
 	 * @return string|null
 	 */
-	public function htmlProgressBar(QueuedJob $queuedJob, $fallbackHtml = null) {
+	public function htmlProgressBar(QueuedJob $queuedJob, ?string $fallbackHtml = null): ?string {
 		if ($queuedJob->completed) {
 			return null;
 		}
 
 		if ($queuedJob->progress === null && $queuedJob->fetched) {
-			$queuedJob->progress = $this->calculateJobProgress($queuedJob->job_type, $queuedJob->fetched);
+			$queuedJob->progress = $this->calculateJobProgress($queuedJob->job_task, $queuedJob->fetched);
 		}
 
 		if ($queuedJob->progress === null) {
@@ -109,7 +109,7 @@ class QueueProgressHelper extends Helper {
 	 * @param int $length
 	 * @return string|null
 	 */
-	public function timeoutProgressBar(QueuedJob $queuedJob, $length) {
+	public function timeoutProgressBar(QueuedJob $queuedJob, int $length): ?string {
 		$progress = $this->calculateTimeoutProgress($queuedJob);
 		if ($progress === null) {
 			return null;
@@ -124,7 +124,7 @@ class QueueProgressHelper extends Helper {
 	 *
 	 * @return string|null
 	 */
-	public function htmlTimeoutProgressBar(QueuedJob $queuedJob, $fallbackHtml = null) {
+	public function htmlTimeoutProgressBar(QueuedJob $queuedJob, ?string $fallbackHtml = null): ?string {
 		$progress = $this->calculateTimeoutProgress($queuedJob);
 		if ($progress === null) {
 			return null;
@@ -172,7 +172,7 @@ class QueueProgressHelper extends Helper {
 	 * @param \Cake\I18n\FrozenTime|\Cake\I18n\Time $fetched
 	 * @return float|null
 	 */
-	protected function calculateJobProgress($jobType, $fetched) {
+	protected function calculateJobProgress(string $jobType, $fetched) {
 		$stats = $this->getJobStatistics($jobType);
 		if (!$stats) {
 			return null;
@@ -193,7 +193,7 @@ class QueueProgressHelper extends Helper {
 	 * @param string $jobType
 	 * @return array
 	 */
-	protected function getJobStatistics($jobType) {
+	protected function getJobStatistics(string $jobType): array {
 		$statistics = $this->readStatistics();
 		if (!isset($statistics[$jobType])) {
 			return [];
@@ -208,7 +208,7 @@ class QueueProgressHelper extends Helper {
 	/**
 	 * @return array
 	 */
-	protected function readStatistics() {
+	protected function readStatistics(): array {
 		if ($this->statistics !== null) {
 			return $this->statistics;
 		}
@@ -219,13 +219,13 @@ class QueueProgressHelper extends Helper {
 		}
 		if ($queuedJobStatistics === false) {
 			$this->loadModel('Queue.QueuedJobs');
-			$queuedJobStatistics = $this->QueuedJobs->getStats()->disableHydration()->toArray();
+			$queuedJobStatistics = $this->QueuedJobs->getStats(true);
 			Cache::write(static::KEY, $queuedJobStatistics, static::CONFIG);
 		}
 
 		$statistics = [];
 		foreach ((array)$queuedJobStatistics as $statistic) {
-			$statistics[$statistic['job_type']][] = $statistic['runtime'];
+			$statistics[$statistic['job_task']][] = $statistic['runtime'];
 		}
 
 		$this->statistics = $statistics;
