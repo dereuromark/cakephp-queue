@@ -5,10 +5,11 @@ Migration here is provided using
 - `bin/cake queue migrate_tasks` for the task classes.
   They will be renamed and moved to the new location.
   Also some upgrades of internals will be applied.
-- Then run `composer migrate -p Queue` to migrate DB schema.
+- Then run `bin/cake migrations migrate -p Queue` to migrate DB schema.
 - Finally, go to `/admin/queue/queued-jobs/migrate` backend and fix up any old name to new one.
 
 Don't forget to replace the crontab worker command to `bin/cake queue run`.
+Same for ending current works on deploy: `bin/cake queue worker end server`.
 
 ## Installation
 ```
