@@ -14,6 +14,7 @@ use Cake\ORM\Entity;
  * @property bool $terminate
  * @property string|null $server
  * @property string $workerkey
+ * @property QueuedJob active_job
  */
 class QueueProcess extends Entity {
 
