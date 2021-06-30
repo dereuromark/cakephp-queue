@@ -60,15 +60,15 @@ class QueueProcessesTable extends Table {
 
 		$this->addBehavior('Timestamp');
 
-		$this->hasOne('CurrentQueuedJob', [
+		$this->hasOne('CurrentQueuedJobs', [
 				'className' => 'Queue.QueuedJobs',
 				'foreignKey' => 'workerkey',
 				'bindingKey' => 'workerkey',
 				'propertyName' => 'active_job',
 				'conditions' => [
-					'CurrentQueuedJob.completed IS NULL',
-					'CurrentQueuedJob.failure_message IS NULL',
-					'CurrentQueuedJob.failed = 0',
+					'CurrentQueuedJobs.completed IS NULL',
+					'CurrentQueuedJobs.failure_message IS NULL',
+					'CurrentQueuedJobs.failed = 0',
 				],
 			]
 		);
@@ -242,7 +242,7 @@ class QueueProcessesTable extends Table {
 		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 		$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
 		$query = $QueueProcesses->findActive()
-			->contain(['CurrentQueuedJob'])
+			->contain(['CurrentQueuedJobs'])
 			->where(['terminate' => false]);
 		if ($forThisServer) {
 			$query = $query->where(['server' => $QueueProcesses->buildServerString()]);
