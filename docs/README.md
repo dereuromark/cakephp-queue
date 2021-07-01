@@ -670,6 +670,15 @@ $data = [
 ];
 ```
 
+Or send reusable Emails via the Mailer object:
+```php
+$data = [
+    'settings' => $mailerObject,
+    'action' => 'myReusableEmail', // instead of content or headers
+    'vars' => [$var1, $var2, $var3]
+];
+```
+
 Inside a controller you can for example do this for your mailers:
 ```php
 $mailer = $this->getMailer('User');
