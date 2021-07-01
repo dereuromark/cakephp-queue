@@ -116,8 +116,8 @@ class EmailTask extends Task implements AddInterface {
 				$mailer->setTransport($data['transport'] ?? 'default');
 
 				// Check if a reusable email should be sent
-				if (!empty($data['action']) && !empty($data['actionVars'])) {
-					$result = $mailer->send($data['action'], $data['actionVars']);
+				if (!empty($data['action'])) {
+					$result = $mailer->send($data['action'], $data['actionVars'] ?? []);
 				} else {
 					$content = isset($data['content']) ? $data['content'] : '';
 					$result = $mailer->deliver($content);
