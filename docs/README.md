@@ -674,8 +674,8 @@ Or send reusable Emails via the Mailer object:
 ```php
 $data = [
     'settings' => $mailerObject,
-    'action' => 'myReusableEmail',
-    'actionVars' => [$var1, $var2, $var3]
+    'action' => 'myReusableEmail', // instead of content or headers
+    'vars' => [$var1, $var2, $var3]
 ];
 ```
 
