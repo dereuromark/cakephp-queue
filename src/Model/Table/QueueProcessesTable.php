@@ -59,6 +59,17 @@ class QueueProcessesTable extends Table {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
+
+		$this->hasOne('CurrentQueuedJobs', [
+				'className' => 'Queue.QueuedJobs',
+				'foreignKey' => 'workerkey',
+				'bindingKey' => 'workerkey',
+				'propertyName' => 'active_job',
+				'conditions' => [
+					'CurrentQueuedJobs.completed IS NULL'
+				],
+			]
+		);
 	}
 
 	/**
@@ -229,6 +240,7 @@ class QueueProcessesTable extends Table {
 		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 		$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
 		$query = $QueueProcesses->findActive()
+			->contain(['CurrentQueuedJobs'])
 			->where(['terminate' => false]);
 		if ($forThisServer) {
 			$query = $query->where(['server' => $QueueProcesses->buildServerString()]);
