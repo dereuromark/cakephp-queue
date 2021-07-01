@@ -66,9 +66,7 @@ class QueueProcessesTable extends Table {
 				'bindingKey' => 'workerkey',
 				'propertyName' => 'active_job',
 				'conditions' => [
-					'CurrentQueuedJobs.completed IS NULL',
-					'CurrentQueuedJobs.failure_message IS NULL',
-					'CurrentQueuedJobs.failed = 0',
+					'CurrentQueuedJobs.completed IS NULL'
 				],
 			]
 		);
