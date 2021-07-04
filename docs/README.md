@@ -248,10 +248,34 @@ TableRegistry::getTableLocator()->get('Queue.QueuedJobs')
     ->createJob('Queue.Email', ['to' => 'user@example.org', ...]);
 ```
 
-It will use your custom APP `QueueEmailTask` to send out emails via CLI.
+It will use the plugin's `EmailTask` to send out emails via CLI.
 
 Important: Do not forget to set your [domain](https://book.cakephp.org/3.0/en/core-libraries/email.html#sending-emails-from-cli) when sending from CLI.
 
+### Creating using ::class syntax
+The default "Cake" way of using magic strings is a convenient way when using the IdeHelper
+and having auto-complete this way for each task.
+
+If you use a different IDE or prefer direct `<TaskClassName>::class` syntax to have the IDE
+find the usage more easily, you can also use `<TaskClassName>::class` for `createJob()`:
+
+```php
+use Queue\Queue\Task\EmailTask;
+
+$this->QueuedJobs->createJob(EmailTask::class, ['to' => 'user@example.org', ...]);
+```
+This does, however, require adding use statements for each such line on top.
+
+You can also programmatically retrieve a task's name and use that instead:
+
+```php
+use Queue\Queue\Task\EmailTask;
+
+$taskName = EmailTask::taskName();
+
+$this->QueuedJobs->createJob($taskName, ['to' => 'user@example.org', ...]);
+```
+This can be useful when more dynamically adding certain jobs of different types.
 
 ### Running only specific tasks per worker
 You can filter "running" by group or even type:
