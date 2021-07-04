@@ -79,6 +79,38 @@ class EmailTaskTest extends TestCase {
 	/**
 	 * @return void
 	 */
+	public function testRunArrayEmailComplex() {
+		$settings = [
+			'from' => ['test@test.de', 'My Name'],
+			'to' => ['test@test.de', 'Your Name'],
+			'cc' => [
+				[
+					'copy@test.de' => 'Your Name',
+					'copy-other@test.de' => 'Your Other Name',
+				],
+			],
+		];
+
+		$data = [
+			'settings' => $settings,
+			'content' => 'Foo Bar',
+		];
+		$this->Task->run($data, 0);
+
+		$this->assertInstanceOf(Mailer::class, $this->Task->mailer);
+
+		$debugEmail = $this->Task->mailer;
+
+		$transportConfig = $debugEmail->getTransport()->getConfig();
+		$this->assertSame('Debug', $transportConfig['className']);
+
+		$this->assertSame(['test@test.de' =>'Your Name'], $debugEmail->getTo());
+		$this->assertSame($settings['cc'][0], $debugEmail->getCc());
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testRunToolsEmailObject() {
 		$this->_skipPostgres();
 
