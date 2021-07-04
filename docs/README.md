@@ -677,6 +677,9 @@ $this->loadModel('Queue.QueuedJobs')->createJob(
 ```
 Do not send your emails here, only assemble them. The Email Queue task triggers the `deliver()` method.
 
+Note: In this case the object is stored serialized in the DB.
+This can break when upgrading your core and the underlying class changes.
+So make sure to only upgrade your code when all jobs have been finished.
 
 ### Using QueueTransport
 
