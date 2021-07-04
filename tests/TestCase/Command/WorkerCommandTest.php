@@ -37,6 +37,7 @@ class WorkerCommandTest extends TestCase {
 
 		$output = $this->_out->output();
 		$this->assertStringContainsString('Please use with [action] [PID] added', $output);
+		$this->assertExitCode(1);
 	}
 
 }

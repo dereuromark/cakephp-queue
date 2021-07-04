@@ -37,6 +37,18 @@ class AddCommandTest extends TestCase {
 
 		$output = $this->_out->output();
 		$this->assertStringContainsString('10 tasks available:', $output);
+		$this->assertExitCode(0);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testExecuteAddExample(): void {
+		$this->exec('queue add Queue.Example');
+
+		$output = $this->_out->output();
+		$this->assertStringContainsString('OK, job created, now run the worker', $output);
+		$this->assertExitCode(0);
 	}
 
 }

@@ -63,6 +63,7 @@ class JobCommand extends Command {
 			$io->out('- view: Display status of a job');
 			$io->out('- rerun: Rerun a successfully run job ("all" for all)');
 			$io->out('- reset: Reset a failed job ("all" for all)');
+			$io->out('- flush: Remove (all) failed jobs');
 			$io->out('- remove: Remove a job ("all" for truncating)');
 			$io->out('- clean: Cleanup (old jobs removal)');
 			$io->out();
@@ -85,19 +86,19 @@ class JobCommand extends Command {
 			return static::CODE_ERROR;
 		}
 
-		if (!in_array($action, ['view', 'rerun', 'reset', 'remove', 'clean'], true)) {
+		if (!in_array($action, ['view', 'rerun', 'reset', 'remove', 'clean', 'flush'], true)) {
 			$io->abort('No such action');
 		}
 
 		$id = $args->getArgument('id');
-		if (!$id && $action !== 'clean') {
+		if (!$id && !in_array($action, ['clean', 'flush'], true)) {
 			$io->abort('Job ID must be given, or "all" used for all.');
 		}
 		if ($action === 'view' && $id === 'all') {
 			$io->abort('"All" does not exist for view action, only works with IDs.');
 		}
-		if ($action === 'clean' && $id) {
-			$io->abort('Clean action does not have a 2nd argument.');
+		if (in_array($action, ['clean', 'flush'], true) && $id) {
+			$io->abort('`' . $action . '` action does not have a 2nd argument.');
 		}
 
 		if ($id === 'all') {
@@ -105,7 +106,7 @@ class JobCommand extends Command {
 
 			return $this->$action($io);
 		}
-		if ($action === 'clean') {
+		if (in_array($action, ['clean', 'flush'], true)) {
 			return $this->$action($io);
 		}
 
@@ -220,7 +221,7 @@ class JobCommand extends Command {
 	protected function remove(ConsoleIo $io, QueuedJob $queuedJob): int {
 		$this->QueuedJobs->deleteOrFail($queuedJob);
 
-		$io->success('Job ' . $queuedJob->id . ' killed');
+		$io->success('Job ' . $queuedJob->id . ' removed');
 
 		return static::CODE_SUCCESS;
 	}
@@ -248,6 +249,18 @@ class JobCommand extends Command {
 
 		$data = $queuedJob->data ? unserialize($queuedJob->data) : null;
 		$io->out('Data: ' . Debugger::exportVar($data, 9));
+
+		return static::CODE_SUCCESS;
+	}
+
+	/**
+	 * @param \Cake\Console\ConsoleIo $io
+	 *
+	 * @return int
+	 */
+	protected function flush(ConsoleIo $io): int {
+		$result = $this->QueuedJobs->flushFailedJobs();
+		$io->success('Deleted: ' . $result);
 
 		return static::CODE_SUCCESS;
 	}
