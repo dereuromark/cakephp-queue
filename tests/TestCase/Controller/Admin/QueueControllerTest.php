@@ -3,6 +3,7 @@
 namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Datasource\ConnectionManager;
+use Cake\I18n\FrozenTime;
 use Cake\TestSuite\IntegrationTestCase;
 
 /**
@@ -213,6 +214,27 @@ class QueueControllerTest extends IntegrationTestCase {
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->get($job->id);
 		$this->assertSame(0, $job->failed);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testFlush() {
+		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$job = $jobsTable->newEntity([
+			'job_task' => 'foo',
+			'failed' => 1,
+			'fetched' => (new FrozenTime())->subHour(),
+		]);
+		$jobsTable->saveOrFail($job);
+
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'flush']);
+
+		$this->assertResponseCode(302);
+
+		/** @var \Queue\Model\Entity\QueuedJob|null $job */
+		$job = $jobsTable->find()->where(['id' => $job->id])->first();
+		$this->assertNull($job);
 	}
 
 	/**

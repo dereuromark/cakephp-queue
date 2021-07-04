@@ -155,9 +155,24 @@ class QueueController extends AppController {
 	 */
 	public function reset() {
 		$this->request->allowMethod('post');
-		$this->QueuedJobs->reset(null, (bool)$this->request->getQuery('full'));
+		$resetted = $this->QueuedJobs->reset(null, (bool)$this->request->getQuery('full'));
 
-		$message = __d('queue', 'OK');
+		$message = __d('queue', 'Resetted: ' . $resetted);
+		$this->Flash->success($message);
+
+		return $this->redirect(['action' => 'index']);
+	}
+
+	/**
+	 * Remove all failed jobs.
+	 *
+	 * @return \Cake\Http\Response|null
+	 */
+	public function flush() {
+		$this->request->allowMethod('post');
+		$count = $this->QueuedJobs->flushFailedJobs();
+
+		$message = __d('queue', 'Deleted: ' . $count);
 		$this->Flash->success($message);
 
 		return $this->redirect(['action' => 'index']);

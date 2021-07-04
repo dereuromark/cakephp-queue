@@ -17,6 +17,7 @@ use Cake\Core\Configure;
 	<ul class="side-nav nav nav-pills flex-column">
 		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
 		<li><?php echo $this->Form->postLink(__d('queue', 'Reset {0}', __d('queue', 'Failed Jobs')), ['action' => 'reset'], ['confirm' => __d('queue', 'Sure? This will make all failed jobs ready for re-run.'), 'class' => 'btn margin btn-secondary']); ?></li>
+		<li><?php echo $this->Form->postLink(__d('queue', 'Flush {0}', __d('queue', 'Failed Jobs')), ['action' => 'flush'], ['confirm' => __d('queue', 'Sure? This will remove all failed jobs.'), 'class' => 'btn margin btn-warning']); ?></li>
 		<li><?php echo $this->Form->postLink(__d('queue', 'Reset {0}', __d('queue', 'All Jobs')), ['action' => 'reset', '?' => ['full' => true]], ['confirm' => __d('queue', 'Sure? This will make all failed as well as still running jobs ready for re-run.'), 'class' => 'btn margin btn-secondary']); ?></li>
 		<li><?php echo $this->Form->postLink(__d('queue', 'Hard Reset {0}', __d('queue', 'Queue')), ['action' => 'hardReset'], ['confirm' => __d('queue', 'Sure? This will delete all jobs and completely reset the queue.'), 'class' => 'btn margin btn-warning']); ?></li>
 		<li><?php echo $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['controller' => 'QueuedJobs', 'action' => 'index'], ['class' => 'btn margin btn-primary']); ?></li>
