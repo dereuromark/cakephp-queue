@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2019-07-23 05:06+0000\n"
+"POT-Creation-Date: 2021-07-04 13:38+0000\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -14,415 +14,490 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: Controller/Admin/QueueController.php:143
-#: Controller/Admin/QueueController.php:158
-#: Shell/QueueShell.php:515
+#: Controller/Admin/QueueController.php:160
+msgid "{n} jobs reset for re-run"
+msgstr ""
+
+#: Controller/Admin/QueueController.php:175
+msgid "{n} jobs removed"
+msgstr ""
+
+#: Controller/Admin/QueueController.php:190
 msgid "OK"
 msgstr ""
 
-#: Controller/Admin/QueueProcessesController.php:69
+#: Controller/Admin/QueueProcessesController.php:73
 msgid "The queue process has been saved."
 msgstr ""
 
-#: Controller/Admin/QueueProcessesController.php:73
+#: Controller/Admin/QueueProcessesController.php:78
 msgid "The queue process could not be saved. Please, try again."
 msgstr ""
 
-#: Controller/Admin/QueueProcessesController.php:90
-#: Controller/Admin/QueueProcessesController.php:111
+#: Controller/Admin/QueueProcessesController.php:95
+#: Controller/Admin/QueueProcessesController.php:116
 msgid "The queue process has been deleted."
 msgstr ""
 
-#: Controller/Admin/QueueProcessesController.php:92
-#: Controller/Admin/QueueProcessesController.php:113
+#: Controller/Admin/QueueProcessesController.php:97
+#: Controller/Admin/QueueProcessesController.php:118
 msgid "The queue process could not be deleted. Please, try again."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:164
+#: Controller/Admin/QueuedJobsController.php:182
 msgid "Please, try again."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:179
+#: Controller/Admin/QueuedJobsController.php:197
 msgid "The queued job is already completed."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:186
+#: Controller/Admin/QueuedJobsController.php:205
 msgid "The queued job has been saved."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:190
+#: Controller/Admin/QueuedJobsController.php:210
 msgid "The queued job could not be saved. Please try again."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:214
+#: Controller/Admin/QueuedJobsController.php:234
 msgid "The queued job has been deleted."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:216
+#: Controller/Admin/QueuedJobsController.php:236
 msgid "The queued job could not be deleted. Please try again."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:243
+#: Controller/Admin/QueuedJobsController.php:273
 msgid "The requested job has been queued "
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:282
+#: Controller/Admin/QueuedJobsController.php:311
 msgid "The requested job has been queued."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:287
+#: Controller/Admin/QueuedJobsController.php:316
 msgid "The job could not be queued. Please try again."
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:16
-#: Template/Admin/QueueProcesses/edit.ctp:9
-#: Template/Admin/QueueProcesses/index.ctp:10
-#: Template/Admin/QueueProcesses/index.ctp:26
-#: Template/Admin/QueueProcesses/view.ctp:10
-#: Template/Admin/QueuedJobs/data.ctp:9
-#: Template/Admin/QueuedJobs/edit.ctp:9
-#: Template/Admin/QueuedJobs/execute.ctp:8
-#: Template/Admin/QueuedJobs/import.ctp:8
-#: Template/Admin/QueuedJobs/index.ctp:13
-#: Template/Admin/QueuedJobs/index.ctp:50
-#: Template/Admin/QueuedJobs/stats.ctp:14
-#: Template/Admin/QueuedJobs/test.ctp:10
-#: Template/Admin/QueuedJobs/view.ctp:9
+#: View/Helper/QueueHelper.php:79
+msgid "Restarted"
+msgstr ""
+
+#: View/Helper/QueueHelper.php:84
+msgid "Requeued"
+msgstr ""
+
+#: View/Helper/QueueHelper.php:87
+msgid "Aborted"
+msgstr ""
+
+#: Admin/Queue/index.php:18
+#: Admin/QueueProcesses/edit.php:9
+#: Admin/QueueProcesses/index.php:10
+#: Admin/QueueProcesses/index.php:26
+#: Admin/QueueProcesses/view.php:10
+#: Admin/QueuedJobs/data.php:9
+#: Admin/QueuedJobs/edit.php:9
+#: Admin/QueuedJobs/execute.php:8
+#: Admin/QueuedJobs/import.php:8
+#: Admin/QueuedJobs/index.php:13
+#: Admin/QueuedJobs/index.php:50
+#: Admin/QueuedJobs/migrate.php:9
+#: Admin/QueuedJobs/stats.php:14
+#: Admin/QueuedJobs/test.php:10
+#: Admin/QueuedJobs/view.php:9
 msgid "Actions"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:17
+#: Admin/Queue/index.php:19
+#: Admin/Queue/index.php:21
 msgid "Reset {0}"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:17
-#: Template/Admin/Queue/index.ctp:18
-#: Template/Admin/Queue/index.ctp:19
-#: Template/Admin/Queue/index.ctp:49
-#: Template/Admin/QueuedJobs/data.ctp:11
-#: Template/Admin/QueuedJobs/edit.ctp:18
-#: Template/Admin/QueuedJobs/execute.ctp:10
-#: Template/Admin/QueuedJobs/index.ctp:35
-#: Template/Admin/QueuedJobs/stats.ctp:16
-#: Template/Admin/QueuedJobs/test.ctp:11
-#: Template/Admin/QueuedJobs/view.ctp:17
-msgid "Queued Jobs"
+#: Admin/Queue/index.php:19
+#: Admin/Queue/index.php:20
+msgid "Failed Jobs"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:17
+#: Admin/Queue/index.php:19
 msgid "Sure? This will make all failed jobs ready for re-run."
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:18
+#: Admin/Queue/index.php:20
+msgid "Flush {0}"
+msgstr ""
+
+#: Admin/Queue/index.php:20
+msgid "Sure? This will remove all failed jobs."
+msgstr ""
+
+#: Admin/Queue/index.php:21
+msgid "All Jobs"
+msgstr ""
+
+#: Admin/Queue/index.php:21
+msgid "Sure? This will make all failed as well as still running jobs ready for re-run."
+msgstr ""
+
+#: Admin/Queue/index.php:22
 msgid "Hard Reset {0}"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:18
-msgid "Sure? This will delete all jobs and completely reset the queue."
-msgstr ""
-
-#: Template/Admin/Queue/index.ctp:19
-#: Template/Admin/Queue/processes.ctp:16
-#: Template/Admin/QueueProcesses/edit.ctp:11
-#: Template/Admin/QueueProcesses/view.ctp:19
-#: Template/Admin/QueuedJobs/data.ctp:11
-#: Template/Admin/QueuedJobs/edit.ctp:18
-#: Template/Admin/QueuedJobs/execute.ctp:10
-#: Template/Admin/QueuedJobs/stats.ctp:16
-#: Template/Admin/QueuedJobs/test.ctp:11
-#: Template/Admin/QueuedJobs/view.ctp:17
-msgid "List {0}"
-msgstr ""
-
-#: Template/Admin/Queue/index.ctp:24
-#: Template/Admin/Queue/processes.ctp:21
-#: Template/Admin/QueuedJobs/stats.ctp:21
+#: Admin/Queue/index.php:22
+#: Admin/Queue/index.php:28
+#: Admin/Queue/processes.php:22
+#: Admin/QueuedJobs/stats.php:21
 msgid "Queue"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:29
-#: Template/Admin/QueuedJobs/view.ctp:75
+#: Admin/Queue/index.php:22
+msgid "Sure? This will delete all jobs and completely reset the queue."
+msgstr ""
+
+#: Admin/Queue/index.php:23
+#: Admin/Queue/processes.php:17
+#: Admin/QueueProcesses/edit.php:11
+#: Admin/QueueProcesses/view.php:19
+#: Admin/QueuedJobs/data.php:11
+#: Admin/QueuedJobs/edit.php:18
+#: Admin/QueuedJobs/execute.php:10
+#: Admin/QueuedJobs/stats.php:16
+#: Admin/QueuedJobs/test.php:11
+#: Admin/QueuedJobs/view.php:17
+msgid "List {0}"
+msgstr ""
+
+#: Admin/Queue/index.php:23
+#: Admin/Queue/index.php:53
+#: Admin/QueuedJobs/data.php:11
+#: Admin/QueuedJobs/edit.php:18
+#: Admin/QueuedJobs/execute.php:10
+#: Admin/QueuedJobs/index.php:35
+#: Admin/QueuedJobs/stats.php:16
+#: Admin/QueuedJobs/test.php:11
+#: Admin/QueuedJobs/view.php:17
+msgid "Queued Jobs"
+msgstr ""
+
+#: Admin/Queue/index.php:33
+#: Admin/QueuedJobs/view.php:75
 msgid "Status"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:36
+#: Admin/Queue/index.php:40
 msgid "Running"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:36
+#: Admin/Queue/index.php:40
 msgid "Not running"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:36
+#: Admin/Queue/index.php:40
 msgid "last {0}"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:51
+#: Admin/Queue/index.php:55
 msgid "{0} task(s) newly await processing."
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:61
-#: Template/Admin/QueuedJobs/view.ctp:92
+#: Admin/Queue/index.php:65
+#: Admin/QueuedJobs/view.php:101
 msgid "Soft reset"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:62
-#: Template/Admin/Queue/index.ctp:64
+#: Admin/Queue/index.php:66
+#: Admin/Queue/index.php:68
 msgid "Remove"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:69
+#: Admin/Queue/index.php:73
 msgid "scheduled {0}"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:72
-#: Template/Admin/QueueProcesses/view.ctp:26
-#: Template/Admin/QueuedJobs/view.ctp:36
+#: Admin/Queue/index.php:76
+#: Admin/QueueProcesses/view.php:26
+#: Admin/QueuedJobs/view.php:36
 msgid "Created"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:75
-#: Template/Admin/QueuedJobs/view.ctp:53
+#: Admin/Queue/index.php:79
+#: Admin/QueuedJobs/view.php:53
 msgid "Fetched"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:79
+#: Admin/Queue/index.php:83
 msgid "status"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:83
-#: Template/Admin/QueuedJobs/view.ctp:79
+#: Admin/Queue/index.php:88
+#: Admin/QueuedJobs/view.php:79
 msgid "Progress"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:87
+#: Admin/Queue/index.php:95
 msgid "Failures"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:89
-#: Template/Admin/QueuedJobs/view.ctp:123
+#: Admin/Queue/index.php:98
+#: Admin/QueuedJobs/view.php:134
 msgid "Failure Message"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:99
+#: Admin/Queue/index.php:109
 msgid "Statistics"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:119
+#: Admin/Queue/index.php:129
 msgid "Detailed Statistics"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:170
+#: Admin/Queue/index.php:197
 msgid "Trigger Delayed Test/Demo Job"
 msgstr ""
 
-#: Template/Admin/Queue/index.ctp:172
+#: Admin/Queue/index.php:199
 msgid "Trigger Execute Job(s)"
 msgstr ""
 
-#: Template/Admin/Queue/processes.ctp:15
-#: Template/Admin/QueueProcesses/index.ctp:11
-#: Template/Admin/QueuedJobs/execute.ctp:9
-#: Template/Admin/QueuedJobs/index.ctp:14
-#: Template/Admin/QueuedJobs/stats.ctp:15
-#: Template/Admin/QueuedJobs/view.ctp:10
+#: Admin/Queue/processes.php:16
+#: Admin/QueueProcesses/index.php:11
+#: Admin/QueuedJobs/execute.php:9
+#: Admin/QueuedJobs/index.php:14
+#: Admin/QueuedJobs/stats.php:15
+#: Admin/QueuedJobs/view.php:10
 msgid "Dashboard"
 msgstr ""
 
-#: Template/Admin/Queue/processes.ctp:16
-#: Template/Admin/QueueProcesses/edit.ctp:11
-#: Template/Admin/QueueProcesses/index.ctp:17
-#: Template/Admin/QueueProcesses/view.ctp:19
+#: Admin/Queue/processes.php:17
+#: Admin/QueueProcesses/edit.php:11
+#: Admin/QueueProcesses/index.php:17
+#: Admin/QueueProcesses/view.php:19
 msgid "Queue Processes"
 msgstr ""
 
-#: Template/Admin/Queue/processes.ctp:23
+#: Admin/Queue/processes.php:24
 msgid "Current Queue Processes"
 msgstr ""
 
-#: Template/Admin/Queue/processes.ctp:24
+#: Admin/Queue/processes.php:25
 msgid "Active processes"
 msgstr ""
 
-#: Template/Admin/Queue/processes.ctp:33
+#: Admin/Queue/processes.php:39
 msgid "Finish current job and end"
 msgstr ""
 
-#: Template/Admin/Queue/processes.ctp:35
+#: Admin/Queue/processes.php:41
 msgid "Kill"
 msgstr ""
 
-#: Template/Admin/Queue/processes.ctp:35
+#: Admin/Queue/processes.php:41
 msgid "Soft kill"
 msgstr ""
 
-#: Template/Admin/Queue/processes.ctp:48
+#: Admin/Queue/processes.php:54
 msgid "Terminated"
 msgstr ""
 
-#: Template/Admin/Queue/processes.ctp:49
+#: Admin/Queue/processes.php:55
 msgid "These have been marked as to be terminated after finishing this round"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/edit.ctp:10
-#: Template/Admin/QueueProcesses/index.ctp:12
-#: Template/Admin/QueuedJobs/data.ctp:10
-#: Template/Admin/QueuedJobs/edit.ctp:10
+#: Admin/QueueProcesses/edit.php:10
+#: Admin/QueueProcesses/index.php:12
+#: Admin/QueuedJobs/data.php:10
+#: Admin/QueuedJobs/edit.php:10
+#: Admin/QueuedJobs/migrate.php:10
 msgid "Back"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/edit.ctp:16
+#: Admin/QueueProcesses/edit.php:16
 msgid "Edit PID {0}"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/edit.ctp:20
-#: Template/Admin/QueueProcesses/view.ctp:11
+#: Admin/QueueProcesses/edit.php:20
+#: Admin/QueueProcesses/view.php:11
 msgid "Edit Queue Process"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/edit.ctp:25
-#: Template/Admin/QueuedJobs/data.ctp:22
-#: Template/Admin/QueuedJobs/edit.ctp:30
-#: Template/Admin/QueuedJobs/execute.ctp:26
-#: Template/Admin/QueuedJobs/import.ctp:23
-#: Template/Admin/QueuedJobs/test.ctp:28
+#: Admin/QueueProcesses/edit.php:25
+#: Admin/QueuedJobs/data.php:24
+#: Admin/QueuedJobs/edit.php:32
+#: Admin/QueuedJobs/execute.php:30
+#: Admin/QueuedJobs/import.php:23
+#: Admin/QueuedJobs/migrate.php:25
+#: Admin/QueuedJobs/test.php:30
 msgid "Submit"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/index.ctp:13
+#: Admin/QueueProcesses/index.php:13
 msgid "Cleanup"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/index.ctp:22
+#: Admin/QueueProcesses/index.php:22
 msgid "Started"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/index.ctp:23
+#: Admin/QueueProcesses/index.php:23
 msgid "Last Run"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/index.ctp:24
-#: Template/Admin/QueueProcesses/view.ctp:39
+#: Admin/QueueProcesses/index.php:24
+#: Admin/QueueProcesses/view.php:39
 msgid "Active"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/index.ctp:58
-#: Template/Admin/QueueProcesses/view.ctp:14
+#: Admin/QueueProcesses/index.php:58
+#: Admin/QueueProcesses/view.php:14
 msgid "Terminate"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/index.ctp:58
-#: Template/Admin/QueueProcesses/view.ctp:14
+#: Admin/QueueProcesses/index.php:58
+#: Admin/QueueProcesses/view.php:14
 msgid "Are you sure you want to terminate # {0}?"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/view.ctp:14
+#: Admin/QueueProcesses/view.php:14
 msgid "Terminate (clean remove)"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/view.ctp:16
-#: Template/Admin/QueuedJobs/edit.ctp:12
+#: Admin/QueueProcesses/view.php:16
+#: Admin/QueuedJobs/edit.php:12
 msgid "Delete"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/view.ctp:16
+#: Admin/QueueProcesses/view.php:16
 msgid "Delete (not advised)"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/view.ctp:16
-#: Template/Admin/QueuedJobs/edit.ctp:14
-#: Template/Admin/QueuedJobs/index.ctp:108
-#: Template/Admin/QueuedJobs/view.ctp:16
+#: Admin/QueueProcesses/view.php:16
+#: Admin/QueuedJobs/edit.php:14
+#: Admin/QueuedJobs/index.php:115
+#: Admin/QueuedJobs/view.php:16
 msgid "Are you sure you want to delete # {0}?"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/view.ctp:35
+#: Admin/QueueProcesses/view.php:35
 msgid "Modified"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/view.ctp:43
+#: Admin/QueueProcesses/view.php:43
 msgid "Server"
 msgstr ""
 
-#: Template/Admin/QueueProcesses/view.ctp:47
-#: Template/Admin/QueuedJobs/view.ctp:98
+#: Admin/QueueProcesses/view.php:47
+#: Admin/QueuedJobs/view.php:109
 msgid "Workerkey"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/data.ctp:17
+#: Admin/QueuedJobs/data.php:15
+#: Admin/QueuedJobs/edit.php:22
+msgid "Edit"
+msgstr ""
+
+#: Admin/QueuedJobs/data.php:19
 msgid "Edit Queued Job Payload"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/edit.ctp:17
+#: Admin/QueuedJobs/edit.php:17
 msgid "Edit Payload"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/edit.ctp:24
-#: Template/Admin/QueuedJobs/view.ctp:14
+#: Admin/QueuedJobs/edit.php:26
+#: Admin/QueuedJobs/view.php:14
 msgid "Edit Queued Job"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/execute.ctp:16
+#: Admin/QueuedJobs/execute.php:14
+msgid "Add Execute Jobs"
+msgstr ""
+
+#: Admin/QueuedJobs/execute.php:18
 msgid "Trigger Execute Job"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/import.ctp:17
+#: Admin/QueuedJobs/import.php:17
 msgid "Import Job from exported JSON"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/index.ctp:16
+#: Admin/QueuedJobs/index.php:16
 msgid "Import"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/index.ctp:22
+#: Admin/QueuedJobs/index.php:22
 msgid "Current server time"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/stats.ctp:26
+#: Admin/QueuedJobs/migrate.php:14
+msgid "Migrate v3 to v4"
+msgstr ""
+
+#: Admin/QueuedJobs/migrate.php:18
+msgid "Chose Tasks to migrate"
+msgstr ""
+
+#: Admin/QueuedJobs/stats.php:26
 msgid "Job Statistics"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/test.ctp:17
+#: Admin/QueuedJobs/test.php:15
+msgid "Create test jobs"
+msgstr ""
+
+#: Admin/QueuedJobs/test.php:19
 msgid "Trigger Delayed Job"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/view.ctp:11
+#: Admin/QueuedJobs/view.php:11
 msgid "Export"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/view.ctp:16
+#: Admin/QueuedJobs/view.php:16
 msgid "Delete Queued Job"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/view.ctp:24
+#: Admin/QueuedJobs/view.php:24
 msgid "Job Type"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/view.ctp:28
+#: Admin/QueuedJobs/view.php:28
 msgid "Job Group"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/view.ctp:32
+#: Admin/QueuedJobs/view.php:32
 msgid "Reference"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/view.ctp:40
+#: Admin/QueuedJobs/view.php:40
 msgid "Notbefore"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/view.ctp:64
+#: Admin/QueuedJobs/view.php:58
+msgid "Delay"
+msgstr ""
+
+#: Admin/QueuedJobs/view.php:64
 msgid "Completed"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/view.ctp:87
+#: Admin/QueuedJobs/view.php:69
+msgid "Duration"
+msgstr ""
+
+#: Admin/QueuedJobs/view.php:96
 msgid "Failed"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/view.ctp:107
+#: Admin/QueuedJobs/view.php:103
+msgid "Force reset"
+msgstr ""
+
+#: Admin/QueuedJobs/view.php:118
 msgid "Priority"
 msgstr ""
 
-#: Template/Admin/QueuedJobs/view.ctp:112
+#: Admin/QueuedJobs/view.php:123
 msgid "Data"
 msgstr ""
 
