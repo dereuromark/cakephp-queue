@@ -108,6 +108,7 @@ class MigrateTasksCommandTest extends TestCase {
 
 		$output = $this->_out->output();
 		$this->assertStringContainsString('1 shell tasks to migrate...', $output);
+		$this->assertExitCode(0);
 	}
 
 }

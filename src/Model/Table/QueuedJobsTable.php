@@ -661,6 +661,24 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * Removes all failed jobs.
+	 *
+	 * @return int Count of deleted rows
+	 */
+	public function flushFailedJobs() {
+		$timeout = Config::defaultworkertimeout();
+		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
+
+		$conditions = [
+			'completed IS' => null,
+			'failed >' => 0,
+			'fetched <' => $thresholdTime,
+		];
+
+		return $this->deleteAll($conditions);
+	}
+
+	/**
 	 * Resets all failed and not yet completed jobs.
 	 *
 	 * @param int|null $id

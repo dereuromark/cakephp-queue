@@ -37,6 +37,7 @@ class InfoCommandTest extends TestCase {
 
 		$output = $this->_out->output();
 		$this->assertStringContainsString('12 tasks available:', $output);
+		$this->assertExitCode(0);
 	}
 
 }

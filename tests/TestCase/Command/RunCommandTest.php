@@ -50,6 +50,7 @@ class RunCommandTest extends TestCase {
 
 		$output = $this->_out->output();
 		$this->assertStringContainsString('Looking for Job', $output);
+		$this->assertExitCode(0);
 	}
 
 	/**
