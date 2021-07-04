@@ -598,16 +598,84 @@ Ideally, you also only display those buttons if that user has the access to do s
 [TinyAuth](https://github.com/dereuromark/cakephp-tinyauth) can be used for that, for example.
 
 
-## Tips for Development
+## Using built-in Email task
 
+The quickest and easiest way is to use the built-in Email task:
+```php
+$data = [
+    'settings' => [
+        'to' => $user->email,
+        'from' => Configure::read('Config.adminEmail'),
+        'subject' => $subject,
+    ],
+    'content' => $content,
+];
+$queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+$queuedJobsTable->createJob('Queue.Email', $data);
+```
 
-### Only pass identification data if possible
+This will sent a plain email. Each settings key must have a matching setter method on the Message class.
+The prefix `set` will be auto-added here when calling it.
 
-If you have larger data sets, or maybe even objects/entities, do not pass those.
-They would not survive the json_encode/decode part and will maybe even exceed the text field in the database.
+If you want a templated email, you need to pass view vars instead of content:
+```php
+$data = [
+    'settings' => [
+        'to' => $user->email,
+        'from' => Configure::read('Config.adminEmail'),
+        'subject' => $subject,
+    ],
+    'vars' => [
+        'myEntity' => $myEntity,
+        ...
+    ],
+];
+ ```
 
-Instead, pass only the ID of the entity, and get your data in the Task itself.
-If you have other larger chunks of data, store them somewhere and pass the path to this file.
+Some keys also accept an array, e.g. to/from/cc can also include a name:
+```php
+        'to' => [$user->email, $user->username],
+```
+For some like to/cc you can even define multiple emails:
+```php
+        'cc' => [
+            [$userOne->email, $userOne->username],
+            [$userTwo->email, $userTwo->username],
+            ...
+        ],
+```
+Note that this needs an additional array nesting in this case.
+
+You can also assemble a Mailer object manually and pass that along as settings directly:
+```php
+$data = [
+    'settings' => $mailerObject,
+    'content' => $content,
+];
+```
+
+Or send reusable Emails via the Mailer object:
+```php
+$data = [
+    'settings' => $mailerObject,
+    'action' => 'myReusableEmail', // instead of content or headers
+    'vars' => [$var1, $var2, $var3]
+];
+```
+
+Inside a controller you can for example do this for your mailers:
+```php
+$mailer = $this->getMailer('User');
+$mailer->viewBuilder()
+    ->setTemplate('register');
+$mailer->set...(...);
+
+$this->loadModel('Queue.QueuedJobs')->createJob(
+    'Queue.Email',
+    ['settings' => $mailer]
+);
+```
+Do not send your emails here, only assemble them. The Email Queue task triggers the `deliver()` method.
 
 
 ### Using QueueTransport
@@ -644,78 +712,13 @@ Instead of manually adding job every time you want to send mail you can use exis
 
 This way each time with `$mailer->deliver()` it will use `QueueTransport` as main to create job and worker will use `'transport'` setting to send mail.
 
-
 #### Difference between QueueTransport and SimpleQueueTransport
 
 * `QueueTransport` serializes whole email into the database and is useful when you have custom `Message` class.
 * `SimpleQueueTransport` extracts all data from Message (to, bcc, template etc.) and then uses this to recreate Message inside task, this
-is useful when dealing with emails which serialization would overflow database `data` field length.
-This can only be used for non-templated emails.
+  is useful when dealing with emails which serialization would overflow database `data` field length.
+  This can only be used for non-templated emails.
 
-### Using built in Email task
-
-The quickest and easiest way is to use the built in Email task:
-```php
-$data = [
-    'settings' => [
-        'to' => $user->email,
-        'from' => Configure::read('Config.adminEmail'),
-        'subject' => $subject,
-    ],
-    'content' => $content,
-];
-$queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
-$queuedJobsTable->createJob('Queue.Email', $data);
-```
-
-This will sent a plain email. Each settings key must have a matching setter method on the Message class.
-The prefix `set` will be auto-added here when calling it.
-
-If you want a templated email, you need to pass view vars instead of content:
-```php
-$data = [
-    'settings' => [
-        'to' => $user->email,
-        'from' => Configure::read('Config.adminEmail'),
-        'subject' => $subject,
-    ],
-    'vars' => [
-        'myEntity' => $myEntity,
-        ...
-    ],
-];
- ```
-
-You can also assemble a Mailer object manually and pass that along as settings directly:
-```php
-$data = [
-    'settings' => $mailerObject,
-    'content' => $content,
-];
-```
-
-Or send reusable Emails via the Mailer object:
-```php
-$data = [
-    'settings' => $mailerObject,
-    'action' => 'myReusableEmail', // instead of content or headers
-    'vars' => [$var1, $var2, $var3]
-];
-```
-
-Inside a controller you can for example do this for your mailers:
-```php
-$mailer = $this->getMailer('User');
-$mailer->viewBuilder()
-    ->setTemplate('register');
-$mailer->set...(...);
-
-$this->loadModel('Queue.QueuedJobs')->createJob(
-    'Queue.Email',
-    ['settings' => $mailer]
-);
-```
-Do not send your emails here, only assemble them. The Email Queue task triggers the `deliver()` method.
 
 ### Manually assembling your emails
 
@@ -772,7 +775,7 @@ Make sure you got the template for it then, e.g.:
 
 This way all the generation is in the specific task and template and can be tested separately.
 
-### Using built in Execute task
+## Using built in Execute task
 The built in task directly runs on the same path as your app, so you can use relative paths or absolute ones:
 ```php
 $data = [
@@ -786,11 +789,23 @@ $queuedJobsTable->createJob('Execute', $data);
 The task automatically captures stderr output into stdout. If you don't want this, set "redirect" to false.
 It also escapes by default using "escape" true. Only disable this if you trust the source.
 
-By default it only allows return code `0` (success) to pass. If you need different accepted return codes, pass them as "accepted" array.
+By default, it only allows return code `0` (success) to pass. If you need different accepted return codes, pass them as "accepted" array.
 If you want to disable this check and allow any return code to be successful, pass `[]` (empty array).
 
 *Warning*: This can essentially execute anything on CLI. Make sure you never expose this directly as free-text input to anyone.
 Use only predefined and safe code-snippets here!
+
+
+## Tips for Development
+
+### Only pass identification data if possible
+
+If you have larger data sets, or maybe even objects/entities, do not pass those.
+They would not survive the json_encode/decode part and will maybe even exceed the text field in the database.
+
+Instead, pass only the ID of the entity, and get your data in the Task itself.
+If you have other larger chunks of data, store them somewhere and pass the path to this file.
+
 
 ### Multi Server Setup
 When working with multiple CLI servers there are several requirements for it to work smoothly:
