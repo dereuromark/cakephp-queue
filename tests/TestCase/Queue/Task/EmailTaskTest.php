@@ -104,7 +104,7 @@ class EmailTaskTest extends TestCase {
 		$transportConfig = $debugEmail->getTransport()->getConfig();
 		$this->assertSame('Debug', $transportConfig['className']);
 
-		$this->assertSame(['test@test.de' =>'Your Name'], $debugEmail->getTo());
+		$this->assertSame(['test@test.de' => 'Your Name'], $debugEmail->getTo());
 		$this->assertSame($settings['cc'][0], $debugEmail->getCc());
 	}
 
