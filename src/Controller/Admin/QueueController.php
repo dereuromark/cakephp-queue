@@ -135,7 +135,7 @@ class QueueController extends AppController {
 			return $this->redirect(['action' => 'processes']);
 		}
 		if ($this->request->is('post') && $this->request->getQuery('kill')) {
-			$pid = (int)$this->request->getQuery('kill');
+			$pid = (string)$this->request->getQuery('kill');
 			$this->QueueProcesses->terminateProcess($pid);
 
 			return $this->redirect(['action' => 'processes']);
