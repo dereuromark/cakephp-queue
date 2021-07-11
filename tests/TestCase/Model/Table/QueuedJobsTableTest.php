@@ -7,6 +7,7 @@
 
 namespace Queue\Test\TestCase\Model\Table;
 
+use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\Time;
