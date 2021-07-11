@@ -199,12 +199,12 @@ class QueuedJobsTable extends Table {
 
 	/**
 	 * @param string $reference
-	 * @param string|null $jobType
+	 * @param string|null $jobTask
 	 *
-	 * @throws \InvalidArgumentException
 	 * @return bool
+	 *@throws \InvalidArgumentException
 	 */
-	public function isQueued(string $reference, ?string $jobType = null): bool {
+	public function isQueued(string $reference, ?string $jobTask = null): bool {
 		if (!$reference) {
 			throw new InvalidArgumentException('A reference is needed');
 		}
@@ -213,8 +213,8 @@ class QueuedJobsTable extends Table {
 			'reference' => $reference,
 			'completed IS' => null,
 		];
-		if ($jobType) {
-			$conditions['job_task'] = $jobType;
+		if ($jobTask) {
+			$conditions['job_task'] = $jobTask;
 		}
 
 		return (bool)$this->find()->where($conditions)->select(['id'])->first();
