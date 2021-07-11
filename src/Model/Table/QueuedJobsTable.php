@@ -166,14 +166,14 @@ class QueuedJobsTable extends Table {
 	 * - group: Used to group similar QueuedJobs
 	 * - reference: An optional reference string
 	 *
-	 * @param string $jobType Job task name or FQCN
+	 * @param string $jobTask Job task name or FQCN
 	 * @param array|null $data Array of data
 	 * @param array $config Config to save along with the job
 	 * @return \Queue\Model\Entity\QueuedJob Saved job entity
 	 */
-	public function createJob(string $jobType, ?array $data = null, array $config = []) {
+	public function createJob(string $jobTask, ?array $data = null, array $config = []) {
 		$queuedJob = [
-			'job_task' => $this->jobType($jobType),
+			'job_task' => $this->jobTask($jobTask),
 			'data' => is_array($data) ? serialize($data) : null,
 			'job_group' => !empty($config['group']) ? $config['group'] : null,
 			'notbefore' => !empty($config['notBefore']) ? $this->getDateTime($config['notBefore']) : null,
@@ -185,11 +185,11 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * @param string $jobType
+	 * @param string|class-string<\Queue\Queue\Task> $jobType
 	 *
 	 * @return string
 	 */
-	protected function jobType(string $jobType): string {
+	protected function jobTask(string $jobType): string {
 		if ($this->taskFinder === null) {
 			$this->taskFinder = new TaskFinder();
 		}
