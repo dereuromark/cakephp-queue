@@ -47,6 +47,15 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function tearDown(): void {
+		parent::tearDown();
+
+		Configure::delete('Queue.skipExistenceCheck');
+	}
+
+	/**
 	 * Basic Instance test
 	 *
 	 * @return void
