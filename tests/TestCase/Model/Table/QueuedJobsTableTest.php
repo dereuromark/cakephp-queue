@@ -7,6 +7,7 @@
 
 namespace Queue\Test\TestCase\Model\Table;
 
+use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\Time;
@@ -153,7 +154,7 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
-	 * Tests that FQCN for job type resolves to job name.
+	 * Tests that FQCN for job task resolves to job name.
 	 *
 	 * @return void
 	 */
@@ -164,6 +165,21 @@ class QueuedJobsTableTest extends TestCase {
 		]);
 		$this->assertTrue((bool)$queuedJob);
 		$this->assertSame(ExampleTask::taskName(), $queuedJob->job_task);
+	}
+
+	/**
+	 * Tests that string for job task, with "skipExistenceCheck" set to true, results in a successfully created job.
+	 *
+	 * @return void
+	 */
+	public function testCreateWithSkipExistenceCheck() {
+		Configure::write('Queue.skipExistenceCheck', true);
+
+		$queuedJob = $this->QueuedJobs->createJob('FooDoesNotExist', [
+			'some' => 'random',
+			'test' => 'data',
+		]);
+		$this->assertTrue((bool)$queuedJob);
 	}
 
 	/**
