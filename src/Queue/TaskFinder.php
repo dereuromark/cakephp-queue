@@ -95,27 +95,35 @@ class TaskFinder {
 	/**
 	 * Resolves FQCN to a task name.
 	 *
-	 * @param string $jobType
+	 * @param string|class-string<\Queue\Queue\Task> $jobTask
 	 *
 	 * @return string
 	 */
-	public function resolve(string $jobType): string {
+	public function resolve(string $jobTask): string {
+		if (Configure::read('Queue.skipExistenceCheck')) {
+			if (strpos($jobTask, '\\') === false) {
+				return $jobTask;
+			}
+
+			return Config::taskName($jobTask);
+		}
+
 		$all = $this->all();
 		foreach ($all as $name => $className) {
-			if ($jobType === $className || $jobType === $name) {
+			if ($jobTask === $className || $jobTask === $name) {
 				return $name;
 			}
 		}
 
-		if (strpos($jobType, '\\') === false) {
+		if (strpos($jobTask, '\\') === false) {
 			// Let's try matching without plugin prefix
 			foreach ($all as $name => $className) {
 				if (strpos($name, '.') === false) {
 					continue;
 				}
 				[$plugin, $name] = explode('.', $name, 2);
-				if ($jobType === $name) {
-					$message = 'You seem to be adding a plugin job without plugin syntax (' . $jobType . '), migrate to using ' . $plugin . '.' . $name . ' instead.';
+				if ($jobTask === $name) {
+					$message = 'You seem to be adding a plugin job without plugin syntax (' . $jobTask . '), migrate to using ' . $plugin . '.' . $name . ' instead.';
 					trigger_error($message, E_USER_DEPRECATED);
 
 					return $plugin . '.' . $name;
@@ -123,7 +131,7 @@ class TaskFinder {
 			}
 		}
 
-		throw new InvalidArgumentException('No job type can be resolved for ' . $jobType);
+		throw new InvalidArgumentException('No job type can be resolved for ' . $jobTask);
 	}
 
 }

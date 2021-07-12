@@ -57,6 +57,9 @@ return [
 		// This option breaks tasks expecting sleep() to always sleep for the provided duration without interrupting.
 		'canInterruptSleep' => false,
 
+		// Skip check for createJob() and if task exists
+		'skipExistenceCheck' => false,
+
 		// Additional plugins to include tasks from (if they are not already loaded anyway)
 		'plugins' => [],
 	],

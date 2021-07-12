@@ -229,7 +229,8 @@ Run the following using the CakePHP shell:
 
 
 Most tasks will not be triggered from the console, but from the APP code.
-You will need to use the model access for QueuedJobs and the createJob() function to do this.
+You will need to use the model access for QueuedJobs and the `createJob()` method
+to do this.
 
 The `createJob()` function takes three arguments.
 - The first argument is the name of the type of job that you are creating.
@@ -251,6 +252,11 @@ TableRegistry::getTableLocator()->get('Queue.QueuedJobs')
 It will use the plugin's `EmailTask` to send out emails via CLI.
 
 Important: Do not forget to set your [domain](https://book.cakephp.org/3.0/en/core-libraries/email.html#sending-emails-from-cli) when sending from CLI.
+
+If you want to disable existence check of tasks when creating jobs, set
+`Queue.skipExistenceCheck` to `true`. In this case you will not get a notification
+if deprecated or invalid task names are being used.
+
 
 ### Creating using ::class syntax
 The default "Cake" way of using magic strings is a convenient way when using the IdeHelper
@@ -388,7 +394,7 @@ class FooTask extends Task {
 }
 ```
 
-Get progress status in web site and display:
+Get progress status in website and display:
 ```php
 $job = $this->QueuedJobs->get($id);
 

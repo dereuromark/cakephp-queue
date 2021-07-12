@@ -7,9 +7,7 @@
 namespace Queue\Queue;
 
 use Cake\Console\ConsoleIo;
-use Cake\Core\Configure;
 use Cake\Datasource\ModelAwareTrait;
-use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Queue\Console\Io;
 
@@ -110,17 +108,7 @@ abstract class Task implements TaskInterface {
 	public static function taskName(): string {
 		$class = static::class;
 
-		preg_match('#^(.+?)\\\\Queue\\\\Task\\\\(.+?)Task$#', $class, $matches);
-		if (!$matches) {
-			throw new InvalidArgumentException('Invalid class name: ' . $class);
-		}
-
-		$namespace = str_replace('\\', '/', $matches[1]);
-		if ($namespace === Configure::read('App.namespace')) {
-			return $matches[2];
-		}
-
-		return $namespace . '.' . $matches[2];
+		return Config::taskName($class);
 	}
 
 }

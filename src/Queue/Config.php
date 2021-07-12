@@ -3,6 +3,7 @@
 namespace Queue\Queue;
 
 use Cake\Core\Configure;
+use InvalidArgumentException;
 
 class Config {
 
@@ -91,6 +92,25 @@ class Config {
 		}
 
 		return $config;
+	}
+
+	/**
+	 * @param string $class
+	 *
+	 * @return string
+	 */
+	public static function taskName(string $class): string {
+		preg_match('#^(.+?)\\\\Queue\\\\Task\\\\(.+?)Task$#', $class, $matches);
+		if (!$matches) {
+			throw new InvalidArgumentException('Invalid class name: ' . $class);
+		}
+
+		$namespace = str_replace('\\', '/', $matches[1]);
+		if ($namespace === Configure::read('App.namespace')) {
+			return $matches[2];
+		}
+
+		return $namespace . '.' . $matches[2];
 	}
 
 }
