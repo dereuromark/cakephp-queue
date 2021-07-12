@@ -175,7 +175,7 @@ class Processor {
 	 * @param string $pid
 	 * @return void
 	 */
-	protected function runJob(QueuedJob $queuedJob, string $pid) {
+	protected function runJob(QueuedJob $queuedJob, string $pid): void {
 		$this->io->out('Running Job of type "' . $queuedJob->job_task . '"');
 		$this->log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id, $pid, false);
 		$taskName = $queuedJob->job_task;
@@ -289,9 +289,10 @@ class Processor {
 	 * @param int $signal
 	 * @return void
 	 */
-	protected function abort($signal) {
+	protected function abort(int $signal = 1): void {
 		$this->deletePid($this->pid);
-		exit(1);
+
+		exit($signal);
 	}
 
 	/**

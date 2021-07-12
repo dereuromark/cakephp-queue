@@ -201,8 +201,9 @@ class QueuedJobsTable extends Table {
 	 * @param string $reference
 	 * @param string|null $jobTask
 	 *
+	 * @throws \InvalidArgumentException
+	 *
 	 * @return bool
-	 *@throws \InvalidArgumentException
 	 */
 	public function isQueued(string $reference, ?string $jobTask = null): bool {
 		if (!$reference) {
@@ -835,7 +836,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return void
 	 */
-	public function clearDoublettes() {
+	public function clearDoublettes(): void {
 		/** @var array $x */
 		$x = $this->getConnection()->query('SELECT max(id) as id FROM `' . $this->getTable() . '`
 	WHERE completed is NULL
