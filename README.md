@@ -23,8 +23,8 @@ The plugin is an attempt to provide a basic, simple to use method to enable defe
 without the hassle of setting up or running an extra queue daemon, while integrating nicely into
 CakePHP and also simplifying the creation of worker scripts. You can also easily provide progress and status information into your pages.
 
-Please also read the [blog post](https://www.dereuromark.de/2013/12/22/queue-deferred-execution-in-cakephp/).
-For more high-volume and robust use cases please see the [awesome list](https://github.com/FriendsOfCake/awesome-cakephp#queue).
+Please also read my blog posts about [deferred execution](https://www.dereuromark.de/2013/12/22/queue-deferred-execution-in-cakephp/) and [real-life example usage](https://www.dereuromark.de/2021/07/15/cakephp-queuing-real-life-examples/) [new].
+For more high-volume and sophisticated use cases please see the [awesome list](https://github.com/FriendsOfCake/awesome-cakephp#queue) alternatives.
 
 ### Why use deferred execution?
 
