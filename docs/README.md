@@ -10,7 +10,7 @@
 - Finally, go to `/admin/queue/queued-jobs/migrate` backend and fix up any old name to new one.
 
 Don't forget to replace the crontab worker command to `bin/cake queue run`.
-Same for ending current works on deploy: `bin/cake queue worker end server`.
+Same for ending currently running workers on deploy: `bin/cake queue worker end server`.
 
 ## Installation
 ```
