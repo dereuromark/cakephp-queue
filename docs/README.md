@@ -578,6 +578,11 @@ Also make sure you loaded the helpers needed (Tools.Format, Tools.Time as Time, 
 By default, the templates should work fine in both Foundation (v5+) and Bootstrap (v3+).
 Copy-and-paste to project level for any customization here.
 
+Here an example of historical job data for one specific "ProjectBranch" one:
+> ![job statistic](job_statistic.png)
+
+It can be quite valuable to see the runtime (in seconds) over a progression of time.
+
 ### Using backend actions
 You can add buttons to your specific app views to re-run a failed job, or to remove it.
 ```php
