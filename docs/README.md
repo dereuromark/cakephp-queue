@@ -947,10 +947,10 @@ return [
 ## Baking new Queue task and test
 You can bake a new task and its test via
 ```
-bin/cake bake_queue_task generate MyTaskName [-p PluginName]
+bin/cake bake queue_task MyTaskName [-p PluginName]
 ```
 
-It will generate a `QueueMyTaskNameTask` class in the right namespace.
+It will generate a `MyTaskNameTask` class in the right namespace.
 
 It will not overwrite existing classes unless you explicitly force this (after prompting).
 
