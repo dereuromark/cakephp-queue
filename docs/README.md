@@ -237,6 +237,8 @@ The `createJob()` function takes three arguments.
 - The second argument is optional, but if set must be an array of data and will be passed as a parameter to the `run()` function of the worker.
 - The third argument is options (`'notBefore'`, `'priority'`, `'group'`).
 
+> `priority` is sorted ascending, therefore a task with priority 1 will be executed before a task with priority 5
+
 For sending emails, for example:
 
 ```php
