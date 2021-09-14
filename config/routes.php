@@ -2,8 +2,8 @@
 
 use Cake\Routing\RouteBuilder;
 
-return static function (RouteBuilder $outer_routes) {
-	$outer_routes->prefix('Admin', function (RouteBuilder $routes) {
+return static function (RouteBuilder $routes) {
+	$routes->prefix('Admin', function (RouteBuilder $routes) {
 		$routes->plugin('Queue', function (RouteBuilder $routes) {
 			$routes->connect('/', ['controller' => 'Queue', 'action' => 'index']);
 
@@ -11,7 +11,7 @@ return static function (RouteBuilder $outer_routes) {
 		});
 	});
 
-	$outer_routes->plugin('Queue', ['path' => '/queue'], function (RouteBuilder $routes) {
+	$routes->plugin('Queue', [ 'path' => '/queue'], function (RouteBuilder $routes) {
 		$routes->connect('/:controller');
 	});
 };
