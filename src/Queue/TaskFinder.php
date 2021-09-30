@@ -134,4 +134,22 @@ class TaskFinder {
 		throw new InvalidArgumentException('No job type can be resolved for ' . $jobTask);
 	}
 
+	/**
+	 * @phpstan-return class-string<\Queue\Queue\Task>
+	 *
+	 * @param string $name
+	 *
+	 * @return string
+	 */
+	public static function getClass(string $name): string {
+		$all = (new static())->all();
+		foreach ($all as $taskName => $className) {
+			if ($name === $taskName) {
+				return $className;
+			}
+		}
+
+		throw new InvalidArgumentException('No such task: ' . $name);
+	}
+
 }
