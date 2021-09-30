@@ -16,3 +16,4 @@ parameters:
 		- '#Negated boolean expression is always false.#'
 		- '#Parameter \#1 \$function of function call_user_func_array expects .+, array\(.+\) given.#'
 		- '#Cannot cast array\|string\|null to .+.#'
+		- '#Unsafe usage of new static\(\)#'
