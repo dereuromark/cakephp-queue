@@ -95,6 +95,8 @@ class Config {
 	}
 
 	/**
+	 * @phpstan-param string|class-string<\Queue\Queue\Task> $class
+	 *
 	 * @param string $class
 	 *
 	 * @return string
