@@ -141,8 +141,8 @@ class TaskFinder {
 	 *
 	 * @return string
 	 */
-	public static function getClass(string $name): string {
-		$all = (new static())->all();
+	public function getClass(string $name): string {
+		$all = $this->all();
 		foreach ($all as $taskName => $className) {
 			if ($name === $taskName) {
 				return $className;

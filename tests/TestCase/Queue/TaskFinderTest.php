@@ -58,7 +58,9 @@ class TaskFinderTest extends TestCase {
 	 * @return void
 	 */
 	public function testClassName(): void {
-		$class = TaskFinder::getClass('Queue.Example');
+		$this->taskFinder = new TaskFinder();
+
+		$class = $this->taskFinder->getClass('Queue.Example');
 		$this->assertSame(ExampleTask::class, $class);
 	}
 
