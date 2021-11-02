@@ -13,14 +13,14 @@ class TaskFinder {
 	/**
 	 * @phpstan-var array<string, class-string<\Queue\Queue\Task>>|null
 	 *
-	 * @var string[]|null
+	 * @var array<string>|null
 	 */
 	protected $tasks;
 
 	/**
 	 * @phpstan-return array<string, class-string<\Queue\Queue\Task>>
 	 *
-	 * @return string[]
+	 * @return array<string>
 	 */
 	public function allAddable(): array {
 		$all = $this->all();
@@ -40,7 +40,7 @@ class TaskFinder {
 	 *
 	 * @phpstan-return array<string, class-string<\Queue\Queue\Task>>
 	 *
-	 * @return string[]
+	 * @return array<string>
 	 */
 	public function all(): array {
 		if ($this->tasks !== null) {
@@ -72,7 +72,7 @@ class TaskFinder {
 	 * @param string $path
 	 * @param string|null $plugin
 	 *
-	 * @return string[]
+	 * @return array<string>
 	 */
 	protected function getTasks(string $path, ?string $plugin = null): array {
 		$Folder = new Folder($path);
@@ -95,7 +95,7 @@ class TaskFinder {
 	/**
 	 * Resolves FQCN to a task name.
 	 *
-	 * @param string|class-string<\Queue\Queue\Task> $jobTask
+	 * @param class-string<\Queue\Queue\Task>|string $jobTask
 	 *
 	 * @return string
 	 */

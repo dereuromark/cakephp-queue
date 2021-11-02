@@ -22,10 +22,10 @@ use RuntimeException;
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @method \Queue\Model\Entity\QueuedJob get($primaryKey, $options = [])
  * @method \Queue\Model\Entity\QueuedJob newEntity(array $data, array $options = [])
- * @method \Queue\Model\Entity\QueuedJob[] newEntities(array $data, array $options = [])
+ * @method array<\Queue\Model\Entity\QueuedJob> newEntities(array $data, array $options = [])
  * @method \Queue\Model\Entity\QueuedJob|false save(\Cake\Datasource\EntityInterface $entity, $options = [])
  * @method \Queue\Model\Entity\QueuedJob patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \Queue\Model\Entity\QueuedJob[] patchEntities(iterable $entities, array $data, array $options = [])
+ * @method array<\Queue\Model\Entity\QueuedJob> patchEntities(iterable $entities, array $data, array $options = [])
  * @method \Queue\Model\Entity\QueuedJob findOrCreate($search, ?callable $callback = null, $options = [])
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  * @method \Queue\Model\Entity\QueuedJob saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
@@ -39,11 +39,29 @@ use RuntimeException;
  */
 class QueuedJobsTable extends Table {
 
+	/**
+	 * @var string
+	 */
 	public const DRIVER_MYSQL = 'Mysql';
+
+	/**
+	 * @var string
+	 */
 	public const DRIVER_POSTGRES = 'Postgres';
+
+	/**
+	 * @var string
+	 */
 	public const DRIVER_SQLSERVER = 'Sqlserver';
+
+	/**
+	 * @var string
+	 */
 	public const DRIVER_SQLITE = 'Sqlite';
 
+	/**
+	 * @var int
+	 */
 	public const STATS_LIMIT = 100000;
 
 	/**
@@ -185,7 +203,7 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * @param string|class-string<\Queue\Queue\Task> $jobType
+	 * @param class-string<\Queue\Queue\Task>|string $jobType
 	 *
 	 * @return string
 	 */
@@ -267,7 +285,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @param bool $disableHydration
 	 *
-	 * @return \Queue\Model\Entity\QueuedJob[]|mixed[]
+	 * @return array<\Queue\Model\Entity\QueuedJob>|array<mixed>
 	 */
 	public function getStats(bool $disableHydration = false): array {
 		$driverName = $this->getDriverName();
@@ -429,8 +447,8 @@ class QueuedJobsTable extends Table {
 	 * from the specified group (or any if null).
 	 *
 	 * @param array $tasks Available QueueWorkerTasks.
-	 * @param string[] $groups Request a job from these groups (or exclude certain groups), or any otherwise.
-	 * @param string[] $types Request a job from these types (or exclude certain types), or any otherwise.
+	 * @param array<string> $groups Request a job from these groups (or exclude certain groups), or any otherwise.
+	 * @param array<string> $types Request a job from these types (or exclude certain types), or any otherwise.
 	 * @return \Queue\Model\Entity\QueuedJob|null
 	 */
 	public function requestJob(array $tasks, array $groups = [], array $types = []) {
@@ -488,7 +506,7 @@ class QueuedJobsTable extends Table {
 			$uniqueConstraints[$name] = $name;
 		}
 
-		/** @var \Queue\Model\Entity\QueuedJob[] $runningJobs */
+		/** @var array<\Queue\Model\Entity\QueuedJob> $runningJobs */
 		$runningJobs = [];
 		if ($costConstraints || $uniqueConstraints) {
 			$constraintJobs = array_keys($costConstraints + $uniqueConstraints);
@@ -911,7 +929,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * @param array $conditions
 	 * @param string $key
-	 * @param string[] $values
+	 * @param array<string> $values
 	 * @return array
 	 */
 	protected function addFilter(array $conditions, string $key, array $values): array {
@@ -940,7 +958,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * Without argument this will be "now".
 	 *
-	 * @param int|string|\Cake\I18n\FrozenTime|\Cake\I18n\Time|null $notBefore
+	 * @param \Cake\I18n\FrozenTime|\Cake\I18n\Time|string|int|null $notBefore
 	 *
 	 * @return \Cake\I18n\FrozenTime|\Cake\I18n\Time
 	 */

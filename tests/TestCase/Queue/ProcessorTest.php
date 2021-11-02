@@ -18,7 +18,7 @@ class ProcessorTest extends TestCase {
 	use TestTrait;
 
 	/**
-	 * @var string[]
+	 * @var array<string>
 	 */
 	protected $fixtures = [
 		'plugin.Queue.QueueProcesses',

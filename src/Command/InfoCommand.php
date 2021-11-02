@@ -35,7 +35,7 @@ class InfoCommand extends Command {
 		$parser = parent::getOptionParser();
 
 		$parser->setDescription(
-			'Get list of available tasks as well as current settings and statistics.'
+			'Get list of available tasks as well as current settings and statistics.',
 		);
 
 		return $parser;
@@ -113,7 +113,7 @@ class InfoCommand extends Command {
 	}
 
 	/**
-	 * @return string[]
+	 * @return array<string>
 	 */
 	protected function getTasks(): array {
 		$taskFinder = new TaskFinder();
@@ -122,7 +122,7 @@ class InfoCommand extends Command {
 	}
 
 	/**
-	 * @return string[]
+	 * @return array<string>
 	 */
 	protected function getAddableTasks(): array {
 		$taskFinder = new TaskFinder();

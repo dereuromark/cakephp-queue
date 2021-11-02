@@ -60,7 +60,7 @@ class RunCommand extends Command {
 		$parser->setDescription(
 			'Simple and minimalistic job queue (or deferred-task) system.'
 			. PHP_EOL
-			. 'This command runs a queue worker.'
+			. 'This command runs a queue worker.',
 		);
 
 		return $parser;

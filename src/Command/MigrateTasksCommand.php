@@ -46,7 +46,7 @@ class MigrateTasksCommand extends Command {
 		$parser->setDescription(
 			'Only needed for upgrade of old Shell tasks to new Queue tasks.' . PHP_EOL
 			. ' - Shell/Task/Queue.+Task => Queue/Task/.+Task' . PHP_EOL
-			. ' - IO access refactor'
+			. ' - IO access refactor',
 		);
 
 		return $parser;
@@ -226,7 +226,7 @@ class MigrateTasksCommand extends Command {
 	/**
 	 * @param string|null $plugin
 	 *
-	 * @return string[]
+	 * @return array<string>
 	 */
 	protected function getTasks(?string $plugin): array {
 		$taskFinder = new OldTaskFinder();

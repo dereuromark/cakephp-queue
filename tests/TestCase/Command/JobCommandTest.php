@@ -17,7 +17,7 @@ class JobCommandTest extends TestCase {
 	use ConsoleIntegrationTestTrait;
 
 	/**
-	 * @var string[]
+	 * @var array<string>
 	 */
 	protected $fixtures = [
 		'plugin.Queue.QueuedJobs',

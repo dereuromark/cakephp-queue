@@ -65,7 +65,7 @@ class Config {
 	}
 
 	/**
-	 * @param string[] $tasks
+	 * @param array<string> $tasks
 	 *
 	 * @throws \RuntimeException
 	 * @return array
@@ -95,7 +95,7 @@ class Config {
 	}
 
 	/**
-	 * @phpstan-param string|class-string<\Queue\Queue\Task> $class
+	 * @phpstan-param class-string<\Queue\Queue\Task>|string $class
 	 *
 	 * @param string $class
 	 *

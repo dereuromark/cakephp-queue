@@ -14,5 +14,6 @@ parameters:
 	ignoreErrors:
 		- '#Access to an undefined property Cake\\ORM\\BehaviorRegistry::\$Search#'
 		- '#Negated boolean expression is always false.#'
-		- '#Parameter \#1 \$function of function call_user_func_array expects .+, array\(.+\) given.#'
+		- '#Parameter \#1 \$function of function call_user_func_array expects .+, array.+ given.#'
 		- '#Cannot cast array\|string\|null to .+.#'
+		- '#Cannot cast non-empty-array\|non-empty-string to string#'

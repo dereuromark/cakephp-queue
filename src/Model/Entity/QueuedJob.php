@@ -25,7 +25,7 @@ use Cake\ORM\Entity;
 class QueuedJob extends Entity {
 
 	/**
-	 * @var array
+	 * @var array<string, bool>
 	 */
 	protected $_accessible = [
 		'*' => true,

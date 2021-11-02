@@ -33,7 +33,7 @@ class AddCommand extends Command {
 			'required' => false,
 		]);
 		$parser->setDescription(
-			'Adds a job into the queue. Only tasks that implement AddInterface can be added through CLI.'
+			'Adds a job into the queue. Only tasks that implement AddInterface can be added through CLI.',
 		);
 
 		return $parser;
@@ -69,7 +69,7 @@ class AddCommand extends Command {
 	}
 
 	/**
-	 * @return string[]
+	 * @return array<string>
 	 */
 	protected function getTasks(): array {
 		$taskFinder = new TaskFinder();
