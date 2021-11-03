@@ -32,6 +32,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Setup Service
+        if: matrix.db-type == 'mysql'
+        run: |
+          sudo service mysql start
+          mysql -h 127.0.0.1 -u root -proot -e 'CREATE DATABASE cakephp;'
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -64,6 +70,10 @@ jobs:
       - name: Setup problem matchers for PHPUnit
         if: matrix.db-type == 'mysql'
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Wait for MySQL
+        if: matrix.db-type == 'mysql'
+        run: while ! `mysqladmin ping -h 127.0.0.1 --silent`; do printf 'Waiting for MySQL...\n'; sleep 2; done;
 
       - name: Run PHPUnit
         run: |
