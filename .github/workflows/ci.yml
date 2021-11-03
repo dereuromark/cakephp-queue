@@ -9,12 +9,12 @@ on:
 
 jobs:
   testsuite:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
       matrix:
         php-version: ['7.3', '8.0']
-        db-type: [sqlite, mysql, pgsql]
+        db-type: ['sqlite', 'mysql', 'pgsql']
         prefer-lowest: ['']
         include:
           - php-version: '7.3'
@@ -67,6 +67,14 @@ jobs:
           fi
           if ${{ matrix.prefer-lowest == 'prefer-lowest' }}; then composer lowest-setup; fi
 
+      - name: Setup problem matchers for PHPUnit
+        if: matrix.db-type == 'mysql'
+        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+      - name: Wait for MySQL
+        if: matrix.db-type == 'mysql'
+        run: while ! `mysqladmin ping -h 127.0.0.1 --silent`; do printf 'Waiting for MySQL...\n'; sleep 2; done;
+
       - name: Run PHPUnit
         run: |
           if [[ ${{ matrix.db-type }} == 'sqlite' ]]; then export DB_URL='sqlite:///:memory:'; fi
@@ -87,7 +95,7 @@ jobs:
 
   validation:
     name: Coding Standard & Static Analysis
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-18.04
 
     steps:
       - uses: actions/checkout@v2
