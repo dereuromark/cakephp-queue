@@ -65,10 +65,6 @@ jobs:
         if: matrix.db-type == 'mysql'
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
-      - name: Wait for MySQL
-        if: matrix.db-type == 'mysql'
-        run: while ! `mysqladmin ping -h 127.0.0.1 --silent`; do printf 'Waiting for MySQL...\n'; sleep 2; done;
-
       - name: Run PHPUnit
         run: |
           if [[ ${{ matrix.db-type }} == 'sqlite' ]]; then export DB_URL='sqlite:///:memory:'; fi
