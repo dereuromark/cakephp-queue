@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         php-version: ['7.3', '8.0']
-        db-type: [sqlite, mysql, pgsql]
+        db-type: ['sqlite', 'mysql', 'pgsql']
         prefer-lowest: ['']
         include:
           - php-version: '7.3'
@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Setup MySQL latest
-        if: matrix.db-type == 'mysql' && matrix.php-version == '7.2'
+        if: matrix.db-type == 'mysql'
         run: docker run --rm --name=mysqld -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cakephp -p 3306:3306 -d mysql --default-authentication-plugin=mysql_native_password --disable-log-bin
 
       - uses: actions/checkout@v2
