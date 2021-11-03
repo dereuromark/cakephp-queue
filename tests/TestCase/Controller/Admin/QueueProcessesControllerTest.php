@@ -27,12 +27,6 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 		$this->disableErrorHandlerMiddleware();
 	}
 
-	/**
-	 * @return void
-	 */
-	public function tearDown(): void {
-		parent::tearDown();
-	}
 
 	/**
 	 * Test index method
