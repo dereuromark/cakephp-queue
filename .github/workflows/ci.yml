@@ -30,17 +30,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
 
     steps:
-      - name: Setup MySQL
-        if: matrix.db-type == 'mysql'
-        run: docker run --rm --name=mysqld -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cakephp -p 3306:3306 -d mysql:5.6 --character-set-server=utf8
-
       - uses: actions/checkout@v2
-
-      - name: Setup Service
-        if: matrix.db-type == 'mysql'
-        run: |
-          sudo service mysql start
-          mysql -h 127.0.0.1 -u root -proot -e 'CREATE DATABASE cakephp;'
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
