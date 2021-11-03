@@ -27,7 +27,6 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 		$this->disableErrorHandlerMiddleware();
 	}
 
-
 	/**
 	 * Test index method
 	 *
