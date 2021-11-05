@@ -15,10 +15,10 @@ use Queue\Queue\Config;
  *
  * @method \Queue\Model\Entity\QueueProcess get($primaryKey, $options = [])
  * @method \Queue\Model\Entity\QueueProcess newEntity(array $data, array $options = [])
- * @method \Queue\Model\Entity\QueueProcess[] newEntities(array $data, array $options = [])
+ * @method array<\Queue\Model\Entity\QueueProcess> newEntities(array $data, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess|false save(\Cake\Datasource\EntityInterface $entity, $options = [])
  * @method \Queue\Model\Entity\QueueProcess patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
- * @method \Queue\Model\Entity\QueueProcess[] patchEntities(iterable $entities, array $data, array $options = [])
+ * @method array<\Queue\Model\Entity\QueueProcess> patchEntities(iterable $entities, array $data, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess findOrCreate($search, ?callable $callback = null, $options = [])
  *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
@@ -68,7 +68,7 @@ class QueueProcessesTable extends Table {
 				'conditions' => [
 					'CurrentQueuedJobs.completed IS NULL',
 				],
-			]
+			],
 		);
 	}
 
@@ -234,7 +234,7 @@ class QueueProcessesTable extends Table {
 	 * $forThisServer only works for DB approach.
 	 *
 	 * @param bool $forThisServer
-	 * @return \Queue\Model\Entity\QueueProcess[]
+	 * @return array<\Queue\Model\Entity\QueueProcess>
 	 */
 	public function getProcesses(bool $forThisServer = false): array {
 		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */

@@ -28,13 +28,6 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 	}
 
 	/**
-	 * @return void
-	 */
-	public function tearDown(): void {
-		parent::tearDown();
-	}
-
-	/**
 	 * Test index method
 	 *
 	 * @return void

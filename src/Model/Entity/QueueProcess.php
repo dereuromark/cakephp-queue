@@ -19,7 +19,7 @@ use Cake\ORM\Entity;
 class QueueProcess extends Entity {
 
 	/**
-	 * @var array
+	 * @var array<string, bool>
 	 */
 	protected $_accessible = [
 		'*' => true,

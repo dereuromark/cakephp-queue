@@ -5,8 +5,6 @@ on:
     branches:
       - master
   pull_request:
-  schedule:
-    - cron: "0 0 * * *"
   workflow_dispatch:
 
 jobs:
@@ -15,11 +13,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['7.2', '8.0']
-        db-type: [sqlite, mysql, pgsql]
+        php-version: ['7.3', '8.0']
+        db-type: ['sqlite', 'mysql', 'pgsql']
         prefer-lowest: ['']
         include:
-          - php-version: '7.2'
+          - php-version: '7.3'
             db-type: 'sqlite'
             prefer-lowest: 'prefer-lowest'
 
@@ -32,92 +30,99 @@ jobs:
           POSTGRES_PASSWORD: postgres
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Setup Service
-      if: matrix.db-type == 'mysql'
-      run: |
-        sudo service mysql start
-        mysql -h 127.0.0.1 -u root -proot -e 'CREATE DATABASE cakephp;'
+      - name: Setup Service
+        if: matrix.db-type == 'mysql'
+        run: |
+          sudo service mysql start
+          mysql -h 127.0.0.1 -u root -proot -e 'CREATE DATABASE cakephp;'
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ matrix.php-version }}
-        extensions: mbstring, intl, pdo_${{ matrix.db-type }}
-        coverage: pcov
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, intl, pdo_${{ matrix.db-type }}
+          coverage: pcov
 
-    - name: Get composer cache directory
-      id: composercache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Get composer cache directory
+        id: composercache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-    - name: Cache dependencies
-      uses: actions/cache@v2
-      with:
-        path: ${{ steps.composercache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-        restore-keys: ${{ runner.os }}-composer-
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composercache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
 
-    - name: Composer install --no-progress --prefer-dist --optimize-autoloader
-      run: |
-        composer --version
-        composer require --dev phpunit/phpunit:"^8.5||^9.5"
-        if ${{ matrix.prefer-lowest == 'prefer-lowest' }}
-        then
-          composer update --prefer-lowest --prefer-stable
-        else
-          composer install --no-progress --prefer-dist --optimize-autoloader
-        fi
-        if ${{ matrix.prefer-lowest == 'prefer-lowest' }}; then composer require --dev dereuromark/composer-prefer-lowest:dev-master; fi
+      - name: Composer install --no-progress --prefer-dist --optimize-autoloader
+        run: |
+          composer --version
+          if ${{ matrix.prefer-lowest == 'prefer-lowest' }}
+          then
+            composer update --prefer-lowest --prefer-stable
+          else
+            composer install --no-progress --prefer-dist --optimize-autoloader
+          fi
+          if ${{ matrix.prefer-lowest == 'prefer-lowest' }}; then composer lowest-setup; fi
 
-    - name: Run PHPUnit
-      run: |
-        if [[ ${{ matrix.db-type }} == 'sqlite' ]]; then export DB_URL='sqlite:///:memory:'; fi
-        if [[ ${{ matrix.db-type }} == 'mysql' ]]; then export DB_URL='mysql://root:root@127.0.0.1/cakephp'; fi
-        if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then export DB_URL='postgres://postgres:postgres@127.0.0.1/postgres'; fi
-        if [[ ${{ matrix.php-version }} == '7.2' && ${{ matrix.db-type }} == 'sqlite' ]]; then
-          vendor/bin/phpunit --coverage-clover=coverage.xml
-        else
-          vendor/bin/phpunit
-        fi
+      - name: Setup problem matchers for PHPUnit
+        if: matrix.db-type == 'mysql'
+        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
-    - name: Validate prefer-lowest
-      run: if ${{ matrix.prefer-lowest == 'prefer-lowest' }}; then vendor/bin/validate-prefer-lowest -m; fi
+      - name: Wait for MySQL
+        if: matrix.db-type == 'mysql'
+        run: while ! `mysqladmin ping -h 127.0.0.1 --silent`; do printf 'Waiting for MySQL...\n'; sleep 2; done;
 
-    - name: Code Coverage Report
-      if: success() && matrix.php-version == '7.2' && matrix.db-type == 'sqlite'
-      uses: codecov/codecov-action@v1
+      - name: Run PHPUnit
+        run: |
+          if [[ ${{ matrix.db-type }} == 'sqlite' ]]; then export DB_URL='sqlite:///:memory:'; fi
+          if [[ ${{ matrix.db-type }} == 'mysql' ]]; then export DB_URL='mysql://root:root@127.0.0.1/cakephp?encoding=utf8'; fi
+          if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then export DB_URL='postgres://postgres:postgres@127.0.0.1/postgres'; fi
+          if [[ ${{ matrix.php-version }} == '7.3' && ${{ matrix.db-type }} == 'sqlite' ]]; then
+            vendor/bin/phpunit --coverage-clover=coverage.xml
+          else
+            vendor/bin/phpunit
+          fi
+
+      - name: Validate prefer-lowest
+        run: if ${{ matrix.prefer-lowest == 'prefer-lowest' }}; then vendor/bin/validate-prefer-lowest -m; fi
+
+      - name: Code Coverage Report
+        if: success() && matrix.php-version == '7.3' && matrix.db-type == 'sqlite'
+        uses: codecov/codecov-action@v1
 
   validation:
     name: Coding Standard & Static Analysis
     runs-on: ubuntu-18.04
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-        extensions: mbstring, intl
-        coverage: none
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, intl
+          coverage: none
 
-    - name: Get composer cache directory
-      id: composercache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Get composer cache directory
+        id: composercache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-    - name: Cache dependencies
-      uses: actions/cache@v2
-      with:
-        path: ${{ steps.composercache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-        restore-keys: ${{ runner.os }}-composer-
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composercache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
 
-    - name: Composer phpstan setup
-      run: composer stan-setup
+      - name: Composer phpstan setup
+        run: composer stan-setup
 
-    - name: Run phpstan
-      run: vendor/bin/phpstan analyse --error-format=github
+      - name: Run phpstan
+        run: vendor/bin/phpstan analyse --error-format=github
 
-    - name: Run phpcs
-      run: composer cs-check
+      - name: Run phpcs
+        run: composer cs-check

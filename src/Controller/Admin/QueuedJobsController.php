@@ -125,7 +125,7 @@ class QueuedJobsController extends AppController {
 	 */
 	public function import() {
 		if ($this->request->is(['post'])) {
-			/** @var array|\Laminas\Diactoros\UploadedFile $file */
+			/** @var \Laminas\Diactoros\UploadedFile|array $file */
 			$file = $this->request->getData('file');
 			if ($file instanceof UploadedFile) {
 				$file = $this->fileToArray($file);

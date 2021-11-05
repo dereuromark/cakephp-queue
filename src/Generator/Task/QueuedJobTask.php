@@ -9,7 +9,7 @@ use Queue\Queue\TaskFinder;
 class QueuedJobTask implements TaskInterface {
 
 	/**
-	 * @var int[]
+	 * @var array<int>
 	 */
 	protected $aliases = [
 		'\Queue\Model\Table\QueuedJobsTable::createJob()' => 0,
@@ -17,7 +17,7 @@ class QueuedJobTask implements TaskInterface {
 	];
 
 	/**
-	 * @return \IdeHelper\Generator\Directive\BaseDirective[]
+	 * @return array<\IdeHelper\Generator\Directive\BaseDirective>
 	 */
 	public function collect(): array {
 		$list = [];
@@ -39,7 +39,7 @@ class QueuedJobTask implements TaskInterface {
 	}
 
 	/**
-	 * @return string[]
+	 * @return array<string>
 	 */
 	protected function collectQueuedJobTasks(): array {
 		$taskFinder = new TaskFinder();

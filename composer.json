@@ -18,8 +18,8 @@
 		}
 	],
 	"require": {
-		"php": ">=7.2",
-		"cakephp/cakephp": "^4.1.7"
+		"php": ">=7.3",
+		"cakephp/cakephp": "^4.2.0"
 	},
 	"require-dev": {
 		"cakephp/bake": "^2.5.0",
@@ -28,6 +28,7 @@
 		"dereuromark/cakephp-tools": "^2.1.3",
 		"dereuromark/cakephp-ide-helper": "^1.0.0",
 		"cakephp/plugin-installer": "^1.3",
+		"phpunit/phpunit": "^9.5",
 		"fig-r/psr2r-sniffer": "dev-master"
 	},
 	"suggest": {
@@ -55,11 +56,11 @@
 	"scripts": {
 		"stan": "phpstan analyse",
 		"stan-tests": "phpstan analyse -c tests/phpstan.neon",
-		"stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^0.12 && mv composer.backup composer.json",
-		"test": "php phpunit.phar",
-		"test-setup": "[ ! -f phpunit.phar ] && wget https://phar.phpunit.de/phpunit-8.5.15.phar && mv phpunit-8.5.15.phar phpunit.phar || true",
-		"test-setup-9": "[ ! -f phpunit.phar ] && wget https://phar.phpunit.de/phpunit-9.5.4.phar && mv phpunit-9.5.4.phar phpunit.phar || true",
-		"test-coverage": "php phpunit.phar --log-junit tmp/coverage/unitreport.xml --coverage-html tmp/coverage --coverage-clover tmp/coverage/coverage.xml",
+		"stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^1.0.0 && mv composer.backup composer.json",
+		"test": "phpunit",
+		"test-coverage": "phpunit --log-junit tmp/coverage/unitreport.xml --coverage-html tmp/coverage --coverage-clover tmp/coverage/coverage.xml",
+		"lowest": "validate-prefer-lowest",
+		"lowest-setup": "composer update --prefer-lowest --prefer-stable --prefer-dist --no-interaction && cp composer.json composer.backup && composer require --dev dereuromark/composer-prefer-lowest && mv composer.backup composer.json",
 		"cs-check": "phpcs -p -s --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=/config/Migrations/,/tests/test_files/ --extensions=php src/ tests/ config/",
 		"cs-fix": "phpcbf -p --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=/config/Migrations/,/tests/test_files/ --extensions=php src/ tests/ config/"
 	},

@@ -14,7 +14,7 @@ class OldTaskFinder {
 	 *
 	 * @param string|null $plugin
 	 *
-	 * @return string[]
+	 * @return array<string>
 	 */
 	public function all(?string $plugin) {
 		$paths = App::classPath('Shell/Task', $plugin);
@@ -33,7 +33,7 @@ class OldTaskFinder {
 	 * @param string $path
 	 * @param string|null $plugin
 	 *
-	 * @return string[]
+	 * @return array<string>
 	 */
 	protected function getTasks(string $path, ?string $plugin) {
 		$Folder = new Folder($path);

@@ -385,7 +385,7 @@ class Processor {
 
 	/**
 	 * @param string $param
-	 * @return string[]
+	 * @return array<string>
 	 */
 	protected function stringToArray(string $param): array {
 		if (!$param) {

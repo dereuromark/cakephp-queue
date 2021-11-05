@@ -119,7 +119,7 @@ class EmailTask extends Task implements AddInterface {
 				if (!empty($data['action'])) {
 					$result = $mailer->send($data['action'], $data['vars'] ?? []);
 				} else {
-					$content = isset($data['content']) ? $data['content'] : '';
+					$content = $data['content'] ?? '';
 					$result = $mailer->deliver($content);
 				}
 
@@ -178,6 +178,7 @@ class EmailTask extends Task implements AddInterface {
 	 * @return \Cake\Mailer\Mailer
 	 */
 	protected function getMailer() {
+		/** @phpstan-var class-string<\Cake\Mailer\Mailer> $class */
 		$class = Configure::read('Queue.mailerClass');
 		if (!$class) {
 			$class = 'Tools\Mailer\Mailer';
