@@ -87,7 +87,7 @@ class MonitorExampleTask extends Task implements AddInterface {
 	}
 
 	/**
-	 * @return string[]
+	 * @return array<string>
 	 */
 	protected function getSystemMemInfo() {
 		$data = explode("\n", file_get_contents('/proc/meminfo') ?: '');

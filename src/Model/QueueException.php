@@ -2,7 +2,7 @@
 
 namespace Queue\Model;
 
-use Cake\Core\Exception\Exception;
+use Cake\Core\Exception\CakeException;
 
-class QueueException extends Exception {
+class QueueException extends CakeException {
 }

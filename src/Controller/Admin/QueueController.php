@@ -194,7 +194,7 @@ class QueueController extends AppController {
 	}
 
 	/**
-	 * @param string|array $default
+	 * @param array|string $default
 	 *
 	 * @return \Cake\Http\Response|null
 	 */

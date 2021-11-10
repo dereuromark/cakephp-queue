@@ -43,7 +43,7 @@ class WorkerCommand extends Command {
 		]);
 
 		$parser->setDescription(
-			'Display, end or kill running workers.'
+			'Display, end or kill running workers.',
 		);
 
 		return $parser;
@@ -64,7 +64,7 @@ class WorkerCommand extends Command {
 			$io->out('- clean: ');
 			$io->out();
 
-			/** @var \Queue\Model\Entity\QueueProcess[] $processes */
+			/** @var array<\Queue\Model\Entity\QueueProcess> $processes */
 			$processes = $this->QueueProcesses->find()
 				->orderDesc('modified')
 				->limit(10)->all()->toArray();

@@ -44,7 +44,7 @@ class JobCommand extends Command {
 		]);
 
 		$parser->setDescription(
-			'Display, rerun, reset or remove pending jobs.'
+			'Display, rerun, reset or remove pending jobs.',
 		);
 
 		return $parser;
@@ -68,7 +68,7 @@ class JobCommand extends Command {
 			$io->out('- clean: Cleanup (old jobs removal)');
 			$io->out();
 
-			/** @var \Queue\Model\Entity\QueuedJob[] $jobs */
+			/** @var array<\Queue\Model\Entity\QueuedJob> $jobs */
 			$jobs = $this->QueuedJobs->find()
 				->select(['id', 'job_task', 'completed', 'failed'])
 				->orderDesc('id')
@@ -121,7 +121,7 @@ class JobCommand extends Command {
 	 * @return int
 	 */
 	protected function rerunAll(ConsoleIo $io): int {
-		/** @var \Queue\Model\Entity\QueuedJob[] $queuedJobs */
+		/** @var array<\Queue\Model\Entity\QueuedJob> $queuedJobs */
 		$queuedJobs = $this->QueuedJobs->find()
 			->where(['completed IS NOT' => null])
 			->all()
@@ -141,7 +141,7 @@ class JobCommand extends Command {
 	 * @return int
 	 */
 	protected function resetAll(ConsoleIo $io): int {
-		/** @var \Queue\Model\Entity\QueuedJob[] $queuedJobs */
+		/** @var array<\Queue\Model\Entity\QueuedJob> $queuedJobs */
 		$queuedJobs = $this->QueuedJobs->find()
 			->where(['completed IS' => null])
 			->all()
