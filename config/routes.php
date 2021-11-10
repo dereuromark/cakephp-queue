@@ -14,5 +14,5 @@ $routes->prefix('Admin', function (RouteBuilder $routes) {
 });
 
 $routes->plugin('Queue', ['path' => '/queue'], function (RouteBuilder $routes) {
-	$routes->connect('/:controller');
+	$routes->connect('/{controller}');
 });
