@@ -3,7 +3,6 @@
 namespace TestApp\Controller;
 
 use Cake\Controller\Controller;
-use Cake\Event\EventInterface;
 
 class AppController extends Controller {
 
