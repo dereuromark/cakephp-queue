@@ -41,7 +41,7 @@ class QueuedJobsController extends AppController {
 		}
 
 		$this->enableSearch();
-		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Shim.Configure']);
+		$this->viewBuilder()->setHelpers(['Tools.Time' => ['engine' => 'Tools\Utility\FrozenTime'], 'Tools.Format', 'Tools.Text', 'Shim.Configure'], false);
 	}
 
 	/**
@@ -115,7 +115,6 @@ class QueuedJobsController extends AppController {
 
 		$this->set(compact('queuedJob'));
 		$this->viewBuilder()->setOption('serialize', ['queuedJob']);
-		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format', 'Shim.Configure']);
 	}
 
 	/**

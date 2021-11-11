@@ -16,15 +16,4 @@ class AppController extends Controller {
 		$this->loadComponent('Flash');
 	}
 
-	/**
-	 * @param \Cake\Event\EventInterface $event
-	 *
-	 * @return \Cake\Http\Response|null|void
-	 */
-	public function beforeRender(EventInterface $event) {
-		parent::beforeRender($event);
-
-		$this->viewBuilder()->setHelpers(['Tools.Time', 'Tools.Format']);
-	}
-
 }

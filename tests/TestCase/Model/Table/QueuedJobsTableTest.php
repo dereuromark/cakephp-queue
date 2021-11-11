@@ -10,7 +10,6 @@ namespace Queue\Test\TestCase\Model\Table;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\I18n\FrozenTime;
-use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Queue\Model\Table\QueuedJobsTable;
@@ -256,9 +255,9 @@ class QueuedJobsTableTest extends TestCase {
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', null, ['notBefore' => '+ 1 Day']));
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', null, ['notBefore' => '2009-07-01 12:00:00']));
 		$data = $this->QueuedJobs->find('all')->toArray();
-		$this->assertWithinRange((new Time('+ 1 Min'))->toUnixString(), $data[0]['notbefore']->toUnixString(), 60);
-		$this->assertWithinRange((new Time('+ 1 Day'))->toUnixString(), $data[1]['notbefore']->toUnixString(), 60);
-		$this->assertWithinRange((new Time('2009-07-01 12:00:00'))->toUnixString(), $data[2]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new FrozenTime('+ 1 Min'))->toUnixString(), $data[0]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new FrozenTime('+ 1 Day'))->toUnixString(), $data[1]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new FrozenTime('2009-07-01 12:00:00'))->toUnixString(), $data[2]['notbefore']->toUnixString(), 60);
 	}
 
 	/**
