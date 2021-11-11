@@ -19,6 +19,8 @@ use RuntimeException;
  */
 class QueuedJobsController extends AppController {
 
+	use LoadHelperTrait;
+
 	/**
 	 * @var array
 	 */
@@ -41,7 +43,7 @@ class QueuedJobsController extends AppController {
 		}
 
 		$this->enableSearch();
-		$this->viewBuilder()->setHelpers(['Tools.Time' => ['engine' => 'Tools\Utility\FrozenTime'], 'Tools.Format', 'Tools.Text', 'Shim.Configure'], false);
+		$this->loadHelpers();
 	}
 
 	/**

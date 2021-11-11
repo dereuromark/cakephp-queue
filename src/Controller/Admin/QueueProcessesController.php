@@ -14,6 +14,8 @@ use Exception;
  */
 class QueueProcessesController extends AppController {
 
+	use LoadHelperTrait;
+
 	/**
 	 * @var array
 	 */
@@ -29,7 +31,7 @@ class QueueProcessesController extends AppController {
 	public function initialize(): void {
 		parent::initialize();
 
-		$this->viewBuilder()->setHelpers(['Tools.Time' => ['engine' => 'Tools\Utility\FrozenTime'], 'Tools.Format', 'Tools.Text', 'Shim.Configure'], false);
+		$this->loadHelpers();
 	}
 
 	/**

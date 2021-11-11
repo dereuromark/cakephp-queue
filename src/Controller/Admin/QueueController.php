@@ -13,6 +13,8 @@ use Queue\Queue\TaskFinder;
  */
 class QueueController extends AppController {
 
+	use LoadHelperTrait;
+
 	/**
 	 * @var string
 	 */
@@ -24,7 +26,7 @@ class QueueController extends AppController {
 	public function initialize(): void {
 		parent::initialize();
 
-		$this->viewBuilder()->setHelpers(['Tools.Time' => ['engine' => 'Tools\Utility\FrozenTime'], 'Tools.Format', 'Tools.Text', 'Shim.Configure'], false);
+		$this->loadHelpers();
 	}
 
 	/**
