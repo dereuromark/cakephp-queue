@@ -5,11 +5,16 @@ namespace Queue\Test\TestCase\Controller\Admin;
 use Cake\Datasource\ConnectionManager;
 use Cake\I18n\FrozenTime;
 use Cake\TestSuite\IntegrationTestCase;
+use Queue\Controller\Admin\QueueController;
+use Shim\TestSuite\TestTrait;
+use Tools\Utility\FrozenTime as UtilityFrozenTime;
 
 /**
  * @uses \Queue\Controller\Admin\QueueController
  */
 class QueueControllerTest extends IntegrationTestCase {
+
+	use TestTrait;
 
 	/**
 	 * Fixtures
@@ -28,6 +33,18 @@ class QueueControllerTest extends IntegrationTestCase {
 		parent::setUp();
 
 		$this->disableErrorHandlerMiddleware();
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testLoadHelpers(): void {
+		$controller = new QueueController();
+		$this->invokeMethod($controller, 'loadHelpers');
+
+		$view = $controller->createView();
+		$engine = $view->Time->getConfig('engine');
+		$this->assertSame(UtilityFrozenTime::class, $engine);
 	}
 
 	/**
