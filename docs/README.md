@@ -844,7 +844,7 @@ to not process any new incoming jobs after deployment.
 
 In this case, make sure one of your first calls of the deployment script is
 ```
-bin/cake queue end -q
+bin/cake queue worker end all -q
 ```
 
 To avoid further deployment issues, also try to keep the runtime per worker to only a few minutes.
@@ -859,7 +859,7 @@ These are stored in the processes and as such you can then end them per instance
 
 This snippet should be in the deploy script then instead.
 ```
-bin/cake queue end server -q
+bin/cake queue worker end server -q
 ```
 
 You can check/verify the current server name using `bin/cake queue stats`.
