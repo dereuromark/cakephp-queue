@@ -68,7 +68,7 @@ class ProcessorTest extends TestCase {
 		$this->Processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
 
 		$result = $this->invokeMethod($this->Processor, 'timeNeeded');
-		$this->assertRegExp('/\d+s/', $result);
+		$this->assertMatchesRegularExpression('/\d+s/', $result);
 	}
 
 	/**
@@ -78,7 +78,7 @@ class ProcessorTest extends TestCase {
 		$this->Processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
 
 		$result = $this->invokeMethod($this->Processor, 'memoryUsage');
-		$this->assertRegExp('/^\d+MB/', $result, 'Should be e.g. `17MB` or `17MB/1GB` etc.');
+		$this->assertMatchesRegularExpression('/^\d+MB/', $result, 'Should be e.g. `17MB` or `17MB/1GB` etc.');
 	}
 
 	/**

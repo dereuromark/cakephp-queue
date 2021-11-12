@@ -5,6 +5,7 @@ namespace Queue;
 use Cake\Console\CommandCollection;
 use Cake\Core\BasePlugin;
 use Cake\Core\Configure;
+use Cake\Routing\RouteBuilder;
 use Queue\Command\AddCommand;
 use Queue\Command\BakeQueueTaskCommand;
 use Queue\Command\InfoCommand;
@@ -43,6 +44,24 @@ class Plugin extends BasePlugin {
 		}
 
 		return $commands;
+	}
+
+	/**
+	 * @param \Cake\Routing\RouteBuilder $routes The route builder to update.
+	 * @return void
+	 */
+	public function routes(RouteBuilder $routes): void {
+		$routes->prefix('Admin', function (RouteBuilder $routes) {
+			$routes->plugin('Queue', function (RouteBuilder $routes) {
+				$routes->connect('/', ['controller' => 'Queue', 'action' => 'index']);
+
+				$routes->fallbacks();
+			});
+		});
+
+		$routes->plugin('Queue', ['path' => '/queue'], function (RouteBuilder $routes) {
+			$routes->connect('/{controller}');
+		});
 	}
 
 }
