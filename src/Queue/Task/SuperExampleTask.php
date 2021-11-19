@@ -56,7 +56,7 @@ class SuperExampleTask extends Task implements AddInterface {
 	 * This function is executed, when a worker is executing a task.
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
 	 *
-	 * @param array $data The array passed to QueuedJobsTable::createJob()
+	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @return void
 	 */

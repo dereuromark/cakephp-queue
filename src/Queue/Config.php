@@ -68,7 +68,7 @@ class Config {
 	 * @param array<string> $tasks
 	 *
 	 * @throws \RuntimeException
-	 * @return array
+	 * @return array<string, array<string, mixed>>
 	 */
 	public static function taskConfig(array $tasks): array {
 		$config = [];

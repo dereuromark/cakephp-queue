@@ -27,7 +27,7 @@ class Io {
 	/**
 	 * Output at the verbose level.
 	 *
-	 * @param array|string $message A string or an array of strings to output
+	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
@@ -38,7 +38,7 @@ class Io {
 	/**
 	 * Output at all levels.
 	 *
-	 * @param array|string $message A string or an array of strings to output
+	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
@@ -199,7 +199,7 @@ class Io {
 	 * object has not already been loaded, it will be loaded and constructed.
 	 *
 	 * @param string $name The name of the helper to render
-	 * @param array $settings Configuration data for the helper.
+	 * @param array<string, mixed> $settings Configuration data for the helper.
 	 * @return \Cake\Console\Helper The created helper instance.
 	 */
 	public function helper(string $name, array $settings = []): Helper {
@@ -214,7 +214,7 @@ class Io {
 	 *
 	 * **Warning** You cannot overwrite text that contains newlines.
 	 *
-	 * @param array|string $message The message to output.
+	 * @param array<string>|string $message The message to output.
 	 * @param int $newlines Number of newlines to append.
 	 * @param int|null $size The number of bytes to overwrite. Defaults to the
 	 *    length of the last message output.

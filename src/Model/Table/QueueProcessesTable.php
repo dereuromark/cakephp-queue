@@ -48,7 +48,7 @@ class QueueProcessesTable extends Table {
 	/**
 	 * Initialize method
 	 *
-	 * @param array $config The configuration for the Table.
+	 * @param array<string, mixed> $config The configuration for the Table.
 	 * @return void
 	 */
 	public function initialize(array $config): void {
@@ -102,7 +102,7 @@ class QueueProcessesTable extends Table {
 
 	/**
 	 * @param string $value
-	 * @param array $context
+	 * @param array<string, mixed> $context
 	 *
 	 * @return bool
 	 */
@@ -199,7 +199,7 @@ class QueueProcessesTable extends Table {
 	 * - time: Timestamp as FrozenTime object
 	 * - workers: int Count of currently running workers
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
 	public function status(): array {
 		$timeout = Config::defaultworkertimeout();

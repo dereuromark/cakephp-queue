@@ -16,7 +16,7 @@ class QueueHelper extends Helper {
 	use ModelAwareTrait;
 
 	/**
-	 * @var array|null
+	 * @var array<string, mixed>|null
 	 */
 	protected $taskConfig;
 
@@ -90,7 +90,7 @@ class QueueHelper extends Helper {
 	/**
 	 * @param string $jobTask
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
 	protected function taskConfig(string $jobTask): array {
 		if (!$this->taskConfig) {

@@ -20,7 +20,7 @@ class SimpleQueueTransport extends AbstractTransport {
 	 * Send mail
 	 *
 	 * @param \Cake\Mailer\Message $message
-	 * @return array
+	 * @return array<string, mixed>
 	 */
 	public function send(Message $message): array {
 		if (!empty($this->_config['queue'])) {

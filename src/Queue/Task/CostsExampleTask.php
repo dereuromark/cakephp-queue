@@ -50,7 +50,7 @@ class CostsExampleTask extends Task implements AddInterface {
 	 * CostsExample run function.
 	 * This function is executed, when a worker is executing a task.
 	 *
-	 * @param array $data The array passed to QueuedJobsTable::createJob()
+	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @return void
 	 */

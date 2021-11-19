@@ -39,7 +39,7 @@ class Processor {
 	protected $logger;
 
 	/**
-	 * @var array|null
+	 * @var array<string, array<string, mixed>>|null
 	 */
 	protected $taskConf;
 
@@ -72,7 +72,7 @@ class Processor {
 	}
 
 	/**
-	 * @param array $args
+	 * @param array<string, mixed> $args
 	 *
 	 * @return int
 	 */
@@ -261,11 +261,10 @@ class Processor {
 	/**
 	 * Returns a List of available QueueTasks and their individual configuration.
 	 *
-	 * @return array
+	 * @return array<string, array<string, mixed>>
 	 */
 	protected function getTaskConf(): array {
 		if (!is_array($this->taskConf)) {
-			/** @var array $tasks */
 			$tasks = (new TaskFinder())->all();
 			$this->taskConf = Config::taskConfig($tasks);
 		}
@@ -413,9 +412,9 @@ class Processor {
 	}
 
 	/**
-	 * @param array $args
+	 * @param array<string, mixed> $args
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
 	protected function getConfig(array $args): array {
 		$config = [

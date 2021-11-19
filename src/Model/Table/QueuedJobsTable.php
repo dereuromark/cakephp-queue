@@ -65,7 +65,7 @@ class QueuedJobsTable extends Table {
 	public const STATS_LIMIT = 100000;
 
 	/**
-	 * @var array
+	 * @var array<string, string>
 	 */
 	public $rateHistory = [];
 
@@ -96,7 +96,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * initialize Table
 	 *
-	 * @param array $config Configuration
+	 * @param array<string, mixed> $config Configuration
 	 * @return void
 	 */
 	public function initialize(array $config): void {
@@ -118,8 +118,8 @@ class QueuedJobsTable extends Table {
 
 	/**
 	 * @param \Cake\Event\EventInterface $event
-	 * @param \ArrayObject $data
-	 * @param \ArrayObject $options
+	 * @param \ArrayObject<string, mixed> $data
+	 * @param \ArrayObject<string, mixed> $options
 	 * @return void
 	 */
 	public function beforeMarshal(EventInterface $event, ArrayObject $data, ArrayObject $options) {
@@ -185,8 +185,8 @@ class QueuedJobsTable extends Table {
 	 * - reference: An optional reference string
 	 *
 	 * @param string $jobTask Job task name or FQCN
-	 * @param array|null $data Array of data
-	 * @param array $config Config to save along with the job
+	 * @param array<string, mixed>|null $data Array of data
+	 * @param array<string, mixed> $config Config to save along with the job
 	 * @return \Queue\Model\Entity\QueuedJob Saved job entity
 	 */
 	public function createJob(string $jobTask, ?array $data = null, array $config = []) {
@@ -355,10 +355,10 @@ class QueuedJobsTable extends Table {
 	 *   ]
 	 * ]
 	 *
-	 * @param string|null $jobType
-	 * @return array
+	 * @param string|null $jobTask
+	 * @return array<string, array<string, mixed>>
 	 */
-	public function getFullStats(?string $jobType = null): array {
+	public function getFullStats(?string $jobTask = null): array {
 		$driverName = $this->getDriverName();
 		$fields = function (Query $query) use ($driverName) {
 			$runtime = $query->newExpr('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)');
@@ -385,8 +385,8 @@ class QueuedJobsTable extends Table {
 		};
 
 		$conditions = ['completed IS NOT' => null];
-		if ($jobType) {
-			$conditions['job_task'] = $jobType;
+		if ($jobTask) {
+			$conditions['job_task'] = $jobTask;
 		}
 
 		$jobs = $this->find()
@@ -415,28 +415,30 @@ class QueuedJobsTable extends Table {
 				$runtime = (int)round($runtime * DAY);
 			}
 
-			$result[$job['job_task']][$day][] = $runtime;
+			/** @var string $name */
+			$name = $job['job_task'];
+			$result[$name][$day][] = $runtime;
 		}
 
-		foreach ($result as $jobType => $jobs) {
+		foreach ($result as $jobTask => $jobs) {
 			/**
 			 * @var string $day
-			 * @var array $durations
+			 * @var array<int> $durations
 			 */
 			foreach ($jobs as $day => $durations) {
 				$average = array_sum($durations) / count($durations);
-				$result[$jobType][$day] = (int)$average;
+				$result[$jobTask][$day] = (int)$average;
 			}
 
 			foreach ($days as $day) {
-				if (isset($result[$jobType][$day])) {
+				if (isset($result[$jobTask][$day])) {
 					continue;
 				}
 
-				$result[$jobType][$day] = 0;
+				$result[$jobTask][$day] = 0;
 			}
 
-			ksort($result[$jobType]);
+			ksort($result[$jobTask]);
 		}
 
 		return $result;
@@ -446,7 +448,7 @@ class QueuedJobsTable extends Table {
 	 * Look for a new job that can be processed with the current abilities and
 	 * from the specified group (or any if null).
 	 *
-	 * @param array $tasks Available QueueWorkerTasks.
+	 * @param array<string, array<string, mixed>> $tasks Available QueueWorkerTasks.
 	 * @param array<string> $groups Request a job from these groups (or exclude certain groups), or any otherwise.
 	 * @param array<string> $types Request a job from these types (or exclude certain types), or any otherwise.
 	 * @return \Queue\Model\Entity\QueuedJob|null
@@ -820,7 +822,7 @@ class QueuedJobsTable extends Table {
 
 	/**
 	 * @param \Queue\Model\Entity\QueuedJob $queuedTask
-	 * @param array $taskConfiguration
+	 * @param array<string, array<string, mixed>> $taskConfiguration
 	 * @return string
 	 */
 	public function getFailedStatus(QueuedJob $queuedTask, array $taskConfiguration): string {
@@ -842,7 +844,7 @@ class QueuedJobsTable extends Table {
 	 * Custom find method, as in `find('queued', ...)`.
 	 *
 	 * @param \Cake\ORM\Query $query The query to find with
-	 * @param array $options The options to find with
+	 * @param array<string, mixed> $options The options to find with
 	 * @return \Cake\ORM\Query The query builder
 	 */
 	public function findQueued(Query $query, array $options) {
@@ -855,7 +857,7 @@ class QueuedJobsTable extends Table {
 	 * @return void
 	 */
 	public function clearDoublettes(): void {
-		/** @var array $x */
+		/** @var array<int> $x */
 		$x = $this->getConnection()->query('SELECT max(id) as id FROM `' . $this->getTable() . '`
 	WHERE completed is NULL
 	GROUP BY data
@@ -927,10 +929,10 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * @param array $conditions
+	 * @param array<mixed> $conditions
 	 * @param string $key
 	 * @param array<string> $values
-	 * @return array
+	 * @return array<mixed>
 	 */
 	protected function addFilter(array $conditions, string $key, array $values): array {
 		$include = [];

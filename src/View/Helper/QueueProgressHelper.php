@@ -19,14 +19,14 @@ class QueueProgressHelper extends Helper {
 	use ModelAwareTrait;
 
 	/**
-	 * @var array
+	 * @var array<mixed>
 	 */
 	protected $helpers = [
 		'Tools.Progress',
 	];
 
 	/**
-	 * @var array|null
+	 * @var array<string, array<int>>|null
 	 */
 	protected $statistics;
 
@@ -191,7 +191,7 @@ class QueueProgressHelper extends Helper {
 
 	/**
 	 * @param string $jobType
-	 * @return array
+	 * @return array<int>
 	 */
 	protected function getJobStatistics(string $jobType): array {
 		$statistics = $this->readStatistics();
@@ -213,7 +213,7 @@ class QueueProgressHelper extends Helper {
 	public const CONFIG = 'default';
 
 	/**
-	 * @return array
+	 * @return array<string, array<int>>
 	 */
 	protected function readStatistics(): array {
 		if ($this->statistics !== null) {
@@ -232,7 +232,9 @@ class QueueProgressHelper extends Helper {
 
 		$statistics = [];
 		foreach ((array)$queuedJobStatistics as $statistic) {
-			$statistics[$statistic['job_task']][] = $statistic['runtime'];
+			/** @var string $name */
+			$name = $statistic['job_task'];
+			$statistics[$name][] = $statistic['runtime'];
 		}
 
 		$this->statistics = $statistics;

@@ -56,7 +56,7 @@ class ProgressExampleTask extends Task implements AddInterface {
 	 *
 	 * Defaults to 120 seconds
 	 *
-	 * @param array $data The array passed to QueuedJobsTable::createJob()
+	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @return void
 	 */

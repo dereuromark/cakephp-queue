@@ -36,7 +36,7 @@ class EmailTask extends Task implements AddInterface {
 	/**
 	 * List of default variables for Email class.
 	 *
-	 * @var array
+	 * @var array<string, mixed>
 	 */
 	protected $defaults = [];
 
@@ -94,7 +94,7 @@ class EmailTask extends Task implements AddInterface {
 	}
 
 	/**
-	 * @param array $data The array passed to QueuedJobsTable::createJob()
+	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @throws \Queue\Model\QueueException
 	 * @throws \Throwable

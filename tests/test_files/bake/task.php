@@ -8,7 +8,7 @@ use Queue\Queue\Task;
 class FooBarBazTask extends Task implements AddInterface {
 
 	/**
-	 * @param array $data The array passed to QueuedJobsTable::createJob()
+	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
 	 * @return void
 	 */

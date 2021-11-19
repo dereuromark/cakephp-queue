@@ -22,7 +22,7 @@ class QueuedJobsController extends AppController {
 	use LoadHelperTrait;
 
 	/**
-	 * @var array
+	 * @var array<mixed>
 	 */
 	public $paginate = [
 		'order' => [
@@ -126,7 +126,7 @@ class QueuedJobsController extends AppController {
 	 */
 	public function import() {
 		if ($this->request->is(['post'])) {
-			/** @var \Laminas\Diactoros\UploadedFile|array $file */
+			/** @var \Laminas\Diactoros\UploadedFile|array<string, mixed> $file */
 			$file = $this->request->getData('file');
 			if ($file instanceof UploadedFile) {
 				$file = $this->fileToArray($file);
@@ -323,7 +323,7 @@ class QueuedJobsController extends AppController {
 	/**
 	 * @param \Laminas\Diactoros\UploadedFile $file
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
 	protected function fileToArray(UploadedFile $file): array {
 		return [
