@@ -89,7 +89,7 @@ use $taskClassNamespace;
 class $testName extends TestCase {
 
 	/**
-	 * @var string[]
+	 * @var array<string>
 	 */
 	protected \$fixtures = [
 		'plugin.Queue.QueuedJobs',
