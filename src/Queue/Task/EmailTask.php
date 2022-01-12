@@ -5,6 +5,8 @@ namespace Queue\Queue\Task;
 use Cake\Core\Configure;
 use Cake\Log\Log;
 use Cake\Mailer\Mailer;
+use Cake\Mailer\Message;
+use Cake\Mailer\TransportFactory;
 use Psr\Log\LoggerInterface;
 use Queue\Console\Io;
 use Queue\Model\QueueException;
@@ -104,6 +106,27 @@ class EmailTask extends Task implements AddInterface {
 		//TODO: Allow Message and createFromArray()
 		if (!isset($data['settings'])) {
 			throw new QueueException('Queue Email task called without settings data.');
+		}
+
+		/** @var \Cake\Mailer\Message|null $message */
+		$message = $data['settings'];
+		if ($message && is_object($message) && $message instanceof Message) {
+			try {
+				$transport = TransportFactory::get($data['transport'] ?? 'default');
+				$result = $transport->send($message);
+			} catch (Throwable $e) {
+				$error = $e->getMessage();
+				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
+				Log::write('error', $error);
+
+				throw $e;
+			}
+
+			if (!$result) {
+				throw new QueueException('Could not send email.');
+			}
+
+			return;
 		}
 
 		/** @var \Cake\Mailer\Mailer|null $mailer */
