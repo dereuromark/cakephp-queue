@@ -5,6 +5,9 @@ namespace Queue\Test\TestCase\Queue\Task;
 use Cake\Console\ConsoleIo;
 use Cake\Datasource\ConnectionManager;
 use Cake\Mailer\Mailer;
+use Cake\Mailer\Message;
+use Cake\Mailer\Transport\DebugTransport;
+use Cake\Mailer\TransportFactory;
 use Cake\TestSuite\TestCase;
 use Queue\Console\Io;
 use Queue\Queue\Task\EmailTask;
@@ -144,6 +147,44 @@ class EmailTaskTest extends TestCase {
 
 		$result = $testMailer->getDebug();
 		$this->assertTextContains('Foo Bar', $result['message']);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testRunToolsEmailMessageObject() {
+		$this->_skipPostgres();
+
+		$message = new Message();
+		$message->setFrom('test@test.de');
+		$message->setTo('test@test.de');
+		$message->setBodyText('Foo Bar');
+
+		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
+		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$queuedJobsTable->createJob('Queue.Email', ['settings' => $message]);
+
+		$queuedJob = $queuedJobsTable->find()->orderDesc('id')->firstOrFail();
+		$data = unserialize($queuedJob->data);
+		/** @var \TestApp\Mailer\TestMailer $mailer */
+		$message = $data['settings'];
+
+		$transportMock = $this->createMock(
+			DebugTransport::class
+		);
+		$transportMock
+			->expects($this->once())
+			->method('send')
+			->with($this->equalTo($message))
+			->willReturn(['headers' => [], 'message' => '']);
+		TransportFactory::getRegistry()->set('test_mock', $transportMock);
+
+		$data = [
+			'transport' => 'test_mock',
+			'settings' => $message,
+		];
+
+		$this->Task->run($data, 0);
 	}
 
 	/**
