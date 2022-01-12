@@ -66,6 +66,10 @@
 	},
 	"config": {
 		"sort-packages": true,
-		"process-timeout": 600
+		"process-timeout": 600,
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"cakephp/plugin-installer": true
+		}
 	}
 }

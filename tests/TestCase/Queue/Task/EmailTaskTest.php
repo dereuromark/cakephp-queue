@@ -170,7 +170,7 @@ class EmailTaskTest extends TestCase {
 		$message = $data['settings'];
 
 		$transportMock = $this->createMock(
-			DebugTransport::class
+			DebugTransport::class,
 		);
 		$transportMock
 			->expects($this->once())
