@@ -2,7 +2,12 @@
 	"name": "dereuromark/cakephp-queue",
 	"type": "cakephp-plugin",
 	"description": "The Queue plugin for CakePHP provides deferred task execution.",
-	"keywords": ["cakephp","queue","deferred tasks","background"],
+	"keywords": [
+		"cakephp",
+		"queue",
+		"deferred tasks",
+		"background"
+	],
 	"homepage": "https://github.com/dereuromark/cakephp-queue",
 	"license": "MIT",
 	"authors": [
@@ -68,8 +73,8 @@
 		"sort-packages": true,
 		"process-timeout": 600,
 		"allow-plugins": {
-			"dealerdirect/phpcodesniffer-composer-installer": true,
-			"cakephp/plugin-installer": true
+			"cakephp/plugin-installer": true,
+			"dealerdirect/phpcodesniffer-composer-installer": true
 		}
 	}
 }
