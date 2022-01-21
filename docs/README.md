@@ -469,7 +469,7 @@ Make sure you add this to your config:
 ],
 ```
 
-When debugging (using -v) on "run", it will also log the worker run and end.
+When debugging (not using `--quiet`/`-q`) on "run", it will also log the worker run and end.
 
 You can disable info logging by setting `Queue.log` to `false` in your config.
 
