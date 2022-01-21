@@ -72,7 +72,7 @@ class RunCommand extends Command {
 	 */
 	protected function getLogger(Arguments $args): LoggerInterface {
 		$logger = null;
-		if (!empty($args->getOption('verbose'))) {
+		if (!$args->getOption('quiet')) {
 			$logger = Log::engine((string)$args->getOption('logger'));
 		}
 
