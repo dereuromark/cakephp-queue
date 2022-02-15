@@ -596,12 +596,28 @@ class QueuedJobsTable extends Table {
 		}
 
 		/** @var \Queue\Model\Entity\QueuedJob|null $job */
-		$job = $this->getConnection()->transactional(function () use ($query, $options, $now) {
+		$job = $this->getConnection()->transactional(function () use ($query, $options, $now, $driverName) {
+			$query->find('all', $options)->enableAutoFields(true);
+
+			switch ($driverName) {
+				case static::DRIVER_MYSQL:
+				case static::DRIVER_POSTGRES:
+					$query->epilog('FOR UPDATE');
+
+					break;
+				case static::DRIVER_SQLSERVER:
+					// the ORM does not support ROW locking at the moment
+					// TODO
+
+					break;
+				case static::DRIVER_SQLITE:
+					// not supported
+
+					break;
+			}
+
 			/** @var \Queue\Model\Entity\QueuedJob|null $job */
-			$job = $query->find('all', $options)
-				->enableAutoFields(true)
-				->epilog('FOR UPDATE')
-				->first();
+			$job = $query->first();
 
 			if (!$job) {
 				return null;
