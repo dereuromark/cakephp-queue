@@ -250,6 +250,7 @@ class QueuedJobsController extends AppController {
 		}
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
+			/** @var array<string, mixed> $data */
 			$data = (array)$this->request->getData();
 			if (empty($data['command'])) {
 				$this->Flash->error('Command is required');
