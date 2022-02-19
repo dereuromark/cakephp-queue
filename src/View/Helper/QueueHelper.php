@@ -16,7 +16,7 @@ class QueueHelper extends Helper {
 	use ModelAwareTrait;
 
 	/**
-	 * @var array<string, mixed>|null
+	 * @var array<string, array<string, mixed>>
 	 */
 	protected $taskConfig;
 

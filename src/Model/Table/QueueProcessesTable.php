@@ -37,8 +37,9 @@ class QueueProcessesTable extends Table {
 	 * @return string
 	 */
 	public static function defaultConnectionName(): string {
+		/** @var string|null $connection */
 		$connection = Configure::read('Queue.connection');
-		if (!empty($connection)) {
+		if ($connection) {
 			return $connection;
 		}
 
