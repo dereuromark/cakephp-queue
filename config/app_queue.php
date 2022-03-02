@@ -64,6 +64,6 @@ return [
 		'plugins' => [],
 
 		// ignores task classes
-		'ignoredtasks' => [],
+		'ignoredTasks' => [],
 	],
 ];
