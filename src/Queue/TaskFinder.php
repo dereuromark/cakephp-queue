@@ -78,6 +78,7 @@ class TaskFinder {
 		$Folder = new Folder($path);
 
 		$tasks = [];
+		$ignoredTasks = Config::ignoredTasks();
 		$files = $Folder->find('.+Task\.php');
 		foreach ($files as $file) {
 			$name = basename($file, 'Task.php');
@@ -86,7 +87,10 @@ class TaskFinder {
 			/** @phpstan-var class-string<\Queue\Queue\Task> $className */
 			$className = $namespace . '\Queue\Task\\' . $name . 'Task';
 			$key = $plugin ? $plugin . '.' . $name : $name;
-			$tasks[$key] = $className;
+
+			if (!in_array($className, $ignoredTasks, true)) {
+				$tasks[$key] = $className;
+			}
 		}
 
 		return $tasks;

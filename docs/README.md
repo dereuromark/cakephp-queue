@@ -111,6 +111,23 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     $config['Queue']['connection'] = 'custom'; // Defaults to 'default'
     ```
 
+- Ignore certain task classes to they don't end up in the generated SQL query. Can be used to filter out the example tasks classes shipped with the plugin, if you're not using them:
+
+    ```php
+    $config['Queue']['ignoredTasks'] = [
+        'Queue\Queue\Task\CostsExampleTask',
+        'Queue\Queue\Task\EmailTask',
+        'Queue\Queue\Task\ExampleTask',
+        'Queue\Queue\Task\ExceptionExampleTask',
+        'Queue\Queue\Task\ExecuteTask',
+        'Queue\Queue\Task\MonitorExampleTask',
+        'Queue\Queue\Task\ProgressExampleTask',
+        'Queue\Queue\Task\RetryExampleTask',
+        'Queue\Queue\Task\SuperExampleTask',
+        'Queue\Queue\Task\UniqueExampleTask',
+    ]; // Defaults to []
+    ```
+
 Don't forget to load that config file with `Configure::load('app_queue');` in your bootstrap.
 You can also use `$this->addPlugin('Queue', ['bootstrap' => true]);` which will load your `app_queue.php` config file automatically.
 

@@ -65,6 +65,18 @@ class Config {
 	}
 
 	/**
+	 * @return array
+	 */
+	public static function ignoredTasks(): array {
+		$a = Configure::read('Queue.ignoredTasks', []);
+		if (!is_array($a)) {
+			throw new InvalidArgumentException('Queue.ignoredTasks is not an array');
+		}
+
+		return $a;
+	}
+
+	/**
 	 * @param array<string> $tasks
 	 *
 	 * @throws \RuntimeException

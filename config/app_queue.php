@@ -62,5 +62,8 @@ return [
 
 		// Additional plugins to include tasks from (if they are not already loaded anyway)
 		'plugins' => [],
+
+		// ignores task classes
+		'ignoredTasks' => [],
 	],
 ];
