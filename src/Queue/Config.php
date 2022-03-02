@@ -65,7 +65,7 @@ class Config {
 	}
 
 	/**
-	 * @return array
+	 * @return array<string>
 	 */
 	public static function ignoredTasks(): array {
 		$a = Configure::read('Queue.ignoredTasks', []);
