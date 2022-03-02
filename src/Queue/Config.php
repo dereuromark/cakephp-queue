@@ -72,6 +72,7 @@ class Config {
 		if (!is_array($a)) {
 			throw new InvalidArgumentException('Queue.ignoredtasks is not an array');
 		}
+
 		return $a;
 	}
 
