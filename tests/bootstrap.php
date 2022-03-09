@@ -122,7 +122,7 @@ if (getenv('DB_URL')) {
 
 if (!getenv('DB_CLASS')) {
 	putenv('DB_CLASS=Cake\Database\Driver\Sqlite');
-	putenv('DB_URL=sqlite::memory:');
+	putenv('DB_URL=sqlite:///:memory:');
 }
 
 // Uses Travis config then (MySQL, Postgres, ...)
