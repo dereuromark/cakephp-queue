@@ -150,12 +150,14 @@ use Cake\Core\Configure;
 
 			foreach ($configurations as $key => $configuration) {
 				echo '<li>';
-				if (is_dir($configuration)) {
+				if (is_string($configuration) && is_dir($configuration)) {
 					$configuration = str_replace(ROOT . DS, 'ROOT' . DS, $configuration);
 					$configuration = str_replace(DS, '/', $configuration);
 				} elseif (is_bool($configuration)) {
 					$configuration = $configuration ? 'true' : 'false';
-				}
+				} elseif (is_array($configuration)) {
+                    $configuration = implode(', ', $configuration);
+                }
 				echo h($key) . ': ' . h($configuration);
 				echo '</li>';
 			}
