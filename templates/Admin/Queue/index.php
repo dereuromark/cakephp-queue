@@ -155,8 +155,7 @@ use Cake\Core\Configure;
 					$configuration = str_replace(DS, '/', $configuration);
 				} elseif (is_bool($configuration)) {
 					$configuration = $configuration ? 'true' : 'false';
-				}
-                if (is_array($configuration)) {
+				} elseif (is_array($configuration)) {
                     $configuration = implode(', ', $configuration);
                 }
 				echo h($key) . ': ' . h($configuration);
