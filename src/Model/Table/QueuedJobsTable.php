@@ -583,7 +583,7 @@ class QueuedJobsTable extends Table {
 
 						break;
 					case static::DRIVER_SQLSERVER:
-						$tmp["DATEDIFF(s, '1970-01-01 00:00:00', GETDATE()) >="] = $this->rateHistory[$tmp['job_task']] + $task['rate'];
+						$tmp["(DATEDIFF(s, '1970-01-01 00:00:00', GETDATE())) >="] = $this->rateHistory[$tmp['job_task']] + $task['rate'];
 
 						break;
 					case static::DRIVER_SQLITE:
