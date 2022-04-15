@@ -61,15 +61,22 @@ class QueueProcessesTable extends Table {
 
 		$this->addBehavior('Timestamp');
 
-		$this->hasOne('CurrentQueuedJobs', [
+        $this->hasMany('QueuedJobs', [
 			'className' => 'Queue.QueuedJobs',
 			'foreignKey' => 'workerkey',
 			'bindingKey' => 'workerkey',
-			'propertyName' => 'active_job',
+			'propertyName' => 'jobs',
 			'conditions' => [
 				'CurrentQueuedJobs.completed IS NULL',
 			],
 		]);
+        
+		$this->hasOne('ActiveQueuedJob', [
+			'className' => 'Queue.QueuedJobs',
+			'foreignKey' => 'id',
+			'bindingKey' => 'active_job_id',
+			'propertyName' => 'active_job'
+        ]);
 	}
 
 	/**
@@ -134,14 +141,15 @@ class QueueProcessesTable extends Table {
 	/**
 	 * @param string $pid
 	 * @param string $key
-	 *
+	 * @param string $arguments
 	 * @return int
 	 */
-	public function add(string $pid, string $key): int {
+	public function add(string $pid, string $key, string $arguments = NULL): int {
 		$data = [
 			'pid' => $pid,
 			'server' => $this->buildServerString(),
 			'workerkey' => $key,
+            'arguments' => $arguments
 		];
 
 		$queueProcess = $this->newEntity($data);
@@ -152,10 +160,11 @@ class QueueProcessesTable extends Table {
 
 	/**
 	 * @param string $pid
+     * @param int $pid
 	 * @throws \Queue\Model\ProcessEndingException
 	 * @return void
 	 */
-	public function update(string $pid): void {
+	public function update(string $pid, int $jobId = NULL): void {
 		$conditions = [
 			'pid' => $pid,
 			'server IS' => $this->buildServerString(),
@@ -168,6 +177,7 @@ class QueueProcessesTable extends Table {
 		}
 
 		$queueProcess->modified = new FrozenTime();
+        $queueProcess->active_job_id = $jobId;
 		$this->saveOrFail($queueProcess);
 	}
 

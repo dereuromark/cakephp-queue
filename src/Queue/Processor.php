@@ -80,7 +80,7 @@ class Processor {
 		$config = $this->getConfig($args);
 
 		try {
-			$pid = $this->initPid();
+			$pid = $this->initPid(implode(' ', $_SERVER['argv']));
 		} catch (PersistenceFailedException $exception) {
 			$this->io->err($exception->getMessage());
 			$limit = (int)Configure::read('Queue.maxworkers');
@@ -118,7 +118,7 @@ class Processor {
 			$this->setPhpTimeout();
 
 			try {
-				$this->updatePid($pid);
+				$this->updatePid($pid, NULL);
 			} catch (RecordNotFoundException $exception) {
 				// Manually killed
 				$this->exit = true;
@@ -186,6 +186,9 @@ class Processor {
 
 			$data = $queuedJob->data ? unserialize($queuedJob->data) : null;
 			$task = $this->loadTask($taskName);
+            
+            $this->QueueProcesses->update($pid, $queuedJob->id);
+            
 			$task->run((array)$data, $queuedJob->id);
 
 		} catch (Throwable $e) {
@@ -295,12 +298,15 @@ class Processor {
 	}
 
 	/**
+     * Adds process to table and saves arguments
+     * @param string $arguments
+     * 
 	 * @return string
 	 */
-	protected function initPid(): string {
+	protected function initPid(string $arguments = NULL): string {
 		$pid = $this->retrievePid();
 		$key = $this->QueuedJobs->key();
-		$this->QueueProcesses->add($pid, $key);
+		$this->QueueProcesses->add($pid, $key, $arguments);
 
 		$this->pid = $pid;
 
@@ -321,12 +327,13 @@ class Processor {
 	}
 
 	/**
+     * Touches process $pid and saves current $jobId
 	 * @param string $pid
-	 *
+	 * @param int $jobId
 	 * @return void
 	 */
-	protected function updatePid(string $pid): void {
-		$this->QueueProcesses->update($pid);
+	protected function updatePid(string $pid, int $jobId = NULL): void {
+		$this->QueueProcesses->update($pid, $jobId);
 	}
 
 	/**
