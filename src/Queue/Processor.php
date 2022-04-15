@@ -118,7 +118,7 @@ class Processor {
 			$this->setPhpTimeout();
 
 			try {
-				$this->updatePid($pid, NULL);
+				$this->updatePid($pid);
 			} catch (RecordNotFoundException $exception) {
 				// Manually killed
 				$this->exit = true;
