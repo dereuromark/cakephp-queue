@@ -79,7 +79,7 @@ class InfoCommand extends Command {
 		$io->out();
 
 		$io->out('Total unfinished jobs: ' . $this->QueuedJobs->getLength());
-		$this->loadModel('Queue.QueueProcesses');
+		$this->QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
 		$status = $this->QueueProcesses->status();
 		$io->out('Current running workers: ' . ($status ? $status['workers'] : '-'));
 		$io->out('Last run: ' . ($status ? $status['time']->nice() : '-'));

@@ -107,7 +107,7 @@ class ExecuteTask extends Task implements AddInterface {
 		$this->io->out($output);
 
 		if ($data['log']) {
-			$this->loadModel('Queue.QueueProcesses');
+			$this->QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
 			$server = $this->QueueProcesses->buildServerString();
 			$this->log($server . ': `' . $command . '` exits with `' . $exitCode . '` and returns `' . print_r($output, true) . '`' . PHP_EOL . 'Data : ' . print_r($data, true), 'info');
 		}
