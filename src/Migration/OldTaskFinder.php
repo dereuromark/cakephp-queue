@@ -38,7 +38,7 @@ class OldTaskFinder {
 		$res = glob($path . '*Task.php');
 
 		$tasks = [];
-		if($res) {
+		if($res !== false) {
 			foreach ($res as $r) {
 				$name = basename($r, 'Task.php');
 				$name = substr($name, 5);
