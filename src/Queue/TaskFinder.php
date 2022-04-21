@@ -77,7 +77,7 @@ class TaskFinder {
 		$tasks = [];
 		$ignoredTasks = Config::ignoredTasks();
 		$files = glob($path . '*Task.php');
-		if($files !== false){
+		if($files){
 			foreach ($files as $file) {
 				$name = basename($file, 'Task.php');
 				$namespace = $plugin ? str_replace('/', '\\', $plugin) : Configure::read('App.namespace');
