@@ -67,15 +67,15 @@ class QueueProcessesTable extends Table {
 			'bindingKey' => 'workerkey',
 			'propertyName' => 'jobs',
 			'conditions' => [
-				'CurrentQueuedJobs.completed IS NULL',
+				'QueuedJobs.completed IS NULL',
 			],
 		]);
         
-		$this->hasOne('ActiveQueuedJob', [
+		$this->hasOne('CurrentQueuedJobs', [
 			'className' => 'Queue.QueuedJobs',
 			'foreignKey' => 'id',
 			'bindingKey' => 'active_job_id',
-			'propertyName' => 'active_job'
+			'propertyName' => 'current_job'
         ]);
 	}
 
