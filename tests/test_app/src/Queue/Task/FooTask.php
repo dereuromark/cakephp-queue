@@ -2,9 +2,12 @@
 
 namespace TestApp\Queue\Task;
 
+use Cake\Core\ContainerInterface;
+use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
+use TestApp\Services\TestService;
 
-class FooTask extends Task {
+class FooTask extends Task implements AddInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
@@ -21,6 +24,11 @@ class FooTask extends Task {
 	public $retries = 1;
 
 	/**
+	 * @var \TestApp\Services\TestService
+	 */
+	public $testService;
+
+	/**
 	 * Example run function.
 	 * This function is executed, when a worker is executing a task.
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
@@ -30,7 +38,23 @@ class FooTask extends Task {
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
-		$this->out('CakePHP Foo Example.');
+		$this->io->out('CakePHP Foo Example.');
+		$test = $this->testService->output();
+		$this->io->out($test);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function services(ContainerInterface $container): void {
+		$this->testService = $container->get(TestService::class);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function add(?string $data): void {
+		$this->QueuedJobs->createJob('Foo', $data);
 	}
 
 }

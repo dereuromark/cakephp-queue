@@ -4,6 +4,7 @@ namespace Queue\Queue;
 
 use Cake\Console\CommandInterface;
 use Cake\Core\Configure;
+use Cake\Core\ContainerInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Datasource\ModelAwareTrait;
 use Cake\ORM\Exception\PersistenceFailedException;
@@ -39,6 +40,11 @@ class Processor {
 	protected $logger;
 
 	/**
+	 * @var \Cake\Core\ContainerInterface|null
+	 */
+	protected $container;
+
+	/**
 	 * @var array<string, array<string, mixed>>|null
 	 */
 	protected $taskConf;
@@ -61,10 +67,12 @@ class Processor {
 	/**
 	 * @param \Queue\Console\Io $io
 	 * @param \Psr\Log\LoggerInterface $logger
+	 * @param \Cake\Core\ContainerInterface|null $container
 	 */
-	public function __construct(Io $io, LoggerInterface $logger) {
+	public function __construct(Io $io, LoggerInterface $logger, ?ContainerInterface $container = null) {
 		$this->io = $io;
 		$this->logger = $logger;
+		$this->container = $container;
 
 		$this->modelClass = 'Queue.QueuedJobs';
 		$this->loadModel();
@@ -186,6 +194,9 @@ class Processor {
 
 			$data = $queuedJob->data ? unserialize($queuedJob->data) : null;
 			$task = $this->loadTask($taskName);
+			if ($this->container) {
+				$task->services($this->container);
+			}
 			$task->run((array)$data, $queuedJob->id);
 
 		} catch (Throwable $e) {

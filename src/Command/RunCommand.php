@@ -6,6 +6,7 @@ use Cake\Command\Command;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
+use Cake\Core\ContainerInterface;
 use Cake\Log\Log;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -16,6 +17,19 @@ use Queue\Queue\Processor;
  * Main execution of queued jobs.
  */
 class RunCommand extends Command {
+
+	/**
+	 * @var \Cake\Core\ContainerInterface
+	 */
+	public $container;
+
+	/**
+	 * @param \Cake\Core\ContainerInterface $container
+	 */
+	public function __construct(ContainerInterface $container){
+		parent::__construct();
+		$this->container = $container;
+	}
 
 	/**
 	 * @inheritDoc
@@ -91,7 +105,7 @@ class RunCommand extends Command {
 	public function execute(Arguments $args, ConsoleIo $io): int {
 		$logger = $this->getLogger($args);
 		$io = new Io($io);
-		$processor = new Processor($io, $logger);
+		$processor = new Processor($io, $logger, $this->container);
 
 		return $processor->run($args->getOptions());
 	}

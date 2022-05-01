@@ -7,6 +7,7 @@
 namespace Queue\Queue;
 
 use Cake\Console\ConsoleIo;
+use Cake\Core\ContainerInterface;
 use Cake\Datasource\ModelAwareTrait;
 use Psr\Log\LoggerInterface;
 use Queue\Console\Io;
@@ -109,6 +110,12 @@ abstract class Task implements TaskInterface {
 		$class = static::class;
 
 		return Config::taskName($class);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function services(ContainerInterface $container): void {
 	}
 
 }
