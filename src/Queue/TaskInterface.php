@@ -2,8 +2,6 @@
 
 namespace Queue\Queue;
 
-use Cake\Core\ContainerInterface;
-
 /**
  * Any task needs to at least implement run().
  * The add() is mainly only for CLI adding purposes and optional.
@@ -23,13 +21,5 @@ interface TaskInterface {
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void;
-
-	/**
-	 * Provides access to the DI container and its registered services
-	 *
-	 * @param \Cake\Core\ContainerInterface $container The DI container instance
-	 * @return void
-	 */
-	public function services(ContainerInterface $container): void;
 
 }
