@@ -9,6 +9,7 @@ use Queue\Queue\Task;
 use TestApp\Services\TestService;
 
 class FooTask extends Task implements AddInterface {
+
 	use ServicesTrait;
 
 	/**

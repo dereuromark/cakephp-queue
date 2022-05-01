@@ -5,6 +5,7 @@ namespace Queue\Queue;
 use Cake\Core\ContainerInterface;
 
 trait ServicesTrait {
+
 	/**
 	 * Overwrite this method inside your task to get access to the DI container
 	 *
@@ -13,4 +14,5 @@ trait ServicesTrait {
 	 */
 	public function services(ContainerInterface $container): void {
 	}
+
 }
