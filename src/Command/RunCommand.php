@@ -21,7 +21,7 @@ class RunCommand extends Command {
 	/**
 	 * @var \Cake\Core\ContainerInterface
 	 */
-	public $container;
+	private $container;
 
 	/**
 	 * @param \Cake\Core\ContainerInterface $container
