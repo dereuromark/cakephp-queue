@@ -26,7 +26,7 @@ class FooTask extends Task implements AddInterface {
 	/**
 	 * @var \TestApp\Services\TestService
 	 */
-	private $testService;
+	protected $testService;
 
 	/**
 	 * Example run function.
