@@ -14,7 +14,7 @@ use RuntimeException;
 /**
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  *
- * @method \Queue\Model\Entity\QueuedJob[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
+ * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> paginate($object = null, array $settings = [])
  * @property \Search\Controller\Component\SearchComponent $Search
  */
 class QueuedJobsController extends AppController {
