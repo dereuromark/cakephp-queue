@@ -7,7 +7,6 @@
 namespace Queue\Queue;
 
 use Cake\Console\ConsoleIo;
-use Cake\Core\ContainerInterface;
 use Cake\Datasource\ModelAwareTrait;
 use Psr\Log\LoggerInterface;
 use Queue\Console\Io;
@@ -110,15 +109,6 @@ abstract class Task implements TaskInterface {
 		$class = static::class;
 
 		return Config::taskName($class);
-	}
-
-	/**
-	 * Overwrite this method inside your task to get access to the DI container
-	 *
-	 * @param \Cake\Core\ContainerInterface $container
-	 * @return void
-	 */
-	public function services(ContainerInterface $container): void {
 	}
 
 }

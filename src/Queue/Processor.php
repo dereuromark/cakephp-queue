@@ -194,7 +194,7 @@ class Processor {
 
 			$data = $queuedJob->data ? unserialize($queuedJob->data) : null;
 			$task = $this->loadTask($taskName);
-			if ($this->container) {
+			if ($this->container && method_exists($task, 'services')) {
 				$task->services($this->container);
 			}
 			$task->run((array)$data, $queuedJob->id);

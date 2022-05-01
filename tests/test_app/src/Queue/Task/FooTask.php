@@ -4,10 +4,12 @@ namespace TestApp\Queue\Task;
 
 use Cake\Core\ContainerInterface;
 use Queue\Queue\AddInterface;
+use Queue\Queue\ServicesTrait;
 use Queue\Queue\Task;
 use TestApp\Services\TestService;
 
 class FooTask extends Task implements AddInterface {
+	use ServicesTrait;
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
