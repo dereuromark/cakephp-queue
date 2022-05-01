@@ -26,7 +26,7 @@ class RunCommand extends Command {
 	/**
 	 * @param \Cake\Core\ContainerInterface $container
 	 */
-	public function __construct(ContainerInterface $container){
+	public function __construct(ContainerInterface $container) {
 		parent::__construct();
 		$this->container = $container;
 	}
