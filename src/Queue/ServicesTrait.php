@@ -13,9 +13,9 @@ trait ServicesTrait {
 
 	/**
 	 * @param string $id Classname or identifier of the service you want to retrieve
-	 * @return mixed
 	 * @throws \Psr\Container\NotFoundExceptionInterface
-	 * @throws  \Psr\Container\ContainerExceptionInterface
+	 * @throws \Psr\Container\ContainerExceptionInterface
+	 * @return mixed
 	 */
 	public function getService(string $id) {
 		return $this->container->get($id);
