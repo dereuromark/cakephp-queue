@@ -17,7 +17,7 @@ trait ServicesTrait {
 	 * @throws \Psr\Container\ContainerExceptionInterface
 	 * @return mixed
 	 */
-	public function getService(string $id) {
+	protected function getService(string $id) {
 		return $this->container->get($id);
 	}
 
