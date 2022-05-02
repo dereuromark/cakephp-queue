@@ -7,12 +7,26 @@ use Cake\Core\ContainerInterface;
 trait ServicesTrait {
 
 	/**
-	 * Overwrite this method inside your task to get access to the DI container
-	 *
+	 * @var \Cake\Core\ContainerInterface
+	 */
+	protected $container;
+
+	/**
+	 * @param string $id Classname or identifier of the service you want to retrieve
+	 * @return mixed
+	 * @throws \Psr\Container\NotFoundExceptionInterface
+	 * @throws  \Psr\Container\ContainerExceptionInterface
+	 */
+	public function getService(string $id) {
+		return $this->container->get($id);
+	}
+
+	/**
 	 * @param \Cake\Core\ContainerInterface $container
 	 * @return void
 	 */
-	public function services(ContainerInterface $container): void {
+	public function setContainer(ContainerInterface $container) {
+		$this->container = $container;
 	}
 
 }

@@ -194,8 +194,10 @@ class Processor {
 
 			$data = $queuedJob->data ? unserialize($queuedJob->data) : null;
 			$task = $this->loadTask($taskName);
-			if ($this->container && method_exists($task, 'services')) {
-				$task->services($this->container);
+			$traits = class_uses($task);
+			if ($this->container && $traits && in_array(ServicesTrait::class, $traits, true)) {
+				/** @phpstan-ignore-next-line */
+				$task->setContainer($this->container);
 			}
 			$task->run((array)$data, $queuedJob->id);
 

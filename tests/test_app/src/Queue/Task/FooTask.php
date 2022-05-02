@@ -2,7 +2,6 @@
 
 namespace TestApp\Queue\Task;
 
-use Cake\Core\ContainerInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\ServicesTrait;
 use Queue\Queue\Task;
@@ -27,11 +26,6 @@ class FooTask extends Task implements AddInterface {
 	public $retries = 1;
 
 	/**
-	 * @var \TestApp\Services\TestService
-	 */
-	protected $testService;
-
-	/**
 	 * Example run function.
 	 * This function is executed, when a worker is executing a task.
 	 * The return parameter will determine, if the task will be marked completed, or be requeued.
@@ -42,15 +36,9 @@ class FooTask extends Task implements AddInterface {
 	 */
 	public function run(array $data, int $jobId): void {
 		$this->io->out('CakePHP Foo Example.');
-		$test = $this->testService->output();
+		$testService = $this->getService(TestService::class);
+		$test = $testService->output();
 		$this->io->out($test);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function services(ContainerInterface $container): void {
-		$this->testService = $container->get(TestService::class);
 	}
 
 	/**
