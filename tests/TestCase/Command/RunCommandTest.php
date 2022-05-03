@@ -54,6 +54,22 @@ class RunCommandTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testServiceInjection(): void {
+		$this->_needsConnection();
+
+		$this->exec('queue add Foo');
+		$this->exec('queue run');
+
+		$output = $this->_out->output();
+		$this->assertStringContainsString('Looking for Job', $output);
+		$this->assertStringContainsString('CakePHP Foo Example.', $output);
+		$this->assertStringContainsString('My TestService', $output);
+		$this->assertExitCode(0);
+	}
+
+	/**
 	 * Helper method for skipping tests that need a real connection.
 	 *
 	 * @return void

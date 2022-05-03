@@ -36,7 +36,7 @@ class AddCommandTest extends TestCase {
 		$this->exec('queue add');
 
 		$output = $this->_out->output();
-		$this->assertStringContainsString('10 tasks available:', $output);
+		$this->assertStringContainsString('11 tasks available:', $output);
 		$this->assertExitCode(0);
 	}
 
