@@ -940,6 +940,24 @@ When you have Queue tasks and templates that need to create URLs, make sure you 
 on setting the `App.fullBaseUrl` config on your server.
 CLI itself does not know the URL your website is running on, so this value must be configured here for the generation to work.
 
+## DI Container Example
+
+If you use the [Dependency Injection Container](https://book.cakephp.org/4/en/development/dependency-injection.html) provided by CakePHP you can also use it inside your tasks.
+
+```php
+use Queue\Queue\ServicesTrait;
+
+class MyCustomTask extends Task {
+    use ServicesTrait;
+
+    public function run(array $data, int $jobId): void {
+        $myService = $this->getService(MyService::class);
+    }
+}
+```
+
+As you see here you have to add the [ServicesTrait](https://github.com/LordSimal/cakephp-queue/blob/master/src/Queue/ServicesTrait.php) to your task which then allows you to use the `$this->getService()` method.
+
 ## IDE support
 
 With [IdeHelper](https://github.com/dereuromark/cakephp-ide-helper/) plugin you can get typehinting and autocomplete for your createJob() calls.
