@@ -76,19 +76,17 @@ class TaskFinder {
 	protected function getTasks(string $path, ?string $plugin = null): array {
 		$tasks = [];
 		$ignoredTasks = Config::ignoredTasks();
-		$files = glob($path . '*Task.php');
-		if ($files) {
-			foreach ($files as $file) {
-				$name = basename($file, 'Task.php');
-				$namespace = $plugin ? str_replace('/', '\\', $plugin) : Configure::read('App.namespace');
+		$files = glob($path . '*Task.php') ?: [];
+		foreach ($files as $file) {
+			$name = basename($file, 'Task.php');
+			$namespace = $plugin ? str_replace('/', '\\', $plugin) : Configure::read('App.namespace');
 
-				/** @phpstan-var class-string<\Queue\Queue\Task> $className */
-				$className = $namespace . '\Queue\Task\\' . $name . 'Task';
-				$key = $plugin ? $plugin . '.' . $name : $name;
+			/** @phpstan-var class-string<\Queue\Queue\Task> $className */
+			$className = $namespace . '\Queue\Task\\' . $name . 'Task';
+			$key = $plugin ? $plugin . '.' . $name : $name;
 
-				if (!in_array($className, $ignoredTasks, true)) {
-					$tasks[$key] = $className;
-				}
+			if (!in_array($className, $ignoredTasks, true)) {
+				$tasks[$key] = $className;
 			}
 		}
 

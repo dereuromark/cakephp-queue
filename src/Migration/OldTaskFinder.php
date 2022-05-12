@@ -35,17 +35,15 @@ class OldTaskFinder {
 	 * @return array<string>
 	 */
 	protected function getTasks(string $path, ?string $plugin) {
-		$res = glob($path . '*Task.php');
+		$res = glob($path . '*Task.php') ?: [];
 
 		$tasks = [];
-		if ($res) {
-			foreach ($res as $r) {
-				$name = basename($r, 'Task.php');
-				$name = substr($name, 5);
+		foreach ($res as $r) {
+			$name = basename($r, 'Task.php');
+			$name = substr($name, 5);
 
-				$taskKey = $plugin ? $plugin . '.' . $name : $name;
-				$tasks[$taskKey] = $path . $r;
-			}
+			$taskKey = $plugin ? $plugin . '.' . $name : $name;
+			$tasks[$taskKey] = $path . $r;
 		}
 
 		return $tasks;
