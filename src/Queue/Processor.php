@@ -66,8 +66,9 @@ class Processor {
 		$this->io = $io;
 		$this->logger = $logger;
 
-		$this->QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
-		$this->QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
+		$tableLocator = $this->getTableLocator();
+		$this->QueuedJobs = $tableLocator->get('Queue.QueuedJobs');
+		$this->QueueProcesses = $tableLocator->get('Queue.QueueProcesses');
 	}
 
 	/**

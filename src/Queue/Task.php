@@ -95,9 +95,10 @@ abstract class Task implements TaskInterface {
 		$this->io = $io ?: new Io(new ConsoleIo());
 		$this->logger = $logger;
 
-		$this->QueuedJobs = $this->fetchTable($this->queueModelClass);
+		$tableLocator = $this->getTableLocator();
+		$this->QueuedJobs = $tableLocator->get($this->queueModelClass);
 		if (isset($this->modelClass)) {
-			$this->QueuedJobs = $this->fetchTable($this->modelClass);
+			$this->QueuedJobs = $tableLocator->get($this->modelClass);
 		}
 	}
 
