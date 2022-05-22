@@ -96,10 +96,14 @@ abstract class Task implements TaskInterface {
 		$this->logger = $logger;
 
 		$tableLocator = $this->getTableLocator();
-		$this->QueuedJobs = $tableLocator->get($this->queueModelClass);
+
+		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+		$QueuedJobs = $tableLocator->get($this->queueModelClass);
 		if (isset($this->modelClass)) {
-			$this->QueuedJobs = $tableLocator->get($this->modelClass);
+			/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+			$QueuedJobs = $tableLocator->get($this->modelClass);
 		}
+		$this->QueuedJobs = $QueuedJobs;
 	}
 
 	/**
