@@ -3,7 +3,6 @@
 namespace Queue\Migration;
 
 use Cake\Core\App;
-use Cake\Filesystem\Folder;
 
 class OldTaskFinder {
 
@@ -36,11 +35,10 @@ class OldTaskFinder {
 	 * @return array<string>
 	 */
 	protected function getTasks(string $path, ?string $plugin) {
-		$Folder = new Folder($path);
-		$res = $Folder->find('Queue.+Task\.php');
+		$res = glob($path . '*Task.php') ?: [];
 
 		$tasks = [];
-		foreach ($res as $key => $r) {
+		foreach ($res as $r) {
 			$name = basename($r, 'Task.php');
 			$name = substr($name, 5);
 

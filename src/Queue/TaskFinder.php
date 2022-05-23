@@ -5,7 +5,6 @@ namespace Queue\Queue;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
-use Cake\Filesystem\Folder;
 use InvalidArgumentException;
 
 class TaskFinder {
@@ -75,11 +74,9 @@ class TaskFinder {
 	 * @return array<string>
 	 */
 	protected function getTasks(string $path, ?string $plugin = null): array {
-		$Folder = new Folder($path);
-
 		$tasks = [];
 		$ignoredTasks = Config::ignoredTasks();
-		$files = $Folder->find('.+Task\.php');
+		$files = glob($path . '*Task.php') ?: [];
 		foreach ($files as $file) {
 			$name = basename($file, 'Task.php');
 			$namespace = $plugin ? str_replace('/', '\\', $plugin) : Configure::read('App.namespace');

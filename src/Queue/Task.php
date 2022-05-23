@@ -7,7 +7,7 @@
 namespace Queue\Queue;
 
 use Cake\Console\ConsoleIo;
-use Cake\Datasource\ModelAwareTrait;
+use Cake\ORM\Locator\LocatorAwareTrait;
 use Psr\Log\LoggerInterface;
 use Queue\Console\Io;
 
@@ -19,7 +19,7 @@ use Queue\Console\Io;
  */
 abstract class Task implements TaskInterface {
 
-	use ModelAwareTrait;
+	use LocatorAwareTrait;
 
 	/**
 	 * @var string
@@ -95,10 +95,15 @@ abstract class Task implements TaskInterface {
 		$this->io = $io ?: new Io(new ConsoleIo());
 		$this->logger = $logger;
 
-		$this->loadModel($this->queueModelClass);
+		$tableLocator = $this->getTableLocator();
+
+		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+		$QueuedJobs = $tableLocator->get($this->queueModelClass);
 		if (isset($this->modelClass)) {
-			$this->loadModel();
+			/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+			$QueuedJobs = $tableLocator->get($this->modelClass);
 		}
+		$this->QueuedJobs = $QueuedJobs;
 	}
 
 	/**

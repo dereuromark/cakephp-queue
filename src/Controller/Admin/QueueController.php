@@ -36,7 +36,7 @@ class QueueController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function index() {
-		$this->loadModel('Queue.QueueProcesses');
+		$this->QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
 		$status = $this->QueueProcesses->status();
 
 		$current = $this->QueuedJobs->getLength();
@@ -128,7 +128,7 @@ class QueueController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function processes() {
-		$this->loadModel('Queue.QueueProcesses');
+		$this->QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
 
 		if ($this->request->is('post') && $this->request->getQuery('end')) {
 			$pid = (string)$this->request->getQuery('end');

@@ -4,9 +4,9 @@ namespace Queue\View\Helper;
 
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
-use Cake\Datasource\ModelAwareTrait;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\Number;
+use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\View\Helper;
 use Queue\Model\Entity\QueuedJob;
 
@@ -16,7 +16,7 @@ use Queue\Model\Entity\QueuedJob;
  */
 class QueueProgressHelper extends Helper {
 
-	use ModelAwareTrait;
+	use LocatorAwareTrait;
 
 	/**
 	 * @var array<mixed>
@@ -225,7 +225,7 @@ class QueueProgressHelper extends Helper {
 			$queuedJobStatistics = Cache::read(static::KEY, static::CONFIG);
 		}
 		if ($queuedJobStatistics === false) {
-			$this->loadModel('Queue.QueuedJobs');
+			$this->QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
 			$queuedJobStatistics = $this->QueuedJobs->getStats(true);
 			Cache::write(static::KEY, $queuedJobStatistics, static::CONFIG);
 		}

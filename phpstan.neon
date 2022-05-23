@@ -17,3 +17,6 @@ parameters:
 		- '#Parameter \#1 \$.+ of function call_user_func_array expects .+, array.+ given.#'
 		- '#Cannot cast array\|string\|null to .+.#'
 		- '#Cannot cast non-empty-array\|non-empty-string to string#'
+
+includes:
+	- vendor/cakedc/cakephp-phpstan/extension.neon
