@@ -2,7 +2,6 @@
 
 namespace Queue\View\Helper;
 
-use Cake\Datasource\ModelAwareTrait;
 use Cake\View\Helper;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Queue\Config;
@@ -12,8 +11,6 @@ use Queue\Queue\TaskFinder;
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  */
 class QueueHelper extends Helper {
-
-	use ModelAwareTrait;
 
 	/**
 	 * @var array<string, array<string, mixed>>
