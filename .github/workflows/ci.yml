@@ -56,14 +56,14 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: ${{ runner.os }}-composer-
 
-      - name: Composer install --no-progress --prefer-dist --optimize-autoloader
+      - name: Composer install --no-progress --prefer-dist --optimize-autoloader --ignore-platform-req=php
         run: |
           composer --version
           if ${{ matrix.prefer-lowest == 'prefer-lowest' }}
           then
-            composer update --prefer-lowest --prefer-stable
+            composer update --prefer-lowest --prefer-stable --ignore-platform-req=php
           else
-            composer install --no-progress --prefer-dist --optimize-autoloader
+            composer install --no-progress --prefer-dist --optimize-autoloader --ignore-platform-req=php
           fi
           if ${{ matrix.prefer-lowest == 'prefer-lowest' }}; then composer lowest-setup; fi
 
