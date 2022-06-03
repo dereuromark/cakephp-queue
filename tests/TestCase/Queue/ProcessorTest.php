@@ -12,6 +12,7 @@ use Queue\Console\Io;
 use Queue\Queue\Processor;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
+use TestApp\Model\Table\CategoriesTable;
 
 class ProcessorTest extends TestCase {
 
@@ -97,6 +98,21 @@ class ProcessorTest extends TestCase {
 		$result = $this->Processor->run($config);
 
 		$this->assertSame(CommandInterface::CODE_SUCCESS, $result);
+	}
+
+	/**
+	 * This checks if the old loadModel function still works
+	 * @return void
+	 */
+	public function testModelAwareTrait() {
+		$this->_needsConnection();
+
+		$out = new ConsoleOutput();
+		$err = new ConsoleOutput();
+		$this->Processor = new Processor(new Io(new ConsoleIo($out, $err)), new NullLogger());
+
+		$this->Processor->loadModel('Categories');
+		$this->assertInstanceOf(CategoriesTable::class, $this->Processor->Categories);
 	}
 
 	/**
