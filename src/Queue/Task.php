@@ -7,6 +7,7 @@
 namespace Queue\Queue;
 
 use Cake\Console\ConsoleIo;
+use Cake\Datasource\ModelAwareTrait;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Psr\Log\LoggerInterface;
 use Queue\Console\Io;
@@ -18,6 +19,11 @@ use Queue\Console\Io;
  * tasks.
  */
 abstract class Task implements TaskInterface {
+
+	/*
+	 * @deprecated Use LocatorAwareTrait instead. Will be removed with next major.
+	 */
+	use ModelAwareTrait;
 
 	use LocatorAwareTrait;
 
