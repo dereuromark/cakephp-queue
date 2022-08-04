@@ -22,9 +22,6 @@ declare(ticks = 1);
 
 /**
  * Main shell to init and run queue workers.
- *
- * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
- * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
  */
 class Processor {
 
@@ -69,6 +66,16 @@ class Processor {
 	 * @var string|null
 	 */
 	protected $pid;
+
+	/**
+	 * @var \Queue\Model\Table\QueuedJobsTable
+	 */
+	protected $QueuedJobs;
+
+	/**
+	 * @var \Queue\Model\Table\QueueProcessesTable
+	 */
+	protected $QueueProcesses;
 
 	/**
 	 * @param \Queue\Console\Io $io
