@@ -159,7 +159,7 @@ class QueueController extends AppController {
 		$this->request->allowMethod('post');
 		$resetted = $this->QueuedJobs->reset(null, (bool)$this->request->getQuery('full'));
 
-		$message = __d('queue', '{n} jobs reset for re-run', $resetted);
+		$message = __d('queue', '{0} jobs reset for re-run', $resetted);
 		$this->Flash->success($message);
 
 		return $this->redirect(['action' => 'index']);
@@ -174,7 +174,7 @@ class QueueController extends AppController {
 		$this->request->allowMethod('post');
 		$count = $this->QueuedJobs->flushFailedJobs();
 
-		$message = __d('queue', '{n} jobs removed', $count);
+		$message = __d('queue', '{0} jobs removed', $count);
 		$this->Flash->success($message);
 
 		return $this->redirect(['action' => 'index']);
