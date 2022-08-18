@@ -672,7 +672,7 @@ class QueuedJobsTable extends Table {
 	 */
 	public function markJobDone(QueuedJob $job): bool {
 		$fields = [
-			'progress' => 100,
+			'progress' => 1,
 			'completed' => $this->getDateTime(),
 		];
 		$job = $this->patchEntity($job, $fields);
