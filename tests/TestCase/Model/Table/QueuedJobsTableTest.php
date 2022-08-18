@@ -26,7 +26,7 @@ class QueuedJobsTableTest extends TestCase {
 	protected $QueuedJobs;
 
 	/**
-	 * @var array
+	 * @var array<string>
 	 */
 	protected $fixtures = [
 		'plugin.Queue.QueuedJobs',
@@ -102,6 +102,39 @@ class QueuedJobsTableTest extends TestCase {
 		$this->assertSame(1, $this->QueuedJobs->getLength('Foo'));
 		$this->assertSame(2, $this->QueuedJobs->getLength('Queue.Example'));
 		$this->assertSame(1, $this->QueuedJobs->getLength('Queue.ExceptionExample'));
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testMarkJobDone() {
+		$job = $this->QueuedJobs->createJob('Foo', [
+			'some' => 'random',
+			'test' => 'data',
+		]);
+		$this->assertTrue($this->QueuedJobs->markJobDone($job));
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testMarkJobFailed() {
+		$job = $this->QueuedJobs->createJob('Foo', [
+			'some' => 'random',
+			'test' => 'data',
+		]);
+		$this->assertTrue($this->QueuedJobs->markJobFailed($job));
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testFlushFailedJobs() {
+		$this->QueuedJobs->createJob('Foo', [
+			'some' => 'random',
+			'test' => 'data',
+		]);
+		$this->assertSame(0, $this->QueuedJobs->flushFailedJobs());
 	}
 
 	/**

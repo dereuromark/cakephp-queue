@@ -21,10 +21,11 @@ class QueueProcessesTableTest extends TestCase {
 	protected $QueueProcesses;
 
 	/**
-	 * @var array
+	 * @var array<string>
 	 */
 	protected $fixtures = [
 		'plugin.Queue.QueueProcesses',
+		'plugin.Queue.QueuedJobs',
 	];
 
 	/**

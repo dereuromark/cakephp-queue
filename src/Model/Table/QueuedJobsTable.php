@@ -172,6 +172,11 @@ class QueuedJobsTable extends Table {
 			->requirePresence('job_task', 'create')
 			->notEmptyString('job_task');
 
+		$validator
+			->greaterThanOrEqual('progress', 0)
+			->lessThanOrEqual('progress', 1)
+			->allowEmpty('progress');
+
 		return $validator;
 	}
 
