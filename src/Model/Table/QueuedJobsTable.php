@@ -175,7 +175,7 @@ class QueuedJobsTable extends Table {
 		$validator
 			->greaterThanOrEqual('progress', 0)
 			->lessThanOrEqual('progress', 1)
-			->allowEmpty('progress');
+			->allowEmptyString('progress');
 
 		return $validator;
 	}
