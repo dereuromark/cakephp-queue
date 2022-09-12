@@ -70,7 +70,7 @@ class QueueProcessesTable extends Table {
 				'QueuedJobs.completed IS NULL',
 			],
 		]);
-        
+
 		$this->hasOne('CurrentQueuedJobs', [
 			'className' => 'Queue.QueuedJobs',
 			'foreignKey' => 'id',
@@ -199,6 +199,7 @@ class QueueProcessesTable extends Table {
 	 * @return int
 	 */
 	public function cleanEndedProcesses(): int {
+		return 0;
 		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
 
