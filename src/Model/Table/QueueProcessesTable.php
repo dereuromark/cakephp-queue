@@ -144,6 +144,10 @@ class QueueProcessesTable extends Table {
 			'workerkey' => $key,
 		];
 
+		if ($zrxReference = Configure::read('Queue.zrxReference')) {
+			$queueProcess['reference'] = $zrxReference;
+		}
+
 		$queueProcess = $this->newEntity($data);
 		$this->saveOrFail($queueProcess);
 

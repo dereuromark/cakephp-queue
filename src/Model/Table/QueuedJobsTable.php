@@ -202,6 +202,10 @@ class QueuedJobsTable extends Table {
 			'notbefore' => !empty($config['notBefore']) ? $this->getDateTime($config['notBefore']) : null,
 		] + $config;
 
+		if ($zrxReference = Configure::read('Queue.zrxReference')) {
+			$queuedJob['reference'] = $zrxReference;
+		}
+
 		$queuedJob = $this->newEntity($queuedJob);
 
 		return $this->saveOrFail($queuedJob);
@@ -460,170 +464,14 @@ class QueuedJobsTable extends Table {
 	 */
 	public function requestJob(array $tasks, array $groups = [], array $types = []) {
 		$now = $this->getDateTime();
-		$nowStr = $now->toDateTimeString();
-		$driverName = $this->getDriverName();
-
-		$query = $this->find();
-		$age = $query->newExpr()->add('IFNULL(TIMESTAMPDIFF(SECOND, "' . $nowStr . '", notbefore), 0)');
-		switch ($driverName) {
-			case static::DRIVER_SQLSERVER:
-				$age = $query->newExpr()->add('ISNULL(DATEDIFF(SECOND, GETDATE(), notbefore), 0)');
-
-				break;
-			case static::DRIVER_POSTGRES:
-				$age = $query->newExpr()
-					->add('COALESCE(EXTRACT(EPOCH FROM notbefore) - (EXTRACT(EPOCH FROM now())), 0)');
-
-				break;
-			case static::DRIVER_SQLITE:
-				//TODO
-
-				break;
-		}
-		$options = [
-			'conditions' => [
-				'completed IS' => null,
-				'OR' => [],
-			],
-			'fields' => [
-				'age' => $age,
-			],
-			'order' => [
-				'priority' => 'ASC',
-				'age' => 'ASC',
-				'id' => 'ASC',
-			],
-		];
-
-		$costConstraints = [];
-		foreach ($tasks as $name => $task) {
-			if (!$task['costs']) {
-				continue;
-			}
-
-			$costConstraints[$name] = $task['costs'];
-		}
-
-		$uniqueConstraints = [];
-		foreach ($tasks as $name => $task) {
-			if (!$task['unique']) {
-				continue;
-			}
-
-			$uniqueConstraints[$name] = $name;
-		}
-
-		/** @var array<\Queue\Model\Entity\QueuedJob> $runningJobs */
-		$runningJobs = [];
-		if ($costConstraints || $uniqueConstraints) {
-			$constraintJobs = array_keys($costConstraints + $uniqueConstraints);
-			$runningJobs = $this->find('queued')
-				->contain(['WorkerProcesses'])
-				->where(['QueuedJobs.job_task IN' => $constraintJobs, 'QueuedJobs.workerkey IS NOT' => null, 'QueuedJobs.workerkey !=' => $this->_key, 'WorkerProcesses.modified >' => Config::defaultworkertimeout()])
-				->all()
-				->toArray();
-		}
-
-		$costs = 0;
-		$server = $this->WorkerProcesses->buildServerString();
-		foreach ($runningJobs as $runningJob) {
-			if (isset($uniqueConstraints[$runningJob->job_task])) {
-				$types[] = '-' . $runningJob->job_task;
-
-				continue;
-			}
-
-			if ($runningJob->worker_process->server === $server && isset($costConstraints[$runningJob->job_task])) {
-				$costs += $costConstraints[$runningJob->job_task];
-			}
-		}
-
-		if ($costs) {
-			$left = 100 - $costs;
-			foreach ($tasks as $name => $task) {
-				if (!$task['costs'] || $task['costs'] < $left) {
-					continue;
-				}
-
-				$types[] = '-' . $name;
-			}
-		}
-
-		if ($groups) {
-			$options['conditions'] = $this->addFilter($options['conditions'], 'job_group', $groups);
-		}
-		if ($types) {
-			$options['conditions'] = $this->addFilter($options['conditions'], 'job_task', $types);
-		}
-
-		// Generate the task specific conditions.
-		foreach ($tasks as $name => $task) {
-			$timeoutAt = $now->copy();
-			$tmp = [
-				'job_task' => $name,
-				'AND' => [
-					[
-						'OR' => [
-							'notbefore <' => $nowStr,
-							'notbefore IS' => null,
-						],
-					],
-					[
-						'OR' => [
-							'fetched <' => $timeoutAt->subSeconds($task['timeout']),
-							'fetched IS' => null,
-						],
-					],
-				],
-				'failed <' => ($task['retries'] + 1),
-			];
-			if (array_key_exists('rate', $task) && $tmp['job_task'] && array_key_exists($tmp['job_task'], $this->rateHistory)) {
-				switch ($driverName) {
-					case static::DRIVER_POSTGRES:
-						$tmp['EXTRACT(EPOCH FROM NOW()) >='] = $this->rateHistory[$tmp['job_task']] + $task['rate'];
-
-						break;
-					case static::DRIVER_MYSQL:
-						$tmp['UNIX_TIMESTAMP() >='] = $this->rateHistory[$tmp['job_task']] + $task['rate'];
-
-						break;
-					case static::DRIVER_SQLSERVER:
-						$tmp["(DATEDIFF(s, '1970-01-01 00:00:00', GETDATE())) >="] = $this->rateHistory[$tmp['job_task']] + $task['rate'];
-
-						break;
-					case static::DRIVER_SQLITE:
-						//TODO
-
-						break;
-				}
-			}
-			$options['conditions']['OR'][] = $tmp;
-		}
+		$options = $this->getQueryCondition($tasks, $groups, $types);
 
 		/** @var \Queue\Model\Entity\QueuedJob|null $job */
-		$job = $this->getConnection()->transactional(function () use ($query, $options, $now, $driverName) {
-			$query->find('all', $options)->enableAutoFields(true);
-
-			switch ($driverName) {
-				case static::DRIVER_MYSQL:
-				case static::DRIVER_POSTGRES:
-					$query->epilog('FOR UPDATE');
-
-					break;
-				case static::DRIVER_SQLSERVER:
-					// the ORM does not support ROW locking at the moment
-					// TODO
-
-					break;
-				case static::DRIVER_SQLITE:
-					// not supported
-
-					break;
-			}
-
-			/** @var \Queue\Model\Entity\QueuedJob|null $job */
-			$job = $query->first();
-
+		$job = $this->getConnection()->transactional(function () use ($options, $now) {
+			$job = $this->find('all', $options)
+				->enableAutoFields(true)
+				->epilog('FOR UPDATE')
+				->first();
 			if (!$job) {
 				return null;
 			}
@@ -646,6 +494,47 @@ class QueuedJobsTable extends Table {
 		$this->rateHistory[$job->job_task] = $now->toUnixString();
 
 		return $job;
+	}
+
+	/**
+	 * Get Request Job query function
+	 *
+	 * @param array $capabilities capabilities
+	 * @param String $group Group
+	 * @return array $queryCondtion Query condition
+	 */
+
+	protected function getQueryCondition($tasks, $groups, $types)
+	{
+		$zrxStrategyEnabled = Configure::read('Queue.zrxFetchingStrategyEnabled');
+
+		//base condition
+		$options = [
+			'conditions' => [
+				'completed IS' => null,
+			],
+			'order' => ['priority' => 'ASC']
+		];
+
+		if (!empty($groups)) {
+			$options['conditions'] = [
+				'job_group IN' => $groups,
+			];
+		}
+
+		if ($zrxStrategyEnabled) {
+			$options['conditions'][] = [
+				'fetched IS' => null,
+				'failed' => 0
+			];
+			$options['order']['id'] = 'ASC';
+			if ($zrxReference = Configure::read('Queue.zrxReference')) {
+				$options['conditions']['reference'] = $zrxReference;
+			}
+
+			return $options;
+		}
+
 	}
 
 	/**

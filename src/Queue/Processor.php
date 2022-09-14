@@ -2,6 +2,7 @@
 
 namespace Queue\Queue;
 
+use App\Log\ZLog;
 use Cake\Console\CommandInterface;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
@@ -222,7 +223,7 @@ class Processor {
 				$failureMessage .= "\n" . $e->getTraceAsString();
 			}
 
-			$this->logError($taskName . ' (job ' . $queuedJob->id . ')' . "\n" . $failureMessage, $pid);
+			$this->logError($taskName . ' (job ' . $queuedJob->id . ')' . "\n" . $failureMessage, $pid, $data);
 		}
 
 		if ($return === false) {
@@ -268,7 +269,7 @@ class Processor {
 	 * @param string|null $pid PID of the process
 	 * @return void
 	 */
-	protected function logError(string $message, ?string $pid = null): void {
+	protected function logError(string $message, ?string $pid = null, $data = null): void {
 		$timeNeeded = $this->timeNeeded();
 		$memoryUsage = $this->memoryUsage();
 		$message .= ' [' . $timeNeeded . ', ' . $memoryUsage . ']';
@@ -279,6 +280,12 @@ class Processor {
 		$serverString = $this->QueueProcesses->buildServerString();
 		if ($serverString) {
 			$message .= ' {' . $serverString . '}';
+		}
+
+		if (class_exists('App\Log\ZLog')) {
+			ZLog::error("Error in cakephp queue - " . $message, ZLog::ADMIN, ZLog::HIGH, [], ['queue_task_data' => $data]);
+
+			return;
 		}
 
 		$this->logger->error($message);
