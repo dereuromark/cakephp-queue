@@ -43,7 +43,7 @@ class OldTaskFinder {
 			$name = substr($name, 5);
 
 			$taskKey = $plugin ? $plugin . '.' . $name : $name;
-			$tasks[$taskKey] = $path . $r;
+			$tasks[$taskKey] = $path . basename($r);
 		}
 
 		return $tasks;
