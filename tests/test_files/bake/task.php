@@ -2,11 +2,10 @@
 
 namespace TestApp\Queue\Task;
 
-use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 
-class FooBarBazTask extends Task implements AddInterface, AddFromBackendInterface {
+class FooBarBazTask extends Task implements AddInterface {
 
 	/**
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
