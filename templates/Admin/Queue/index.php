@@ -166,7 +166,7 @@ use Cake\Core\Configure;
 		</ul>
 
 		<h2>Trigger Jobs</h2>
-		<p>These jobs implement the AddInterface</p>
+		<p>These jobs implement the AddFromBackendInterface</p>
 		<ul>
 			<?php
 			foreach ($addableTasks as $task => $className) {
@@ -180,6 +180,7 @@ use Cake\Core\Configure;
 			}
 			?>
 		</ul>
+		<p><small>Jobs just implementing AddInterface can be added from CLI instead.</small></p>
 
 		<h2>Trigger Test/Demo Jobs</h2>
 		<ul>

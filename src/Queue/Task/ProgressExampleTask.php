@@ -2,13 +2,14 @@
 
 namespace Queue\Queue\Task;
 
+use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 
 /**
  * A Simple QueueTask example that runs for a while and updates the progress field.
  */
-class ProgressExampleTask extends Task implements AddInterface {
+class ProgressExampleTask extends Task implements AddInterface, AddFromBackendInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.

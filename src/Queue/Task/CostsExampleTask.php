@@ -2,13 +2,14 @@
 
 namespace Queue\Queue\Task;
 
+use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 
 /**
  * A Costs QueueTask example.
  */
-class CostsExampleTask extends Task implements AddInterface {
+class CostsExampleTask extends Task implements AddInterface, AddFromBackendInterface {
 
 	/**
 	 * @var int

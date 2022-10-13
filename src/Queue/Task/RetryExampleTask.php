@@ -6,6 +6,7 @@
 
 namespace Queue\Queue\Task;
 
+use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 use RuntimeException;
@@ -13,7 +14,7 @@ use RuntimeException;
 /**
  * A retry QueueTask example.
  */
-class RetryExampleTask extends Task implements AddInterface {
+class RetryExampleTask extends Task implements AddInterface, AddFromBackendInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.

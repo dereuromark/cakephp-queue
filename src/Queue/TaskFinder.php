@@ -19,12 +19,14 @@ class TaskFinder {
 	/**
 	 * @phpstan-return array<string, class-string<\Queue\Queue\Task>>
 	 *
+	 * @param string $type Type of interface.
+	 *
 	 * @return array<string>
 	 */
-	public function allAddable(): array {
+	public function allAddable(string $type = AddInterface::class): array {
 		$all = $this->all();
 		foreach ($all as $task => $class) {
-			if (!is_subclass_of($class, AddInterface::class, true)) {
+			if (!is_subclass_of($class, $type, true)) {
 				unset($all[$task]);
 			}
 		}
