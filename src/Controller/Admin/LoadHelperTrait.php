@@ -11,7 +11,7 @@ trait LoadHelperTrait {
 	 */
 	protected function loadHelpers(): void {
 		$helpers = [
-			'Time' => ['class' => 'Tools.Time', 'config' => ['engine' => 'Tools\Utility\FrozenTime']],
+			'Tools.Time',
 			'Tools.Format',
 			'Tools.Text',
 			'Shim.Configure',
