@@ -3,13 +3,14 @@
 namespace Queue\Queue\Task;
 
 use Queue\Model\QueueException;
+use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 
 /**
  * An exception throwing QueueTask example.
  */
-class ExceptionExampleTask extends Task implements AddInterface {
+class ExceptionExampleTask extends Task implements AddInterface, AddFromBackendInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.

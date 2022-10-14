@@ -6,13 +6,14 @@
 
 namespace Queue\Queue\Task;
 
+use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 
 /**
  * A Simple QueueTask example.
  */
-class ExampleTask extends Task implements AddInterface {
+class ExampleTask extends Task implements AddInterface, AddFromBackendInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.

@@ -2,13 +2,14 @@
 
 namespace Queue\Queue\Task;
 
+use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 
 /**
  * A Unique QueueTask example.
  */
-class UniqueExampleTask extends Task implements AddInterface {
+class UniqueExampleTask extends Task implements AddInterface, AddFromBackendInterface {
 
 	/**
 	 * @var int

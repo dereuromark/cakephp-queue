@@ -5,6 +5,7 @@ namespace Queue\Controller\Admin;
 use App\Controller\AppController;
 use Cake\Core\App;
 use Cake\Http\Exception\NotFoundException;
+use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\TaskFinder;
 
 /**
@@ -53,7 +54,7 @@ class QueueController extends AppController {
 
 		$taskFinder = new TaskFinder();
 		$tasks = $taskFinder->all();
-		$addableTasks = $taskFinder->allAddable();
+		$addableTasks = $taskFinder->allAddable(AddFromBackendInterface::class);
 
 		$servers = $this->QueueProcesses->find()->distinct(['server'])->find('list', ['keyField' => 'server', 'valueField' => 'server'])->toArray();
 		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks', 'addableTasks', 'servers'));

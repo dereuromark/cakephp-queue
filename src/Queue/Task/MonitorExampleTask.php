@@ -6,13 +6,14 @@
 namespace Queue\Queue\Task;
 
 use Cake\Log\LogTrait;
+use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 
 /**
  * A Simple QueueTask example.
  */
-class MonitorExampleTask extends Task implements AddInterface {
+class MonitorExampleTask extends Task implements AddInterface, AddFromBackendInterface {
 
 	use LogTrait;
 

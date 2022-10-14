@@ -10,6 +10,7 @@ use Cake\Mailer\TransportFactory;
 use Psr\Log\LoggerInterface;
 use Queue\Console\Io;
 use Queue\Model\QueueException;
+use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 use Throwable;
@@ -23,7 +24,7 @@ use Throwable;
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
-class EmailTask extends Task implements AddInterface {
+class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 
 	/**
 	 * @var int
