@@ -906,7 +906,7 @@ class QueuedJobsTable extends Table {
 		if ($this->_key !== null) {
 			return $this->_key;
 		}
-		$this->_key = sha1(microtime());
+		$this->_key = sha1(microtime() . rand(100, 999));
 		if (!$this->_key) {
 			throw new RuntimeException('Invalid key generated');
 		}
