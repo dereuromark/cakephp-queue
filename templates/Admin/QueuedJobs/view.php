@@ -3,6 +3,9 @@
  * @var \App\View\AppView $this
  * @var \Queue\Model\Entity\QueuedJob $queuedJob
  */
+
+use Brick\VarExporter\VarExporter;
+
 ?>
 <nav class="actions large-3 medium-4 columns col-sm-4 col-12" id="actions-sidebar">
 	<ul class="side-nav nav nav-pills flex-column">
@@ -126,7 +129,7 @@
 			if ($queuedJob->data && $this->Configure->read('debug')) {
 				$data = unserialize($queuedJob->data);
 				echo '<h4>Unserialized content (debug only)</h4>';
-				echo '<pre>' . h(print_r($data, true)) . '</pre>';
+				echo '<pre>' . h(VarExporter::export($data, VarExporter::TRAILING_COMMA_IN_ARRAY)) . '</pre>';
 			}
 		?>
 	</div>
