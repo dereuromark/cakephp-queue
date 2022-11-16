@@ -20,10 +20,12 @@ Load the plugin in your `src/Application.php`'s bootstrap() using:
 ```php
 $this->addPlugin('Queue');
 ```
-If you want to also access the backend controller (not just using CLI), you need to use
+If you don't want to also access the backend controller (just using CLI), you need to use
 ```php
-$this->addPlugin('Queue', ['routes' => true]);
+$this->addPlugin('Queue', ['routes' => false]);
 ```
+
+Important: Make sure to use authentication if you are using the backend. You do not want visitors to be able to browse it.
 
 Run the following command in the CakePHP console to create the tables using the Migrations plugin:
 ```sh
