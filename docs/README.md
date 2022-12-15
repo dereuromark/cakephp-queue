@@ -32,6 +32,7 @@ Run the following command in the CakePHP console to create the tables using the 
 bin/cake migrations migrate -p Queue
 ```
 
+Hint: use a native *nix-like or console and not the one provided like from Git (git-bash). This may lead to a non-working `migrations` command.
 It is also advised to have the `posix` PHP extension enabled.
 
 
