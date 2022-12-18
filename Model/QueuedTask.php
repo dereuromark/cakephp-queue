@@ -11,6 +11,8 @@ App::uses('Hash', 'Utility');
  */
 class QueuedTask extends QueueAppModel {
 
+	public $cacheQueries = false;
+
 	public $_next_priority = 5;
 
 	public $rateHistory = [];
