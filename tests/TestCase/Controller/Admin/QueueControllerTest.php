@@ -8,6 +8,7 @@ use Cake\TestSuite\IntegrationTestCase;
 use Queue\Controller\Admin\QueueController;
 use Shim\TestSuite\TestTrait;
 use Tools\Utility\FrozenTime as UtilityFrozenTime;
+use Tools\Utility\Time;
 
 /**
  * @uses \Queue\Controller\Admin\QueueController
@@ -44,7 +45,7 @@ class QueueControllerTest extends IntegrationTestCase {
 
 		$view = $controller->createView();
 		$engine = $view->Time->getConfig('engine');
-		$this->assertSame(UtilityFrozenTime::class, $engine);
+		$this->assertTrue(in_array($engine, [Time::class, UtilityFrozenTime::class], true));
 	}
 
 	/**
