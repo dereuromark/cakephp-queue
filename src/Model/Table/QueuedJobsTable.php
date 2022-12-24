@@ -15,6 +15,7 @@ use InvalidArgumentException;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
+use Queue\Utility\Serializer;
 use RuntimeException;
 
 /**
@@ -197,7 +198,7 @@ class QueuedJobsTable extends Table {
 	public function createJob(string $jobTask, ?array $data = null, array $config = []) {
 		$queuedJob = [
 			'job_task' => $this->jobTask($jobTask),
-			'data' => is_array($data) ? serialize($data) : null,
+			'data' => is_array($data) ? Serializer::serialize($data) : null,
 			'job_group' => !empty($config['group']) ? $config['group'] : null,
 			'notbefore' => !empty($config['notBefore']) ? $this->getDateTime($config['notBefore']) : null,
 		] + $config;
