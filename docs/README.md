@@ -161,6 +161,8 @@ It is recommended to switch to JSON serializing instead, if you don't need to se
 This is usually also safer from data perspective.
 Any update of your code would not break the process here for queued tasks as no objects could be outdated in serialized payload.
 
+You can also use a custom one as long as it implements the `Queue\Utility\SerializerInterface`.
+
 #### Backend configuration
 
 - isSearchEnabled: Set to false if you do not want search/filtering capability.
