@@ -65,5 +65,9 @@ return [
 
 		// ignores task classes
 		'ignoredTasks' => [],
+
+		// Control serializer strategy
+		'serializerClass' => null, // FQCN
+		'serializerConfig' => null,
 	],
 ];

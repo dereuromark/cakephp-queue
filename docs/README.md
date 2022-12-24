@@ -148,6 +148,19 @@ return [
 You can also drop the configuration into an existing config file (recommended) that is already been loaded.
 The values above are the default settings which apply, when no configuration is found.
 
+#### Serializer strategy
+By default, the payload data array will be serialized using PHPs native object serializer.
+It is recommended to switch to JSON serializing instead, if you don't need to send any actual objects, but only primitive values and arrays.
+```php
+'Queue' => [
+    ...
+    'serializerClass' => \Queue\Utility\JsonSerializer::class,
+    'serializerConfig' => [...],
+],
+```
+This is usually also safer from data perspective.
+Any update of your code would not break the process here for queued tasks as no objects could be outdated in serialized payload.
+
 #### Backend configuration
 
 - isSearchEnabled: Set to false if you do not want search/filtering capability.
