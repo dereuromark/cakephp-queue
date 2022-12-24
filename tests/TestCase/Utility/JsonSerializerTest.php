@@ -35,11 +35,11 @@ class JsonSerializerTest extends TestCase {
 	 */
 	public function testSerialize() {
 		$data = [
-			'key' => 'string',
+			'key' => 'string \ foo-bar',
 			'int' => 0,
 		];
 		$result = $this->serializer->serialize($data);
-		$this->assertSame('{"key":"string","int":0}', $result);
+		$this->assertSame('{"key":"string \\\\ foo-bar","int":0}', $result);
 
 		$reversedResult = $this->serializer->deserialize($result);
 		$this->assertSame($data, $reversedResult);
