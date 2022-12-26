@@ -109,6 +109,31 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 			throw new QueueException('Queue Email task called without settings data.');
 		}
 
+		if ($data['settings'] === 'mailer') {
+			if (!isset($data['mailer'])) {
+				throw new QueueException('Queue Email task called without mailer data.');
+			}
+			Configure::write('Queue.mailerClass', $data['mailer']);
+			$this->mailer = $this->getMailer();
+
+			try {
+				$this->mailer->setTransport('default');
+				$result = $this->mailer->send($data['action'], $data['vars'] ?? []);
+			} catch (\Throwable $e) {
+				$error = $e->getMessage();
+				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
+				Log::write('error', $error);
+
+				throw $e;
+			}
+
+			if (!$result) {
+				throw new QueueException('Could not send email.');
+			}
+
+			return;
+		}
+
 		/** @var \Cake\Mailer\Message|null $message */
 		$message = $data['settings'];
 		if ($message && is_object($message) && $message instanceof Message) {
