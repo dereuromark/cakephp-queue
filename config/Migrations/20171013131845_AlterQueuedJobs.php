@@ -36,4 +36,5 @@ class AlterQueuedJobs extends AbstractMigration {
 			}
 		}
 	}
+
 }
