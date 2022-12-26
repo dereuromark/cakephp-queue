@@ -117,7 +117,7 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 			$this->mailer = $this->getMailer();
 
 			try {
-				$this->mailer->setTransport('default');
+				$this->mailer->setTransport($data['transport'] ?? 'default');
 				$result = $this->mailer->send($data['action'], $data['vars'] ?? []);
 			} catch (\Throwable $e) {
 				$error = $e->getMessage();
