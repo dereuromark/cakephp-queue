@@ -6,8 +6,9 @@
     <file>config/</file>
     <file>src/</file>
     <file>tests/</file>
-    <exclude-pattern>/config/Migrations/</exclude-pattern>
-    <exclude-pattern>/tests/test_files/</exclude-pattern>
+
+	<exclude-pattern>/tests/test_files/</exclude-pattern>
+
     <rule ref="PSR2R"/>
     <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
         <exclude-pattern>*/config/Migrations/*</exclude-pattern>
