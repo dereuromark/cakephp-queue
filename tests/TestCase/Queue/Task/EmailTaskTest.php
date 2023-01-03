@@ -3,6 +3,7 @@
 namespace Queue\Test\TestCase\Queue\Task;
 
 use Cake\Console\ConsoleIo;
+use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\Mailer\Mailer;
 use Cake\Mailer\Message;
@@ -55,6 +56,23 @@ class EmailTaskTest extends TestCase {
 		$io = new Io(new ConsoleIo($this->out, $this->err));
 
 		$this->Task = new EmailTask($io);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testAdd() {
+		Configure::write('Config.adminEmail', 'test@test.de');
+		$this->Task->add(null);
+
+		Configure::delete('Config.adminEmail');
+
+		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
+		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
+
+		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
+		$queuedJob = $queuedJobsTable->find()->orderDesc('id')->firstOrFail();
+		$this->assertSame('Queue.Email', $queuedJob->job_task);
 	}
 
 	/**
