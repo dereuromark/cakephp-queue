@@ -3,11 +3,11 @@
 namespace Queue\Test\TestCase\Queue\Task;
 
 use Cake\Console\ConsoleIo;
-use Cake\Mailer\Exception\MissingMailerException;
 use Cake\TestSuite\TestCase;
 use Queue\Console\Io;
 use Queue\Model\QueueException;
 use Queue\Queue\Task\MailerTask;
+use ReflectionClass;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
 use TestApp\Mailer\TestMailer;
@@ -63,37 +63,37 @@ class MailerTaskTest extends TestCase {
 			'vars' => [true],
 		], 0);
 
-		$this->assertInstanceOf(TestMailer::class, $this->Task->mailer);
+		$reflection = new ReflectionClass($this->Task);
+		$property = $reflection->getProperty('mailer');
+		$property->setAccessible(true);
+		$mailer = $property->getValue($this->Task);
 
-		/** @var \TestApp\Mailer\TestMailer $testMailer */
-		$testMailer = $this->Task->mailer;
+		$this->assertInstanceOf(TestMailer::class, $mailer);
 
-		$transportConfig = $testMailer->getTransport()->getConfig();
+		$transportConfig = $mailer->getTransport()->getConfig();
 		$this->assertSame('Debug', $transportConfig['className']);
 
-		$result = $testMailer->getDebug();
+		$result = $mailer->getDebug();
 		$this->assertTextContains('bool(true)', $result['message']);
 	}
 
 	/**
 	 * @return void
 	 */
-	public function testRunUnkownMailerException() {
-		$this->expectException(MissingMailerException::class);
-		$this->Task->run([
-			'mailer' => 'UnknownMailer',
-		], 0);
+	public function testRunMissingMailerException() {
+		$this->expectException(QueueException::class);
+		$this->expectExceptionMessage('Queue Mailer task called without valid mailer class.');
+		$this->Task->run([], 0);
 	}
 
 	/**
 	 * @return void
 	 */
-	public function testRunNoMailerException() {
+	public function testRunMissingActionException() {
 		$this->expectException(QueueException::class);
-		$this->expectExceptionMessage('Queue Mailer task called without valid mailer class.');
+		$this->expectExceptionMessage('Queue Mailer task called without action data.');
 		$this->Task->run([
-			'action' => 'testAction',
-			'vars' => [true],
+			'mailer' => TestMailer::class,
 		], 0);
 	}
 

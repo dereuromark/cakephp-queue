@@ -26,7 +26,7 @@ class MailerTask extends Task {
 	/**
 	 * @var \Cake\Mailer\Mailer
 	 */
-	public $mailer;
+	protected $mailer;
 
 	/**
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
@@ -39,6 +39,9 @@ class MailerTask extends Task {
 	public function run(array $data, int $jobId): void {
 		if (!isset($data['mailer'])) {
 			throw new QueueException('Queue Mailer task called without valid mailer class.');
+		}
+		if (!isset($data['action'])) {
+			throw new QueueException('Queue Mailer task called without action data.');
 		}
 
 		$this->mailer = $this->getMailer($data['mailer']);
