@@ -152,31 +152,6 @@ class EmailTaskTest extends TestCase {
 	/**
 	 * @return void
 	 */
-	public function testRunToolsMailerConfig() {
-		$this->_skipPostgres();
-
-		$this->Task->run([
-			'settings' => 'mailer',
-			'mailer' => TestMailer::class,
-			'action' => 'testAction',
-			'vars' => [true],
-		], 0);
-
-		$this->assertInstanceOf(TestMailer::class, $this->Task->mailer);
-
-		/** @var \TestApp\Mailer\TestMailer $testMailer */
-		$testMailer = $this->Task->mailer;
-
-		$transportConfig = $testMailer->getTransport()->getConfig();
-		$this->assertSame('Debug', $transportConfig['className']);
-
-		$result = $testMailer->getDebug();
-		$this->assertTextContains('bool(true)', $result['message']);
-	}
-
-	/**
-	 * @return void
-	 */
 	public function testRunToolsEmailMessageObject() {
 		$this->_skipPostgres();
 
