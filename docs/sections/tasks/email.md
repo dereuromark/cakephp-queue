@@ -81,11 +81,13 @@ Note: In this case the object is stored serialized in the DB.
 This can break when upgrading your core and the underlying class changes.
 So make sure to only upgrade your code when all jobs have been finished.
 
-Recommended way for Email task together with JsonSerializer is using the FQCN class string of the Message class:
+If you are not using CakePHP core Email task:
+
+The recommended way for Email task together with JsonSerializer is using the FQCN class string of the Message class:
 
 ```php
 $data = [
-    'class' => $class,
+    'class' => Message::class,
     'settings' => $settings,
 ];
 $queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
