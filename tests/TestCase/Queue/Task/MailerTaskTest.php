@@ -3,7 +3,6 @@
 namespace Queue\Test\TestCase\Queue\Task;
 
 use Cake\Console\ConsoleIo;
-use Cake\Datasource\ConnectionManager;
 use Cake\Mailer\Exception\MissingMailerException;
 use Cake\TestSuite\TestCase;
 use Queue\Console\Io;
@@ -58,8 +57,6 @@ class MailerTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRunToolsMailerConfig() {
-		$this->_skipPostgres();
-
 		$this->Task->run([
 			'mailer' => TestMailer::class,
 			'action' => 'testAction',
@@ -82,8 +79,6 @@ class MailerTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRunUnkownMailerException() {
-		$this->_skipPostgres();
-
 		$this->expectException(MissingMailerException::class);
 		$this->Task->run([
 			'mailer' => 'UnknownMailer',
@@ -94,25 +89,12 @@ class MailerTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRunNoMailerException() {
-		$this->_skipPostgres();
-
 		$this->expectException(QueueException::class);
 		$this->expectExceptionMessage('Queue Mailer task called without valid mailer class.');
 		$this->Task->run([
 			'action' => 'testAction',
 			'vars' => [true],
 		], 0);
-	}
-
-	/**
-	 * Helper method for skipping tests that need a non Postgres connection.
-	 *
-	 * @return void
-	 */
-	protected function _skipPostgres() {
-		$config = ConnectionManager::getConfig('test');
-		$skip = strpos($config['driver'], 'Postgres') !== false;
-		$this->skipIf($skip, 'Only non Postgres is working yet for this.');
 	}
 
 }
