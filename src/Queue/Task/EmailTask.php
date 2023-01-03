@@ -17,9 +17,14 @@ use Throwable;
 
 /**
  * A convenience task ready to use for asynchronously sending basic emails.
+ * Uses basic Message object.
  *
  * Especially useful is the fact that sending is auto-retried as per your config.
- * Do do not lose the email, you can decide to even retry manually again afterwards.
+ * Will not drop the email if successfully sent, you can decide to even retry manually again afterwards.
+ *
+ * Note: Object passing only works with legacy ObjectSerializer, using JsonSerializer you must use settings way.
+ *
+ * Deprecated: Using Mailer object has been deprecated and Mailer usage has been moved to new MailerTask.
  *
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
@@ -29,7 +34,7 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 	/**
 	 * @var int
 	 */
-	public $timeout = 120;
+	public $timeout = 60;
 
 	/**
 	 * @var \Cake\Mailer\Mailer
@@ -104,7 +109,6 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
-		//TODO: Allow Message and createFromArray()
 		if (!isset($data['settings'])) {
 			throw new QueueException('Queue Email task called without settings data.');
 		}
@@ -129,6 +133,32 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 
 			return;
 		}
+
+		/** @var class-string<\Cake\Mailer\Message>|object|null $class */
+		$class = $data['class'] ?? null;
+		if ($class && (is_a($class, Message::class) || is_subclass_of($class, Message::class))) {
+			$settings = $data['settings'];
+
+			$message = new $class($settings);
+			try {
+				$transport = TransportFactory::get($data['transport'] ?? 'default');
+				$result = $transport->send($message);
+			} catch (Throwable $e) {
+				$error = $e->getMessage();
+				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
+				Log::write('error', $error);
+
+				throw $e;
+			}
+
+			if (!$result) {
+				throw new QueueException('Could not send email.');
+			}
+
+			return;
+		}
+
+		// Deprecated: Following part using Mailer object or raw data has been deprecated. Mailer usage is now in MailerTask.
 
 		/** @var \Cake\Mailer\Mailer|null $mailer */
 		$mailer = $data['settings'];
