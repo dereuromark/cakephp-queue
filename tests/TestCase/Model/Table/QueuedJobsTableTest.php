@@ -143,8 +143,6 @@ class QueuedJobsTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testCreateAndFetch() {
-		$this->_needsConnection();
-
 		//$capabilities is a list of tasks the worker can run.
 		$capabilities = [
 			'Foo' => [
@@ -229,8 +227,6 @@ class QueuedJobsTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testSequence() {
-		$this->_needsConnection();
-
 		//$capabilities is a list of tasks the worker can run.
 		$capabilities = [
 			'Foo' => [
@@ -543,13 +539,9 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
-	 * Testing requesting, only works for non-SQlite so far.
-	 *
 	 * @return void
 	 */
 	public function testRequestJob() {
-		$this->_needsConnection();
-
 		$capabilities = [
 			'Foo' => [
 				'name' => 'Foo',
@@ -571,8 +563,6 @@ class QueuedJobsTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testRequestGroup() {
-		$this->_needsConnection();
-
 		$capabilities = [
 			'Foo' => [
 				'name' => 'Foo',
@@ -644,8 +634,6 @@ class QueuedJobsTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testPriority() {
-		$this->_needsConnection();
-
 		$capabilities = [
 			'Foo' => [
 				'name' => 'Foo',

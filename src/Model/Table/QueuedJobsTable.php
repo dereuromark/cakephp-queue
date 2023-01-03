@@ -477,7 +477,8 @@ class QueuedJobsTable extends Table {
 
 				break;
 			case static::DRIVER_SQLITE:
-				//TODO
+				$age = $query->newExpr()
+					->add('IFNULL(CAST(strftime("%s", CURRENT_TIMESTAMP) as integer) - CAST(strftime("%s", "' . $nowStr . '") as integer), 0)');
 
 				break;
 		}
