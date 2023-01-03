@@ -5,6 +5,7 @@ namespace Queue\Test\TestCase\Queue\Task;
 use Cake\Console\ConsoleIo;
 use Cake\Console\Exception\StopException;
 use Cake\TestSuite\TestCase;
+use Exception;
 use Queue\Console\Io;
 use Queue\Queue\Task\RetryExampleTask;
 use Shim\TestSuite\ConsoleOutput;
@@ -54,7 +55,7 @@ class RetryExampleTaskTest extends TestCase {
 		$exception = null;
 		try {
 			$this->Task->run([], 0);
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$exception = $e;
 		}
 

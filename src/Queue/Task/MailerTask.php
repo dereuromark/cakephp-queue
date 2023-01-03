@@ -6,6 +6,7 @@ use Cake\Log\Log;
 use Cake\Mailer\MailerAwareTrait;
 use Queue\Model\QueueException;
 use Queue\Queue\Task;
+use Throwable;
 
 /**
  * A convenience task ready to use for asynchronously sending reusable emails via mailer classes.
@@ -45,7 +46,7 @@ class MailerTask extends Task {
 		try {
 			$this->mailer->setTransport($data['transport'] ?? 'default');
 			$result = $this->mailer->send($data['action'], $data['vars'] ?? []);
-		} catch (\Throwable $e) {
+		} catch (Throwable $e) {
 			$error = $e->getMessage();
 			$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
 			Log::write('error', $error);
