@@ -160,6 +160,6 @@ You can set two main things on each task as property: timeout and retries.
     public $retries = 1;
 ```
 Make sure you set the timeout high enough so that it could never run longer than this, otherwise you risk it being re-run while still being run.
-It is recommended setting it to at least 2x the maximum possible execution length. See [Concurrent workers](sections/limitations.md)
+It is recommended setting it to at least 2x the maximum possible execution length. See [Concurrent workers](limitations.md)
 
 Set the retries to at least 1, otherwise it will never execute again after failure in the first run.
