@@ -116,6 +116,8 @@ class EmailTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRunToolsEmailObject() {
+		$this->_skipPostgres();
+
 		$mailer = new TestMailer();
 		$mailer->setFrom('test@test.de');
 		$mailer->setTo('test@test.de');
@@ -190,8 +192,6 @@ class EmailTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRunToolsEmailMessageClassString() {
-		$this->_skipPostgres();
-
 		$class = MailerMessage::class;
 		$settings = [
 			'from' => 'test@test.de',

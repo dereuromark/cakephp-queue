@@ -9,7 +9,10 @@ use Queue\Queue\Task;
 use Throwable;
 
 /**
- * A convenience task ready to use for asynchronously sending reusable emails via mailer classes.
+ * A convenience task ready to use for asynchronously sending reusable emails via Mailer classes.
+ *
+ * Especially useful is the fact that sending is auto-retried as per your config.
+ * Will not drop the email if successfully sent, you can decide to even retry manually again afterwards.
  *
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
@@ -21,7 +24,7 @@ class MailerTask extends Task {
 	/**
 	 * @var int
 	 */
-	public $timeout = 120;
+	public $timeout = 60;
 
 	/**
 	 * @var \Cake\Mailer\Mailer

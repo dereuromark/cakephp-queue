@@ -34,7 +34,7 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 	/**
 	 * @var int
 	 */
-	public $timeout = 120;
+	public $timeout = 60;
 
 	/**
 	 * @var \Cake\Mailer\Mailer
