@@ -66,7 +66,7 @@ class Utf8mb4Fix extends AbstractMigration {
 		$table->update();
 
 		//TODO: check adapter and skip for postgres, instead of try/catch
-		if ($this->adapter instanceof \Phinx\Db\Adapter\MysqlAdapter) {
+		if ($this->adapter instanceof MysqlAdapter) {
 			try {
 				$table = $this->table('queued_jobs');
 				$table->changeColumn('data', 'text', [

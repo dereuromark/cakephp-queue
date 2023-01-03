@@ -68,7 +68,7 @@ class ExecuteTaskTest extends TestCase {
 		$exception = null;
 		try {
 			$this->Task->run(['command' => 'fooooobbbaraar -eeee'], 0);
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$exception = $e;
 		}
 
