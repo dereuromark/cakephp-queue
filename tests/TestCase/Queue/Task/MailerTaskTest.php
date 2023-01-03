@@ -58,7 +58,7 @@ class MailerTaskTest extends TestCase {
 	 */
 	public function testRunToolsMailerConfig() {
 		$this->Task->run([
-			'mailer' => TestMailer::class,
+			'class' => TestMailer::class,
 			'action' => 'testAction',
 			'vars' => [true],
 		], 0);
@@ -82,7 +82,8 @@ class MailerTaskTest extends TestCase {
 	 */
 	public function testRunMissingMailerException() {
 		$this->expectException(QueueException::class);
-		$this->expectExceptionMessage('Queue Mailer task called without valid mailer class.');
+		$this->expectExceptionMessage('Queue Mailer task called without valid `mailer` class.');
+
 		$this->Task->run([], 0);
 	}
 
@@ -91,9 +92,10 @@ class MailerTaskTest extends TestCase {
 	 */
 	public function testRunMissingActionException() {
 		$this->expectException(QueueException::class);
-		$this->expectExceptionMessage('Queue Mailer task called without action data.');
+		$this->expectExceptionMessage('Queue Mailer task called without `action` data.');
+
 		$this->Task->run([
-			'mailer' => TestMailer::class,
+			'class' => TestMailer::class,
 		], 0);
 	}
 

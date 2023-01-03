@@ -163,6 +163,8 @@ Any update of your code would not break the process here for queued tasks as no 
 
 You can also use a custom one as long as it implements the `Queue\Utility\SerializerInterface`.
 
+Note: When using JSON one, make sure to use Email and Mailer tasks only with JSON safe way (not passing actual objects).
+
 #### Backend configuration
 
 - isSearchEnabled: Set to false if you do not want search/filtering capability.
@@ -288,7 +290,7 @@ TableRegistry::getTableLocator()->get('Queue.QueuedJobs')
 
 It will use the plugin's `EmailTask` to send out emails via CLI.
 
-Important: Do not forget to set your [domain](https://book.cakephp.org/3.0/en/core-libraries/email.html#sending-emails-from-cli) when sending from CLI.
+Important: Do not forget to set your [domain](https://book.cakephp.org/4/en/core-libraries/email.html#sending-emails-from-cli) when sending from CLI.
 
 If you want to disable existence check of tasks when creating jobs, set
 `Queue.skipExistenceCheck` to `true`. In this case you will not get a notification
@@ -662,7 +664,7 @@ $queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 $queuedJobsTable->createJob('Queue.Email', $data);
 ```
 
-This will sent a plain email. Each settings key must have a matching setter method on the Message class.
+This will send a plain email. Each settings key must have a matching setter method on the Message class.
 The prefix `set` will be auto-added here when calling it.
 
 If you want a templated email, you need to pass view vars instead of content:
@@ -729,6 +731,31 @@ Note: In this case the object is stored serialized in the DB.
 This can break when upgrading your core and the underlying class changes.
 So make sure to only upgrade your code when all jobs have been finished.
 
+Recommended way for Email task together with JsonSerializer is using the FQCN class string of the Message class:
+
+```php
+$data = [
+    'class' => $class,
+    'settings' => $settings,
+];
+$queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+$queuedJobsTable->createJob('Queue.Email', $data);
+```
+
+## [**NEW**] Using built-in Mailer task
+
+Sending reusable templated emails the easy way:
+```php
+$data = [
+    'class' => TestMailer::class,
+    'action' => 'testAction',
+    'vars' => [...],
+];
+$queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+$queuedJobsTable->createJob('Queue.Mailer', $data);
+```
+Since we are not passing in an object, but a class string and settings, this is also JsonSerializer safe.
+
 ### Using QueueTransport
 
 Instead of manually adding job every time you want to send mail you can use existing code ond change only EmailTransport and Email configurations in `app.php`.
@@ -776,7 +803,7 @@ This way each time with `$mailer->deliver()` it will use `QueueTransport` as mai
 This is the most customizable way to generate your asynchronous emails.
 
 Don't generate them directly in your code and pass them to the queue, instead just pass the minimum requirements, like non persistent data needed and the primary keys of the records that need to be included.
-So let's say someone posted a comment and you want to get notified.
+So let's say someone posted a comment, and you want to get notified.
 
 Inside your CommentsTable class after saving the data you execute this hook:
 
@@ -827,7 +854,7 @@ Make sure you got the template for it then, e.g.:
 This way all the generation is in the specific task and template and can be tested separately.
 
 ## Using built in Execute task
-The built in task directly runs on the same path as your app, so you can use relative paths or absolute ones:
+The built-in task directly runs on the same path as your app, so you can use relative paths or absolute ones:
 ```php
 $data = [
     'command' => 'bin/cake importer run',

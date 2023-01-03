@@ -40,14 +40,14 @@ class MailerTask extends Task {
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
-		if (!isset($data['mailer'])) {
-			throw new QueueException('Queue Mailer task called without valid mailer class.');
+		if (!isset($data['class'])) {
+			throw new QueueException('Queue Mailer task called without valid `mailer` class.');
 		}
 		if (!isset($data['action'])) {
-			throw new QueueException('Queue Mailer task called without action data.');
+			throw new QueueException('Queue Mailer task called without `action` data.');
 		}
 
-		$this->mailer = $this->getMailer($data['mailer']);
+		$this->mailer = $this->getMailer($data['class']);
 
 		try {
 			$this->mailer->setTransport($data['transport'] ?? 'default');
