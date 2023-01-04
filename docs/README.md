@@ -6,8 +6,9 @@
 * [Custom Tasks](sections/custom_tasks.md)
 
 ## Built-in tasks
-* [Email](sections/tasks/email.md)
-* [Execute](sections/tasks/execute.md)
+* [Execute](sections/tasks/execute.md) to execute CLI commands
+* [Email](sections/tasks/email.md) using Message class
+* [Mailer](sections/tasks/mailer.md) using Mailer class [**NEW**]
 
 ## Detailed documentation
 * [Configuration](sections/configuration.md)
@@ -15,6 +16,7 @@
 * [Limitations](sections/limitations.md)
 * [Statistics](sections/statistics.md)
 * [Tips](sections/tips.md)
+* [Mailing](sections/mailing.md)
 * [Miscellaneous](sections/misc.md)
 * [Upgrading](sections/upgrading.md)
 

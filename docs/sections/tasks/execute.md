@@ -1,4 +1,4 @@
-# Using built in Execute task
+# Using built-in Execute task
 
 The built-in task directly runs on the same path as your app, so you can use relative paths or absolute ones:
 ```php
