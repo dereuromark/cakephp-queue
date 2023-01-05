@@ -70,4 +70,9 @@ return [
 		'serializerClass' => null, // FQCN
 		'serializerConfig' => null,
 	],
+	'Icon' => [
+		'sets' => [
+			'bs' => \Tools\View\Icon\BootstrapIcon::class,
+		],
+	],
 ];

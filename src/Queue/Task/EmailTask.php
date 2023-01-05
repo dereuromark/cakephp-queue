@@ -4,7 +4,6 @@ namespace Queue\Queue\Task;
 
 use Cake\Core\Configure;
 use Cake\Log\Log;
-use Cake\Mailer\Mailer;
 use Cake\Mailer\Message;
 use Cake\Mailer\TransportFactory;
 use Psr\Log\LoggerInterface;
@@ -21,10 +20,6 @@ use Throwable;
  *
  * Especially useful is the fact that sending is auto-retried as per your config.
  * Will not drop the email if successfully sent, you can decide to even retry manually again afterwards.
- *
- * Note: Object passing only works with legacy ObjectSerializer, using JsonSerializer you must use settings way.
- *
- * Deprecated: Using Mailer object has been deprecated and Mailer usage has been moved to new MailerTask.
  *
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
@@ -46,7 +41,7 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 	 *
 	 * @var array<string, mixed>
 	 */
-	protected $defaults = [];
+	protected array $defaults = [];
 
 	/**
 	 * @param \Queue\Console\Io|null $io IO
@@ -113,27 +108,6 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 			throw new QueueException('Queue Email task called without settings data.');
 		}
 
-		/** @var \Cake\Mailer\Message|null $message */
-		$message = $data['settings'];
-		if ($message && is_object($message) && $message instanceof Message) {
-			try {
-				$transport = TransportFactory::get($data['transport'] ?? 'default');
-				$result = $transport->send($message);
-			} catch (Throwable $e) {
-				$error = $e->getMessage();
-				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
-				Log::write('error', $error);
-
-				throw $e;
-			}
-
-			if (!$result) {
-				throw new QueueException('Could not send email.');
-			}
-
-			return;
-		}
-
 		/** @var class-string<\Cake\Mailer\Message>|object|null $class */
 		$class = $data['class'] ?? null;
 		if ($class && (is_a($class, Message::class) || is_subclass_of($class, Message::class))) {
@@ -143,40 +117,6 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 			try {
 				$transport = TransportFactory::get($data['transport'] ?? 'default');
 				$result = $transport->send($message);
-			} catch (Throwable $e) {
-				$error = $e->getMessage();
-				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();
-				Log::write('error', $error);
-
-				throw $e;
-			}
-
-			if (!$result) {
-				throw new QueueException('Could not send email.');
-			}
-
-			return;
-		}
-
-		// Deprecated: Following part using Mailer object or raw data has been deprecated. Mailer usage is now in MailerTask.
-
-		/** @var \Cake\Mailer\Mailer|null $mailer */
-		$mailer = $data['settings'];
-		if ($mailer && is_object($mailer) && $mailer instanceof Mailer) {
-			$this->mailer = $mailer;
-
-			$result = null;
-			try {
-				$mailer->setTransport($data['transport'] ?? 'default');
-
-				// Check if a reusable email should be sent
-				if (!empty($data['action'])) {
-					$result = $mailer->send($data['action'], $data['vars'] ?? []);
-				} else {
-					$content = $data['content'] ?? '';
-					$result = $mailer->deliver($content);
-				}
-
 			} catch (Throwable $e) {
 				$error = $e->getMessage();
 				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();

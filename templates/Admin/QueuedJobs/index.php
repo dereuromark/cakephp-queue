@@ -21,7 +21,7 @@ use Cake\Core\Plugin;
 
 	<?= __d('queue', 'Current server time') ?>:
 	<br>
-	<?php echo $this->Time->nice(new \Cake\I18n\FrozenTime()); ?>
+	<?php echo $this->Time->nice(new \Cake\I18n\DateTime()); ?>
 
 </nav>
 <div class="content action-index index large-9 medium-8 columns col-sm-8 col-12">
@@ -58,7 +58,7 @@ use Cake\Core\Plugin;
 				<td>
 					<?= h($queuedJob->reference) ?: '---' ?>
 					<?php if ($queuedJob->data) {
-						echo $this->Format->icon('cubes', ['title' => $this->Text->truncate($queuedJob->data, 1000)]);
+						echo $this->Icon->render('cubes', ['title' => $this->Text->truncate($queuedJob->data, 1000)]);
 					}
 					?>
 				</td>
@@ -116,12 +116,12 @@ use Cake\Core\Plugin;
 				</td>
 				<td><?= $this->Number->format($queuedJob->priority) ?></td>
 				<td class="actions">
-				<?= $this->Html->link($this->Format->icon('view'), ['action' => 'view', $queuedJob->id], ['escapeTitle' => false]); ?>
+				<?= $this->Html->link($this->Icon->render('view'), ['action' => 'view', $queuedJob->id], ['escapeTitle' => false]); ?>
 
 				<?php if (!$queuedJob->completed) { ?>
-					<?= $this->Html->link($this->Format->icon('edit'), ['action' => 'edit', $queuedJob->id], ['escapeTitle' => false]); ?>
+					<?= $this->Html->link($this->Icon->render('edit'), ['action' => 'edit', $queuedJob->id], ['escapeTitle' => false]); ?>
 				<?php } ?>
-				<?= $this->Form->postLink($this->Format->icon('delete'), ['action' => 'delete', $queuedJob->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id)]); ?>
+				<?= $this->Form->postLink($this->Icon->render('delete'), ['action' => 'delete', $queuedJob->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id)]); ?>
 				</td>
 			</tr>
 			<?php endforeach; ?>

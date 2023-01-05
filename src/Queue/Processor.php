@@ -6,7 +6,6 @@ use Cake\Console\CommandInterface;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Datasource\ModelAwareTrait;
 use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\Utility\Text;
@@ -25,11 +24,6 @@ declare(ticks = 1);
  * Main shell to init and run queue workers.
  */
 class Processor {
-
-	/*
-	 * @deprecated Use LocatorAwareTrait instead. Will be removed with next major.
-	 */
-	use ModelAwareTrait;
 
 	use LocatorAwareTrait;
 

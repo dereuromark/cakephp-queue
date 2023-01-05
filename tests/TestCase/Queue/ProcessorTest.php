@@ -21,7 +21,7 @@ class ProcessorTest extends TestCase {
 	/**
 	 * @var array<string>
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueueProcesses',
 		'plugin.Queue.QueuedJobs',
 	];

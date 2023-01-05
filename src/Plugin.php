@@ -23,7 +23,7 @@ class Plugin extends BasePlugin {
 	/**
 	 * @var bool
 	 */
-	protected $middlewareEnabled = false;
+	protected bool $middlewareEnabled = false;
 
 	/**
 	 * Console hook
@@ -52,15 +52,15 @@ class Plugin extends BasePlugin {
 	 * @return void
 	 */
 	public function routes(RouteBuilder $routes): void {
-		$routes->prefix('Admin', function (RouteBuilder $routes) {
-			$routes->plugin('Queue', function (RouteBuilder $routes) {
+		$routes->prefix('Admin', function (RouteBuilder $routes): void {
+			$routes->plugin('Queue', function (RouteBuilder $routes): void {
 				$routes->connect('/', ['controller' => 'Queue', 'action' => 'index']);
 
 				$routes->fallbacks();
 			});
 		});
 
-		$routes->plugin('Queue', ['path' => '/queue'], function (RouteBuilder $routes) {
+		$routes->plugin('Queue', ['path' => '/queue'], function (RouteBuilder $routes): void {
 			$routes->connect('/{controller}');
 		});
 	}

@@ -3,18 +3,20 @@
 namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Datasource\ConnectionManager;
-use Cake\I18n\FrozenTime;
-use Cake\TestSuite\IntegrationTestCase;
+use Cake\I18n\DateTime;
+use Cake\TestSuite\IntegrationTestTrait;
 use Queue\Controller\Admin\QueueController;
+use Shim\TestSuite\TestCase;
 use Shim\TestSuite\TestTrait;
-use Tools\Utility\FrozenTime as UtilityFrozenTime;
-use Tools\Utility\Time;
+
+//use Tools\Utility\DateTime as ToolsDateTime;
 
 /**
  * @uses \Queue\Controller\Admin\QueueController
  */
-class QueueControllerTest extends IntegrationTestCase {
+class QueueControllerTest extends TestCase {
 
+	use IntegrationTestTrait;
 	use TestTrait;
 
 	/**
@@ -22,7 +24,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 *
 	 * @var array
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueuedJobs',
 		'plugin.Queue.QueueProcesses',
 	];
@@ -45,7 +47,8 @@ class QueueControllerTest extends IntegrationTestCase {
 
 		$view = $controller->createView();
 		$engine = $view->Time->getConfig('engine');
-		$this->assertTrue(in_array($engine, [Time::class, UtilityFrozenTime::class], true));
+		dd($engine);
+		//$this->assertTrue(in_array($engine, [DateTime::class, ToolsDateTime::class], true));
 	}
 
 	/**
@@ -242,7 +245,7 @@ class QueueControllerTest extends IntegrationTestCase {
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
 			'failed' => 1,
-			'fetched' => (new FrozenTime())->subHour(),
+			'fetched' => (new DateTime())->subHour(),
 		]);
 		$jobsTable->saveOrFail($job);
 

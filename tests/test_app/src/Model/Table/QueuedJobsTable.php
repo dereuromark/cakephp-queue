@@ -16,7 +16,7 @@ class QueuedJobsTable extends BaseQueuedJobsTable {
 	 *
 	 * @return void
 	 */
-	public function clearKey() {
+	public function clearKey(): void {
 		$this->_key = null;
 	}
 

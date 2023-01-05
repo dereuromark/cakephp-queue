@@ -9,7 +9,7 @@ namespace Queue\Test\TestCase\Model\Table;
 
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Queue\Model\Table\QueuedJobsTable;
@@ -28,7 +28,7 @@ class QueuedJobsTableTest extends TestCase {
 	/**
 	 * @var array<string>
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueuedJobs',
 		'plugin.Queue.QueueProcesses',
 	];
@@ -41,7 +41,7 @@ class QueuedJobsTableTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$config = TableRegistry::exists('QueuedJobs') ? [] : ['className' => QueuedJobsTable::class];
+		$config = TableRegistry::getTableLocator()->exists('QueuedJobs') ? [] : ['className' => QueuedJobsTable::class];
 		$this->QueuedJobs = $this->getTableLocator()->get('QueuedJobs', $config);
 	}
 
@@ -284,9 +284,9 @@ class QueuedJobsTableTest extends TestCase {
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', null, ['notBefore' => '+ 1 Day']));
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', null, ['notBefore' => '2009-07-01 12:00:00']));
 		$data = $this->QueuedJobs->find('all')->toArray();
-		$this->assertWithinRange((new FrozenTime('+ 1 Min'))->toUnixString(), $data[0]['notbefore']->toUnixString(), 60);
-		$this->assertWithinRange((new FrozenTime('+ 1 Day'))->toUnixString(), $data[1]['notbefore']->toUnixString(), 60);
-		$this->assertWithinRange((new FrozenTime('2009-07-01 12:00:00'))->toUnixString(), $data[2]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new DateTime('+ 1 Min'))->toUnixString(), $data[0]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new DateTime('+ 1 Day'))->toUnixString(), $data[1]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new DateTime('2009-07-01 12:00:00'))->toUnixString(), $data[2]['notbefore']->toUnixString(), 60);
 	}
 
 	/**
@@ -676,7 +676,7 @@ class QueuedJobsTableTest extends TestCase {
 		$result = $this->QueuedJobs->isQueued('foo-bar');
 		$this->assertTrue($result);
 
-		$queuedJob->completed = new FrozenTime();
+		$queuedJob->completed = new DateTime();
 		$this->QueuedJobs->saveOrFail($queuedJob);
 
 		$result = $this->QueuedJobs->isQueued('foo-bar');
@@ -689,9 +689,9 @@ class QueuedJobsTableTest extends TestCase {
 	public function testGetStats() {
 		$queuedJob = $this->QueuedJobs->newEntity([
 			'job_task' => 'Foo',
-			'completed' => (new FrozenTime())->subHour(2),
-			'fetched' => (new FrozenTime())->subHour(3),
-			'created' => (new FrozenTime())->subHour(5),
+			'completed' => (new DateTime())->subHour(2),
+			'fetched' => (new DateTime())->subHour(3),
+			'created' => (new DateTime())->subHour(5),
 		]);
 		$this->QueuedJobs->saveOrFail($queuedJob);
 

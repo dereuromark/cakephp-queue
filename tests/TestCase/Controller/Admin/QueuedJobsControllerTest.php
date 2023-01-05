@@ -4,12 +4,15 @@ namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
-use Cake\TestSuite\IntegrationTestCase;
+use Cake\TestSuite\IntegrationTestTrait;
+use Shim\TestSuite\TestCase;
 
 /**
  * @uses \Queue\Controller\Admin\QueuedJobsController
  */
-class QueuedJobsControllerTest extends IntegrationTestCase {
+class QueuedJobsControllerTest extends TestCase {
+
+	use IntegrationTestTrait;
 
 	/**
 	 * @return void
@@ -23,7 +26,7 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 	/**
 	 * @var array
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueuedJobs',
 		'plugin.Queue.QueueProcesses',
 	];

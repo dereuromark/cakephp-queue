@@ -3,8 +3,8 @@
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
-use Cake\Filesystem\Folder;
 use Cake\Mailer\TransportFactory;
+use Shim\Filesystem\Folder;
 
 if (!defined('DS')) {
 	define('DS', DIRECTORY_SEPARATOR);
@@ -44,6 +44,11 @@ Configure::write('App', [
 		'templates' => [
 			PLUGIN_ROOT . DS . 'tests' . DS . 'test_app' . DS . 'templates' . DS,
 		],
+	],
+]);
+Configure::write('Icon', [
+	'sets' => [
+		'bs' => \Tools\View\Icon\BootstrapIcon::class,
 	],
 ]);
 
@@ -102,11 +107,6 @@ TransportFactory::setConfig('default', [
 TransportFactory::setConfig('queue', [
 	'className' => 'Queue.Queue',
 ]);
-/*
-Cake\Mailer\TransportFactory::setConfig('default', [
-	'transport' => 'default',
-]);
-*/
 
 // Allow local overwrite
 // E.g. in your console: export DB_URL="mysql://root:secret@127.0.0.1/cake_test"
@@ -134,3 +134,8 @@ ConnectionManager::setConfig('test', [
 	'quoteIdentifiers' => false,
 	'cacheMetadata' => true,
 ]);
+
+if (env('FIXTURE_SCHEMA_METADATA')) {
+	$loader = new Cake\TestSuite\Fixture\SchemaLoader();
+	$loader->loadInternalFile(env('FIXTURE_SCHEMA_METADATA'));
+}

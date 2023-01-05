@@ -3,9 +3,9 @@ declare(strict_types = 1);
 
 namespace Queue\Test\TestCase\Command;
 
+use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
-use Cake\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -18,7 +18,7 @@ class RunCommandTest extends TestCase {
 	/**
 	 * @var array<string>
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueueProcesses',
 		'plugin.Queue.QueuedJobs',
 	];
@@ -37,7 +37,7 @@ class RunCommandTest extends TestCase {
 			'exitwhennothingtodo' => false,
 		]);
 
-		$this->useCommandRunner();
+		//$this->useCommandRunner();
 	}
 
 	/**

@@ -17,9 +17,9 @@ class QueueProcessesController extends AppController {
 	use LoadHelperTrait;
 
 	/**
-	 * @var array<mixed>
+	 * @var array<string, mixed>
 	 */
-	public $paginate = [
+	protected array $paginate = [
 		'order' => [
 			'created' => 'DESC',
 		],

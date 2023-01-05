@@ -6,7 +6,7 @@ use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Http\Exception\NotFoundException;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
 use Laminas\Diactoros\UploadedFile;
 use Queue\Queue\TaskFinder;
 use RuntimeException;
@@ -22,9 +22,9 @@ class QueuedJobsController extends AppController {
 	use LoadHelperTrait;
 
 	/**
-	 * @var array<mixed>
+	 * @var array<string, mixed>
 	 */
-	public $paginate = [
+	protected array $paginate = [
 		'order' => [
 			'created' => 'DESC',
 		],
@@ -35,12 +35,6 @@ class QueuedJobsController extends AppController {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-
-		if (!$this->components()->has('RequestHandler')) {
-			$this->loadComponent('RequestHandler', [
-				'enableBeforeRedirect' => false,
-			]);
-		}
 
 		$this->enableSearch();
 		$this->loadHelpers();
@@ -144,7 +138,7 @@ class QueuedJobsController extends AppController {
 				$data = $json['queuedJob'];
 
 				unset($data['id']);
-				$data['created'] = new FrozenTime($data['created']);
+				$data['created'] = new DateTime($data['created']);
 
 				if ($this->request->getData('reset')) {
 					$data['fetched'] = null;
@@ -157,13 +151,13 @@ class QueuedJobsController extends AppController {
 				}
 
 				if ($data['notbefore']) {
-					$data['notbefore'] = new FrozenTime($data['notbefore']);
+					$data['notbefore'] = new DateTime($data['notbefore']);
 				}
 				if ($data['fetched']) {
-					$data['fetched'] = new FrozenTime($data['fetched']);
+					$data['fetched'] = new DateTime($data['fetched']);
 				}
 				if ($data['completed']) {
-					$data['completed'] = new FrozenTime($data['completed']);
+					$data['completed'] = new DateTime($data['completed']);
 				}
 
 				$queuedJob = $this->QueuedJobs->newEntity($data);

@@ -19,7 +19,7 @@ class BakeQueueTaskCommand extends SimpleBakeCommand {
 	 *
 	 * @var string
 	 */
-	public $pathFragment = 'Queue/Task/';
+	public string $pathFragment = 'Queue/Task/';
 
 	/**
 	 * @var string

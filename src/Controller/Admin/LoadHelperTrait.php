@@ -2,8 +2,6 @@
 
 namespace Queue\Controller\Admin;
 
-use Cake\Core\Configure;
-
 trait LoadHelperTrait {
 
 	/**
@@ -13,16 +11,12 @@ trait LoadHelperTrait {
 		$helpers = [
 			'Tools.Time',
 			'Tools.Format',
+			'Tools.Icon',
 			'Tools.Text',
 			'Shim.Configure',
 		];
 
-		$version = Configure::version();
-		if (version_compare($version, '4.3.0') >= 0) {
-			$this->viewBuilder()->addHelpers($helpers);
-		} else {
-			$this->viewBuilder()->setHelpers($helpers);
-		}
+		$this->viewBuilder()->addHelpers($helpers);
 	}
 
 }

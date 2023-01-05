@@ -7,8 +7,8 @@ use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Event\EventInterface;
 use Cake\Http\Exception\NotImplementedException;
-use Cake\I18n\FrozenTime;
-use Cake\ORM\Query;
+use Cake\I18n\DateTime;
+use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use InvalidArgumentException;
@@ -138,7 +138,7 @@ class QueuedJobsTable extends Table {
 			->value('job_task')
 			->like('search', ['fields' => ['job_group', 'reference'], 'before' => true, 'after' => true])
 			->add('status', 'Search.Callback', [
-				'callback' => function (Query $query, array $args, $filter) {
+				'callback' => function (SelectQuery $query, array $args, $filter) {
 					$status = $args['status'];
 					if ($status === 'completed') {
 						$query->where(['completed IS NOT' => null]);
@@ -268,7 +268,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * Return a list of all job types in the Queue.
 	 *
-	 * @return \Cake\ORM\Query
+	 * @return \Cake\ORM\Query\SelectQuery
 	 */
 	public function getTypes() {
 		$findCond = [
@@ -296,7 +296,7 @@ class QueuedJobsTable extends Table {
 	public function getStats(bool $disableHydration = false): array {
 		$driverName = $this->getDriverName();
 		$options = [
-			'fields' => function (Query $query) use ($driverName) {
+			'fields' => function (SelectQuery $query) use ($driverName) {
 				$alltime = $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(created)');
 				$runtime = $query->func()->avg('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)');
 				$fetchdelay = $query->func()->avg('UNIX_TIMESTAMP(fetched) - IF(notbefore is NULL, UNIX_TIMESTAMP(created), UNIX_TIMESTAMP(notbefore))');
@@ -366,7 +366,7 @@ class QueuedJobsTable extends Table {
 	 */
 	public function getFullStats(?string $jobTask = null): array {
 		$driverName = $this->getDriverName();
-		$fields = function (Query $query) use ($driverName) {
+		$fields = function (SelectQuery $query) use ($driverName) {
 			$runtime = $query->newExpr('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)');
 			switch ($driverName) {
 				case static::DRIVER_SQLSERVER:
@@ -560,6 +560,7 @@ class QueuedJobsTable extends Table {
 
 		// Generate the task specific conditions.
 		foreach ($tasks as $name => $task) {
+			/** @var \Cake\I18n\DateTime $timeoutAt */
 			$timeoutAt = $now->copy();
 			$tmp = [
 				'job_task' => $name,
@@ -711,7 +712,7 @@ class QueuedJobsTable extends Table {
 	 */
 	public function flushFailedJobs() {
 		$timeout = Config::defaultworkertimeout();
-		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
+		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
 		$conditions = [
 			'completed IS' => null,
@@ -803,7 +804,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * Return some statistics about unfinished jobs still in the Database.
 	 *
-	 * @return \Cake\ORM\Query
+	 * @return \Cake\ORM\Query\SelectQuery
 	 */
 	public function getPendingStats() {
 		$findCond = [
@@ -866,11 +867,11 @@ class QueuedJobsTable extends Table {
 	/**
 	 * Custom find method, as in `find('queued', ...)`.
 	 *
-	 * @param \Cake\ORM\Query $query The query to find with
+	 * @param \Cake\ORM\Query\SelectQuery $query The query to find with
 	 * @param array<string, mixed> $options The options to find with
-	 * @return \Cake\ORM\Query The query builder
+	 * @return \Cake\ORM\Query\SelectQuery The query builder
 	 */
-	public function findQueued(Query $query, array $options) {
+	public function findQueued(SelectQuery $query, array $options): SelectQuery {
 		return $query->where(['completed IS' => null]);
 	}
 
@@ -983,16 +984,16 @@ class QueuedJobsTable extends Table {
 	 *
 	 * Without argument this will be "now".
 	 *
-	 * @param \Cake\I18n\FrozenTime|\Cake\I18n\Time|string|int|null $notBefore
+	 * @param \Cake\I18n\DateTime|string|int|null $notBefore
 	 *
-	 * @return \Cake\I18n\FrozenTime|\Cake\I18n\Time
+	 * @return \Cake\I18n\DateTime
 	 */
 	protected function getDateTime($notBefore = null) {
 		if (is_object($notBefore)) {
 			return $notBefore;
 		}
 
-		return new FrozenTime($notBefore);
+		return new DateTime($notBefore);
 	}
 
 }

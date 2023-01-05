@@ -8,7 +8,7 @@ use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;
 use Cake\Error\Debugger;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Utility\Serializer;
 
@@ -20,7 +20,7 @@ class JobCommand extends Command {
 	/**
 	 * @var string
 	 */
-	protected $modelClass = 'Queue.QueuedJobs';
+	protected ?string $defaultTable =  'Queue.QueuedJobs';
 
 	/**
 	 * @inheritDoc
@@ -276,7 +276,7 @@ class JobCommand extends Command {
 			$io->abort('You disabled cleanuptimout in config. Aborting.');
 		}
 
-		$date = (new FrozenTime())->subSeconds((int)Configure::read('Queue.cleanuptimeout'));
+		$date = (new DateTime())->subSeconds((int)Configure::read('Queue.cleanuptimeout'));
 
 		$io->out('Deleting old jobs, that have finished before ' . $date);
 		$result = $this->QueuedJobs->cleanOldJobs();

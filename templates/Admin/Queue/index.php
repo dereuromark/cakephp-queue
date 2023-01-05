@@ -33,7 +33,7 @@ use Cake\Core\Configure;
 		<h2><?php echo __d('queue', 'Status'); ?></h2>
 		<?php if ($status) { ?>
 			<?php
-			/** @var \Cake\I18n\FrozenTime $time */
+			/** @var \Cake\I18n\DateTime $time */
 			$time = $status['time'];
 			$running = $time->addMinute()->isFuture();
 			?>

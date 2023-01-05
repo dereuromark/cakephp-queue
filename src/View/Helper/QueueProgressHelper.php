@@ -4,7 +4,7 @@ namespace Queue\View\Helper;
 
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
 use Cake\I18n\Number;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\View\Helper;
@@ -21,7 +21,7 @@ class QueueProgressHelper extends Helper {
 	/**
 	 * @var array<mixed>
 	 */
-	protected $helpers = [
+	protected array $helpers = [
 		'Tools.Progress',
 	];
 
@@ -149,7 +149,7 @@ class QueueProgressHelper extends Helper {
 
 		$created = $queuedJob->created->getTimestamp();
 		$planned = $queuedJob->notbefore->getTimestamp();
-		$now = (new FrozenTime())->getTimestamp();
+		$now = (new DateTime())->getTimestamp();
 
 		$progressed = $now - $created;
 		$total = $planned - $created;
@@ -169,7 +169,7 @@ class QueueProgressHelper extends Helper {
 
 	/**
 	 * @param string $jobType
-	 * @param \Cake\I18n\FrozenTime|\Cake\I18n\Time $fetched
+	 * @param \Cake\I18n\DateTime $fetched
 	 * @return float|null
 	 */
 	protected function calculateJobProgress(string $jobType, $fetched) {

@@ -17,9 +17,9 @@ class QueueController extends AppController {
 	use LoadHelperTrait;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	protected $modelClass = 'Queue.QueuedJobs';
+	protected ?string $defaultTable = 'Queue.QueuedJobs';
 
 	/**
 	 * @return void
@@ -37,11 +37,11 @@ class QueueController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function index() {
-		$this->QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
-		$status = $this->QueueProcesses->status();
+		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
+		$status = $QueueProcesses->status();
 
 		$current = $this->QueuedJobs->getLength();
-		$pendingDetails = $this->QueuedJobs->getPendingStats();
+		$pendingDetails = $this->QueuedJobs->getPendingStats()->toArray();
 		$new = 0;
 		foreach ($pendingDetails as $pendingDetail) {
 			if ($pendingDetail['fetched'] || $pendingDetail['failed']) {
@@ -56,20 +56,18 @@ class QueueController extends AppController {
 		$tasks = $taskFinder->all();
 		$addableTasks = $taskFinder->allAddable(AddFromBackendInterface::class);
 
-		$servers = $this->QueueProcesses->find()->distinct(['server'])->find('list', ['keyField' => 'server', 'valueField' => 'server'])->toArray();
+		$servers = $QueueProcesses->find()->distinct(['server'])->find('list', ['keyField' => 'server', 'valueField' => 'server'])->toArray();
 		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks', 'addableTasks', 'servers'));
 	}
 
 	/**
-	 * @param string|null $job Deprecated: Use ?task=... query string instead.
-	 *   Note: This fails with plugin syntax, so only to be used for project level ones.
 	 * @throws \Cake\Http\Exception\NotFoundException
 	 * @return \Cake\Http\Response|null
 	 */
-	public function addJob($job = null) {
+	public function addJob() {
 		$this->request->allowMethod('post');
 
-		$job = (string)$this->request->getQuery('task') ?: $job;
+		$job = (string)$this->request->getQuery('task');
 		if (!$job) {
 			throw new NotFoundException();
 		}
@@ -129,24 +127,24 @@ class QueueController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function processes() {
-		$this->QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
+		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
 
 		if ($this->request->is('post') && $this->request->getQuery('end')) {
 			$pid = (string)$this->request->getQuery('end');
-			$this->QueueProcesses->endProcess($pid);
+			$QueueProcesses->endProcess($pid);
 
 			return $this->redirect(['action' => 'processes']);
 		}
 		if ($this->request->is('post') && $this->request->getQuery('kill')) {
 			$pid = (string)$this->request->getQuery('kill');
-			$this->QueueProcesses->terminateProcess($pid);
+			$QueueProcesses->terminateProcess($pid);
 
 			return $this->redirect(['action' => 'processes']);
 		}
 
-		$processes = $this->QueueProcesses->getProcesses();
-		$terminated = $this->QueueProcesses->find()->where(['terminate' => true])->all()->toArray();
-		$key = $this->QueueProcesses->buildServerString();
+		$processes = $QueueProcesses->getProcesses();
+		$terminated = $QueueProcesses->find()->where(['terminate' => true])->all()->toArray();
+		$key = $QueueProcesses->buildServerString();
 
 		$this->set(compact('terminated', 'processes', 'key'));
 	}

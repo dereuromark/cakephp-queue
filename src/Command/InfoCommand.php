@@ -19,7 +19,7 @@ class InfoCommand extends Command {
 	/**
 	 * @var string
 	 */
-	protected $modelClass = 'Queue.QueuedJobs';
+	protected ?string $defaultTable =  'Queue.QueuedJobs';
 
 	/**
 	 * @inheritDoc
@@ -79,11 +79,11 @@ class InfoCommand extends Command {
 		$io->out();
 
 		$io->out('Total unfinished jobs: ' . $this->QueuedJobs->getLength());
-		$this->QueueProcesses = $this->getTableLocator()->get('Queue.QueueProcesses');
-		$status = $this->QueueProcesses->status();
+		$QueueProcesses = $this->getTableLocator()->get('Queue.QueueProcesses');
+		$status = $QueueProcesses->status();
 		$io->out('Current running workers: ' . ($status ? $status['workers'] : '-'));
 		$io->out('Last run: ' . ($status ? $status['time']->nice() : '-'));
-		$io->out('Server name: ' . $this->QueueProcesses->buildServerString());
+		$io->out('Server name: ' . $QueueProcesses->buildServerString());
 
 		$io->out();
 		$io->hr();

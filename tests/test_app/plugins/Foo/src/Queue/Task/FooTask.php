@@ -30,7 +30,7 @@ class FooTask extends Task {
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
-		$this->out('CakePHP Foo plugin Example.');
+		$this->io->out('CakePHP Foo plugin Example.');
 	}
 
 }

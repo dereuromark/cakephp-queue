@@ -118,22 +118,6 @@ class TaskFinder {
 			}
 		}
 
-		if (strpos($jobTask, '\\') === false) {
-			// Let's try matching without plugin prefix
-			foreach ($all as $name => $className) {
-				if (strpos($name, '.') === false) {
-					continue;
-				}
-				[$plugin, $name] = explode('.', $name, 2);
-				if ($jobTask === $name) {
-					$message = 'You seem to be adding a plugin job without plugin syntax (' . $jobTask . '), migrate to using ' . $plugin . '.' . $name . ' instead.';
-					trigger_error($message, E_USER_DEPRECATED);
-
-					return $plugin . '.' . $name;
-				}
-			}
-		}
-
 		throw new InvalidArgumentException('No job type can be resolved for ' . $jobTask);
 	}
 

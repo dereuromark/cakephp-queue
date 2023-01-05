@@ -3,7 +3,7 @@
 namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
@@ -122,11 +122,11 @@ class QueueProcessesTable extends Table {
 	}
 
 	/**
-	 * @return \Cake\ORM\Query
+	 * @return \Cake\ORM\Query\SelectQuery
 	 */
 	public function findActive() {
 		$timeout = Config::defaultworkertimeout();
-		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
+		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
 		return $this->find()->where(['modified > ' => $thresholdTime]);
 	}
@@ -167,7 +167,7 @@ class QueueProcessesTable extends Table {
 			throw new ProcessEndingException('PID terminated: ' . $pid);
 		}
 
-		$queueProcess->modified = new FrozenTime();
+		$queueProcess->modified = new DateTime();
 		$this->saveOrFail($queueProcess);
 	}
 
@@ -190,21 +190,21 @@ class QueueProcessesTable extends Table {
 	 */
 	public function cleanEndedProcesses(): int {
 		$timeout = Config::defaultworkertimeout();
-		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
+		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
 		return $this->deleteAll(['modified <' => $thresholdTime]);
 	}
 
 	/**
 	 * If pid logging is enabled, will return an array with
-	 * - time: Timestamp as FrozenTime object
+	 * - time: Timestamp as DateTime object
 	 * - workers: int Count of currently running workers
 	 *
 	 * @return array<string, mixed>
 	 */
 	public function status(): array {
 		$timeout = Config::defaultworkertimeout();
-		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
+		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
 		$results = $this->find()
 			->where(['modified >' => $thresholdTime])
@@ -219,7 +219,7 @@ class QueueProcessesTable extends Table {
 
 		$count = count($results);
 		$record = array_shift($results);
-		/** @var \Cake\I18n\FrozenTime $time */
+		/** @var \Cake\I18n\DateTime $time */
 		$time = $record['modified'];
 
 		return [
