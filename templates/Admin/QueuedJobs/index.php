@@ -91,8 +91,7 @@ use Cake\Core\Plugin;
                     <?php if ($queuedJob->completed) { ?>
                     <div>
                         <small><?php
-                            $diff = $queuedJob->completed->timestamp - $queuedJob->fetched->timestamp;
-                            echo '<span title="Duration">' . h($diff) . 's</span>';
+                            echo '<span title="Duration">' . $this->Time->duration($queuedJob->completed->diff($queuedJob->fetched)) . '</span>';
                         ?></small>
                     </div>
                     <?php } ?>
