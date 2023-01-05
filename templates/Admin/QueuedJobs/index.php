@@ -86,7 +86,17 @@ use Cake\Core\Plugin;
 						<div><small><code><?php echo h($queuedJob->workerkey); ?></code></small></div>
 					<?php } ?>
 				</td>
-				<td><?= $this->Format->ok($this->Time->nice($queuedJob->completed), (bool)$queuedJob->completed) ?></td>
+				<td>
+                    <?= $this->Format->ok($this->Time->nice($queuedJob->completed), (bool)$queuedJob->completed) ?>
+                    <?php if ($queuedJob->completed) { ?>
+                    <div>
+                        <small><?php
+                            $diff = $queuedJob->completed->timestamp - $queuedJob->fetched->timestamp;
+                            echo '<span title="Duration">' . h($diff) . 's</span>';
+                        ?></small>
+                    </div>
+                    <?php } ?>
+                </td>
 				<td><?= $this->Format->ok($this->Queue->fails($queuedJob), !$queuedJob->failed); ?></td>
 				<td>
 					<?= h($queuedJob->status) ?>
