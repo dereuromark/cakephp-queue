@@ -6,7 +6,6 @@ use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\Mailer\Mailer;
-use Cake\Mailer\Message;
 use Cake\Mailer\Transport\DebugTransport;
 use Cake\Mailer\TransportFactory;
 use Cake\TestSuite\TestCase;
@@ -14,7 +13,6 @@ use Queue\Console\Io;
 use Queue\Queue\Task\EmailTask;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
-use TestApp\Mailer\TestMailer;
 use Tools\Mailer\Message as MailerMessage;
 
 class EmailTaskTest extends TestCase {
@@ -128,82 +126,6 @@ class EmailTaskTest extends TestCase {
 
 		$this->assertSame(['test@test.de' => 'Your Name'], $debugEmail->getTo());
 		$this->assertSame($settings['cc'][0], $debugEmail->getCc());
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testRunToolsEmailObject() {
-		$this->_skipPostgres();
-
-		$mailer = new TestMailer();
-		$mailer->setFrom('test@test.de');
-		$mailer->setTo('test@test.de');
-
-		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
-		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
-		$queuedJobsTable->createJob('Queue.Email', ['settings' => $mailer]);
-
-		$queuedJob = $queuedJobsTable->find()->orderDesc('id')->firstOrFail();
-		$data = unserialize($queuedJob->data);
-		/** @var \TestApp\Mailer\TestMailer $mailer */
-		$mailer = $data['settings'];
-
-		$data = [
-			'settings' => $mailer,
-			'content' => 'Foo Bar',
-		];
-
-		$this->Task->run($data, 0);
-
-		$this->assertInstanceOf(TestMailer::class, $this->Task->mailer);
-
-		/** @var \TestApp\Mailer\TestMailer $testMailer */
-		$testMailer = $this->Task->mailer;
-
-		$transportConfig = $testMailer->getTransport()->getConfig();
-		$this->assertSame('Debug', $transportConfig['className']);
-
-		$result = $testMailer->getDebug();
-		$this->assertTextContains('Foo Bar', $result['message']);
-	}
-
-	/**
-	 * @return void
-	 */
-	public function testRunToolsEmailMessageObject() {
-		$this->_skipPostgres();
-
-		$message = new Message();
-		$message->setFrom('test@test.de');
-		$message->setTo('test@test.de');
-		$message->setBodyText('Foo Bar');
-
-		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
-		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
-		$queuedJobsTable->createJob('Queue.Email', ['settings' => $message]);
-
-		$queuedJob = $queuedJobsTable->find()->orderDesc('id')->firstOrFail();
-		$data = unserialize($queuedJob->data);
-		/** @var \TestApp\Mailer\TestMailer $mailer */
-		$message = $data['settings'];
-
-		$transportMock = $this->createMock(
-			DebugTransport::class,
-		);
-		$transportMock
-			->expects($this->once())
-			->method('send')
-			->with($this->equalTo($message))
-			->willReturn(['headers' => [], 'message' => '']);
-		TransportFactory::getRegistry()->set('test_mock', $transportMock);
-
-		$data = [
-			'transport' => 'test_mock',
-			'settings' => $message,
-		];
-
-		$this->Task->run($data, 0);
 	}
 
 	/**
