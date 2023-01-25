@@ -10,6 +10,7 @@ use Cake\Core\Configure;
 use Cake\Error\Debugger;
 use Cake\I18n\DateTime;
 use Queue\Model\Entity\QueuedJob;
+use Queue\Model\Table\QueuedJobsTable;
 use Queue\Utility\Serializer;
 
 /**
@@ -17,14 +18,23 @@ use Queue\Utility\Serializer;
  */
 class JobCommand extends Command {
 
-	/**
-	 * @var string
-	 */
-	protected ?string $defaultTable =  'Queue.QueuedJobs';
+	protected QueuedJobsTable $QueuedJobs;
 
 	/**
-	 * @inheritDoc
+	 * @var string|null
 	 */
+	protected ?string $defaultTable = 'Queue.QueuedJobs';
+
+	/**
+	 * @return void
+	 */
+	public function initialize(): void {
+		$this->QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+	}
+
+	/**
+	   * @inheritDoc
+	   */
 	public static function defaultName(): string {
 		return 'queue job';
 	}

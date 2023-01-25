@@ -7,6 +7,7 @@ use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\DateTime;
+use Cake\View\JsonView;
 use Laminas\Diactoros\UploadedFile;
 use Queue\Queue\TaskFinder;
 use RuntimeException;
@@ -114,10 +115,17 @@ class QueuedJobsController extends AppController {
 	}
 
 	/**
-	 * @throws \RuntimeException
-	 *
-	 * @return \Cake\Http\Response|null|void
+	 * @return array<string>
 	 */
+	public function viewClasses(): array {
+		return [JsonView::class];
+	}
+
+	/**
+	   * @throws \RuntimeException
+	   *
+	   * @return \Cake\Http\Response|null|void
+	   */
 	public function import() {
 		if ($this->request->is(['post'])) {
 			/** @var \Laminas\Diactoros\UploadedFile|array<string, mixed> $file */

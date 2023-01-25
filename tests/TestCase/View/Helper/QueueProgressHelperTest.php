@@ -22,12 +22,12 @@ class QueueProgressHelperTest extends TestCase {
 	/**
 	 * @var \Queue\View\Helper\QueueProgressHelper
 	 */
-	protected $QueueProgressHelper;
+	protected QueueProgressHelper $QueueProgressHelper;
 
 	/**
 	 * @var string
 	 */
-	protected $locale;
+	protected string $locale;
 
 	/**
 	 * @return void
@@ -86,7 +86,7 @@ class QueueProgressHelperTest extends TestCase {
 	public function testProgressCalculatedEmpty() {
 		$queuedJob = new QueuedJob([
 			'job_task' => 'Queue.Example',
-			'fetched' => (new DateTime())->subMinute(),
+			'fetched' => (new DateTime())->subMinutes(1),
 		]);
 		$result = $this->QueueProgressHelper->progress($queuedJob);
 		$this->assertNull($result);
@@ -99,14 +99,14 @@ class QueueProgressHelperTest extends TestCase {
 		$queuedJob = new QueuedJob([
 			'job_task' => 'Queue.Example',
 			'created' => (new DateTime())->subMinutes(2),
-			'fetched' => (new DateTime())->subMinute(),
+			'fetched' => (new DateTime())->subMinutes(1),
 			'completed' => (new DateTime())->subSeconds(2),
 		]);
 		$this->getTableLocator()->get('Queue.QueuedJobs')->saveOrFail($queuedJob);
 
 		$queuedJob = new QueuedJob([
 			'job_task' => 'Queue.Example',
-			'fetched' => (new DateTime())->subMinute(),
+			'fetched' => (new DateTime())->subMinutes(1),
 		]);
 
 		$result = $this->QueueProgressHelper->progress($queuedJob);
@@ -160,14 +160,14 @@ class QueueProgressHelperTest extends TestCase {
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
 		$queuedJob = $this->getTableLocator()->get('Queue.QueuedJobs')->newEntity([
 			'job_task' => 'Foo',
-			'created' => (new DateTime())->subHour(),
-			'fetched' => (new DateTime())->subHour(),
-			'completed' => (new DateTime())->subHour()->addMinutes(10),
+			'created' => (new DateTime())->subHours(1),
+			'fetched' => (new DateTime())->subHours(1),
+			'completed' => (new DateTime())->subHours(1)->addMinutes(10),
 		]);
 		$this->getTableLocator()->get('Queue.QueuedJobs')->saveOrFail($queuedJob);
 
 		$queuedJob->completed = null;
-		$queuedJob->fetched = (new DateTime())->subMinute();
+		$queuedJob->fetched = (new DateTime())->subMinutes(1);
 
 		$result = $this->QueueProgressHelper->progressBar($queuedJob, 5);
 		$this->assertTextContains('<span title="10%">', $result);
@@ -178,8 +178,8 @@ class QueueProgressHelperTest extends TestCase {
 	 */
 	public function testTimeoutProgressBar() {
 		$queuedJob = new QueuedJob([
-			'created' => (new DateTime())->subHour(),
-			'notbefore' => (new DateTime())->addHour(),
+			'created' => (new DateTime())->subHours(1),
+			'notbefore' => (new DateTime())->addHours(1),
 		]);
 
 		$result = $this->QueueProgressHelper->timeoutProgressBar($queuedJob, 5);
@@ -191,8 +191,8 @@ class QueueProgressHelperTest extends TestCase {
 	 */
 	public function testHtmlTimeoutProgressBar() {
 		$queuedJob = new QueuedJob([
-			'created' => (new DateTime())->subMinute(),
-			'notbefore' => (new DateTime())->addMinute(),
+			'created' => (new DateTime())->subMinutes(1),
+			'notbefore' => (new DateTime())->addMinutes(1),
 		]);
 		$result = $this->QueueProgressHelper->htmlTimeoutProgressBar($queuedJob);
 		$expected = '<progress value="50" max="100" title="50%"></progress>';
@@ -200,7 +200,7 @@ class QueueProgressHelperTest extends TestCase {
 
 		$queuedJob = new QueuedJob([
 			'created' => (new DateTime()),
-			'notbefore' => (new DateTime())->addHour(),
+			'notbefore' => (new DateTime())->addHours(1),
 		]);
 		// For IE9 and below
 		$fallback = $this->QueueProgressHelper->timeoutProgressBar($queuedJob, 10);
@@ -209,8 +209,8 @@ class QueueProgressHelperTest extends TestCase {
 		$this->assertSame($expected, $result);
 
 		$queuedJob = new QueuedJob([
-			'created' => (new DateTime())->subMinute(),
-			'notbefore' => (new DateTime())->subSecond(),
+			'created' => (new DateTime())->subMinutes(1),
+			'notbefore' => (new DateTime())->subSeconds(1),
 		]);
 		// For IE9 and below
 		$fallback = $this->QueueProgressHelper->timeoutProgressBar($queuedJob, 10);

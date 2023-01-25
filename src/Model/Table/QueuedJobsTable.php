@@ -560,8 +560,7 @@ class QueuedJobsTable extends Table {
 
 		// Generate the task specific conditions.
 		foreach ($tasks as $name => $task) {
-			/** @var \Cake\I18n\DateTime $timeoutAt */
-			$timeoutAt = $now->copy();
+			$timeoutAt = clone $now;
 			$tmp = [
 				'job_task' => $name,
 				'AND' => [
@@ -882,7 +881,7 @@ class QueuedJobsTable extends Table {
 	 */
 	public function clearDoublettes(): void {
 		/** @var array<int> $x */
-		$x = $this->getConnection()->query('SELECT max(id) as id FROM `' . $this->getTable() . '`
+		$x = $this->getConnection()->selectQuery('SELECT max(id) as id FROM `' . $this->getTable() . '`
 	WHERE completed is NULL
 	GROUP BY data
 	HAVING COUNT(id) > 1');

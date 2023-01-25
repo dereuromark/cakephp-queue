@@ -8,6 +8,7 @@ use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;
 use Cake\I18n\DateTime;
+use Queue\Model\Table\QueueProcessesTable;
 use Queue\Queue\Config;
 
 /**
@@ -15,14 +16,23 @@ use Queue\Queue\Config;
  */
 class WorkerCommand extends Command {
 
-	/**
-	 * @var string
-	 */
-	protected ?string $defaultTable =  'Queue.QueueProcesses';
+	protected QueueProcessesTable $QueueProcesses;
 
 	/**
-	 * @inheritDoc
+	 * @var string|null
 	 */
+	protected ?string $defaultTable = 'Queue.QueueProcesses';
+
+	/**
+	 * @return void
+	 */
+	public function initialize(): void {
+		$this->QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
+	}
+
+	/**
+	   * @inheritDoc
+	   */
 	public static function defaultName(): string {
 		return 'queue job';
 	}

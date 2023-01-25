@@ -154,7 +154,8 @@ class QueuedJobsControllerTest extends TestCase {
 	public function testViewJson() {
 		$queuedJob = $this->createJob();
 
-		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'view', $queuedJob->id, '_ext' => 'json']);
+		$this->requestAsJson();
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'view', $queuedJob->id]);
 
 		$this->assertResponseCode(200);
 
