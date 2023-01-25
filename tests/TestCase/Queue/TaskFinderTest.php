@@ -47,11 +47,6 @@ class TaskFinderTest extends TestCase {
 
 		$result = $this->taskFinder->resolve(ExampleTask::taskName());
 		$this->assertSame('Queue.Example', $result);
-
-		$this->deprecated(function () {
-			$result = $this->taskFinder->resolve('Example');
-			$this->assertSame('Queue.Example', $result);
-		});
 	}
 
 	/**

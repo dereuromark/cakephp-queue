@@ -3,11 +3,13 @@
 namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Datasource\ConnectionManager;
+use Cake\Http\ServerRequest;
 use Cake\I18n\DateTime;
 use Cake\TestSuite\IntegrationTestTrait;
 use Queue\Controller\Admin\QueueController;
 use Shim\TestSuite\TestCase;
 use Shim\TestSuite\TestTrait;
+use Tools\Utility\DateTime as ToolsDateTime;
 
 //use Tools\Utility\DateTime as ToolsDateTime;
 
@@ -42,13 +44,12 @@ class QueueControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testLoadHelpers(): void {
-		$controller = new QueueController();
+		$controller = new QueueController(new ServerRequest(['url' => 'controller/posts/index']));
 		$this->invokeMethod($controller, 'loadHelpers');
 
 		$view = $controller->createView();
 		$engine = $view->Time->getConfig('engine');
-		dd($engine);
-		//$this->assertTrue(in_array($engine, [DateTime::class, ToolsDateTime::class], true));
+		$this->assertTrue(in_array($engine, [DateTime::class, ToolsDateTime::class], true));
 	}
 
 	/**
@@ -245,7 +246,7 @@ class QueueControllerTest extends TestCase {
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
 			'failed' => 1,
-			'fetched' => (new DateTime())->subHour(),
+			'fetched' => (new DateTime())->subHours(1),
 		]);
 		$jobsTable->saveOrFail($job);
 
