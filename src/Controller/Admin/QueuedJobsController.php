@@ -130,11 +130,8 @@ class QueuedJobsController extends AppController {
 		if ($this->request->is(['post'])) {
 			/** @var \Laminas\Diactoros\UploadedFile|array<string, mixed> $file */
 			$file = $this->request->getData('file');
-			if ($file instanceof UploadedFile) {
-				$file = $this->fileToArray($file);
-			}
-			if ($file && $file['error'] == 0 && $file['size'] > 0) {
-				$content = file_get_contents($file['tmp_name']);
+			if ($file && $file->getError() == UPLOAD_ERR_OK && $file->getSize() > 0) {
+				$content = file_get_contents($file->getStream()->getMetadata('uri'));
 				if ($content === false) {
 					throw new RuntimeException('Cannot parse file');
 				}
@@ -321,19 +318,6 @@ class QueuedJobsController extends AppController {
 		}
 
 		$this->set(compact('tasks', 'queuedJob'));
-	}
-
-	/**
-	 * @param \Laminas\Diactoros\UploadedFile $file
-	 *
-	 * @return array<string, mixed>
-	 */
-	protected function fileToArray(UploadedFile $file): array {
-		return [
-			'size' => $file->getSize(),
-			'error' => $file->getError(),
-			'tmp_name' => $file->getStream()->getMetadata('uri'),
-		];
 	}
 
 	/**
