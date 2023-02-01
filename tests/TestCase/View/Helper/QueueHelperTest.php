@@ -39,21 +39,21 @@ class QueueHelperTest extends TestCase {
 		$queuedJob = new QueuedJob([
 			'job_task' => 'Queue.Example',
 			'fetched' => '2019',
-			'failed' => 0,
+			'attempts' => 0,
 		]);
 		$result = $this->QueueHelper->hasFailed($queuedJob);
 		$this->assertFalse($result);
 
-		$queuedJob->failed = 1;
+		$queuedJob->attempts = 1;
 		$queuedJob->failure_message = 'Foo';
 		$result = $this->QueueHelper->hasFailed($queuedJob);
 		$this->assertFalse($result);
 
-		$queuedJob->failed = 999;
+		$queuedJob->attempts = 999;
 		$result = $this->QueueHelper->hasFailed($queuedJob);
 		$this->assertTrue($result);
 
-		$queuedJob->failed = 999;
+		$queuedJob->attempts = 999;
 		$queuedJob->failure_message = null;
 		$result = $this->QueueHelper->hasFailed($queuedJob);
 		$this->assertFalse($result);
@@ -65,16 +65,16 @@ class QueueHelperTest extends TestCase {
 	public function testFails() {
 		$queuedJob = new QueuedJob([
 			'job_task' => 'Queue.Example',
-			'failed' => 0,
+			'attempts' => 0,
 		]);
 		$result = $this->QueueHelper->fails($queuedJob);
 		$this->assertSame('0x', $result);
 
-		$queuedJob->failed = 1;
+		$queuedJob->attempts = 1;
 		$result = $this->QueueHelper->fails($queuedJob);
 		$this->assertSame('1/2', $result);
 
-		$queuedJob->failed = 2;
+		$queuedJob->attempts = 2;
 		$result = $this->QueueHelper->fails($queuedJob);
 		$this->assertSame('2/2', $result);
 
@@ -90,12 +90,12 @@ class QueueHelperTest extends TestCase {
 		$queuedJob = new QueuedJob([
 			'job_task' => 'Queue.Example',
 			'fetched' => '2019',
-			'failed' => 0,
+			'attempts' => 0,
 		]);
 		$result = $this->QueueHelper->failureStatus($queuedJob);
 		$this->assertNull($result);
 
-		$queuedJob->failed = 1;
+		$queuedJob->attempts = 1;
 		$queuedJob->failure_message = 'Foo';
 		$result = $this->QueueHelper->failureStatus($queuedJob);
 		$this->assertSame(__d('queue', 'Requeued'), $result);
@@ -104,7 +104,7 @@ class QueueHelperTest extends TestCase {
 		$result = $this->QueueHelper->failureStatus($queuedJob);
 		$this->assertSame('Restarted', $result);
 
-		$queuedJob->failed = 999;
+		$queuedJob->attempts = 999;
 		$queuedJob->failure_message = 'Foo';
 		$result = $this->QueueHelper->failureStatus($queuedJob);
 		$this->assertSame('Aborted', $result);

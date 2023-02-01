@@ -577,7 +577,7 @@ class QueuedJobsTable extends Table {
 						],
 					],
 				],
-				'failed <' => ($task['retries'] + 1),
+				'attempts <' => ($task['retries'] + 1),
 			];
 			if (array_key_exists('rate', $task) && $tmp['job_task'] && array_key_exists($tmp['job_task'], $this->rateHistory)) {
 				switch ($driverName) {
@@ -696,7 +696,7 @@ class QueuedJobsTable extends Table {
 	 */
 	public function markJobFailed(QueuedJob $job, ?string $failureMessage = null): bool {
 		$fields = [
-			'failed' => $job->failed + 1,
+			'attempts' => $job->attempts + 1,
 			'failure_message' => $failureMessage,
 		];
 		$job = $this->patchEntity($job, $fields);
@@ -715,7 +715,7 @@ class QueuedJobsTable extends Table {
 
 		$conditions = [
 			'completed IS' => null,
-			'failed >' => 0,
+			'attempts >' => 0,
 			'fetched <' => $thresholdTime,
 		];
 
@@ -735,7 +735,7 @@ class QueuedJobsTable extends Table {
 			'completed' => null,
 			'fetched' => null,
 			'progress' => null,
-			'failed' => 0,
+			'attempts' => 0,
 			'workerkey' => null,
 			'failure_message' => null,
 		];
@@ -746,7 +746,7 @@ class QueuedJobsTable extends Table {
 			$conditions['id'] = $id;
 		}
 		if (!$full) {
-			$conditions['failed >'] = 0;
+			$conditions['attempts >'] = 0;
 		}
 
 		return $this->updateAll($fields, $conditions);
@@ -763,7 +763,7 @@ class QueuedJobsTable extends Table {
 			'completed' => null,
 			'fetched' => null,
 			'progress' => null,
-			'failed' => 0,
+			'attempts' => 0,
 			'workerkey' => null,
 			'failure_message' => null,
 		];
@@ -788,7 +788,7 @@ class QueuedJobsTable extends Table {
 			'completed' => null,
 			'fetched' => null,
 			'progress' => null,
-			'failed' => 0,
+			'attempts' => 0,
 			'workerkey' => null,
 			'failure_message' => null,
 		];
@@ -817,7 +817,7 @@ class QueuedJobsTable extends Table {
 				'progress',
 				'reference',
 				'notbefore',
-				'failed',
+				'attempts',
 				'failure_message',
 			],
 			'conditions' => [
@@ -856,7 +856,7 @@ class QueuedJobsTable extends Table {
 			return $failureMessageRequeued;
 		}
 		$retries = $taskConfiguration[$queuedTaskName]['retries'];
-		if ($queuedTask->failed <= $retries) {
+		if ($queuedTask->attempts <= $retries) {
 			return $failureMessageRequeued;
 		}
 

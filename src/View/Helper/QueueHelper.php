@@ -23,7 +23,7 @@ class QueueHelper extends Helper {
 	 * @return bool
 	 */
 	public function hasFailed(QueuedJob $queuedJob): bool {
-		if ($queuedJob->completed || !$queuedJob->fetched || !$queuedJob->failed) {
+		if ($queuedJob->completed || !$queuedJob->fetched || !$queuedJob->attempts) {
 			return false;
 		}
 
@@ -34,7 +34,7 @@ class QueueHelper extends Helper {
 
 		// Requeued
 		$taskConfig = $this->taskConfig($queuedJob->job_task);
-		if ($taskConfig && $queuedJob->failed <= $taskConfig['retries']) {
+		if ($taskConfig && $queuedJob->attempts <= $taskConfig['retries']) {
 			return false;
 		}
 
@@ -47,7 +47,9 @@ class QueueHelper extends Helper {
 	 * @return string|null
 	 */
 	public function fails(QueuedJob $queuedJob): ?string {
-		if (!$queuedJob->failed) {
+		$fails = $queuedJob->attempts - ($queuedJob->completed ? 1 : 0);
+
+		if ($fails < 1) {
 			return '0x';
 		}
 
@@ -55,10 +57,10 @@ class QueueHelper extends Helper {
 		if ($taskConfig) {
 			$allowedFails = $taskConfig['retries'] + 1;
 
-			return $queuedJob->failed . '/' . $allowedFails;
+			return $fails . '/' . $allowedFails;
 		}
 
-		return $queuedJob->failed . 'x';
+		return $fails . 'x';
 	}
 
 	/**
@@ -68,7 +70,7 @@ class QueueHelper extends Helper {
 	 * @return string|null
 	 */
 	public function failureStatus(QueuedJob $queuedJob): ?string {
-		if ($queuedJob->completed || !$queuedJob->fetched || !$queuedJob->failed) {
+		if ($queuedJob->completed || !$queuedJob->fetched || !$queuedJob->attempts) {
 			return null;
 		}
 
@@ -77,7 +79,7 @@ class QueueHelper extends Helper {
 		}
 
 		$taskConfig = $this->taskConfig($queuedJob->job_task);
-		if ($taskConfig && $queuedJob->failed <= $taskConfig['retries']) {
+		if ($taskConfig && $queuedJob->attempts <= $taskConfig['retries']) {
 			return __d('queue', 'Requeued');
 		}
 

@@ -116,7 +116,7 @@ class QueueControllerTest extends TestCase {
 		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
-			'failed' => 1,
+			'attempts' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -135,7 +135,7 @@ class QueueControllerTest extends TestCase {
 		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
-			'failed' => 1,
+			'attempts' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -145,7 +145,7 @@ class QueueControllerTest extends TestCase {
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
-		$this->assertSame(0, $job->failed);
+		$this->assertSame(0, $job->attempts);
 	}
 
 	/**
@@ -155,7 +155,7 @@ class QueueControllerTest extends TestCase {
 		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
-			'failed' => 1,
+			'attempts' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -167,7 +167,7 @@ class QueueControllerTest extends TestCase {
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
-		$this->assertSame(0, $job->failed);
+		$this->assertSame(0, $job->attempts);
 	}
 
 	/**
@@ -177,7 +177,7 @@ class QueueControllerTest extends TestCase {
 		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
-			'failed' => 1,
+			'attempts' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -189,7 +189,7 @@ class QueueControllerTest extends TestCase {
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
-		$this->assertSame(0, $job->failed);
+		$this->assertSame(0, $job->attempts);
 	}
 
 	/**
@@ -199,7 +199,7 @@ class QueueControllerTest extends TestCase {
 		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
-			'failed' => 1,
+			'attempts' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -215,7 +215,7 @@ class QueueControllerTest extends TestCase {
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
-		$this->assertSame(0, $job->failed);
+		$this->assertSame(0, $job->attempts);
 	}
 
 	/**
@@ -225,7 +225,7 @@ class QueueControllerTest extends TestCase {
 		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
-			'failed' => 1,
+			'attempts' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -235,7 +235,7 @@ class QueueControllerTest extends TestCase {
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->get($job->id);
-		$this->assertSame(0, $job->failed);
+		$this->assertSame(0, $job->attempts);
 	}
 
 	/**
@@ -245,7 +245,7 @@ class QueueControllerTest extends TestCase {
 		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
-			'failed' => 1,
+			'attempts' => 1,
 			'fetched' => (new DateTime())->subHours(1),
 		]);
 		$jobsTable->saveOrFail($job);

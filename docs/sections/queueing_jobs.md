@@ -280,7 +280,7 @@ You need to handle the content of this `$data` string manually inside your `add(
 You can add buttons to your specific app views to re-run a failed job, or to remove it.
 ```php
 $this->loadHelper('Queue.Queue');
-if ($this->Queue->failed($queuedJob)) {
+if ($this->Queue->hasFailed($queuedJob)) {
     $query = ['redirect' => $this->request->getAttribute('here')];
     echo $this->Form->postLink(
         'Re-Run job',

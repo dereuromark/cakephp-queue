@@ -44,7 +44,7 @@ class QueueController extends AppController {
 		$pendingDetails = $this->QueuedJobs->getPendingStats()->toArray();
 		$new = 0;
 		foreach ($pendingDetails as $pendingDetail) {
-			if ($pendingDetail['fetched'] || $pendingDetail['failed']) {
+			if ($pendingDetail['fetched'] || $pendingDetail['attempts']) {
 				continue;
 			}
 			$new++;

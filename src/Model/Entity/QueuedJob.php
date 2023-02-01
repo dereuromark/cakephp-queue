@@ -15,7 +15,7 @@ use Cake\ORM\Entity;
  * @property \Cake\I18n\DateTime|null $fetched
  * @property \Cake\I18n\DateTime|null $completed
  * @property float|null $progress
- * @property int $failed
+ * @property int $attempts
  * @property string|null $failure_message
  * @property string|null $workerkey
  * @property string|null $status

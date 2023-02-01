@@ -83,7 +83,7 @@ use Cake\Core\Configure;
 						$status = ' (' . __d('queue', 'status') . ': ' . h($pendingJob->status) . ')';
 					}
 
-					if (!$pendingJob->failed || !$pendingJob->failure_message) {
+					if (!$pendingJob->attempts || !$pendingJob->failure_message) {
 						echo '<li>';
 						echo __d('queue', 'Progress') . ': ';
 						echo $this->QueueProgress->progress($pendingJob) . $status;

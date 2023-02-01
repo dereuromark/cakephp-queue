@@ -148,7 +148,7 @@ class QueuedJobsController extends AppController {
 					$data['fetched'] = null;
 					$data['completed'] = null;
 					$data['progress'] = null;
-					$data['failed'] = 0;
+					$data['attempts'] = 0;
 					$data['failure_message'] = null;
 					$data['workerkey'] = null;
 					$data['status'] = null;
