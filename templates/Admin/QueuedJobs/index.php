@@ -96,12 +96,12 @@ use Cake\Core\Plugin;
                     </div>
                     <?php } ?>
                 </td>
-				<td><?= $this->Format->ok($this->Queue->fails($queuedJob), !$queuedJob->attempts); ?></td>
+				<td><?= $this->Format->ok($this->Queue->attempts($queuedJob), $queuedJob->completed || $queuedJob->attempts < 1); ?></td>
 				<td>
 					<?= h($queuedJob->status) ?>
 					<?php if (!$queuedJob->completed && $queuedJob->fetched) { ?>
 						<div>
-							<?php if (!$queuedJob->attempts) { ?>
+							<?php if (!$queuedJob->failure_message) { ?>
 								<?php echo $this->QueueProgress->progress($queuedJob) ?>
 								<br>
 								<?php

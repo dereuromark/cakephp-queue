@@ -83,7 +83,7 @@ use Queue\Utility\Serializer;
 			<th><?= __d('queue', 'Progress') ?></th>
 			<td>
 				<?php if (!$queuedJob->completed && $queuedJob->fetched) { ?>
-					<?php if (!$queuedJob->attempts || !$queuedJob->failure_message) { ?>
+					<?php if (!$queuedJob->failure_message) { ?>
 						<?php echo $this->QueueProgress->progress($queuedJob) ?>
 						<br>
 						<?php
@@ -97,9 +97,9 @@ use Queue\Utility\Serializer;
 			</td>
 		</tr>
 		<tr>
-			<th><?= __d('queue', 'Failed') ?></th>
+			<th><?= __d('queue', 'Attempts') ?></th>
 			<td>
-				<?= $queuedJob->attempts ? $this->Format->ok($this->Queue->fails($queuedJob), !$queuedJob->attempts)  : '' ?>
+				<?= $queuedJob->attempts ? $this->Format->ok($this->Queue->attempts($queuedJob), $queuedJob->completed || $queuedJob->attempts < 1) : '' ?>
 				<?php
 				if ($this->Queue->hasFailed($queuedJob)) {
 					echo ' ' . $this->Form->postLink(__d('queue', 'Soft reset'), ['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure?', 'class' => 'button button-primary btn margin btn-primary']);

@@ -46,21 +46,19 @@ class QueueHelper extends Helper {
 	 *
 	 * @return string|null
 	 */
-	public function fails(QueuedJob $queuedJob): ?string {
-		$fails = $queuedJob->attempts - ($queuedJob->completed ? 1 : 0);
-
-		if ($fails < 1) {
+	public function attempts(QueuedJob $queuedJob): ?string {
+		if ($queuedJob->attempts < 1) {
 			return '0x';
 		}
 
 		$taskConfig = $this->taskConfig($queuedJob->job_task);
 		if ($taskConfig) {
-			$allowedFails = $taskConfig['retries'] + 1;
+			$maxFails = $taskConfig['retries'] + 1;
 
-			return $fails . '/' . $allowedFails;
+			return $queuedJob->attempts . '/' . $maxFails;
 		}
 
-		return $fails . 'x';
+		return $queuedJob->attempts . 'x';
 	}
 
 	/**

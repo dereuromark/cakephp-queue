@@ -67,19 +67,19 @@ class QueueHelperTest extends TestCase {
 			'job_task' => 'Queue.Example',
 			'attempts' => 0,
 		]);
-		$result = $this->QueueHelper->fails($queuedJob);
+		$result = $this->QueueHelper->attempts($queuedJob);
 		$this->assertSame('0x', $result);
 
 		$queuedJob->attempts = 1;
-		$result = $this->QueueHelper->fails($queuedJob);
+		$result = $this->QueueHelper->attempts($queuedJob);
 		$this->assertSame('1/2', $result);
 
 		$queuedJob->attempts = 2;
-		$result = $this->QueueHelper->fails($queuedJob);
+		$result = $this->QueueHelper->attempts($queuedJob);
 		$this->assertSame('2/2', $result);
 
 		$queuedJob->job_task = 'Queue.ExampleInvalid';
-		$result = $this->QueueHelper->fails($queuedJob);
+		$result = $this->QueueHelper->attempts($queuedJob);
 		$this->assertSame('2x', $result);
 	}
 
