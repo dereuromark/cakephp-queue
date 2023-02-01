@@ -636,6 +636,7 @@ class QueuedJobsTable extends Table {
 				'fetched' => $now,
 				'progress' => null,
 				'failure_message' => null,
+				'attempts' => $job->attempts + 1,
 			]);
 
 			return $this->saveOrFail($job);
@@ -688,7 +689,7 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * Mark a job as Failed, incrementing the failed-counter and Requeueing it.
+	 * Mark a job as Failed, without incrementing the "attempts" count due to to it being incremented when fetched.
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $job Job
 	 * @param string|null $failureMessage Optional message to append to the failure_message field.
@@ -696,7 +697,6 @@ class QueuedJobsTable extends Table {
 	 */
 	public function markJobFailed(QueuedJob $job, ?string $failureMessage = null): bool {
 		$fields = [
-			'attempts' => $job->attempts + 1,
 			'failure_message' => $failureMessage,
 		];
 		$job = $this->patchEntity($job, $fields);
