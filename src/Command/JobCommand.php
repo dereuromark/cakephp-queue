@@ -91,7 +91,7 @@ class JobCommand extends Command {
 			}
 
 			foreach ($jobs as $job) {
-				$io->out('- [' . $job->id . '] ' . $job->job_task . ' (' . ($job->completed ? 'completed' : 'failed ' . $job->attempts . 'x') . ')');
+				$io->out('- [' . $job->id . '] ' . $job->job_task . ' (' . ($job->completed ? 'completed' : 'attempted ' . $job->attempts . 'x') . ')');
 			}
 
 			return static::CODE_ERROR;
