@@ -119,7 +119,7 @@ if (!getenv('DB_CLASS')) {
 ConnectionManager::setConfig('test', [
 	'className' => Connection::class,
 	'driver' => getenv('DB_CLASS') ?: null,
-	'dsn' => getenv('DB_URL') ?: null,
+	'url' => getenv('DB_URL') ?: null,
 	'timezone' => 'UTC',
 	'quoteIdentifiers' => false,
 	'cacheMetadata' => true,
