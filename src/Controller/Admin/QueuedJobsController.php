@@ -8,7 +8,6 @@ use Cake\Core\Plugin;
 use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\DateTime;
 use Cake\View\JsonView;
-use Laminas\Diactoros\UploadedFile;
 use Queue\Queue\TaskFinder;
 use RuntimeException;
 
@@ -128,7 +127,7 @@ class QueuedJobsController extends AppController {
 	   */
 	public function import() {
 		if ($this->request->is(['post'])) {
-			/** @var \Laminas\Diactoros\UploadedFile|array<string, mixed> $file */
+			/** @var \Laminas\Diactoros\UploadedFile|null $file */
 			$file = $this->request->getData('file');
 			if ($file && $file->getError() == UPLOAD_ERR_OK && $file->getSize() > 0) {
 				$content = file_get_contents($file->getStream()->getMetadata('uri'));

@@ -5,6 +5,7 @@ namespace Queue\Test\TestCase\Controller\Admin;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\TestSuite\IntegrationTestTrait;
+use Laminas\Diactoros\UploadedFile;
 use Shim\TestSuite\TestCase;
 
 /**
@@ -173,11 +174,7 @@ class QueuedJobsControllerTest extends TestCase {
 		$jsonFile = TESTS . 'test_files' . DS . 'queued-job.json';
 
 		$data = [
-			'file' => [
-				'size' => 1,
-				'error' => 0,
-				'tmp_name' => $jsonFile,
-			],
+			'file' => new UploadedFile($jsonFile, 1, 0, 'queued-job.json', 'application/json'),
 		];
 
 		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'import'], $data);
