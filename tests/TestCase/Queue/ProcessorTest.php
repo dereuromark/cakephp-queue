@@ -101,21 +101,6 @@ class ProcessorTest extends TestCase {
 	}
 
 	/**
-	 * This checks if the old loadModel function still works
-	 * @return void
-	 */
-	public function testModelAwareTrait() {
-		$this->_needsConnection();
-
-		$out = new ConsoleOutput();
-		$err = new ConsoleOutput();
-		$this->Processor = new Processor(new Io(new ConsoleIo($out, $err)), new NullLogger());
-
-		$this->Processor->loadModel('Categories');
-		$this->assertInstanceOf(CategoriesTable::class, $this->Processor->Categories);
-	}
-
-	/**
 	 * Helper method for skipping tests that need a real connection.
 	 *
 	 * @return void
