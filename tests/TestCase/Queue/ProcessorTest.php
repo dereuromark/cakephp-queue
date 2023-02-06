@@ -12,7 +12,6 @@ use Queue\Console\Io;
 use Queue\Queue\Processor;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
-use TestApp\Model\Table\CategoriesTable;
 
 class ProcessorTest extends TestCase {
 

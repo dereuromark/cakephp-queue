@@ -8,7 +8,6 @@ use Cake\Core\Plugin;
 use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\DateTime;
 use Cake\View\JsonView;
-use Laminas\Diactoros\UploadedFile;
 use Queue\Queue\TaskFinder;
 use RuntimeException;
 
