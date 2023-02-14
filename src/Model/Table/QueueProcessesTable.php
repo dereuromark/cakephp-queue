@@ -4,10 +4,10 @@ namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
-use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use Queue\Model\ProcessEndingException;
+use Queue\ORM\QueueTable;
 use Queue\Queue\Config;
 
 /**
@@ -29,7 +29,7 @@ use Queue\Queue\Config;
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess>|false deleteMany(iterable $entities, $options = [])
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> deleteManyOrFail(iterable $entities, $options = [])
  */
-class QueueProcessesTable extends Table {
+class QueueProcessesTable extends QueueTable {
 
 	/**
 	 * Sets connection name

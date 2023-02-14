@@ -9,10 +9,10 @@ use Cake\Event\EventInterface;
 use Cake\Http\Exception\NotImplementedException;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
-use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use InvalidArgumentException;
 use Queue\Model\Entity\QueuedJob;
+use Queue\ORM\QueueTable;
 use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
 use Queue\Utility\Serializer;
@@ -38,7 +38,7 @@ use RuntimeException;
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob>|false deleteMany(iterable $entities, $options = [])
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> deleteManyOrFail(iterable $entities, $options = [])
  */
-class QueuedJobsTable extends Table {
+class QueuedJobsTable extends QueueTable {
 
 	/**
 	 * @var string
@@ -102,6 +102,8 @@ class QueuedJobsTable extends Table {
 	 */
 	public function initialize(array $config): void {
 		parent::initialize($config);
+
+		$this->setTable('queued_jobs');
 
 		$this->addBehavior('Timestamp');
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
