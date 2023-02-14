@@ -10,7 +10,7 @@
         "fetched": null,
         "completed": null,
         "progress": null,
-        "failed": 0,
+        "attempts": 0,
         "failure_message": null,
         "workerkey": null,
         "status": null,

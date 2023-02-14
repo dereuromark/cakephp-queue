@@ -224,7 +224,7 @@ class Processor {
 			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
 			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->getTaskConf());
 			$this->log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
-			$this->io->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->failed . '.');
+			$this->io->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->attempts . '.');
 
 			return;
 		}

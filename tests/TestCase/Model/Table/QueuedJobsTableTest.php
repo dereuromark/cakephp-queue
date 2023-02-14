@@ -174,7 +174,7 @@ class QueuedJobsTableTest extends TestCase {
 		$job = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame(1, $job->id);
 		$this->assertSame('Foo', $job->job_task);
-		$this->assertSame(0, $job->failed);
+		$this->assertSame(1, $job->attempts);
 		$this->assertNull($job->completed);
 		$this->assertSame($testData, unserialize($job->data));
 
@@ -486,14 +486,14 @@ class QueuedJobsTableTest extends TestCase {
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
 		$this->assertSame($data, unserialize($tmp['data']));
-		$this->assertSame(0, $tmp['failed']);
+		$this->assertSame(0, $tmp['attempts']);
 		sleep(2);
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
 		$this->assertSame($data, unserialize($tmp['data']));
-		$this->assertSame(1, $tmp['failed']);
+		$this->assertSame(1, $tmp['attempts']);
 		$this->assertSame('Restart after timeout', $tmp['failure_message']);
 	}
 
@@ -527,14 +527,14 @@ class QueuedJobsTableTest extends TestCase {
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
 		$this->assertSame(['1'], unserialize($tmp['data']));
-		$this->assertSame('0', $tmp['failed']);
+		$this->assertSame('0', $tmp['attempts']);
 		sleep(2);
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
 		$this->assertSame(['1'], unserialize($tmp['data']));
-		$this->assertSame('1', $tmp['failed']);
+		$this->assertSame('1', $tmp['attempts']);
 		$this->assertSame('Restart after timeout', $tmp['failure_message']);
 	}
 

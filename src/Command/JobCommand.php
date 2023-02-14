@@ -81,7 +81,7 @@ class JobCommand extends Command {
 
 			/** @var array<\Queue\Model\Entity\QueuedJob> $jobs */
 			$jobs = $this->QueuedJobs->find()
-				->select(['id', 'job_task', 'completed', 'failed'])
+				->select(['id', 'job_task', 'completed', 'attempts'])
 				->orderDesc('id')
 				->limit(20)->all()->toArray();
 			if ($jobs) {
@@ -91,7 +91,7 @@ class JobCommand extends Command {
 			}
 
 			foreach ($jobs as $job) {
-				$io->out('- [' . $job->id . '] ' . $job->job_task . ' (' . ($job->completed ? 'completed' : 'failed ' . $job->failed . 'x') . ')');
+				$io->out('- [' . $job->id . '] ' . $job->job_task . ' (' . ($job->completed ? 'completed' : 'attempted ' . $job->attempts . 'x') . ')');
 			}
 
 			return static::CODE_ERROR;
@@ -252,9 +252,9 @@ class JobCommand extends Command {
 
 		$io->out('Completed: ' . ($queuedJob->completed ?: '-'));
 		if (!$queuedJob->completed) {
-			$io->out('Failed: ' . ($queuedJob->failed ?: '-'));
+			$io->out('Failed: ' . ($queuedJob->attempts ?: '-'));
 		}
-		if ($queuedJob->failed) {
+		if ($queuedJob->attempts) {
 			$io->out('Failure message: ' . ($queuedJob->failure_message ?: '-'));
 		}
 

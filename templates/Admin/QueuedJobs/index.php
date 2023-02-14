@@ -44,7 +44,7 @@ use Cake\Core\Plugin;
 				<th><?= $this->Paginator->sort('notbefore', null, ['direction' => 'desc']) ?></th>
 				<th><?= $this->Paginator->sort('fetched', null, ['direction' => 'desc']) ?></th>
 				<th><?= $this->Paginator->sort('completed', null, ['direction' => 'desc']) ?></th>
-				<th><?= $this->Paginator->sort('failed') ?></th>
+				<th><?= $this->Paginator->sort('attempts') ?></th>
 				<th><?= $this->Paginator->sort('status') ?></th>
 				<th><?= $this->Paginator->sort('priority', null, ['direction' => 'desc']) ?></th>
 				<th class="actions"><?= __d('queue', 'Actions') ?></th>
@@ -96,12 +96,12 @@ use Cake\Core\Plugin;
                     </div>
                     <?php } ?>
                 </td>
-				<td><?= $this->Format->ok($this->Queue->fails($queuedJob), !$queuedJob->failed); ?></td>
+				<td><?= $this->Format->ok($this->Queue->attempts($queuedJob), $queuedJob->completed || $queuedJob->attempts < 1); ?></td>
 				<td>
 					<?= h($queuedJob->status) ?>
 					<?php if (!$queuedJob->completed && $queuedJob->fetched) { ?>
 						<div>
-							<?php if (!$queuedJob->failed) { ?>
+							<?php if (!$queuedJob->failure_message) { ?>
 								<?php echo $this->QueueProgress->progress($queuedJob) ?>
 								<br>
 								<?php
