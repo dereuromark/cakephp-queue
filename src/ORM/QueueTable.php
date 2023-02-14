@@ -5,13 +5,12 @@ namespace Queue\ORM;
 
 use Cake\ORM\Table;
 
-class QueueTable extends Table
-{
+class QueueTable extends Table {
+
 	/**
 	 * @inheritDoc
 	 */
-	public function setTable(string $table): Table
-	{
+	public function setTable(string $table): Table {
 		$parts = [$table];
 		$schema = $this->getConnection()->config()['schema'] ?? null;
 		if ($schema) {
@@ -20,4 +19,5 @@ class QueueTable extends Table
 
 		return parent::setTable(implode('.', $parts));
 	}
+
 }
