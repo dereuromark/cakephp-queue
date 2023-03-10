@@ -111,6 +111,7 @@ class EmailTaskTest extends TestCase {
 					'copy-other@test.de' => 'Your Other Name',
 				],
 			],
+			'helpers' => [['Shim.Configure']],
 		];
 
 		$data = [
