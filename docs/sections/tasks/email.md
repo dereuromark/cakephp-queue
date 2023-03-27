@@ -46,6 +46,17 @@ For some like to/cc you can even define multiple emails:
 ```
 Note that this needs an additional array nesting in this case.
 
+You can add helpers using `helper` (single) or `helpers` (multiple) keys inside settings:
+```php
+$data = [
+    'settings' => [
+        ...
+        'helpers' => [['Shim.Configure']],
+    ],
+    ...
+];
+ ```
+
 You can also assemble a Mailer object manually and pass that along as settings directly:
 ```php
 $data = [
@@ -53,6 +64,7 @@ $data = [
     'content' => $content,
 ];
 ```
+Deprecated: This is not recommended as it breaks as soon as the code changes.
 
 Or send reusable Emails via the Mailer object:
 ```php
@@ -62,6 +74,7 @@ $data = [
     'vars' => [$var1, $var2, $var3]
 ];
 ```
+Deprecated: This is not recommended as it breaks as soon as the code changes.
 
 Inside a controller you can for example do this for your mailers:
 ```php

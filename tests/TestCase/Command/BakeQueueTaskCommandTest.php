@@ -12,8 +12,8 @@ use Shim\TestSuite\TestTrait;
  */
 class BakeQueueTaskCommandTest extends TestCase {
 
-	use ConsoleIntegrationTestTrait;
 	use TestTrait;
+	use ConsoleIntegrationTestTrait;
 
 	/**
 	 * @var string

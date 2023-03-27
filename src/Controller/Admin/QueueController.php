@@ -6,6 +6,7 @@ use App\Controller\AppController;
 use Cake\Core\App;
 use Cake\Http\Exception\NotFoundException;
 use Queue\Queue\AddFromBackendInterface;
+use Queue\Queue\AddInterface;
 use Queue\Queue\TaskFinder;
 
 /**
@@ -72,17 +73,18 @@ class QueueController extends AppController {
 			throw new NotFoundException();
 		}
 
+		/** @var class-string<\Queue\Queue\Task> $className */
 		$className = App::className($job, 'Queue/Task', 'Task');
 		if (!$className) {
 			throw new NotFoundException('Class not found for job `' . $job . '`');
 		}
 
-		// Deprecated/Remove?
-		if (method_exists($className, 'init')) {
-			$className::init();
+		$object = new $className();
+		if ($object instanceof AddInterface) {
+			$object->add(null);
+		} else {
+			$this->QueuedJobs->createJob($job);
 		}
-
-		$this->QueuedJobs->createJob($job);
 
 		$this->Flash->success('Job ' . $job . ' added');
 

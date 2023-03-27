@@ -6,6 +6,7 @@ use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use InvalidArgumentException;
+use RuntimeException;
 
 class TaskFinder {
 
@@ -136,7 +137,7 @@ class TaskFinder {
 			}
 		}
 
-		throw new InvalidArgumentException('No such task: ' . $name);
+		throw new RuntimeException('No such task: ' . $name);
 	}
 
 }
