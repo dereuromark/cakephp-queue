@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \Queue\Model\Entity\QueuedJob $queuedJob
+ * @var bool $shimActive Deprecated: Will be removed with major
  */
 
 use Brick\VarExporter\VarExporter;
@@ -134,6 +135,12 @@ use Queue\Utility\Serializer;
 				$data = Serializer::deserialize($queuedJob->data);
 				echo '<h4>Unserialized content</h4>';
 				echo '<pre>' . h(VarExporter::export($data, VarExporter::TRAILING_COMMA_IN_ARRAY)) . '</pre>';
+
+				if ($shimActive && !$data) {
+					echo '<p>';
+					echo $this->Form->postLink('Transform data to current serializer strategy', null, ['class' => 'btn btn-secondary']);
+					echo '</p>';
+				}
 			}
 		?>
 		</div>

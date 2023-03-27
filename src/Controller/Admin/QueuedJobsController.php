@@ -9,6 +9,8 @@ use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\FrozenTime;
 use Laminas\Diactoros\UploadedFile;
 use Queue\Queue\TaskFinder;
+use Queue\Utility\JsonSerializer;
+use Queue\Utility\ObjectSerializer;
 use RuntimeException;
 
 /**
@@ -115,7 +117,25 @@ class QueuedJobsController extends AppController {
 			$this->response = $this->response->withDownload('queued-job-' . $id . '.json');
 		}
 
-		$this->set(compact('queuedJob'));
+		// Shim (deprecated FC) for object to JSON serializing
+		$class = Configure::read('Queue.serializerClass');
+		$shimActive = $class === JsonSerializer::class;
+
+		if ($shimActive && $this->request->is('post')) {
+			$data = $queuedJob->data;
+			if ($data) {
+				$object = new ObjectSerializer();
+				$transformedData = $object->deserialize($data);
+				$queuedJob->data = (new $class())->serialize($transformedData);
+				$this->QueuedJobs->saveOrFail($queuedJob);
+			}
+
+			$this->Flash->success('Transformation done');
+
+			return $this->redirect([]);
+		}
+
+		$this->set(compact('queuedJob', 'shimActive'));
 		$this->viewBuilder()->setOption('serialize', ['queuedJob']);
 	}
 
