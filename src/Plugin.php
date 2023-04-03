@@ -24,6 +24,26 @@ class Plugin extends BasePlugin {
 	 * @var bool
 	 */
 	protected $middlewareEnabled = false;
+	
+	/**
+	 * Load all the plugin configuration and bootstrap logic.
+	 *
+	 * The host application is provided as an argument. This allows you to load
+	 * additional plugin dependencies, or attach events.
+	 *
+	 * @param \Cake\Core\PluginApplicationInterface $app The host application
+	 * @return void
+	 */
+	public function bootstrap(PluginApplicationInterface $app): void
+	{
+		parent::bootstrap($app);
+
+		$appConfig = Configure::read('Queue');
+		Configure::load('Queue.app_queue');
+		$config = Configure::read('Queue');
+		$config = Hash::merge($config, $appConfig);
+		Configure::write('Queue', $config);
+	}
 
 	/**
 	 * Console hook
