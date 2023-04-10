@@ -10,7 +10,7 @@ There are a few guidelines that I need contributors to follow:
 
 ## Testing MySQL
 
-By default it will usually use SQLite DB (out of the box available).
+By default, it will usually use SQLite DB (out of the box available).
 Not all tests currently work with SQLite or any non MySQL db yet.
 
 If you want to run all tests, including MySQL ones, you need to set

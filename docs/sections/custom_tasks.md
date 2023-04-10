@@ -1,4 +1,4 @@
-# Writing your own task
+# Creating your own task
 
 ## Baking new Queue task and test
 You can bake a new task and its test via
@@ -9,6 +9,8 @@ bin/cake bake queue_task MyTaskName [-p PluginName]
 It will generate a `MyTaskNameTask` class in the right namespace.
 
 It will not overwrite existing classes unless you explicitly force this (after prompting).
+
+You can use `My/Sub/MyTaskNameTask` to create tasks in sub-namespaces.
 
 ## Detailed explanation
 
@@ -49,7 +51,7 @@ class YourNameForItTask extends Task {
 ```
 Make sure it throws an exception with a clear error message in case of failure.
 
-Note: You can use the provided `Queue\Model\QueueException` if you do not need to include a strack trace.
+Note: You can use the provided `Queue\Model\QueueException` if you do not need to include a stack trace.
 This is usually the default inside custom tasks.
 
 ## DI Container Example
@@ -69,3 +71,8 @@ class MyCustomTask extends Task {
 ```
 
 As you see here you have to add the [ServicesTrait](https://github.com/dereuromark/cakephp-queue/blob/master/src/Queue/ServicesTrait.php) to your task which then allows you to use the `$this->getService()` method.
+
+## Organize tasks in sub folders
+
+You can group tasks in sub namespaces.
+E.g. `src/Queue/Task/My/Sub/` as `{YourNameForIt}Task.php` would be found and used as `My/Sub/{YourNameForIt}`.

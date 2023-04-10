@@ -25,6 +25,9 @@ class TaskFinderTest extends TestCase {
 		$this->assertArrayHasKey('Queue.Example', $result);
 		$this->assertArrayHasKey('Foo', $result);
 		$this->assertArrayHasKey('Foo.Foo', $result);
+
+		$this->assertSame('TestApp\Queue\Task\Sub\SubFooTask', $result['Sub/SubFoo']);
+		$this->assertSame('Foo\Queue\Task\Sub\SubFooTask', $result['Foo.Sub/SubFoo']);
 	}
 
 	/**

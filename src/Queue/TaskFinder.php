@@ -5,6 +5,10 @@ namespace Queue\Queue;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RecursiveRegexIterator;
+use RegexIterator;
 use RuntimeException;
 
 class TaskFinder {
@@ -76,15 +80,29 @@ class TaskFinder {
 	 * @return array<string>
 	 */
 	protected function getTasks(string $path, ?string $plugin = null): array {
+		if (!is_dir($path)) {
+			return [];
+		}
+
 		$tasks = [];
 		$ignoredTasks = Config::ignoredTasks();
-		$files = glob($path . '*Task.php') ?: [];
-		foreach ($files as $file) {
-			$name = basename($file, 'Task.php');
+
+		$directoryIterator = new RecursiveDirectoryIterator($path);
+		$recursiveIterator = new RecursiveIteratorIterator($directoryIterator);
+		$iterator = new RegexIterator($recursiveIterator, '#.+\b(\w+)Task\.php$#', RecursiveRegexIterator::GET_MATCH);
+		/** @var array<string> $file */
+		foreach ($iterator as $file) {
+			$path = str_replace(DS, '/', $file[0]);
+			$pos = strpos($path, 'src/Queue/Task/');
+			if (!$pos) {
+				continue;
+			}
+			$name = substr($path, $pos + strlen('src/Queue/Task/'), -8);
+
 			$namespace = $plugin ? str_replace('/', '\\', $plugin) : Configure::read('App.namespace');
 
 			/** @phpstan-var class-string<\Queue\Queue\Task> $className */
-			$className = $namespace . '\Queue\Task\\' . $name . 'Task';
+			$className = $namespace . '\Queue\Task\\' . str_replace('/', '\\', $name) . 'Task';
 			$key = $plugin ? $plugin . '.' . $name : $name;
 
 			if (!in_array($className, $ignoredTasks, true)) {
