@@ -1,13 +1,11 @@
 <?php
 
-namespace {{ namespace }};
+namespace TestApp\Queue\Task\Sub;
 
-{% if add %}
 use Queue\Queue\AddInterface;
-{% endif %}
 use Queue\Queue\Task;
 
-class {{ name }} extends Task{{ add ? ' implements AddInterface' : '' }} {
+class FooBarBazTask extends Task implements AddInterface {
 
 	/**
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
@@ -16,7 +14,6 @@ class {{ name }} extends Task{{ add ? ' implements AddInterface' : '' }} {
 	 */
 	public function run(array $data, int $jobId): void {
 	}
-{% if add %}
 
 	/**
 	 * @param string|null $data Optional data for the task, make sure to "quote multi words"
@@ -24,8 +21,7 @@ class {{ name }} extends Task{{ add ? ' implements AddInterface' : '' }} {
 	 * @return void
 	 */
 	public function add(?string $data): void {
-		$this->QueuedJobs->createJob('{{ subNamespace }}{{ name }}');
+		$this->QueuedJobs->createJob('Sub/FooBarBazTask');
 	}
-{% endif %}
 
 }
