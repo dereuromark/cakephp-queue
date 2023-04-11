@@ -21,6 +21,7 @@ class FooBarBazTask extends Task implements AddInterface {
 	 * @return void
 	 */
 	public function add(?string $data): void {
+		$this->QueuedJobs->createJob('FooBarBazTask');
 	}
 
 }
