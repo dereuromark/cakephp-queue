@@ -36,7 +36,7 @@ class InfoCommandTest extends TestCase {
 		$this->exec('queue info');
 
 		$output = $this->_out->output();
-		$this->assertStringContainsString('15 tasks available:', $output);
+		$this->assertStringContainsString('16 tasks available:', $output);
 		$this->assertExitCode(0);
 	}
 
