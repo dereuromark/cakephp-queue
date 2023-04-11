@@ -75,4 +75,4 @@ As you see here you have to add the [ServicesTrait](https://github.com/dereuroma
 ## Organize tasks in sub folders
 
 You can group tasks in sub namespaces.
-E.g. `src/Queue/Task/My/Sub/` as `{YourNameForIt}Task.php` would be found and used as `My/Sub/{YourNameForIt}`.
+E.g. `src/Queue/Task/My/Sub/{YourNameForIt}Task.php` would be found and used as `My/Sub/{YourNameForIt}`.
