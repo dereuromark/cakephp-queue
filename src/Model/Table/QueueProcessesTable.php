@@ -145,7 +145,7 @@ class QueueProcessesTable extends Table {
 		];
 
 		if ($zrxReference = Configure::read('Queue.zrxReference')) {
-			$queueProcess['reference'] = $zrxReference;
+			$data['reference'] = $zrxReference;
 		}
 
 		$queueProcess = $this->newEntity($data);
