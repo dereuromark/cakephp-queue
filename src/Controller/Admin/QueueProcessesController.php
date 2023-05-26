@@ -104,7 +104,7 @@ class QueueProcessesController extends AppController {
 
 	/**
 	 * @param int|null $id Queue Process id.
-	 * @param int|null $id Signal (defaults to graceful SITERM = 15).
+	 * @param int|null $sig Signal (defaults to graceful SITERM = 15).
 	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
 	public function delete($id = null, $sig = null) {
