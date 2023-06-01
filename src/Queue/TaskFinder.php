@@ -96,8 +96,7 @@ class TaskFinder {
 			$pos = strpos($path, 'src/Queue/Task/');
 			if ($pos) {
 				$name = substr($path, $pos + strlen('src/Queue/Task/'), -8);
-			}
-			else {
+			} else {
 				$pos = strpos($path, APP_DIR . '/Queue/Task/');
 				if (!$pos) {
 					continue;
