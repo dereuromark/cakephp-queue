@@ -94,10 +94,16 @@ class TaskFinder {
 		foreach ($iterator as $file) {
 			$path = str_replace(DS, '/', $file[0]);
 			$pos = strpos($path, 'src/Queue/Task/');
-			if (!$pos) {
-				continue;
+			if ($pos) {
+				$name = substr($path, $pos + strlen('src/Queue/Task/'), -8);
 			}
-			$name = substr($path, $pos + strlen('src/Queue/Task/'), -8);
+			else {
+				$pos = strpos($path, APP_DIR . '/Queue/Task/');
+				if (!$pos) {
+					continue;
+				}
+				$name = substr($path, $pos + strlen(APP_DIR . '/Queue/Task/'), -8);
+			}
 
 			$namespace = $plugin ? str_replace('/', '\\', $plugin) : Configure::read('App.namespace');
 
