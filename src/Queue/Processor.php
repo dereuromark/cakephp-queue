@@ -6,6 +6,7 @@ use App\Log\ZLog;
 use Cake\Console\CommandInterface;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
+use Cake\Datasource\ConnectionManager;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Datasource\ModelAwareTrait;
 use Cake\ORM\Exception\PersistenceFailedException;
@@ -217,6 +218,12 @@ class Processor {
 
 		} catch (Throwable $e) {
 			$return = false;
+			$connection = ConnectionManager::get('default');
+			// Check if there is an active transaction
+			$hasActiveTransaction = $connection->inTransaction();
+			if ($hasActiveTransaction) {
+				$this->logError("Active transaction noticed in the queued job exception", $pid, func_get_args());
+			}
 
 			$failureMessage = get_class($e) . ': ' . $e->getMessage();
 			if (!($e instanceof QueueException)) {
