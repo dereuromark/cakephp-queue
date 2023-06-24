@@ -66,6 +66,11 @@ class QueuedJobsTable extends Table {
 	public const STATS_LIMIT = 100000;
 
 	/**
+	 * @var int
+	 */
+	public const DAY = 86400;
+
+	/**
 	 * @var array<string, string>
 	 */
 	public $rateHistory = [];
@@ -262,7 +267,7 @@ class QueuedJobsTable extends Table {
 			$findConf['conditions']['job_task'] = $type;
 		}
 
-		return $this->find('all', $findConf)->count();
+		return $this->find('all', ...$findConf)->count();
 	}
 
 	/**
@@ -282,7 +287,7 @@ class QueuedJobsTable extends Table {
 			'valueField' => 'job_task',
 		];
 
-		return $this->find('list', $findCond);
+		return $this->find('list', ...$findCond);
 	}
 
 	/**
@@ -337,16 +342,16 @@ class QueuedJobsTable extends Table {
 			],
 		];
 
-		$query = $this->find('all', $options);
+		$query = $this->find('all', ...$options);
 		if ($disableHydration) {
 			$query = $query->disableHydration();
 		}
 		$result = $query->toArray();
 		if ($result && $driverName === static::DRIVER_SQLITE) {
 			foreach ($result as $key => $row) {
-				$result[$key]['fetchdelay'] = (int)round($row['fetchdelay'] * DAY);
-				$result[$key]['runtime'] = (int)round($row['runtime'] * DAY);
-				$result[$key]['alltime'] = (int)round($row['alltime'] * DAY);
+				$result[$key]['fetchdelay'] = (int)round($row['fetchdelay'] * static::DAY);
+				$result[$key]['runtime'] = (int)round($row['runtime'] * static::DAY);
+				$result[$key]['alltime'] = (int)round($row['alltime'] * static::DAY);
 			}
 		}
 
@@ -418,7 +423,7 @@ class QueuedJobsTable extends Table {
 
 			$runtime = $job['duration'];
 			if ($driverName === static::DRIVER_SQLITE) {
-				$runtime = (int)round($runtime * DAY);
+				$runtime = (int)round($runtime * static::DAY);
 			}
 
 			/** @var string $name */
@@ -604,7 +609,7 @@ class QueuedJobsTable extends Table {
 
 		/** @var \Queue\Model\Entity\QueuedJob|null $job */
 		$job = $this->getConnection()->transactional(function () use ($query, $options, $now, $driverName) {
-			$query->find('all', $options)->enableAutoFields(true);
+			$query->find('all', ...$options)->enableAutoFields(true);
 
 			switch ($driverName) {
 				case static::DRIVER_MYSQL:
@@ -825,7 +830,7 @@ class QueuedJobsTable extends Table {
 			],
 		];
 
-		return $this->find('all', $findCond);
+		return $this->find('all', ...$findCond);
 	}
 
 	/**

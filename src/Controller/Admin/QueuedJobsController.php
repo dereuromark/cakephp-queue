@@ -62,7 +62,7 @@ class QueuedJobsController extends AppController {
 	 */
 	public function index() {
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
-			$query = $this->QueuedJobs->find('search', ['search' => $this->request->getQuery()]);
+			$query = $this->QueuedJobs->find('search', search: $this->request->getQuery());
 		} else {
 			$query = $this->QueuedJobs->find();
 		}
@@ -71,7 +71,11 @@ class QueuedJobsController extends AppController {
 		$this->set(compact('queuedJobs'));
 
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
-			$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_task', 'valueField' => 'job_task'])->distinct('job_task')->toArray();
+			$jobTypes = $this->QueuedJobs->find()->where()->find(
+				'list',
+				keyField: 'job_task',
+				valueField: 'job_task',
+			)->distinct('job_task')->toArray();
 			$this->set(compact('jobTypes'));
 		}
 	}
@@ -90,7 +94,11 @@ class QueuedJobsController extends AppController {
 
 		$stats = $this->QueuedJobs->getFullStats($jobType);
 
-		$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_task', 'valueField' => 'job_task'])->distinct('job_task')->toArray();
+		$jobTypes = $this->QueuedJobs->find()->where()->find(
+			'list',
+			keyField: 'job_task',
+			valueField: 'job_task',
+		)->distinct('job_task')->toArray();
 		$this->set(compact('stats', 'jobTypes'));
 	}
 
@@ -330,7 +338,7 @@ class QueuedJobsController extends AppController {
 			->select(['job_task'])
 			->distinct('job_task')
 			->disableHydration()
-			->find('list', ['keyField' => 'job_task', 'valueField' => 'job_task'])
+			->find('list', keyField: 'job_task', valueField: 'job_task')
 			->toArray();
 
 		$tasks = [];

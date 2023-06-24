@@ -2,10 +2,15 @@
 
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
+use Cake\Core\Plugin;
 use Cake\Database\Connection;
 use Cake\Datasource\ConnectionManager;
 use Cake\Mailer\TransportFactory;
+use Cake\TestSuite\Fixture\SchemaLoader;
+use Foo\Plugin as FooPlugin;
+use Queue\Plugin as QueuePlugin;
 use Shim\Filesystem\Folder;
+use TestApp\Controller\AppController;
 use Tools\View\Icon\BootstrapIcon;
 
 if (!defined('DS')) {
@@ -38,6 +43,7 @@ ini_set('intl.default_locale', 'de-DE');
 
 require PLUGIN_ROOT . '/vendor/autoload.php';
 require CORE_PATH . 'config/bootstrap.php';
+require CAKE . 'functions.php';
 
 Configure::write('App', [
 	'namespace' => 'TestApp',
@@ -98,10 +104,10 @@ $cache = [
 
 Cache::setConfig($cache);
 
-class_alias(TestApp\Controller\AppController::class, 'App\Controller\AppController');
+class_alias(AppController::class, 'App\Controller\AppController');
 
-Cake\Core\Plugin::getCollection()->add(new Queue\Plugin());
-Cake\Core\Plugin::getCollection()->add(new Foo\Plugin());
+Plugin::getCollection()->add(new QueuePlugin());
+Plugin::getCollection()->add(new FooPlugin());
 
 TransportFactory::setConfig('default', [
 	'className' => 'Debug',
@@ -126,6 +132,6 @@ ConnectionManager::setConfig('test', [
 ]);
 
 if (env('FIXTURE_SCHEMA_METADATA')) {
-	$loader = new Cake\TestSuite\Fixture\SchemaLoader();
+	$loader = new SchemaLoader();
 	$loader->loadInternalFile(env('FIXTURE_SCHEMA_METADATA'));
 }

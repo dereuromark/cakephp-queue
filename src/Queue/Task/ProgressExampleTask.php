@@ -19,6 +19,11 @@ class ProgressExampleTask extends Task implements AddInterface, AddFromBackendIn
 	public $timeout = 120;
 
 	/**
+	 * @var int
+	 */
+	public const MINUTE = 60;
+
+	/**
 	 * Example add functionality.
 	 * Will create one example job in the queue, which later will be executed using run();
 	 *
@@ -44,7 +49,7 @@ class ProgressExampleTask extends Task implements AddInterface, AddFromBackendIn
 		$this->io->out(' ');
 
 		$data = [
-			'duration' => 2 * MINUTE,
+			'duration' => 2 * static::MINUTE,
 		];
 		$this->QueuedJobs->createJob('Queue.ProgressExample', $data);
 		$this->io->success('OK, job created, now run the worker');
@@ -64,7 +69,7 @@ class ProgressExampleTask extends Task implements AddInterface, AddFromBackendIn
 	public function run(array $data, int $jobId): void {
 		$this->io->hr();
 		$this->io->out('CakePHP Queue ProgressExample task.');
-		$seconds = !empty($data['duration']) ? (int)$data['duration'] : 2 * MINUTE;
+		$seconds = !empty($data['duration']) ? (int)$data['duration'] : 2 * static::MINUTE;
 
 		$this->io->out('A total of ' . $seconds . ' seconds need to pass...');
 		for ($i = 0; $i < $seconds; $i++) {

@@ -617,11 +617,12 @@ class QueuedJobsTableTest extends TestCase {
 		$this->assertSame($data6, unserialize($tmp['data']));
 
 		// use FindProgress on the testgroup:
-		$progress = $this->QueuedJobs->find('all', [
-			'conditions' => [
+		$progress = $this->QueuedJobs->find(
+			'all',
+			conditions: [
 				'job_group' => 'testgroup',
 			],
-		])->toArray();
+		)->toArray();
 
 		$this->assertSame(3, count($progress));
 
