@@ -76,12 +76,23 @@ class BakeQueueTaskCommand extends SimpleBakeCommand {
 	 */
 	protected function generateTaskTestContent(string $name, string $namespace): string {
 		$testName = $name . 'Test';
-		$taskClassNamespace = $namespace . '\Queue\\Task\\' . $name;
+		$subNamespace = '';
+		$pos = strrpos($testName, '/');
+		if ($pos !== false) {
+			$subNamespace = '\\' . substr($testName, 0, $pos);
+			$testName = substr($testName, $pos + 1);
+		}
+		$taskClassNamespace = $namespace . '\Queue\\Task\\' . str_replace(DS, '\\', $name);
+
+		if (strpos($name, '/') !== false) {
+			$parts = explode('/', $name);
+			$name = array_pop($parts);
+		}
 
 		$content = <<<TXT
 <?php
 
-namespace $namespace\Test\TestCase\Queue\Task;
+namespace $namespace\Test\TestCase\Queue\Task$subNamespace;
 
 use Cake\TestSuite\TestCase;
 use $taskClassNamespace;
@@ -148,6 +159,7 @@ TXT;
 			'plugin' => $this->plugin,
 			'pluginPath' => $pluginPath,
 			'namespace' => $namespace,
+			'subNamespace' => $namespacePart ? ($namespacePart . '/') : '',
 			'name' => $name,
 			'add' => $arguments->getOption('add'),
 		];
