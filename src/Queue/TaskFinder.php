@@ -5,7 +5,10 @@ namespace Queue\Queue;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
-use InvalidArgumentException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RecursiveRegexIterator;
+use RegexIterator;
 use RuntimeException;
 
 class TaskFinder {
@@ -77,15 +80,34 @@ class TaskFinder {
 	 * @return array<string>
 	 */
 	protected function getTasks(string $path, ?string $plugin = null): array {
+		if (!is_dir($path)) {
+			return [];
+		}
+
 		$tasks = [];
 		$ignoredTasks = Config::ignoredTasks();
-		$files = glob($path . '*Task.php') ?: [];
-		foreach ($files as $file) {
-			$name = basename($file, 'Task.php');
+
+		$directoryIterator = new RecursiveDirectoryIterator($path);
+		$recursiveIterator = new RecursiveIteratorIterator($directoryIterator);
+		$iterator = new RegexIterator($recursiveIterator, '#.+\b(\w+)Task\.php$#', RecursiveRegexIterator::GET_MATCH);
+		/** @var array<string> $file */
+		foreach ($iterator as $file) {
+			$path = str_replace(DS, '/', $file[0]);
+			$pos = strpos($path, 'src/Queue/Task/');
+			if ($pos) {
+				$name = substr($path, $pos + strlen('src/Queue/Task/'), -8);
+			} else {
+				$pos = strpos($path, APP_DIR . '/Queue/Task/');
+				if (!$pos) {
+					continue;
+				}
+				$name = substr($path, $pos + strlen(APP_DIR . '/Queue/Task/'), -8);
+			}
+
 			$namespace = $plugin ? str_replace('/', '\\', $plugin) : Configure::read('App.namespace');
 
 			/** @phpstan-var class-string<\Queue\Queue\Task> $className */
-			$className = $namespace . '\Queue\Task\\' . $name . 'Task';
+			$className = $namespace . '\Queue\Task\\' . str_replace('/', '\\', $name) . 'Task';
 			$key = $plugin ? $plugin . '.' . $name : $name;
 
 			if (!in_array($className, $ignoredTasks, true)) {
@@ -119,7 +141,23 @@ class TaskFinder {
 			}
 		}
 
-		throw new InvalidArgumentException('No job type can be resolved for ' . $jobTask);
+		if (strpos($jobTask, '\\') === false) {
+			// Let's try matching without plugin prefix
+			foreach ($all as $name => $className) {
+				if (strpos($name, '.') === false) {
+					continue;
+				}
+				[$plugin, $name] = explode('.', $name, 2);
+				if ($jobTask === $name) {
+					$message = 'You seem to be adding a plugin job without plugin syntax (' . $jobTask . '), migrate to using ' . $plugin . '.' . $name . ' instead.';
+					trigger_error($message, E_USER_DEPRECATED);
+
+					return $plugin . '.' . $name;
+				}
+			}
+		}
+
+		throw new RuntimeException('No job type can be resolved for ' . $jobTask);
 	}
 
 	/**

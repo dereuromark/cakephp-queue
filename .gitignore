@@ -5,4 +5,4 @@
 composer.lock
 schema-dump-default.lock
 composer.phar
-/.phpunit.result.cache
+/.phpunit.cache
