@@ -44,7 +44,7 @@ class AddCommand extends Command {
 	 * @param \Cake\Console\Arguments $args Arguments
 	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
 	 *
-	 * @return null|void
+	 * @return int|null|void
 	 */
 	public function execute(Arguments $args, ConsoleIo $io) {
 		$tasks = $this->getTasks();

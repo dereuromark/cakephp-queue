@@ -66,9 +66,9 @@ class JobCommand extends Command {
 	 * @param \Cake\Console\Arguments $args Arguments
 	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
 	 *
-	 * @return int|null
+	 * @return int|null|void
 	 */
-	public function execute(Arguments $args, ConsoleIo $io): int|null {
+	public function execute(Arguments $args, ConsoleIo $io) {
 		$action = $args->getArgument('action');
 		if (!$action) {
 			$io->out('Please use with [action] [ID] added.');

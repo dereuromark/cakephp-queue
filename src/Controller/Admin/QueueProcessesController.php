@@ -37,7 +37,7 @@ class QueueProcessesController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return null|void
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function index() {
 		$queueProcesses = $this->paginate();
@@ -50,7 +50,7 @@ class QueueProcessesController extends AppController {
 	 *
 	 * @param int|null $id Queue Process id.
 	 *
-	 * @return null|void
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function view(?int $id = null) {
 		$queueProcess = $this->QueueProcesses->get($id, [
@@ -88,7 +88,7 @@ class QueueProcessesController extends AppController {
 	/**
 	 * @param int|null $id Queue Process id.
 	 *
-	 * @return \Cake\Http\Response|null Redirects to index.
+	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
 	public function terminate(?int $id = null) {
 		$this->request->allowMethod(['post', 'delete']);
@@ -108,7 +108,7 @@ class QueueProcessesController extends AppController {
 	/**
 	 * @param int|null $id Queue Process id.
 	 *
-	 * @return \Cake\Http\Response|null Redirects to index.
+	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
 	public function delete(?int $id = null) {
 		$this->request->allowMethod(['post', 'delete']);
@@ -128,7 +128,7 @@ class QueueProcessesController extends AppController {
 	}
 
 	/**
-	 * @return \Cake\Http\Response|null Redirects to index.
+	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
 	public function cleanup() {
 		$this->request->allowMethod(['post', 'delete']);

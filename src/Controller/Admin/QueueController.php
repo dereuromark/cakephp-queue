@@ -36,7 +36,7 @@ class QueueController extends AppController {
 	 * Admin center.
 	 * Manage queues from admin backend (without the need to open ssh console window).
 	 *
-	 * @return null|void
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function index() {
 		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');

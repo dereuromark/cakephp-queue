@@ -58,7 +58,7 @@ class QueuedJobsController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return null|void
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function index() {
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
@@ -109,7 +109,7 @@ class QueuedJobsController extends AppController {
 	 *
 	 * @param int|null $id Queued Job id.
 	 *
-	 * @return null|void
+	 * @return \Cake\Http\Response|null|void
 	 */
 	public function view(?int $id = null) {
 		$queuedJob = $this->QueuedJobs->get((int)$id, [
@@ -238,7 +238,7 @@ class QueuedJobsController extends AppController {
 	 *
 	 * @param int|null $id Queued Job id.
 	 *
-	 * @return \Cake\Http\Response|null Redirects to index.
+	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
 	public function delete(?int $id = null) {
 		$this->request->allowMethod(['post', 'delete']);
