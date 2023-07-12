@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Console;
 
@@ -15,7 +16,7 @@ class Io {
 	/**
 	 * @var \Cake\Console\ConsoleIo
 	 */
-	protected $_io;
+	protected ConsoleIo $_io;
 
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
@@ -31,7 +32,7 @@ class Io {
 	 * @param int $newlines Number of newlines to append
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
-	public function verbose($message, $newlines = 1) {
+	public function verbose(array|string $message, int $newlines = 1): ?int {
 		return $this->_io->verbose($message, $newlines);
 	}
 
@@ -42,7 +43,7 @@ class Io {
 	 * @param int $newlines Number of newlines to append
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
-	public function quiet($message, $newlines = 1) {
+	public function quiet(array|string $message, int $newlines = 1): ?int {
 		return $this->_io->quiet($message, $newlines);
 	}
 
@@ -63,7 +64,7 @@ class Io {
 	 * @param int $level The message's output level, see above.
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
-	public function out($message = '', $newlines = 1, $level = ConsoleIo::NORMAL) {
+	public function out(array|string $message = '', int $newlines = 1, int $level = ConsoleIo::NORMAL): ?int {
 		return $this->_io->out($message, $newlines, $level);
 	}
 
@@ -75,7 +76,7 @@ class Io {
 	 * @param int $newlines Number of newlines to append
 	 * @return int|null The number of bytes returned from writing to stderr.
 	 */
-	public function err($message = '', $newlines = 1) {
+	public function err(array|string $message = '', int $newlines = 1): ?int {
 		$messages = (array)$message;
 		foreach ($messages as $key => $message) {
 			$messages[$key] = '<error>' . $message . '</error>';
@@ -93,7 +94,7 @@ class Io {
 	 * @param int $level The message's output level, see above.
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
-	public function info($message = '', $newlines = 1, $level = ConsoleIo::NORMAL) {
+	public function info(array|string $message = '', int $newlines = 1, int $level = ConsoleIo::NORMAL): ?int {
 		$messages = (array)$message;
 		foreach ($messages as $key => $message) {
 			$messages[$key] = '<info>' . $message . '</info>';
@@ -111,7 +112,7 @@ class Io {
 	 * @param int $level The message's output level, see above.
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
-	public function comment($message = '', $newlines = 1, $level = ConsoleIo::NORMAL) {
+	public function comment(array|string $message = '', int $newlines = 1, int $level = ConsoleIo::NORMAL): ?int {
 		$messages = (array)$message;
 		foreach ($messages as $key => $message) {
 			$messages[$key] = '<comment>' . $message . '</comment>';
@@ -128,7 +129,7 @@ class Io {
 	 * @param int $newlines Number of newlines to append
 	 * @return int|null The number of bytes returned from writing to stderr.
 	 */
-	public function warn($message = '', $newlines = 1) {
+	public function warn(array|string $message = '', int $newlines = 1): ?int {
 		$messages = (array)$message;
 		foreach ($messages as $key => $message) {
 			$messages[$key] = '<warning>' . $message . '</warning>';
@@ -146,7 +147,7 @@ class Io {
 	 * @param int $level The message's output level, see above.
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
-	public function success($message = '', $newlines = 1, $level = ConsoleIo::NORMAL) {
+	public function success(array|string $message = '', int $newlines = 1, int $level = ConsoleIo::NORMAL): ?int {
 		$messages = (array)$message;
 		foreach ($messages as $key => $message) {
 			$messages[$key] = '<success>' . $message . '</success>';
@@ -162,7 +163,7 @@ class Io {
 	 * @param int $multiplier Number of times the linefeed sequence should be repeated
 	 * @return string
 	 */
-	public function nl($multiplier = 1) {
+	public function nl(int $multiplier = 1): string {
 		return $this->_io->nl($multiplier);
 	}
 
@@ -174,7 +175,7 @@ class Io {
 	 * @param int $width Width of the line, defaults to 63
 	 * @return void
 	 */
-	public function hr($newlines = 0, $width = 63) {
+	public function hr(int $newlines = 0, int $width = 63): void {
 		$this->_io->hr($newlines, $width);
 	}
 
@@ -188,7 +189,7 @@ class Io {
 	 * @throws \Cake\Console\Exception\StopException
 	 * @return void
 	 */
-	public function abort($message, $exitCode = CommandInterface::CODE_ERROR) {
+	public function abort(string $message, int $exitCode = CommandInterface::CODE_ERROR): void {
 		$this->_io->err('<error>' . $message . '</error>');
 
 		throw new StopException($message, $exitCode);
@@ -220,7 +221,7 @@ class Io {
 	 *    length of the last message output.
 	 * @return void
 	 */
-	public function overwrite($message, int $newlines = 1, ?int $size = null): void {
+	public function overwrite(array|string $message, int $newlines = 1, ?int $size = null): void {
 		$this->_io->overwrite($message, $newlines, $size);
 	}
 

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Command;
 
@@ -21,7 +22,7 @@ class RunCommand extends Command {
 	/**
 	 * @var \Cake\Core\ContainerInterface
 	 */
-	protected $container;
+	protected ContainerInterface $container;
 
 	/**
 	 * @param \Cake\Core\ContainerInterface $container

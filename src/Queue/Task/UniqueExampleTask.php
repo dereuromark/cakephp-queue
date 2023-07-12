@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue\Task;
 
@@ -14,19 +15,18 @@ class UniqueExampleTask extends Task implements AddInterface, AddFromBackendInte
 	/**
 	 * @var int
 	 */
-	protected $sleep = 10;
+	protected int $sleep = 10;
 
 	/**
 	 * @var bool
 	 */
-	public $unique = true;
+	public bool $unique = true;
 
 	/**
 	 * To invoke from CLI execute:
 	 * - bin/cake queue add Queue.UniqueExample
 	 *
 	 * @param string|null $data
-	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {

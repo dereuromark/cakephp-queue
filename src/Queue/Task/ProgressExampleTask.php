@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue\Task;
 
@@ -13,10 +14,8 @@ class ProgressExampleTask extends Task implements AddInterface, AddFromBackendIn
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
-	 *
-	 * @var int
 	 */
-	public $timeout = 120;
+	public ?int $timeout = 120;
 
 	/**
 	 * @var int
@@ -31,7 +30,6 @@ class ProgressExampleTask extends Task implements AddInterface, AddFromBackendIn
 	 * - bin/cake queue add Queue.ProgressExample
 	 *
 	 * @param string|null $data
-	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\View\Helper;
 
@@ -28,7 +29,7 @@ class QueueProgressHelper extends Helper {
 	/**
 	 * @var array<string, array<int>>|null
 	 */
-	protected $statistics;
+	protected ?array $statistics = null;
 
 	/**
 	 * Returns percentage as formatted value.
@@ -80,7 +81,6 @@ class QueueProgressHelper extends Helper {
 	/**
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 * @param string|null $fallbackHtml
-	 *
 	 * @return string|null
 	 */
 	public function htmlProgressBar(QueuedJob $queuedJob, ?string $fallbackHtml = null): ?string {
@@ -121,7 +121,6 @@ class QueueProgressHelper extends Helper {
 	/**
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 * @param string|null $fallbackHtml
-	 *
 	 * @return string|null
 	 */
 	public function htmlTimeoutProgressBar(QueuedJob $queuedJob, ?string $fallbackHtml = null): ?string {
@@ -142,7 +141,7 @@ class QueueProgressHelper extends Helper {
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 * @return float|null
 	 */
-	protected function calculateTimeoutProgress(QueuedJob $queuedJob) {
+	protected function calculateTimeoutProgress(QueuedJob $queuedJob): ?float {
 		if ($queuedJob->completed || $queuedJob->fetched || !$queuedJob->notbefore) {
 			return null;
 		}
@@ -172,7 +171,7 @@ class QueueProgressHelper extends Helper {
 	 * @param \Cake\I18n\DateTime $fetched
 	 * @return float|null
 	 */
-	protected function calculateJobProgress(string $jobType, $fetched) {
+	protected function calculateJobProgress(string $jobType, DateTime $fetched): ?float {
 		$stats = $this->getJobStatistics($jobType);
 		if (!$stats) {
 			return null;

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
@@ -35,7 +36,7 @@ class QueueController extends AppController {
 	 * Admin center.
 	 * Manage queues from admin backend (without the need to open ssh console window).
 	 *
-	 * @return \Cake\Http\Response|null|void
+	 * @return null|void
 	 */
 	public function index() {
 		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
@@ -100,7 +101,7 @@ class QueueController extends AppController {
 	 * @throws \Cake\Http\Exception\NotFoundException
 	 * @return \Cake\Http\Response|null
 	 */
-	public function resetJob($id = null) {
+	public function resetJob(?int $id = null) {
 		$this->request->allowMethod('post');
 		if (!$id) {
 			throw new NotFoundException();
@@ -115,10 +116,9 @@ class QueueController extends AppController {
 
 	/**
 	 * @param int|null $id
-	 *
 	 * @return \Cake\Http\Response|null
 	 */
-	public function removeJob($id = null) {
+	public function removeJob(?int $id = null) {
 		$this->request->allowMethod('post');
 		$queuedJob = $this->QueuedJobs->get($id);
 
@@ -202,10 +202,9 @@ class QueueController extends AppController {
 
 	/**
 	 * @param array<mixed>|string $default
-	 *
 	 * @return \Cake\Http\Response|null
 	 */
-	protected function refererRedirect($default) {
+	protected function refererRedirect(array|string $default) {
 		$url = $this->request->getQuery('redirect');
 		if (is_array($url)) {
 			throw new NotFoundException('Invalid array in query string');

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Command;
 
@@ -55,7 +56,7 @@ class MigrateTasksCommand extends Command {
 	/**
 	 * @param \Cake\Console\Arguments $args Arguments
 	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
-	 * @return int|null|void
+	 * @return null|void
 	 */
 	public function execute(Arguments $args, ConsoleIo $io) {
 		$tasks = $this->getTasks($args->getOption('plugin') ? (string)$args->getOption('plugin') : null);
@@ -225,7 +226,6 @@ class MigrateTasksCommand extends Command {
 
 	/**
 	 * @param string|null $plugin
-	 *
 	 * @return array<string>
 	 */
 	protected function getTasks(?string $plugin): array {

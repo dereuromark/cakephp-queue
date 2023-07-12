@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  */
@@ -19,10 +21,8 @@ class MonitorExampleTask extends Task implements AddInterface, AddFromBackendInt
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
-	 *
-	 * @var int
 	 */
-	public $timeout = 10;
+	public ?int $timeout = 10;
 
 	/**
 	 * MonitorExample add functionality.
@@ -32,7 +32,6 @@ class MonitorExampleTask extends Task implements AddInterface, AddFromBackendInt
 	 * - bin/cake queue add Queue.MonitorExample
 	 *
 	 * @param string|null $data
-	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {
@@ -74,7 +73,7 @@ class MonitorExampleTask extends Task implements AddInterface, AddFromBackendInt
 	/**
 	 * @return void
 	 */
-	protected function doMonitoring() {
+	protected function doMonitoring(): void {
 		$memory = $this->getSystemMemInfo();
 
 		$array = [
@@ -90,7 +89,7 @@ class MonitorExampleTask extends Task implements AddInterface, AddFromBackendInt
 	/**
 	 * @return array<string>
 	 */
-	protected function getSystemMemInfo() {
+	protected function getSystemMemInfo(): array {
 		$data = explode("\n", file_get_contents('/proc/meminfo') ?: '');
 		$meminfo = [];
 		foreach ($data as $line) {

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue\Task;
 
@@ -14,19 +15,18 @@ class CostsExampleTask extends Task implements AddInterface, AddFromBackendInter
 	/**
 	 * @var int
 	 */
-	public $costs = 55;
+	public int $costs = 55;
 
 	/**
 	 * @var int
 	 */
-	protected $sleep = 10;
+	protected int $sleep = 10;
 
 	/**
 	 * To invoke from CLI execute:
 	 * - bin/cake queue add Queue.CostsExample
 	 *
 	 * @param string|null $data
-	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {

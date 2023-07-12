@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\View\Helper;
 
@@ -15,11 +16,10 @@ class QueueHelper extends Helper {
 	/**
 	 * @var array<string, array<string, mixed>>
 	 */
-	protected $taskConfig;
+	protected array $taskConfig = [];
 
 	/**
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
-	 *
 	 * @return bool
 	 */
 	public function hasFailed(QueuedJob $queuedJob): bool {
@@ -43,7 +43,6 @@ class QueueHelper extends Helper {
 
 	/**
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
-	 *
 	 * @return string|null
 	 */
 	public function attempts(QueuedJob $queuedJob): ?string {
@@ -86,7 +85,6 @@ class QueueHelper extends Helper {
 
 	/**
 	 * @param string $jobTask
-	 *
 	 * @return array<string, mixed>
 	 */
 	protected function taskConfig(string $jobTask): array {

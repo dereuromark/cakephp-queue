@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Migration;
 
@@ -12,10 +13,9 @@ class OldTaskFinder {
 	 * Makes sure that app tasks are prioritized over plugin ones.
 	 *
 	 * @param string|null $plugin
-	 *
 	 * @return array<string>
 	 */
-	public function all(?string $plugin) {
+	public function all(?string $plugin): array {
 		$paths = App::classPath('Shell/Task', $plugin);
 
 		$allTasks = [];
@@ -31,10 +31,9 @@ class OldTaskFinder {
 	/**
 	 * @param string $path
 	 * @param string|null $plugin
-	 *
 	 * @return array<string>
 	 */
-	protected function getTasks(string $path, ?string $plugin) {
+	protected function getTasks(string $path, ?string $plugin): array {
 		$res = glob($path . '*Task.php') ?: [];
 
 		$tasks = [];

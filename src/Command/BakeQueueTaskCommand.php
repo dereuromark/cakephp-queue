@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Command;
 
@@ -24,7 +25,7 @@ class BakeQueueTaskCommand extends SimpleBakeCommand {
 	/**
 	 * @var string
 	 */
-	protected $_name;
+	protected string $_name;
 
 	/**
 	 * @inheritDoc
@@ -71,7 +72,6 @@ class BakeQueueTaskCommand extends SimpleBakeCommand {
 	/**
 	 * @param string $name
 	 * @param string $namespace
-	 *
 	 * @return string
 	 */
 	protected function generateTaskTestContent(string $name, string $namespace): string {
@@ -102,7 +102,7 @@ class $testName extends TestCase {
 	/**
 	 * @var array<string>
 	 */
-	protected \$fixtures = [
+	protected array \$fixtures = [
 		'plugin.Queue.QueuedJobs',
 		'plugin.Queue.QueueProcesses',
 	];
@@ -159,7 +159,7 @@ TXT;
 			'plugin' => $this->plugin,
 			'pluginPath' => $pluginPath,
 			'namespace' => $namespace,
-			'subNamespace' => $namespacePart ? ($namespacePart . '/') : '',
+			'subNamespace' => $namespacePart ? $namespacePart . '/' : '',
 			'name' => $name,
 			'add' => $arguments->getOption('add'),
 		];

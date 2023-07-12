@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Model\Table;
 
@@ -131,7 +132,7 @@ class QueueProcessesTableTest extends TestCase {
 		$queuedProcessesTable->saveOrFail($queuedProcess);
 
 		$gotSignal = false;
-		pcntl_signal(SIGUSR1, function() use (&$gotSignal) {
+		pcntl_signal(SIGUSR1, function () use (&$gotSignal) {
 			$gotSignal = true;
 		});
 

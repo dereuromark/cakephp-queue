@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
@@ -17,10 +19,8 @@ class ExampleTask extends Task implements AddInterface, AddFromBackendInterface 
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
-	 *
-	 * @var int
 	 */
-	public $timeout = 10;
+	public ?int $timeout = 10;
 
 	/**
 	 * Example add functionality.
@@ -30,7 +30,6 @@ class ExampleTask extends Task implements AddInterface, AddFromBackendInterface 
 	 * - bin/cake queue add Queue.Example
 	 *
 	 * @param string|null $data Optional data for the task, make sure to "quote multi words"
-	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {

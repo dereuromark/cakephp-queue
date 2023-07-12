@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Controller\Admin;
 
@@ -202,7 +203,6 @@ class QueuedJobsControllerTest extends TestCase {
 
 	/**
 	 * @param array $data
-	 *
 	 * @return \Queue\Model\Entity\QueuedJob
 	 */
 	protected function createJob(array $data = []) {

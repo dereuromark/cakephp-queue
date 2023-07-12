@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Model\Table;
 
@@ -17,6 +18,7 @@ use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
 use Queue\Utility\Serializer;
 use RuntimeException;
+use Search\Manager;
 
 /**
  * @author MGriesbach@gmail.com
@@ -73,17 +75,17 @@ class QueuedJobsTable extends Table {
 	/**
 	 * @var array<string, string>
 	 */
-	public $rateHistory = [];
+	public array $rateHistory = [];
 
 	/**
 	 * @var \Queue\Queue\TaskFinder|null
 	 */
-	protected $taskFinder;
+	protected ?TaskFinder $taskFinder = null;
 
 	/**
 	 * @var string|null
 	 */
-	protected $_key;
+	protected ?string $_key = null;
 
 	/**
 	 * set connection name
@@ -128,7 +130,7 @@ class QueuedJobsTable extends Table {
 	 * @param \ArrayObject<string, mixed> $options
 	 * @return void
 	 */
-	public function beforeMarshal(EventInterface $event, ArrayObject $data, ArrayObject $options) {
+	public function beforeMarshal(EventInterface $event, ArrayObject $data, ArrayObject $options): void {
 		if (isset($data['data']) && $data['data'] === '') {
 			$data['data'] = null;
 		}
@@ -137,7 +139,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * @return \Search\Manager
 	 */
-	public function searchManager() {
+	public function searchManager(): Manager {
 		$searchManager = $this->behaviors()->Search->searchManager();
 		$searchManager
 			->value('job_task')
@@ -200,7 +202,7 @@ class QueuedJobsTable extends Table {
 	 * @param array<string, mixed> $config Config to save along with the job
 	 * @return \Queue\Model\Entity\QueuedJob Saved job entity
 	 */
-	public function createJob(string $jobTask, ?array $data = null, array $config = []) {
+	public function createJob(string $jobTask, ?array $data = null, array $config = []): QueuedJob {
 		$queuedJob = [
 			'job_task' => $this->jobTask($jobTask),
 			'data' => is_array($data) ? Serializer::serialize($data) : null,
@@ -215,7 +217,6 @@ class QueuedJobsTable extends Table {
 
 	/**
 	 * @param class-string<\Queue\Queue\Task>|string $jobType
-	 *
 	 * @return string
 	 */
 	protected function jobTask(string $jobType): string {
@@ -229,9 +230,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * @param string $reference
 	 * @param string|null $jobTask
-	 *
 	 * @throws \InvalidArgumentException
-	 *
 	 * @return bool
 	 */
 	public function isQueued(string $reference, ?string $jobTask = null): bool {
@@ -275,7 +274,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return \Cake\ORM\Query\SelectQuery
 	 */
-	public function getTypes() {
+	public function getTypes(): SelectQuery {
 		$findCond = [
 			'fields' => [
 				'job_task',
@@ -295,7 +294,6 @@ class QueuedJobsTable extends Table {
 	 * TO-DO: rewrite as virtual field
 	 *
 	 * @param bool $disableHydration
-	 *
 	 * @return array<\Queue\Model\Entity\QueuedJob>|array<mixed>
 	 */
 	public function getStats(bool $disableHydration = false): array {
@@ -464,7 +462,7 @@ class QueuedJobsTable extends Table {
 	 * @param array<string> $types Request a job from these types (or exclude certain types), or any otherwise.
 	 * @return \Queue\Model\Entity\QueuedJob|null
 	 */
-	public function requestJob(array $tasks, array $groups = [], array $types = []) {
+	public function requestJob(array $tasks, array $groups = [], array $types = []): ?QueuedJob {
 		$now = $this->getDateTime();
 		$nowStr = $now->toDateTimeString();
 		$driverName = $this->getDriverName();
@@ -582,7 +580,7 @@ class QueuedJobsTable extends Table {
 						],
 					],
 				],
-				'attempts <' => ($task['retries'] + 1),
+				'attempts <' => $task['retries'] + 1,
 			];
 			if (array_key_exists('rate', $task) && $tmp['job_task'] && array_key_exists($tmp['job_task'], $this->rateHistory)) {
 				switch ($driverName) {
@@ -662,7 +660,7 @@ class QueuedJobsTable extends Table {
 	 * @param string|null $status
 	 * @return bool Success
 	 */
-	public function updateProgress($id, $progress, ?string $status = null): bool {
+	public function updateProgress(int $id, float $progress, ?string $status = null): bool {
 		if (!$id) {
 			return false;
 		}
@@ -714,7 +712,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return int Count of deleted rows
 	 */
-	public function flushFailedJobs() {
+	public function flushFailedJobs(): int {
 		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
@@ -732,7 +730,6 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @param int|null $id
 	 * @param bool $full Also currently running jobs.
-	 *
 	 * @return int Success
 	 */
 	public function reset(?int $id = null, bool $full = false): int {
@@ -760,7 +757,6 @@ class QueuedJobsTable extends Table {
 	/**
 	 * @param string $task
 	 * @param string|null $reference
-	 *
 	 * @return int
 	 */
 	public function rerunByTask(string $task, ?string $reference = null): int {
@@ -785,7 +781,6 @@ class QueuedJobsTable extends Table {
 
 	/**
 	 * @param int $id
-	 *
 	 * @return int
 	 */
 	public function rerun(int $id): int {
@@ -810,7 +805,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return \Cake\ORM\Query\SelectQuery
 	 */
-	public function getPendingStats() {
+	public function getPendingStats(): SelectQuery {
 		$findCond = [
 			'fields' => [
 				'id',
@@ -989,10 +984,9 @@ class QueuedJobsTable extends Table {
 	 * Without argument this will be "now".
 	 *
 	 * @param \Cake\I18n\DateTime|string|int|null $notBefore
-	 *
 	 * @return \Cake\I18n\DateTime
 	 */
-	protected function getDateTime($notBefore = null) {
+	protected function getDateTime(DateTime|string|int|null $notBefore = null): DateTime {
 		if (is_object($notBefore)) {
 			return $notBefore;
 		}

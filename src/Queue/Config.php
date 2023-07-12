@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue;
 
@@ -14,7 +15,7 @@ class Config {
 	 *
 	 * @return int
 	 */
-	public static function defaultworkertimeout() {
+	public static function defaultworkertimeout(): int {
 		return Configure::read('Queue.defaultworkertimeout', 600); // 10min
 	}
 
@@ -23,7 +24,7 @@ class Config {
 	 *
 	 * @return int
 	 */
-	public static function workermaxruntime() {
+	public static function workermaxruntime(): int {
 		return Configure::read('Queue.workermaxruntime', 120);
 	}
 
@@ -32,35 +33,35 @@ class Config {
 	 *
 	 * @return int
 	 */
-	public static function cleanuptimeout() {
+	public static function cleanuptimeout(): int {
 		return Configure::read('Queue.cleanuptimeout', 2592000); // 30 days
 	}
 
 	/**
 	 * @return int
 	 */
-	public static function sleeptime() {
+	public static function sleeptime(): int {
 		return Configure::read('Queue.sleeptime', 10);
 	}
 
 	/**
 	 * @return int
 	 */
-	public static function gcprob() {
+	public static function gcprob(): int {
 		return Configure::read('Queue.gcprob', 10);
 	}
 
 	/**
 	 * @return int
 	 */
-	public static function defaultworkerretries() {
+	public static function defaultworkerretries(): int {
 		return Configure::read('Queue.defaultworkerretries', 1);
 	}
 
 	/**
 	 * @return int
 	 */
-	public static function maxworkers() {
+	public static function maxworkers(): int {
 		return Configure::read('Queue.maxworkers', 1);
 	}
 
@@ -78,7 +79,6 @@ class Config {
 
 	/**
 	 * @param array<string> $tasks
-	 *
 	 * @throws \RuntimeException
 	 * @return array<string, array<string, mixed>>
 	 */
@@ -108,9 +108,7 @@ class Config {
 
 	/**
 	 * @phpstan-param class-string<\Queue\Queue\Task>|string $class
-	 *
 	 * @param string $class
-	 *
 	 * @return string
 	 */
 	public static function taskName(string $class): string {

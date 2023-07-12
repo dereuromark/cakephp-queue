@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
@@ -18,28 +20,23 @@ class RetryExampleTask extends Task implements AddInterface, AddFromBackendInter
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
-	 *
-	 * @var int
 	 */
-	public $timeout = 10;
+	public ?int $timeout = 10;
 
 	/**
 	 * Number of times a failed instance of this task should be restarted before giving up.
-	 *
-	 * @var int
 	 */
-	public $retries = 4;
+	public ?int $retries = 4;
 
 	/**
 	 * @var string
 	 */
-	protected static $file = TMP . 'task_retry.txt';
+	protected static string $file = TMP . 'task_retry.txt';
 
 	/**
 	 * This is only for demo/testing purposes.
 	 *
 	 * @throws \RuntimeException
-	 *
 	 * @return bool
 	 */
 	public static function init(): bool {
@@ -64,7 +61,6 @@ class RetryExampleTask extends Task implements AddInterface, AddFromBackendInter
 	 * - bin/cake queue add Queue.RetryExample
 	 *
 	 * @param string|null $data
-	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {

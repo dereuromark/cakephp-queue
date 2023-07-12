@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License

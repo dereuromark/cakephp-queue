@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php MIT License

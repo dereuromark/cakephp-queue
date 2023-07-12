@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace TestApp;
 
@@ -34,7 +35,7 @@ class Application extends BaseApplication {
 	 * @param \Cake\Core\ContainerInterface $container
 	 * @return void
 	 */
-	public function	services(ContainerInterface $container): void {
+	public function services(ContainerInterface $container): void {
 		$container->add(TestService::class);
 	}
 

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 use Cake\Utility\Inflector;
 
@@ -20,7 +21,6 @@ foreach ($iterator as $file) {
 		$fieldsObject = (new ReflectionClass($class))->getProperty('fields');
 		$tableObject = (new ReflectionClass($class))->getProperty('table');
 		$tableName = $tableObject->getDefaultValue();
-
 	} catch (ReflectionException $e) {
 		continue;
 	}

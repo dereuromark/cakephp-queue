@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Mailer\Transport;
 
@@ -61,12 +62,12 @@ class SimpleQueueTransportTest extends TestCase {
 
 		$mailer->render('Foo Bar Content');
 		/*
-		$mailer->viewBuilder()->setLayout('test_layout');
-		$mailer->viewBuilder()->setTemplate('test_template');
-		$mailer->viewBuilder()->setTheme('EuroTheme');
-		$mailer->set('var1', 1);
-		$mailer->set('var2', 2);
-		*/
+        $mailer->viewBuilder()->setLayout('test_layout');
+        $mailer->viewBuilder()->setTemplate('test_template');
+        $mailer->viewBuilder()->setTheme('EuroTheme');
+        $mailer->set('var1', 1);
+        $mailer->set('var2', 2);
+        */
 		$mailer->setSubject("L'utilisateur n'a pas pu être enregistré");
 		$mailer->setReplyTo('noreply@cakephp.org');
 		$mailer->setReadReceipt('noreply2@cakephp.org');

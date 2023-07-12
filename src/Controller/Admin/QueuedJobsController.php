@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
@@ -13,7 +14,6 @@ use RuntimeException;
 
 /**
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
- *
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> paginate($object = null, array $settings = [])
  * @property \Search\Controller\Component\SearchComponent $Search
  */
@@ -58,7 +58,7 @@ class QueuedJobsController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return \Cake\Http\Response|null|void
+	 * @return null|void
 	 */
 	public function index() {
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
@@ -87,7 +87,7 @@ class QueuedJobsController extends AppController {
 	 * @throws \Cake\Http\Exception\NotFoundException
 	 * @return void
 	 */
-	public function stats($jobType = null) {
+	public function stats(?string $jobType = null): void {
 		if (!Configure::read('Queue.isStatisticEnabled')) {
 			throw new NotFoundException('Not enabled');
 		}
@@ -106,9 +106,9 @@ class QueuedJobsController extends AppController {
 	 * View method
 	 *
 	 * @param int|null $id Queued Job id.
-	 * @return \Cake\Http\Response|null|void
+	 * @return null|void
 	 */
-	public function view($id = null) {
+	public function view(?int $id = null) {
 		$queuedJob = $this->QueuedJobs->get((int)$id, [
 			'contain' => ['WorkerProcesses'],
 		]);
@@ -129,10 +129,9 @@ class QueuedJobsController extends AppController {
 	}
 
 	/**
-	   * @throws \RuntimeException
-	   *
-	   * @return \Cake\Http\Response|null|void
-	   */
+	 * @throws \RuntimeException
+	 * @return \Cake\Http\Response|null|void
+	 */
 	public function import() {
 		if ($this->request->is(['post'])) {
 			/** @var \Laminas\Diactoros\UploadedFile|null $file */
@@ -196,7 +195,7 @@ class QueuedJobsController extends AppController {
 	 * @param int|null $id Queued Job id.
 	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
-	public function edit($id = null) {
+	public function edit(?int $id = null) {
 		$queuedJob = $this->QueuedJobs->get($id, [
 			'contain' => [],
 		]);
@@ -224,7 +223,7 @@ class QueuedJobsController extends AppController {
 	 * @param int|null $id Queued Job id.
 	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
-	public function data($id = null) {
+	public function data(?int $id = null) {
 		return $this->edit($id);
 	}
 
@@ -232,9 +231,9 @@ class QueuedJobsController extends AppController {
 	 * Delete method
 	 *
 	 * @param int|null $id Queued Job id.
-	 * @return \Cake\Http\Response|null|void Redirects to index.
+	 * @return \Cake\Http\Response|null Redirects to index.
 	 */
-	public function delete($id = null) {
+	public function delete(?int $id = null) {
 		$this->request->allowMethod(['post', 'delete']);
 		$queuedJob = $this->QueuedJobs->get($id);
 		if ($this->QueuedJobs->delete($queuedJob)) {

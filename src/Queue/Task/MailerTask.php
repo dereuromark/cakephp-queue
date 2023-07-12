@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue\Task;
 
 use Cake\Log\Log;
+use Cake\Mailer\Mailer;
 use Cake\Mailer\MailerAwareTrait;
 use Queue\Model\QueueException;
 use Queue\Queue\Task;
@@ -21,15 +23,12 @@ class MailerTask extends Task {
 
 	use MailerAwareTrait;
 
-	/**
-	 * @var int
-	 */
-	public $timeout = 60;
+	public ?int $timeout = 60;
 
 	/**
 	 * @var \Cake\Mailer\Mailer
 	 */
-	protected $mailer;
+	protected Mailer $mailer;
 
 	/**
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue\Task;
 
@@ -14,10 +15,8 @@ class ExceptionExampleTask extends Task implements AddInterface, AddFromBackendI
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
-	 *
-	 * @var int
 	 */
-	public $timeout = 10;
+	public ?int $timeout = 10;
 
 	/**
 	 * Example add functionality.
@@ -27,7 +26,6 @@ class ExceptionExampleTask extends Task implements AddInterface, AddFromBackendI
 	 * - bin/cake queue add Queue.ExceptionExample
 	 *
 	 * @param string|null $data
-	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {

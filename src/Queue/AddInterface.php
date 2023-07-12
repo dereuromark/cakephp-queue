@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue;
 
@@ -16,7 +17,6 @@ interface AddInterface {
 	 * Will create one example job in the queue, which later will be executed using run().
 	 *
 	 * @param string|null $data Optional data for the task, make sure to "quote multi words"
-	 *
 	 * @return void
 	 */
 	public function add(?string $data): void;

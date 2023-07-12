@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue;
 
@@ -9,7 +10,7 @@ trait ServicesTrait {
 	/**
 	 * @var \Cake\Core\ContainerInterface
 	 */
-	protected $container;
+	protected ContainerInterface $container;
 
 	/**
 	 * @param string $id Classname or identifier of the service you want to retrieve
@@ -17,7 +18,7 @@ trait ServicesTrait {
 	 * @throws \Psr\Container\ContainerExceptionInterface
 	 * @return mixed
 	 */
-	protected function getService(string $id) {
+	protected function getService(string $id): mixed {
 		return $this->container->get($id);
 	}
 
@@ -25,7 +26,7 @@ trait ServicesTrait {
 	 * @param \Cake\Core\ContainerInterface $container
 	 * @return void
 	 */
-	public function setContainer(ContainerInterface $container) {
+	public function setContainer(ContainerInterface $container): void {
 		$this->container = $container;
 	}
 

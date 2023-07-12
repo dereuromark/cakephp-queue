@@ -1,9 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
 use Cake\I18n\DateTime;
+use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
@@ -20,7 +22,6 @@ use Queue\Queue\Config;
  * @method \Queue\Model\Entity\QueueProcess patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
  * @method array<\Queue\Model\Entity\QueueProcess> patchEntities(iterable $entities, array $data, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess findOrCreate($search, ?callable $callback = null, $options = [])
- *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  * @method \Queue\Model\Entity\QueueProcess saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
  * @method \Queue\Model\Entity\QueueProcess newEmptyEntity()
@@ -104,10 +105,9 @@ class QueueProcessesTable extends Table {
 	/**
 	 * @param string $value
 	 * @param array<string, mixed> $context
-	 *
 	 * @return bool
 	 */
-	public function validateCount($value, array $context): bool {
+	public function validateCount(string $value, array $context): bool {
 		$maxWorkers = Config::maxworkers();
 		if (!$value || !$maxWorkers) {
 			return true;
@@ -124,7 +124,7 @@ class QueueProcessesTable extends Table {
 	/**
 	 * @return \Cake\ORM\Query\SelectQuery
 	 */
-	public function findActive() {
+	public function findActive(): SelectQuery {
 		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
@@ -134,7 +134,6 @@ class QueueProcessesTable extends Table {
 	/**
 	 * @param string $pid
 	 * @param string $key
-	 *
 	 * @return int
 	 */
 	public function add(string $pid, string $key): int {
@@ -173,7 +172,6 @@ class QueueProcessesTable extends Table {
 
 	/**
 	 * @param string $pid
-	 *
 	 * @return void
 	 */
 	public function remove(string $pid): void {

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Command;
 
@@ -33,8 +34,8 @@ class JobCommand extends Command {
 	}
 
 	/**
-	   * @inheritDoc
-	   */
+	 * @inheritDoc
+	 */
 	public static function defaultName(): string {
 		return 'queue job';
 	}
@@ -64,9 +65,9 @@ class JobCommand extends Command {
 	/**
 	 * @param \Cake\Console\Arguments $args Arguments
 	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
-	 * @return int|null|void
+	 * @return int|null
 	 */
-	public function execute(Arguments $args, ConsoleIo $io) {
+	public function execute(Arguments $args, ConsoleIo $io): int|null {
 		$action = $args->getArgument('action');
 		if (!$action) {
 			$io->out('Please use with [action] [ID] added.');
@@ -128,7 +129,6 @@ class JobCommand extends Command {
 
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
-	 *
 	 * @return int
 	 */
 	protected function rerunAll(ConsoleIo $io): int {
@@ -148,7 +148,6 @@ class JobCommand extends Command {
 
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
-	 *
 	 * @return int
 	 */
 	protected function resetAll(ConsoleIo $io): int {
@@ -168,7 +167,6 @@ class JobCommand extends Command {
 
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
-	 *
 	 * @return int
 	 */
 	protected function removeAll(ConsoleIo $io): int {
@@ -186,7 +184,6 @@ class JobCommand extends Command {
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
-	 *
 	 * @return int
 	 */
 	protected function rerun(ConsoleIo $io, QueuedJob $queuedJob): int {
@@ -206,7 +203,6 @@ class JobCommand extends Command {
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
-	 *
 	 * @return int
 	 */
 	protected function reset(ConsoleIo $io, QueuedJob $queuedJob): int {
@@ -226,7 +222,6 @@ class JobCommand extends Command {
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
-	 *
 	 * @return int
 	 */
 	protected function remove(ConsoleIo $io, QueuedJob $queuedJob): int {
@@ -240,7 +235,6 @@ class JobCommand extends Command {
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
-	 *
 	 * @return int
 	 */
 	protected function view(ConsoleIo $io, QueuedJob $queuedJob): int {
@@ -266,7 +260,6 @@ class JobCommand extends Command {
 
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
-	 *
 	 * @return int
 	 */
 	protected function flush(ConsoleIo $io): int {
@@ -278,7 +271,6 @@ class JobCommand extends Command {
 
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
-	 *
 	 * @return int
 	 */
 	protected function clean(ConsoleIo $io): int {
