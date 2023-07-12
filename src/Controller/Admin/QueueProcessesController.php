@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
@@ -8,7 +9,6 @@ use Exception;
 
 /**
  * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
- *
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> paginate($object = null, array $settings = [])
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  */
@@ -49,9 +49,10 @@ class QueueProcessesController extends AppController {
 	 * View method
 	 *
 	 * @param int|null $id Queue Process id.
+	 *
 	 * @return \Cake\Http\Response|null|void
 	 */
-	public function view($id = null) {
+	public function view(?int $id = null) {
 		$queueProcess = $this->QueueProcesses->get($id, [
 			'contain' => [],
 		]);
@@ -63,9 +64,10 @@ class QueueProcessesController extends AppController {
 	 * Edit method
 	 *
 	 * @param int|null $id Queue Process id.
+	 *
 	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
-	public function edit($id = null) {
+	public function edit(?int $id = null) {
 		$queueProcess = $this->QueueProcesses->get($id, [
 			'contain' => [],
 		]);
@@ -85,9 +87,10 @@ class QueueProcessesController extends AppController {
 
 	/**
 	 * @param int|null $id Queue Process id.
+	 *
 	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
-	public function terminate($id = null) {
+	public function terminate(?int $id = null) {
 		$this->request->allowMethod(['post', 'delete']);
 
 		try {
@@ -104,9 +107,10 @@ class QueueProcessesController extends AppController {
 
 	/**
 	 * @param int|null $id Queue Process id.
+	 *
 	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
-	public function delete($id = null) {
+	public function delete(?int $id = null) {
 		$this->request->allowMethod(['post', 'delete']);
 		$queueProcess = $this->QueueProcesses->get($id);
 

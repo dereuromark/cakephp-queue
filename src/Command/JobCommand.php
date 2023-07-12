@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Command;
 
@@ -33,8 +34,8 @@ class JobCommand extends Command {
 	}
 
 	/**
-	   * @inheritDoc
-	   */
+	 * @inheritDoc
+	 */
 	public static function defaultName(): string {
 		return 'queue job';
 	}
@@ -64,6 +65,7 @@ class JobCommand extends Command {
 	/**
 	 * @param \Cake\Console\Arguments $args Arguments
 	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
+	 *
 	 * @return int|null|void
 	 */
 	public function execute(Arguments $args, ConsoleIo $io) {

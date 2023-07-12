@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue;
 
@@ -29,6 +30,7 @@ class Plugin extends BasePlugin {
 	 * Console hook
 	 *
 	 * @param \Cake\Console\CommandCollection $commands The command collection
+	 *
 	 * @return \Cake\Console\CommandCollection
 	 */
 	public function console(CommandCollection $commands): CommandCollection {
@@ -49,6 +51,7 @@ class Plugin extends BasePlugin {
 
 	/**
 	 * @param \Cake\Routing\RouteBuilder $routes The route builder to update.
+	 *
 	 * @return void
 	 */
 	public function routes(RouteBuilder $routes): void {
@@ -67,6 +70,7 @@ class Plugin extends BasePlugin {
 
 	/**
 	 * @param \Cake\Core\ContainerInterface $container The DI container instance
+	 *
 	 * @return void
 	 */
 	public function services(ContainerInterface $container): void {

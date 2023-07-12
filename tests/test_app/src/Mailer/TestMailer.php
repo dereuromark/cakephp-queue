@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace TestApp\Mailer;
 
@@ -8,6 +9,7 @@ class TestMailer extends Mailer {
 
 	/**
 	 * @param bool $isTest
+	 *
 	 * @return $this
 	 */
 	public function testAction(bool $isTest) {

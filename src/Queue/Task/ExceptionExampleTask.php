@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue\Task;
 
@@ -14,10 +15,8 @@ class ExceptionExampleTask extends Task implements AddInterface, AddFromBackendI
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
-	 *
-	 * @var int
 	 */
-	public $timeout = 10;
+	public ?int $timeout = 10;
 
 	/**
 	 * Example add functionality.
@@ -55,7 +54,9 @@ class ExceptionExampleTask extends Task implements AddInterface, AddFromBackendI
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @throws \Queue\Model\QueueException
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {

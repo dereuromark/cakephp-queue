@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * @author Mark Scherer
  * @license http://www.opensource.org/licenses/mit-license.php MIT License
@@ -9,6 +11,7 @@ namespace Queue\Mailer\Transport;
 use Cake\Mailer\AbstractTransport;
 use Cake\Mailer\Message;
 use Cake\ORM\TableRegistry;
+use Queue\Model\Table\QueuedJobsTable;
 
 /**
  * Send mail using Queue plugin and Message settings.
@@ -20,6 +23,7 @@ class SimpleQueueTransport extends AbstractTransport {
 	 * Send mail
 	 *
 	 * @param \Cake\Mailer\Message $message
+	 *
 	 * @return array<string, mixed>
 	 */
 	public function send(Message $message): array {
@@ -65,7 +69,7 @@ class SimpleQueueTransport extends AbstractTransport {
 	/**
 	 * @return \Queue\Model\Table\QueuedJobsTable
 	 */
-	protected function getQueuedJobsModel() {
+	protected function getQueuedJobsModel(): QueuedJobsTable {
 		/** @var \Queue\Model\Table\QueuedJobsTable $table */
 		$table = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 

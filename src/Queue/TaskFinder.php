@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue;
 
@@ -15,10 +16,9 @@ class TaskFinder {
 
 	/**
 	 * @phpstan-var array<string, class-string<\Queue\Queue\Task>>|null
-	 *
 	 * @var array<string>|null
 	 */
-	protected $tasks;
+	protected ?array $tasks = null;
 
 	/**
 	 * @phpstan-return array<string, class-string<\Queue\Queue\Task>>

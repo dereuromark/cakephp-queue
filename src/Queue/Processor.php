@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue;
 
@@ -14,11 +15,13 @@ use Queue\Console\Io;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\ProcessEndingException;
 use Queue\Model\QueueException;
+use Queue\Model\Table\QueuedJobsTable;
+use Queue\Model\Table\QueueProcessesTable;
 use Queue\Utility\Serializer;
 use RuntimeException;
 use Throwable;
 
-declare(ticks = 1);
+declare(ticks=1);
 
 /**
  * Main shell to init and run queue workers.
@@ -30,47 +33,47 @@ class Processor {
 	/**
 	 * @var \Queue\Console\Io
 	 */
-	protected $io;
+	protected Io $io;
 
 	/**
 	 * @var \Psr\Log\LoggerInterface
 	 */
-	protected $logger;
+	protected LoggerInterface $logger;
 
 	/**
 	 * @var \Cake\Core\ContainerInterface|null
 	 */
-	protected $container;
+	protected ?ContainerInterface $container = null;
 
 	/**
 	 * @var array<string, array<string, mixed>>|null
 	 */
-	protected $taskConf;
+	protected ?array $taskConf = null;
 
 	/**
 	 * @var int
 	 */
-	protected $time = 0;
+	protected int $time = 0;
 
 	/**
 	 * @var bool
 	 */
-	protected $exit = false;
+	protected bool $exit = false;
 
 	/**
 	 * @var string|null
 	 */
-	protected $pid;
+	protected ?string $pid = null;
 
 	/**
 	 * @var \Queue\Model\Table\QueuedJobsTable
 	 */
-	protected $QueuedJobs;
+	protected QueuedJobsTable $QueuedJobs;
 
 	/**
 	 * @var \Queue\Model\Table\QueueProcessesTable
 	 */
-	protected $QueueProcesses;
+	protected QueueProcessesTable $QueueProcesses;
 
 	/**
 	 * @param \Queue\Console\Io $io
@@ -123,7 +126,8 @@ class Processor {
 				// from its sleep() when SIGUSR1 is received. Since waking it
 				// up is all we need, there is no further code to execute,
 				// hence the empty function.
-				pcntl_signal(SIGUSR1, function() {});
+				pcntl_signal(SIGUSR1, function (): void {
+				});
 			}
 		}
 		$this->exit = false;
@@ -169,7 +173,7 @@ class Processor {
 				$this->exit = true;
 				$this->io->out('Reached runtime of ' . (time() - $startTime) . ' Seconds (Max ' . Configure::readOrFail('Queue.workermaxruntime') . '), terminating.');
 			}
-			if ($this->exit || mt_rand(0, 100) > (100 - (int)Config::gcprob())) {
+			if ($this->exit || mt_rand(0, 100) > 100 - (int)Config::gcprob()) {
 				$this->io->out('Performing Old job cleanup.');
 				$this->QueuedJobs->cleanOldJobs();
 				$this->QueueProcesses->cleanEndedProcesses();
@@ -189,6 +193,7 @@ class Processor {
 	/**
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 * @param string $pid
+	 *
 	 * @return void
 	 */
 	protected function runJob(QueuedJob $queuedJob, string $pid): void {
@@ -208,7 +213,6 @@ class Processor {
 				$task->setContainer($this->container);
 			}
 			$task->run((array)$data, $queuedJob->id);
-
 		} catch (Throwable $e) {
 			$return = false;
 
@@ -239,6 +243,7 @@ class Processor {
 	 * @param string $message Log type
 	 * @param string|null $pid PID of the process
 	 * @param bool $addDetails
+	 *
 	 * @return void
 	 */
 	protected function log(string $message, ?string $pid = null, bool $addDetails = true): void {
@@ -261,6 +266,7 @@ class Processor {
 	/**
 	 * @param string $message
 	 * @param string|null $pid PID of the process
+	 *
 	 * @return void
 	 */
 	protected function logError(string $message, ?string $pid = null): void {
@@ -297,9 +303,10 @@ class Processor {
 	 * Signal handling to queue worker for clean shutdown
 	 *
 	 * @param int $signal
+	 *
 	 * @return void
 	 */
-	protected function exit($signal) {
+	protected function exit(int $signal): void {
 		$this->exit = true;
 	}
 
@@ -307,6 +314,7 @@ class Processor {
 	 * Signal handling for Ctrl+C
 	 *
 	 * @param int $signal
+	 *
 	 * @return void
 	 */
 	protected function abort(int $signal = 1): void {
@@ -405,6 +413,7 @@ class Processor {
 
 	/**
 	 * @param string $param
+	 *
 	 * @return array<string>
 	 */
 	protected function stringToArray(string $param): array {

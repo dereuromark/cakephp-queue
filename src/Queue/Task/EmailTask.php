@@ -1,9 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue\Task;
 
 use Cake\Core\Configure;
 use Cake\Log\Log;
+use Cake\Mailer\Mailer;
 use Cake\Mailer\Message;
 use Cake\Mailer\TransportFactory;
 use Psr\Log\LoggerInterface;
@@ -26,15 +28,9 @@ use Throwable;
  */
 class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 
-	/**
-	 * @var int
-	 */
-	public $timeout = 60;
+	public ?int $timeout = 60;
 
-	/**
-	 * @var \Cake\Mailer\Mailer
-	 */
-	public $mailer;
+	public Mailer $mailer;
 
 	/**
 	 * List of default variables for Email class.
@@ -99,8 +95,10 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 	/**
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @throws \Queue\Model\QueueException
 	 * @throws \Throwable
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
@@ -175,9 +173,10 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 	 * Check if Mail class exists and create instance
 	 *
 	 * @throws \Queue\Model\QueueException
+	 *
 	 * @return \Cake\Mailer\Mailer
 	 */
-	protected function getMailer() {
+	protected function getMailer(): Mailer {
 		/** @phpstan-var class-string<\Cake\Mailer\Mailer> $class */
 		$class = Configure::read('Queue.mailerClass');
 		if (!$class) {

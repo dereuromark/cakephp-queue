@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\View\Helper;
 
@@ -15,7 +16,7 @@ class QueueHelper extends Helper {
 	/**
 	 * @var array<string, array<string, mixed>>
 	 */
-	protected $taskConfig;
+	protected array $taskConfig = [];
 
 	/**
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
@@ -65,6 +66,7 @@ class QueueHelper extends Helper {
 	 * Returns failure status (message) if applicable.
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 *
 	 * @return string|null
 	 */
 	public function failureStatus(QueuedJob $queuedJob): ?string {

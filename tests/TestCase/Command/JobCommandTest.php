@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Command;
 
@@ -132,6 +132,7 @@ class JobCommandTest extends TestCase {
 
 	/**
 	 * @param array $data
+	 *
 	 * @return \Queue\Model\Entity\QueuedJob
 	 */
 	protected function createJob(array $data = []): QueuedJob {

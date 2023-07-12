@@ -1,9 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
 use Cake\I18n\DateTime;
+use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
@@ -20,7 +22,6 @@ use Queue\Queue\Config;
  * @method \Queue\Model\Entity\QueueProcess patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
  * @method array<\Queue\Model\Entity\QueueProcess> patchEntities(iterable $entities, array $data, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess findOrCreate($search, ?callable $callback = null, $options = [])
- *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  * @method \Queue\Model\Entity\QueueProcess saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
  * @method \Queue\Model\Entity\QueueProcess newEmptyEntity()
@@ -50,6 +51,7 @@ class QueueProcessesTable extends Table {
 	 * Initialize method
 	 *
 	 * @param array<string, mixed> $config The configuration for the Table.
+	 *
 	 * @return void
 	 */
 	public function initialize(array $config): void {
@@ -76,6 +78,7 @@ class QueueProcessesTable extends Table {
 	 * Default validation rules.
 	 *
 	 * @param \Cake\Validation\Validator $validator Validator instance.
+	 *
 	 * @return \Cake\Validation\Validator
 	 */
 	public function validationDefault(Validator $validator): Validator {
@@ -107,7 +110,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return bool
 	 */
-	public function validateCount($value, array $context): bool {
+	public function validateCount(string $value, array $context): bool {
 		$maxWorkers = Config::maxworkers();
 		if (!$value || !$maxWorkers) {
 			return true;
@@ -124,7 +127,7 @@ class QueueProcessesTable extends Table {
 	/**
 	 * @return \Cake\ORM\Query\SelectQuery
 	 */
-	public function findActive() {
+	public function findActive(): SelectQuery {
 		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
@@ -152,7 +155,9 @@ class QueueProcessesTable extends Table {
 
 	/**
 	 * @param string $pid
+	 *
 	 * @throws \Queue\Model\ProcessEndingException
+	 *
 	 * @return void
 	 */
 	public function update(string $pid): void {
@@ -234,6 +239,7 @@ class QueueProcessesTable extends Table {
 	 * $forThisServer only works for DB approach.
 	 *
 	 * @param bool $forThisServer
+	 *
 	 * @return array<\Queue\Model\Entity\QueueProcess>
 	 */
 	public function getProcesses(bool $forThisServer = false): array {
@@ -257,6 +263,7 @@ class QueueProcessesTable extends Table {
 	 * Soft ending of a running job, e.g. when migration is starting
 	 *
 	 * @param string $pid
+	 *
 	 * @return void
 	 */
 	public function endProcess(string $pid): void {
@@ -276,6 +283,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @param string $pid
 	 * @param int $sig Signal (defaults to graceful SIGTERM = 15)
+	 *
 	 * @return void
 	 */
 	public function terminateProcess(string $pid, int $sig = SIGTERM): void {

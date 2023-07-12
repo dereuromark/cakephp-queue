@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\View\Helper;
 
@@ -28,12 +29,13 @@ class QueueProgressHelper extends Helper {
 	/**
 	 * @var array<string, array<int>>|null
 	 */
-	protected $statistics;
+	protected ?array $statistics = null;
 
 	/**
 	 * Returns percentage as formatted value.
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 *
 	 * @return string|null
 	 */
 	public function progress(QueuedJob $queuedJob): ?string {
@@ -59,6 +61,7 @@ class QueueProgressHelper extends Helper {
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 * @param int $length
+	 *
 	 * @return string|null
 	 */
 	public function progressBar(QueuedJob $queuedJob, int $length): ?string {
@@ -107,6 +110,7 @@ class QueueProgressHelper extends Helper {
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 * @param int $length
+	 *
 	 * @return string|null
 	 */
 	public function timeoutProgressBar(QueuedJob $queuedJob, int $length): ?string {
@@ -140,9 +144,10 @@ class QueueProgressHelper extends Helper {
 	 * Calculates the timeout progress rate.
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 *
 	 * @return float|null
 	 */
-	protected function calculateTimeoutProgress(QueuedJob $queuedJob) {
+	protected function calculateTimeoutProgress(QueuedJob $queuedJob): ?float {
 		if ($queuedJob->completed || $queuedJob->fetched || !$queuedJob->notbefore) {
 			return null;
 		}
@@ -170,9 +175,10 @@ class QueueProgressHelper extends Helper {
 	/**
 	 * @param string $jobType
 	 * @param \Cake\I18n\DateTime $fetched
+	 *
 	 * @return float|null
 	 */
-	protected function calculateJobProgress(string $jobType, $fetched) {
+	protected function calculateJobProgress(string $jobType, DateTime $fetched): ?float {
 		$stats = $this->getJobStatistics($jobType);
 		if (!$stats) {
 			return null;
@@ -191,6 +197,7 @@ class QueueProgressHelper extends Helper {
 
 	/**
 	 * @param string $jobType
+	 *
 	 * @return array<int>
 	 */
 	protected function getJobStatistics(string $jobType): array {

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Utility;
 
@@ -11,6 +12,7 @@ class Serializer {
 	 *
 	 * @param array<string, mixed> $data
 	 * @param array<string, mixed> $options Options normalizers/encoders have access to
+	 *
 	 * @return string
 	 */
 	public static function serialize(array $data, array $options = []): string {
@@ -24,6 +26,7 @@ class Serializer {
 	 *
 	 * @param string $data
 	 * @param array<string, mixed> $options
+	 *
 	 * @return array<string, mixed>
 	 */
 	public static function deserialize(string $data, array $options = []): array {

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Command;
 
@@ -24,7 +25,7 @@ class BakeQueueTaskCommand extends SimpleBakeCommand {
 	/**
 	 * @var string
 	 */
-	protected $_name;
+	protected string $_name;
 
 	/**
 	 * @inheritDoc
@@ -48,6 +49,7 @@ class BakeQueueTaskCommand extends SimpleBakeCommand {
 	 * @param string $name The class to bake a test for.
 	 * @param \Cake\Console\Arguments $args The console arguments
 	 * @param \Cake\Console\ConsoleIo $io The console io
+	 *
 	 * @return void
 	 */
 	public function bakeTest(string $name, Arguments $args, ConsoleIo $io): void {
@@ -102,7 +104,7 @@ class $testName extends TestCase {
 	/**
 	 * @var array<string>
 	 */
-	protected \$fixtures = [
+	protected array \$fixtures = [
 		'plugin.Queue.QueuedJobs',
 		'plugin.Queue.QueueProcesses',
 	];
@@ -183,6 +185,7 @@ TXT;
 	 * Gets the option parser instance and configures it.
 	 *
 	 * @param \Cake\Console\ConsoleOptionParser $parser Parser instance
+	 *
 	 * @return \Cake\Console\ConsoleOptionParser
 	 */
 	public function buildOptionParser(ConsoleOptionParser $parser): ConsoleOptionParser {

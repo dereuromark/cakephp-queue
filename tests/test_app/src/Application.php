@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace TestApp;
 
@@ -12,6 +13,7 @@ class Application extends BaseApplication {
 
 	/**
 	 * @param \Cake\Http\MiddlewareQueue $middlewareQueue The middleware queue to set in your App Class
+	 *
 	 * @return \Cake\Http\MiddlewareQueue
 	 */
 	public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue {
@@ -32,9 +34,10 @@ class Application extends BaseApplication {
 
 	/**
 	 * @param \Cake\Core\ContainerInterface $container
+	 *
 	 * @return void
 	 */
-	public function	services(ContainerInterface $container): void {
+	public function services(ContainerInterface $container): void {
 		$container->add(TestService::class);
 	}
 

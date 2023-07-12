@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Migration;
 
@@ -15,7 +16,7 @@ class OldTaskFinder {
 	 *
 	 * @return array<string>
 	 */
-	public function all(?string $plugin) {
+	public function all(?string $plugin): array {
 		$paths = App::classPath('Shell/Task', $plugin);
 
 		$allTasks = [];
@@ -34,7 +35,7 @@ class OldTaskFinder {
 	 *
 	 * @return array<string>
 	 */
-	protected function getTasks(string $path, ?string $plugin) {
+	protected function getTasks(string $path, ?string $plugin): array {
 		$res = glob($path . '*Task.php') ?: [];
 
 		$tasks = [];
