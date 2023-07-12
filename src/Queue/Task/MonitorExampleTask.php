@@ -32,6 +32,7 @@ class MonitorExampleTask extends Task implements AddInterface, AddFromBackendInt
 	 * - bin/cake queue add Queue.MonitorExample
 	 *
 	 * @param string|null $data
+	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {
@@ -58,6 +59,7 @@ class MonitorExampleTask extends Task implements AddInterface, AddFromBackendInt
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {

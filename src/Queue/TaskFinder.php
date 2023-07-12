@@ -22,7 +22,9 @@ class TaskFinder {
 
 	/**
 	 * @phpstan-return array<string, class-string<\Queue\Queue\Task>>
+	 *
 	 * @param string $type Type of interface.
+	 *
 	 * @return array<string>
 	 */
 	public function allAddable(string $type = AddInterface::class): array {
@@ -42,6 +44,7 @@ class TaskFinder {
 	 * Makes sure that app tasks are prioritized over plugin ones.
 	 *
 	 * @phpstan-return array<string, class-string<\Queue\Queue\Task>>
+	 *
 	 * @return array<string>
 	 */
 	public function all(): array {
@@ -70,8 +73,10 @@ class TaskFinder {
 
 	/**
 	 * @phpstan-return array<string, class-string<\Queue\Queue\Task>>
+	 *
 	 * @param string $path
 	 * @param string|null $plugin
+	 *
 	 * @return array<string>
 	 */
 	protected function getTasks(string $path, ?string $plugin = null): array {
@@ -117,6 +122,7 @@ class TaskFinder {
 	 * Resolves FQCN to a task name.
 	 *
 	 * @param class-string<\Queue\Queue\Task>|string $jobTask
+	 *
 	 * @return string
 	 */
 	public function resolve(string $jobTask): string {
@@ -156,7 +162,9 @@ class TaskFinder {
 
 	/**
 	 * @phpstan-return class-string<\Queue\Queue\Task>
+	 *
 	 * @param string $name
+	 *
 	 * @return string
 	 */
 	public function getClass(string $name): string {

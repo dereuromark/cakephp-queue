@@ -27,6 +27,7 @@ class UniqueExampleTask extends Task implements AddInterface, AddFromBackendInte
 	 * - bin/cake queue add Queue.UniqueExample
 	 *
 	 * @param string|null $data
+	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {
@@ -54,6 +55,7 @@ class UniqueExampleTask extends Task implements AddInterface, AddFromBackendInte
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
@@ -68,6 +70,7 @@ class UniqueExampleTask extends Task implements AddInterface, AddFromBackendInte
 
 	/**
 	 * @param int $seconds
+	 *
 	 * @return void
 	 */
 	public function setSleep(int $seconds): void {

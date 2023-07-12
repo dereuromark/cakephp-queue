@@ -203,6 +203,7 @@ class QueuedJobsControllerTest extends TestCase {
 
 	/**
 	 * @param array $data
+	 *
 	 * @return \Queue\Model\Entity\QueuedJob
 	 */
 	protected function createJob(array $data = []) {

@@ -30,6 +30,7 @@ class SuperExampleTask extends Task implements AddInterface, AddFromBackendInter
 	 * - bin/cake queue add Queue.SuperExample
 	 *
 	 * @param string|null $data
+	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {
@@ -58,6 +59,7 @@ class SuperExampleTask extends Task implements AddInterface, AddFromBackendInter
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {

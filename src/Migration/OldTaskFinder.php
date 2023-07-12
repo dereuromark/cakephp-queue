@@ -13,6 +13,7 @@ class OldTaskFinder {
 	 * Makes sure that app tasks are prioritized over plugin ones.
 	 *
 	 * @param string|null $plugin
+	 *
 	 * @return array<string>
 	 */
 	public function all(?string $plugin): array {
@@ -31,6 +32,7 @@ class OldTaskFinder {
 	/**
 	 * @param string $path
 	 * @param string|null $plugin
+	 *
 	 * @return array<string>
 	 */
 	protected function getTasks(string $path, ?string $plugin): array {

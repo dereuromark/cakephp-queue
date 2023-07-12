@@ -79,7 +79,9 @@ class Config {
 
 	/**
 	 * @param array<string> $tasks
+	 *
 	 * @throws \RuntimeException
+	 *
 	 * @return array<string, array<string, mixed>>
 	 */
 	public static function taskConfig(array $tasks): array {
@@ -108,7 +110,9 @@ class Config {
 
 	/**
 	 * @phpstan-param class-string<\Queue\Queue\Task>|string $class
+	 *
 	 * @param string $class
+	 *
 	 * @return string
 	 */
 	public static function taskName(string $class): string {

@@ -49,6 +49,7 @@ class QueueProcessesController extends AppController {
 	 * View method
 	 *
 	 * @param int|null $id Queue Process id.
+	 *
 	 * @return null|void
 	 */
 	public function view(?int $id = null) {
@@ -63,6 +64,7 @@ class QueueProcessesController extends AppController {
 	 * Edit method
 	 *
 	 * @param int|null $id Queue Process id.
+	 *
 	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit(?int $id = null) {
@@ -85,6 +87,7 @@ class QueueProcessesController extends AppController {
 
 	/**
 	 * @param int|null $id Queue Process id.
+	 *
 	 * @return \Cake\Http\Response|null Redirects to index.
 	 */
 	public function terminate(?int $id = null) {
@@ -104,6 +107,7 @@ class QueueProcessesController extends AppController {
 
 	/**
 	 * @param int|null $id Queue Process id.
+	 *
 	 * @return \Cake\Http\Response|null Redirects to index.
 	 */
 	public function delete(?int $id = null) {

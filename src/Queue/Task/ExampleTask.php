@@ -30,6 +30,7 @@ class ExampleTask extends Task implements AddInterface, AddFromBackendInterface 
 	 * - bin/cake queue add Queue.Example
 	 *
 	 * @param string|null $data Optional data for the task, make sure to "quote multi words"
+	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {
@@ -57,6 +58,7 @@ class ExampleTask extends Task implements AddInterface, AddFromBackendInterface 
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {

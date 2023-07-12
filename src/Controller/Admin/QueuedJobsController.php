@@ -84,7 +84,9 @@ class QueuedJobsController extends AppController {
 	 * Index method
 	 *
 	 * @param string|null $jobType
+	 *
 	 * @throws \Cake\Http\Exception\NotFoundException
+	 *
 	 * @return void
 	 */
 	public function stats(?string $jobType = null): void {
@@ -106,6 +108,7 @@ class QueuedJobsController extends AppController {
 	 * View method
 	 *
 	 * @param int|null $id Queued Job id.
+	 *
 	 * @return null|void
 	 */
 	public function view(?int $id = null) {
@@ -130,6 +133,7 @@ class QueuedJobsController extends AppController {
 
 	/**
 	 * @throws \RuntimeException
+	 *
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function import() {
@@ -193,6 +197,7 @@ class QueuedJobsController extends AppController {
 	 * Edit method
 	 *
 	 * @param int|null $id Queued Job id.
+	 *
 	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit(?int $id = null) {
@@ -221,6 +226,7 @@ class QueuedJobsController extends AppController {
 
 	/**
 	 * @param int|null $id Queued Job id.
+	 *
 	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
 	public function data(?int $id = null) {
@@ -231,6 +237,7 @@ class QueuedJobsController extends AppController {
 	 * Delete method
 	 *
 	 * @param int|null $id Queued Job id.
+	 *
 	 * @return \Cake\Http\Response|null Redirects to index.
 	 */
 	public function delete(?int $id = null) {
@@ -247,6 +254,7 @@ class QueuedJobsController extends AppController {
 
 	/**
 	 * @throws \Cake\Http\Exception\NotFoundException
+	 *
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function execute() {

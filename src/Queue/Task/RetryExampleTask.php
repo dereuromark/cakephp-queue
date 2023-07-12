@@ -37,6 +37,7 @@ class RetryExampleTask extends Task implements AddInterface, AddFromBackendInter
 	 * This is only for demo/testing purposes.
 	 *
 	 * @throws \RuntimeException
+	 *
 	 * @return bool
 	 */
 	public static function init(): bool {
@@ -61,6 +62,7 @@ class RetryExampleTask extends Task implements AddInterface, AddFromBackendInter
 	 * - bin/cake queue add Queue.RetryExample
 	 *
 	 * @param string|null $data
+	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {
@@ -93,6 +95,7 @@ class RetryExampleTask extends Task implements AddInterface, AddFromBackendInter
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {

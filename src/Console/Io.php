@@ -30,6 +30,7 @@ class Io {
 	 *
 	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
+	 *
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
 	public function verbose(array|string $message, int $newlines = 1): ?int {
@@ -41,6 +42,7 @@ class Io {
 	 *
 	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
+	 *
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
 	public function quiet(array|string $message, int $newlines = 1): ?int {
@@ -59,9 +61,11 @@ class Io {
 	 * While using ConsoleIo::VERBOSE means it will only display when verbose output is toggled.
 	 *
 	 * @link https://book.cakephp.org/4/en/console-commands/input-output.html#creating-output
+	 *
 	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
 	 * @param int $level The message's output level, see above.
+	 *
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
 	public function out(array|string $message = '', int $newlines = 1, int $level = ConsoleIo::NORMAL): ?int {
@@ -74,6 +78,7 @@ class Io {
 	 *
 	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
+	 *
 	 * @return int|null The number of bytes returned from writing to stderr.
 	 */
 	public function err(array|string $message = '', int $newlines = 1): ?int {
@@ -89,9 +94,11 @@ class Io {
 	 * Convenience method for out() that wraps message between <info /> tag
 	 *
 	 * @see https://book.cakephp.org/4/en/console-commands/input-output.html#creating-output
+	 *
 	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
 	 * @param int $level The message's output level, see above.
+	 *
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
 	public function info(array|string $message = '', int $newlines = 1, int $level = ConsoleIo::NORMAL): ?int {
@@ -107,9 +114,11 @@ class Io {
 	 * Convenience method for out() that wraps message between <comment /> tag
 	 *
 	 * @see https://book.cakephp.org/4/en/console-commands/input-output.html#creating-output
+	 *
 	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
 	 * @param int $level The message's output level, see above.
+	 *
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
 	public function comment(array|string $message = '', int $newlines = 1, int $level = ConsoleIo::NORMAL): ?int {
@@ -125,8 +134,10 @@ class Io {
 	 * Convenience method for err() that wraps message between <warning /> tag
 	 *
 	 * @see https://book.cakephp.org/4/en/console-commands/input-output.html#creating-output
+	 *
 	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
+	 *
 	 * @return int|null The number of bytes returned from writing to stderr.
 	 */
 	public function warn(array|string $message = '', int $newlines = 1): ?int {
@@ -142,9 +153,11 @@ class Io {
 	 * Convenience method for out() that wraps message between <success /> tag
 	 *
 	 * @see https://book.cakephp.org/4/en/console-commands/input-output.html#creating-output
+	 *
 	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
 	 * @param int $level The message's output level, see above.
+	 *
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
 	public function success(array|string $message = '', int $newlines = 1, int $level = ConsoleIo::NORMAL): ?int {
@@ -160,7 +173,9 @@ class Io {
 	 * Returns a single or multiple linefeeds sequences.
 	 *
 	 * @link https://book.cakephp.org/4/en/console-commands/input-output.html#creating-output
+	 *
 	 * @param int $multiplier Number of times the linefeed sequence should be repeated
+	 *
 	 * @return string
 	 */
 	public function nl(int $multiplier = 1): string {
@@ -171,8 +186,10 @@ class Io {
 	 * Outputs a series of minus characters to the standard output, acts as a visual separator.
 	 *
 	 * @link https://book.cakephp.org/4/en/console-commands/input-output.html#creating-output
+	 *
 	 * @param int $newlines Number of newlines to pre- and append
 	 * @param int $width Width of the line, defaults to 63
+	 *
 	 * @return void
 	 */
 	public function hr(int $newlines = 0, int $width = 63): void {
@@ -184,9 +201,12 @@ class Io {
 	 * and exits the application with status code 1
 	 *
 	 * @link https://book.cakephp.org/4/en/console-commands/input-output.html#styling-output
+	 *
 	 * @param string $message The error message
 	 * @param int $exitCode The exit code for the shell task.
+	 *
 	 * @throws \Cake\Console\Exception\StopException
+	 *
 	 * @return void
 	 */
 	public function abort(string $message, int $exitCode = CommandInterface::CODE_ERROR): void {
@@ -201,6 +221,7 @@ class Io {
 	 *
 	 * @param string $name The name of the helper to render
 	 * @param array<string, mixed> $settings Configuration data for the helper.
+	 *
 	 * @return \Cake\Console\Helper The created helper instance.
 	 */
 	public function helper(string $name, array $settings = []): Helper {
@@ -219,6 +240,7 @@ class Io {
 	 * @param int $newlines Number of newlines to append.
 	 * @param int|null $size The number of bytes to overwrite. Defaults to the
 	 *    length of the last message output.
+	 *
 	 * @return void
 	 */
 	public function overwrite(array|string $message, int $newlines = 1, ?int $size = null): void {

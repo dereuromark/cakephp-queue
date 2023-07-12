@@ -105,6 +105,7 @@ abstract class Task implements TaskInterface {
 
 	/**
 	 * @throws \InvalidArgumentException
+	 *
 	 * @return string
 	 */
 	public static function taskName(): string {

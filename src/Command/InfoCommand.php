@@ -41,6 +41,7 @@ class InfoCommand extends Command {
 	/**
 	 * @param \Cake\Console\Arguments $args Arguments
 	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
+	 *
 	 * @return null|void
 	 */
 	public function execute(Arguments $args, ConsoleIo $io) {

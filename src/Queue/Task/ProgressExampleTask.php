@@ -30,6 +30,7 @@ class ProgressExampleTask extends Task implements AddInterface, AddFromBackendIn
 	 * - bin/cake queue add Queue.ProgressExample
 	 *
 	 * @param string|null $data
+	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {
@@ -62,6 +63,7 @@ class ProgressExampleTask extends Task implements AddInterface, AddFromBackendIn
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {

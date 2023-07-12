@@ -20,6 +20,7 @@ class QueueHelper extends Helper {
 
 	/**
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 *
 	 * @return bool
 	 */
 	public function hasFailed(QueuedJob $queuedJob): bool {
@@ -43,6 +44,7 @@ class QueueHelper extends Helper {
 
 	/**
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 *
 	 * @return string|null
 	 */
 	public function attempts(QueuedJob $queuedJob): ?string {
@@ -64,6 +66,7 @@ class QueueHelper extends Helper {
 	 * Returns failure status (message) if applicable.
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 *
 	 * @return string|null
 	 */
 	public function failureStatus(QueuedJob $queuedJob): ?string {
@@ -85,6 +88,7 @@ class QueueHelper extends Helper {
 
 	/**
 	 * @param string $jobTask
+	 *
 	 * @return array<string, mixed>
 	 */
 	protected function taskConfig(string $jobTask): array {

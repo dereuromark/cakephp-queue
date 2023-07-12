@@ -29,6 +29,7 @@ class ExecuteTask extends Task implements AddInterface {
 	 * Will create one example job in the queue, which later will be executed using run();
 	 *
 	 * @param string|null $data
+	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {
@@ -69,7 +70,9 @@ class ExecuteTask extends Task implements AddInterface {
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @throws \Queue\Model\QueueException
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {

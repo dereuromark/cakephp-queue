@@ -63,6 +63,7 @@ class WorkerCommand extends Command {
 	/**
 	 * @param \Cake\Console\Arguments $args Arguments
 	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
+	 *
 	 * @return int|null
 	 */
 	public function execute(Arguments $args, ConsoleIo $io): int|null {
@@ -110,6 +111,7 @@ class WorkerCommand extends Command {
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
 	 * @param string $pid
+	 *
 	 * @return int
 	 */
 	protected function end(ConsoleIo $io, string $pid): int {
@@ -139,6 +141,7 @@ class WorkerCommand extends Command {
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
 	 * @param string $pid
+	 *
 	 * @return int
 	 */
 	protected function kill(ConsoleIo $io, string $pid): int {
@@ -180,6 +183,7 @@ class WorkerCommand extends Command {
 
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
+	 *
 	 * @return int
 	 */
 	protected function clean(ConsoleIo $io): int {

@@ -51,6 +51,7 @@ class QueueProcessesTable extends Table {
 	 * Initialize method
 	 *
 	 * @param array<string, mixed> $config The configuration for the Table.
+	 *
 	 * @return void
 	 */
 	public function initialize(array $config): void {
@@ -77,6 +78,7 @@ class QueueProcessesTable extends Table {
 	 * Default validation rules.
 	 *
 	 * @param \Cake\Validation\Validator $validator Validator instance.
+	 *
 	 * @return \Cake\Validation\Validator
 	 */
 	public function validationDefault(Validator $validator): Validator {
@@ -105,6 +107,7 @@ class QueueProcessesTable extends Table {
 	/**
 	 * @param string $value
 	 * @param array<string, mixed> $context
+	 *
 	 * @return bool
 	 */
 	public function validateCount(string $value, array $context): bool {
@@ -134,6 +137,7 @@ class QueueProcessesTable extends Table {
 	/**
 	 * @param string $pid
 	 * @param string $key
+	 *
 	 * @return int
 	 */
 	public function add(string $pid, string $key): int {
@@ -151,7 +155,9 @@ class QueueProcessesTable extends Table {
 
 	/**
 	 * @param string $pid
+	 *
 	 * @throws \Queue\Model\ProcessEndingException
+	 *
 	 * @return void
 	 */
 	public function update(string $pid): void {
@@ -172,6 +178,7 @@ class QueueProcessesTable extends Table {
 
 	/**
 	 * @param string $pid
+	 *
 	 * @return void
 	 */
 	public function remove(string $pid): void {
@@ -232,6 +239,7 @@ class QueueProcessesTable extends Table {
 	 * $forThisServer only works for DB approach.
 	 *
 	 * @param bool $forThisServer
+	 *
 	 * @return array<\Queue\Model\Entity\QueueProcess>
 	 */
 	public function getProcesses(bool $forThisServer = false): array {
@@ -255,6 +263,7 @@ class QueueProcessesTable extends Table {
 	 * Soft ending of a running job, e.g. when migration is starting
 	 *
 	 * @param string $pid
+	 *
 	 * @return void
 	 */
 	public function endProcess(string $pid): void {
@@ -274,6 +283,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @param string $pid
 	 * @param int $sig Signal (defaults to graceful SIGTERM = 15)
+	 *
 	 * @return void
 	 */
 	public function terminateProcess(string $pid, int $sig = SIGTERM): void {

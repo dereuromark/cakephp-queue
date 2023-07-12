@@ -92,6 +92,7 @@ class Processor {
 
 	/**
 	 * @param array<string, mixed> $args
+	 *
 	 * @return int
 	 */
 	public function run(array $args): int {
@@ -192,6 +193,7 @@ class Processor {
 	/**
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 * @param string $pid
+	 *
 	 * @return void
 	 */
 	protected function runJob(QueuedJob $queuedJob, string $pid): void {
@@ -241,6 +243,7 @@ class Processor {
 	 * @param string $message Log type
 	 * @param string|null $pid PID of the process
 	 * @param bool $addDetails
+	 *
 	 * @return void
 	 */
 	protected function log(string $message, ?string $pid = null, bool $addDetails = true): void {
@@ -263,6 +266,7 @@ class Processor {
 	/**
 	 * @param string $message
 	 * @param string|null $pid PID of the process
+	 *
 	 * @return void
 	 */
 	protected function logError(string $message, ?string $pid = null): void {
@@ -299,6 +303,7 @@ class Processor {
 	 * Signal handling to queue worker for clean shutdown
 	 *
 	 * @param int $signal
+	 *
 	 * @return void
 	 */
 	protected function exit(int $signal): void {
@@ -309,6 +314,7 @@ class Processor {
 	 * Signal handling for Ctrl+C
 	 *
 	 * @param int $signal
+	 *
 	 * @return void
 	 */
 	protected function abort(int $signal = 1): void {
@@ -345,6 +351,7 @@ class Processor {
 
 	/**
 	 * @param string $pid
+	 *
 	 * @return void
 	 */
 	protected function updatePid(string $pid): void {
@@ -367,6 +374,7 @@ class Processor {
 
 	/**
 	 * @param string|null $pid
+	 *
 	 * @return void
 	 */
 	protected function deletePid(?string $pid): void {
@@ -392,6 +400,7 @@ class Processor {
 
 	/**
 	 * @param int|null $providedTime
+	 *
 	 * @return int
 	 */
 	protected function time(?int $providedTime = null): int {
@@ -404,6 +413,7 @@ class Processor {
 
 	/**
 	 * @param string $param
+	 *
 	 * @return array<string>
 	 */
 	protected function stringToArray(string $param): array {
@@ -433,6 +443,7 @@ class Processor {
 
 	/**
 	 * @param array<string, mixed> $args
+	 *
 	 * @return array<string, mixed>
 	 */
 	protected function getConfig(array $args): array {
@@ -456,6 +467,7 @@ class Processor {
 
 	/**
 	 * @param string $taskName
+	 *
 	 * @return \Queue\Queue\TaskInterface
 	 */
 	protected function loadTask(string $taskName): TaskInterface {
@@ -471,7 +483,9 @@ class Processor {
 
 	/**
 	 * @psalm-return class-string<\Queue\Queue\Task>
+	 *
 	 * @param string $taskName
+	 *
 	 * @return string
 	 */
 	protected function getTaskClass(string $taskName): string {

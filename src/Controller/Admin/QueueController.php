@@ -68,6 +68,7 @@ class QueueController extends AppController {
 
 	/**
 	 * @throws \Cake\Http\Exception\NotFoundException
+	 *
 	 * @return \Cake\Http\Response|null
 	 */
 	public function addJob() {
@@ -98,7 +99,9 @@ class QueueController extends AppController {
 
 	/**
 	 * @param int|null $id
+	 *
 	 * @throws \Cake\Http\Exception\NotFoundException
+	 *
 	 * @return \Cake\Http\Response|null
 	 */
 	public function resetJob(?int $id = null) {
@@ -116,6 +119,7 @@ class QueueController extends AppController {
 
 	/**
 	 * @param int|null $id
+	 *
 	 * @return \Cake\Http\Response|null
 	 */
 	public function removeJob(?int $id = null) {
@@ -202,6 +206,7 @@ class QueueController extends AppController {
 
 	/**
 	 * @param array<mixed>|string $default
+	 *
 	 * @return \Cake\Http\Response|null
 	 */
 	protected function refererRedirect(array|string $default) {

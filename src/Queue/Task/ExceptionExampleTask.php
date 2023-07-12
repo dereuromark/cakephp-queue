@@ -26,6 +26,7 @@ class ExceptionExampleTask extends Task implements AddInterface, AddFromBackendI
 	 * - bin/cake queue add Queue.ExceptionExample
 	 *
 	 * @param string|null $data
+	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {
@@ -53,7 +54,9 @@ class ExceptionExampleTask extends Task implements AddInterface, AddFromBackendI
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @throws \Queue\Model\QueueException
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {

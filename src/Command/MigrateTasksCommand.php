@@ -56,6 +56,7 @@ class MigrateTasksCommand extends Command {
 	/**
 	 * @param \Cake\Console\Arguments $args Arguments
 	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
+	 *
 	 * @return null|void
 	 */
 	public function execute(Arguments $args, ConsoleIo $io) {
@@ -125,6 +126,7 @@ class MigrateTasksCommand extends Command {
 	 * @param string|null $plugin
 	 * @param string $oldPath
 	 * @param string $newPath
+	 *
 	 * @return void
 	 */
 	protected function migrateTask(string $name, ?string $plugin, string $oldPath, string $newPath): void {
@@ -184,6 +186,7 @@ class MigrateTasksCommand extends Command {
 	 * @param string|null $plugin
 	 * @param string $oldPath
 	 * @param string $newPath
+	 *
 	 * @return void
 	 */
 	protected function migrateTaskTest(string $name, ?string $plugin, string $oldPath, string $newPath): void {
@@ -226,6 +229,7 @@ class MigrateTasksCommand extends Command {
 
 	/**
 	 * @param string|null $plugin
+	 *
 	 * @return array<string>
 	 */
 	protected function getTasks(?string $plugin): array {

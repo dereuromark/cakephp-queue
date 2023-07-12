@@ -10,6 +10,7 @@ class ObjectSerializer implements SerializerInterface {
 	 *
 	 * @param array<string, mixed> $data
 	 * @param array<string, mixed> $options Options normalizers/encoders have access to
+	 *
 	 * @return string
 	 */
 	public function serialize(array $data, array $options = []): string {
@@ -21,6 +22,7 @@ class ObjectSerializer implements SerializerInterface {
 	 *
 	 * @param string $data
 	 * @param array<string, mixed> $options
+	 *
 	 * @return array<string, mixed>
 	 */
 	public function deserialize(string $data, array $options = []): array {

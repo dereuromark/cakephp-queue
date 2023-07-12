@@ -49,6 +49,7 @@ class BakeQueueTaskCommand extends SimpleBakeCommand {
 	 * @param string $name The class to bake a test for.
 	 * @param \Cake\Console\Arguments $args The console arguments
 	 * @param \Cake\Console\ConsoleIo $io The console io
+	 *
 	 * @return void
 	 */
 	public function bakeTest(string $name, Arguments $args, ConsoleIo $io): void {
@@ -72,6 +73,7 @@ class BakeQueueTaskCommand extends SimpleBakeCommand {
 	/**
 	 * @param string $name
 	 * @param string $namespace
+	 *
 	 * @return string
 	 */
 	protected function generateTaskTestContent(string $name, string $namespace): string {
@@ -159,7 +161,7 @@ TXT;
 			'plugin' => $this->plugin,
 			'pluginPath' => $pluginPath,
 			'namespace' => $namespace,
-			'subNamespace' => $namespacePart ? $namespacePart . '/' : '',
+			'subNamespace' => $namespacePart ? ($namespacePart . '/') : '',
 			'name' => $name,
 			'add' => $arguments->getOption('add'),
 		];
@@ -183,6 +185,7 @@ TXT;
 	 * Gets the option parser instance and configures it.
 	 *
 	 * @param \Cake\Console\ConsoleOptionParser $parser Parser instance
+	 *
 	 * @return \Cake\Console\ConsoleOptionParser
 	 */
 	public function buildOptionParser(ConsoleOptionParser $parser): ConsoleOptionParser {

@@ -105,6 +105,7 @@ class QueuedJobsTable extends Table {
 	 * initialize Table
 	 *
 	 * @param array<string, mixed> $config Configuration
+	 *
 	 * @return void
 	 */
 	public function initialize(array $config): void {
@@ -128,6 +129,7 @@ class QueuedJobsTable extends Table {
 	 * @param \Cake\Event\EventInterface $event
 	 * @param \ArrayObject<string, mixed> $data
 	 * @param \ArrayObject<string, mixed> $options
+	 *
 	 * @return void
 	 */
 	public function beforeMarshal(EventInterface $event, ArrayObject $data, ArrayObject $options): void {
@@ -169,6 +171,7 @@ class QueuedJobsTable extends Table {
 	 * Default validation rules.
 	 *
 	 * @param \Cake\Validation\Validator $validator Validator instance.
+	 *
 	 * @return \Cake\Validation\Validator
 	 */
 	public function validationDefault(Validator $validator): Validator {
@@ -200,6 +203,7 @@ class QueuedJobsTable extends Table {
 	 * @param string $jobTask Job task name or FQCN
 	 * @param array<string, mixed>|null $data Array of data
 	 * @param array<string, mixed> $config Config to save along with the job
+	 *
 	 * @return \Queue\Model\Entity\QueuedJob Saved job entity
 	 */
 	public function createJob(string $jobTask, ?array $data = null, array $config = []): QueuedJob {
@@ -217,6 +221,7 @@ class QueuedJobsTable extends Table {
 
 	/**
 	 * @param class-string<\Queue\Queue\Task>|string $jobType
+	 *
 	 * @return string
 	 */
 	protected function jobTask(string $jobType): string {
@@ -230,7 +235,9 @@ class QueuedJobsTable extends Table {
 	/**
 	 * @param string $reference
 	 * @param string|null $jobTask
+	 *
 	 * @throws \InvalidArgumentException
+	 *
 	 * @return bool
 	 */
 	public function isQueued(string $reference, ?string $jobTask = null): bool {
@@ -254,6 +261,7 @@ class QueuedJobsTable extends Table {
 	 * Either returns the number of ALL pending jobs, or the number of pending jobs of the passed type.
 	 *
 	 * @param string|null $type Job type to Count
+	 *
 	 * @return int
 	 */
 	public function getLength(?string $type = null): int {
@@ -294,6 +302,7 @@ class QueuedJobsTable extends Table {
 	 * TO-DO: rewrite as virtual field
 	 *
 	 * @param bool $disableHydration
+	 *
 	 * @return array<\Queue\Model\Entity\QueuedJob>|array<mixed>
 	 */
 	public function getStats(bool $disableHydration = false): array {
@@ -365,6 +374,7 @@ class QueuedJobsTable extends Table {
 	 * ]
 	 *
 	 * @param string|null $jobTask
+	 *
 	 * @return array<string, array<string, mixed>>
 	 */
 	public function getFullStats(?string $jobTask = null): array {
@@ -460,6 +470,7 @@ class QueuedJobsTable extends Table {
 	 * @param array<string, array<string, mixed>> $tasks Available QueueWorkerTasks.
 	 * @param array<string> $groups Request a job from these groups (or exclude certain groups), or any otherwise.
 	 * @param array<string> $types Request a job from these types (or exclude certain types), or any otherwise.
+	 *
 	 * @return \Queue\Model\Entity\QueuedJob|null
 	 */
 	public function requestJob(array $tasks, array $groups = [], array $types = []): ?QueuedJob {
@@ -658,6 +669,7 @@ class QueuedJobsTable extends Table {
 	 * @param int $id ID of job
 	 * @param float $progress Value from 0 to 1
 	 * @param string|null $status
+	 *
 	 * @return bool Success
 	 */
 	public function updateProgress(int $id, float $progress, ?string $status = null): bool {
@@ -679,6 +691,7 @@ class QueuedJobsTable extends Table {
 	 * Mark a job as Completed, removing it from the queue.
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $job Job
+	 *
 	 * @return bool Success
 	 */
 	public function markJobDone(QueuedJob $job): bool {
@@ -696,6 +709,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $job Job
 	 * @param string|null $failureMessage Optional message to append to the failure_message field.
+	 *
 	 * @return bool Success
 	 */
 	public function markJobFailed(QueuedJob $job, ?string $failureMessage = null): bool {
@@ -730,6 +744,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @param int|null $id
 	 * @param bool $full Also currently running jobs.
+	 *
 	 * @return int Success
 	 */
 	public function reset(?int $id = null, bool $full = false): int {
@@ -757,6 +772,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * @param string $task
 	 * @param string|null $reference
+	 *
 	 * @return int
 	 */
 	public function rerunByTask(string $task, ?string $reference = null): int {
@@ -781,6 +797,7 @@ class QueuedJobsTable extends Table {
 
 	/**
 	 * @param int $id
+	 *
 	 * @return int
 	 */
 	public function rerun(int $id): int {
@@ -846,6 +863,7 @@ class QueuedJobsTable extends Table {
 	/**
 	 * @param \Queue\Model\Entity\QueuedJob $queuedTask
 	 * @param array<string, array<string, mixed>> $taskConfiguration
+	 *
 	 * @return string
 	 */
 	public function getFailedStatus(QueuedJob $queuedTask, array $taskConfiguration): string {
@@ -868,6 +886,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @param \Cake\ORM\Query\SelectQuery $query The query to find with
 	 * @param array<string, mixed> $options The options to find with
+	 *
 	 * @return \Cake\ORM\Query\SelectQuery The query builder
 	 */
 	public function findQueued(SelectQuery $query, array $options): SelectQuery {
@@ -955,6 +974,7 @@ class QueuedJobsTable extends Table {
 	 * @param array<mixed> $conditions
 	 * @param string $key
 	 * @param array<string> $values
+	 *
 	 * @return array<mixed>
 	 */
 	protected function addFilter(array $conditions, string $key, array $values): array {
@@ -984,6 +1004,7 @@ class QueuedJobsTable extends Table {
 	 * Without argument this will be "now".
 	 *
 	 * @param \Cake\I18n\DateTime|string|int|null $notBefore
+	 *
 	 * @return \Cake\I18n\DateTime
 	 */
 	protected function getDateTime(DateTime|string|int|null $notBefore = null): DateTime {

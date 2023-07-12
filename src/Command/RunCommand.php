@@ -82,6 +82,7 @@ class RunCommand extends Command {
 
 	/**
 	 * @param \Cake\Console\Arguments $args Arguments
+	 *
 	 * @return \Psr\Log\LoggerInterface
 	 */
 	protected function getLogger(Arguments $args): LoggerInterface {
@@ -100,6 +101,7 @@ class RunCommand extends Command {
 	 *
 	 * @param \Cake\Console\Arguments $args Arguments
 	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
+	 *
 	 * @return int
 	 */
 	public function execute(Arguments $args, ConsoleIo $io): int {

@@ -35,6 +35,7 @@ class QueueProgressHelper extends Helper {
 	 * Returns percentage as formatted value.
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 *
 	 * @return string|null
 	 */
 	public function progress(QueuedJob $queuedJob): ?string {
@@ -60,6 +61,7 @@ class QueueProgressHelper extends Helper {
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 * @param int $length
+	 *
 	 * @return string|null
 	 */
 	public function progressBar(QueuedJob $queuedJob, int $length): ?string {
@@ -81,6 +83,7 @@ class QueueProgressHelper extends Helper {
 	/**
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 * @param string|null $fallbackHtml
+	 *
 	 * @return string|null
 	 */
 	public function htmlProgressBar(QueuedJob $queuedJob, ?string $fallbackHtml = null): ?string {
@@ -107,6 +110,7 @@ class QueueProgressHelper extends Helper {
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 * @param int $length
+	 *
 	 * @return string|null
 	 */
 	public function timeoutProgressBar(QueuedJob $queuedJob, int $length): ?string {
@@ -121,6 +125,7 @@ class QueueProgressHelper extends Helper {
 	/**
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 * @param string|null $fallbackHtml
+	 *
 	 * @return string|null
 	 */
 	public function htmlTimeoutProgressBar(QueuedJob $queuedJob, ?string $fallbackHtml = null): ?string {
@@ -139,6 +144,7 @@ class QueueProgressHelper extends Helper {
 	 * Calculates the timeout progress rate.
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 *
 	 * @return float|null
 	 */
 	protected function calculateTimeoutProgress(QueuedJob $queuedJob): ?float {
@@ -169,6 +175,7 @@ class QueueProgressHelper extends Helper {
 	/**
 	 * @param string $jobType
 	 * @param \Cake\I18n\DateTime $fetched
+	 *
 	 * @return float|null
 	 */
 	protected function calculateJobProgress(string $jobType, DateTime $fetched): ?float {
@@ -190,6 +197,7 @@ class QueueProgressHelper extends Helper {
 
 	/**
 	 * @param string $jobType
+	 *
 	 * @return array<int>
 	 */
 	protected function getJobStatistics(string $jobType): array {

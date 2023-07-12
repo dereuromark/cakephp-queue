@@ -56,6 +56,7 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 	 * "Add" the task, not possible for EmailTask without adminEmail configured.
 	 *
 	 * @param string|null $data
+	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {
@@ -94,8 +95,10 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 	/**
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @throws \Queue\Model\QueueException
 	 * @throws \Throwable
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
@@ -170,6 +173,7 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 	 * Check if Mail class exists and create instance
 	 *
 	 * @throws \Queue\Model\QueueException
+	 *
 	 * @return \Cake\Mailer\Mailer
 	 */
 	protected function getMailer(): Mailer {

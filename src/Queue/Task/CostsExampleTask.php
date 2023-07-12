@@ -27,6 +27,7 @@ class CostsExampleTask extends Task implements AddInterface, AddFromBackendInter
 	 * - bin/cake queue add Queue.CostsExample
 	 *
 	 * @param string|null $data
+	 *
 	 * @return void
 	 */
 	public function add(?string $data): void {
@@ -53,6 +54,7 @@ class CostsExampleTask extends Task implements AddInterface, AddFromBackendInter
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
@@ -67,6 +69,7 @@ class CostsExampleTask extends Task implements AddInterface, AddFromBackendInter
 
 	/**
 	 * @param int $seconds
+	 *
 	 * @return void
 	 */
 	public function setSleep(int $seconds): void {
