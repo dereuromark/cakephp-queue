@@ -2,9 +2,13 @@
 
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
+use Cake\Core\Plugin;
 use Cake\Datasource\ConnectionManager;
 use Cake\Filesystem\Folder;
 use Cake\Mailer\TransportFactory;
+use Foo\Plugin as FooPlugin;
+use Queue\Plugin as QueuePlugin;
+use TestApp\Controller\AppController;
 
 if (!defined('DS')) {
 	define('DS', DIRECTORY_SEPARATOR);
@@ -91,10 +95,10 @@ $cache = [
 
 Cache::setConfig($cache);
 
-class_alias(TestApp\Controller\AppController::class, 'App\Controller\AppController');
+class_alias(AppController::class, 'App\Controller\AppController');
 
-Cake\Core\Plugin::getCollection()->add(new Queue\Plugin());
-Cake\Core\Plugin::getCollection()->add(new Foo\Plugin());
+Plugin::getCollection()->add(new QueuePlugin());
+Plugin::getCollection()->add(new FooPlugin());
 
 TransportFactory::setConfig('default', [
 	'className' => 'Debug',
