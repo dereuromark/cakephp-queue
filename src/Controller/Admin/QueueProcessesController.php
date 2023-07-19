@@ -104,14 +104,15 @@ class QueueProcessesController extends AppController {
 
 	/**
 	 * @param int|null $id Queue Process id.
+	 * @param int|null $sig Signal (defaults to graceful SIGTERM = 15).
 	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
-	public function delete($id = null) {
+	public function delete($id = null, $sig = null) {
 		$this->request->allowMethod(['post', 'delete']);
 		$queueProcess = $this->QueueProcesses->get($id);
 
 		if (!Configure::read('Queue.multiserver')) {
-			$this->QueueProcesses->terminateProcess($queueProcess->pid);
+			$this->QueueProcesses->terminateProcess($queueProcess->pid, $sig ? (int)$sig : SIGTERM);
 		}
 
 		if ($this->QueueProcesses->delete($queueProcess)) {
