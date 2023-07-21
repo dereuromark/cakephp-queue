@@ -8,7 +8,7 @@ use Cake\Core\BasePlugin;
 /**
  * Plugin for Queue
  */
-class Plugin extends BasePlugin {
+class FooPlugin extends BasePlugin {
 
 	/**
 	 * @var bool

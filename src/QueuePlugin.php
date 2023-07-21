@@ -19,7 +19,7 @@ use Queue\Command\WorkerCommand;
 /**
  * Plugin for Queue
  */
-class Plugin extends BasePlugin {
+class QueuePlugin extends BasePlugin {
 
 	/**
 	 * @var bool
