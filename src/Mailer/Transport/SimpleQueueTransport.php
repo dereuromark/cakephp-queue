@@ -10,14 +10,18 @@ namespace Queue\Mailer\Transport;
 
 use Cake\Mailer\AbstractTransport;
 use Cake\Mailer\Message;
-use Cake\ORM\TableRegistry;
+use Cake\ORM\Locator\LocatorAwareTrait;
 use Queue\Model\Table\QueuedJobsTable;
 
 /**
  * Send mail using Queue plugin and Message settings.
  * This is only recommended for non-templated emails.
+ *
+ * @method \Cake\ORM\Locator\TableLocator getTableLocator()
  */
 class SimpleQueueTransport extends AbstractTransport {
+
+	use LocatorAwareTrait;
 
 	/**
 	 * Send mail
@@ -71,7 +75,7 @@ class SimpleQueueTransport extends AbstractTransport {
 	 */
 	protected function getQueuedJobsModel(): QueuedJobsTable {
 		/** @var \Queue\Model\Table\QueuedJobsTable $table */
-		$table = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$table = $this->getTableLocator()->get('Queue.QueuedJobs');
 
 		return $table;
 	}

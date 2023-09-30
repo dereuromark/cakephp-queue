@@ -13,6 +13,7 @@ use Queue\Model\Entity\QueuedJob;
 
 /**
  * @property \Tools\View\Helper\ProgressHelper $Progress
+ * @method \Cake\ORM\Locator\TableLocator getTableLocator()
  */
 class QueueProgressHelper extends Helper {
 

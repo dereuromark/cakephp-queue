@@ -5,9 +5,9 @@ namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
 use Cake\I18n\DateTime;
+use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\Table;
-use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use Queue\Model\ProcessEndingException;
 use Queue\Queue\Config;
@@ -15,6 +15,8 @@ use Queue\Queue\Config;
 /**
  * QueueProcesses Model
  *
+ * @method \Cake\ORM\Locator\TableLocator getTableLocator()
+ * @mixin \Cake\ORM\Behavior\TimestampBehavior
  * @method \Queue\Model\Entity\QueueProcess get($primaryKey, $options = [])
  * @method \Queue\Model\Entity\QueueProcess newEntity(array $data, array $options = [])
  * @method array<\Queue\Model\Entity\QueueProcess> newEntities(array $data, array $options = [])
@@ -22,7 +24,6 @@ use Queue\Queue\Config;
  * @method \Queue\Model\Entity\QueueProcess patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
  * @method array<\Queue\Model\Entity\QueueProcess> patchEntities(iterable $entities, array $data, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess findOrCreate($search, ?callable $callback = null, $options = [])
- * @mixin \Cake\ORM\Behavior\TimestampBehavior
  * @method \Queue\Model\Entity\QueueProcess saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
  * @method \Queue\Model\Entity\QueueProcess newEmptyEntity()
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess>|false saveMany(iterable $entities, $options = [])
@@ -31,6 +32,8 @@ use Queue\Queue\Config;
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> deleteManyOrFail(iterable $entities, $options = [])
  */
 class QueueProcessesTable extends Table {
+
+	use LocatorAwareTrait;
 
 	/**
 	 * Sets connection name
@@ -244,7 +247,7 @@ class QueueProcessesTable extends Table {
 	 */
 	public function getProcesses(bool $forThisServer = false): array {
 		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
-		$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
+		$QueueProcesses = $this->getTableLocator()->get('Queue.QueueProcesses');
 		$query = $QueueProcesses->findActive()
 			->contain(['CurrentQueuedJobs'])
 			->where(['terminate' => false]);

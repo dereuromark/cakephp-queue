@@ -10,12 +10,16 @@ namespace Queue\Mailer\Transport;
 
 use Cake\Mailer\AbstractTransport;
 use Cake\Mailer\Message;
-use Cake\ORM\TableRegistry;
+use Cake\ORM\Locator\LocatorAwareTrait;
 
 /**
  * Send mail using Queue plugin and Message objects.
+ *
+ * @method \Cake\ORM\Locator\TableLocator getTableLocator()
  */
 class QueueTransport extends AbstractTransport {
+
+	use LocatorAwareTrait;
 
 	/**
 	 * Send mail
@@ -34,7 +38,7 @@ class QueueTransport extends AbstractTransport {
 		$transport = $this->_config['transport'] ?? null;
 
 		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
-		$QueuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$result = $QueuedJobs->createJob('Queue.Email', ['transport' => $transport, 'settings' => $message]);
 		$result['headers'] = $message->getHeadersString();
 		$result['message'] = $message->getBodyString();
