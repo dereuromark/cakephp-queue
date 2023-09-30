@@ -13,7 +13,6 @@ use Queue\Model\Entity\QueuedJob;
 
 /**
  * @property \Tools\View\Helper\ProgressHelper $Progress
- * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  */
 class QueueProgressHelper extends Helper {
 
@@ -232,8 +231,8 @@ class QueueProgressHelper extends Helper {
 			$queuedJobStatistics = Cache::read(static::KEY, static::CONFIG);
 		}
 		if ($queuedJobStatistics === false) {
-			$this->QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
-			$queuedJobStatistics = $this->QueuedJobs->getStats(true);
+			$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+			$queuedJobStatistics = $QueuedJobs->getStats(true);
 			Cache::write(static::KEY, $queuedJobStatistics, static::CONFIG);
 		}
 
