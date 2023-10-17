@@ -32,7 +32,7 @@
 		"cakephp/bake": "^3.0.1",
 		"cakephp/migrations": "^4.0.1",
 		"dereuromark/cakephp-ide-helper": "^2.0.0",
-		"dereuromark/cakephp-tools": "dev-cake5",
+		"dereuromark/cakephp-tools": "^3.0.0",
 		"fig-r/psr2r-sniffer": "dev-next",
 		"friendsofcake/search": "^7.0.0",
 		"phpunit/phpunit": "^10.1"
@@ -59,7 +59,7 @@
 		}
 	},
 	"prefer-stable": true,
-	"minimum-stability": "stable",
+	"minimum-stability": "RC",
 	"scripts": {
 		"stan": "phpstan analyse",
 		"stan-tests": "phpstan analyse -c tests/phpstan.neon",
