@@ -13,6 +13,7 @@ use Queue\Queue\TaskFinder;
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
  */
+#[\AllowDynamicProperties]
 class QueueController extends AppController {
 
 	use LoadHelperTrait;

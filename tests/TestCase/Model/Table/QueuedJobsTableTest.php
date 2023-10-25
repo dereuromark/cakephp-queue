@@ -689,9 +689,9 @@ class QueuedJobsTableTest extends TestCase {
 	public function testGetStats() {
 		$queuedJob = $this->QueuedJobs->newEntity([
 			'job_task' => 'Foo',
-			'completed' => (new FrozenTime())->subHour(2),
-			'fetched' => (new FrozenTime())->subHour(3),
-			'created' => (new FrozenTime())->subHour(5),
+			'completed' => (new FrozenTime())->subHours(2),
+			'fetched' => (new FrozenTime())->subHours(3),
+			'created' => (new FrozenTime())->subHours(5),
 		]);
 		$this->QueuedJobs->saveOrFail($queuedJob);
 

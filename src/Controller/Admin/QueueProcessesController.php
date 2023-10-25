@@ -12,6 +12,7 @@ use Exception;
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> paginate($object = null, array $settings = [])
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  */
+#[\AllowDynamicProperties]
 class QueueProcessesController extends AppController {
 
 	use LoadHelperTrait;
