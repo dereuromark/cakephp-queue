@@ -15,6 +15,7 @@ use Queue\Utility\Serializer;
 /**
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  */
+#[\AllowDynamicProperties]
 class JobCommand extends Command {
 
 	/**
