@@ -242,7 +242,7 @@ class QueueControllerTest extends IntegrationTestCase {
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
 			'failed' => 1,
-			'fetched' => (new FrozenTime())->subHour(),
+			'fetched' => (new FrozenTime())->subHours(1),
 		]);
 		$jobsTable->saveOrFail($job);
 

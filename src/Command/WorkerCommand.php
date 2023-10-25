@@ -13,6 +13,7 @@ use Queue\Queue\Config;
 /**
  * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
  */
+#[\AllowDynamicProperties]
 class WorkerCommand extends Command {
 
 	/**

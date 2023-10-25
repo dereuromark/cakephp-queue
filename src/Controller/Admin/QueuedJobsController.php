@@ -19,6 +19,7 @@ use RuntimeException;
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> paginate($object = null, array $settings = [])
  * @property \Search\Controller\Component\SearchComponent $Search
  */
+#[\AllowDynamicProperties]
 class QueuedJobsController extends AppController {
 
 	use LoadHelperTrait;

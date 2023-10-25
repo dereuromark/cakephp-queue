@@ -86,7 +86,7 @@ class QueueProgressHelperTest extends TestCase {
 	public function testProgressCalculatedEmpty() {
 		$queuedJob = new QueuedJob([
 			'job_task' => 'Queue.Example',
-			'fetched' => (new FrozenTime())->subMinute(),
+			'fetched' => (new FrozenTime())->subMinutes(1),
 		]);
 		$result = $this->QueueProgressHelper->progress($queuedJob);
 		$this->assertNull($result);
@@ -99,14 +99,14 @@ class QueueProgressHelperTest extends TestCase {
 		$queuedJob = new QueuedJob([
 			'job_task' => 'Queue.Example',
 			'created' => (new FrozenTime())->subMinutes(2),
-			'fetched' => (new FrozenTime())->subMinute(),
+			'fetched' => (new FrozenTime())->subMinutes(1),
 			'completed' => (new FrozenTime())->subSeconds(2),
 		]);
 		$this->getTableLocator()->get('Queue.QueuedJobs')->saveOrFail($queuedJob);
 
 		$queuedJob = new QueuedJob([
 			'job_task' => 'Queue.Example',
-			'fetched' => (new FrozenTime())->subMinute(),
+			'fetched' => (new FrozenTime())->subMinutes(1),
 		]);
 
 		$result = $this->QueueProgressHelper->progress($queuedJob);
@@ -160,14 +160,14 @@ class QueueProgressHelperTest extends TestCase {
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
 		$queuedJob = $this->getTableLocator()->get('Queue.QueuedJobs')->newEntity([
 			'job_task' => 'Foo',
-			'created' => (new FrozenTime())->subHour(),
-			'fetched' => (new FrozenTime())->subHour(),
-			'completed' => (new FrozenTime())->subHour()->addMinutes(10),
+			'created' => (new FrozenTime())->subHours(1),
+			'fetched' => (new FrozenTime())->subHours(1),
+			'completed' => (new FrozenTime())->subHours(1)->addMinutes(10),
 		]);
 		$this->getTableLocator()->get('Queue.QueuedJobs')->saveOrFail($queuedJob);
 
 		$queuedJob->completed = null;
-		$queuedJob->fetched = (new FrozenTime())->subMinute();
+		$queuedJob->fetched = (new FrozenTime())->subMinutes(1);
 
 		$result = $this->QueueProgressHelper->progressBar($queuedJob, 5);
 		$this->assertTextContains('<span title="10%">', $result);
@@ -178,8 +178,8 @@ class QueueProgressHelperTest extends TestCase {
 	 */
 	public function testTimeoutProgressBar() {
 		$queuedJob = new QueuedJob([
-			'created' => (new FrozenTime())->subHour(),
-			'notbefore' => (new FrozenTime())->addHour(),
+			'created' => (new FrozenTime())->subHours(1),
+			'notbefore' => (new FrozenTime())->addHours(1),
 		]);
 
 		$result = $this->QueueProgressHelper->timeoutProgressBar($queuedJob, 5);
@@ -191,8 +191,8 @@ class QueueProgressHelperTest extends TestCase {
 	 */
 	public function testHtmlTimeoutProgressBar() {
 		$queuedJob = new QueuedJob([
-			'created' => (new FrozenTime())->subMinute(),
-			'notbefore' => (new FrozenTime())->addMinute(),
+			'created' => (new FrozenTime())->subMinutes(1),
+			'notbefore' => (new FrozenTime())->addMinutes(1),
 		]);
 		$result = $this->QueueProgressHelper->htmlTimeoutProgressBar($queuedJob);
 		$expected = '<progress value="50" max="100" title="50%"></progress>';
@@ -200,7 +200,7 @@ class QueueProgressHelperTest extends TestCase {
 
 		$queuedJob = new QueuedJob([
 			'created' => (new FrozenTime()),
-			'notbefore' => (new FrozenTime())->addHour(),
+			'notbefore' => (new FrozenTime())->addHours(1),
 		]);
 		// For IE9 and below
 		$fallback = $this->QueueProgressHelper->timeoutProgressBar($queuedJob, 10);
@@ -209,8 +209,8 @@ class QueueProgressHelperTest extends TestCase {
 		$this->assertSame($expected, $result);
 
 		$queuedJob = new QueuedJob([
-			'created' => (new FrozenTime())->subMinute(),
-			'notbefore' => (new FrozenTime())->subSecond(),
+			'created' => (new FrozenTime())->subMinutes(1),
+			'notbefore' => (new FrozenTime())->subSeconds(1),
 		]);
 		// For IE9 and below
 		$fallback = $this->QueueProgressHelper->timeoutProgressBar($queuedJob, 10);
