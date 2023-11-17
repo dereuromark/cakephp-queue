@@ -35,7 +35,7 @@ use Cake\Core\Configure;
 			<?php
 			/** @var \Cake\I18n\DateTime $time */
 			$time = $status['time'];
-			$running = $time->addMinute()->isFuture();
+			$running = $time->addMinutes(1)->isFuture();
 			?>
 			<?php echo $this->Format->yesNo($running); ?> <?php echo $running ? __d('queue', 'Running') : __d('queue', 'Not running'); ?> (<?php echo __d('queue', 'last {0}', $this->Time->relLengthOfTime($status['time']))?>)
 
