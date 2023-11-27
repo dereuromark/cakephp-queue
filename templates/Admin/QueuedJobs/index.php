@@ -1,7 +1,7 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var \Queue\Model\Entity\QueuedJob[]|\Cake\Collection\CollectionInterface $queuedJobs
+ * @var iterable<\Queue\Model\Entity\QueuedJob> $queuedJobs
  */
 
 use Cake\Core\Configure;

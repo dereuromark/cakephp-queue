@@ -1,7 +1,7 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var \Queue\Model\Entity\QueueProcess[]|\Cake\Collection\CollectionInterface $queueProcesses
+ * @var iterable<\Queue\Model\Entity\QueueProcess> $queueProcesses
  */
 use Queue\Queue\Config;
 ?>

@@ -8,7 +8,7 @@ use Cake\TestSuite\TestCase;
 use Shim\TestSuite\TestTrait;
 
 /**
- * @uses \Queue\Command\MigrateTasksCommand
+ * @uses \Queue\Command\BakeQueueTaskCommand
  */
 class BakeQueueTaskCommandTest extends TestCase {
 
