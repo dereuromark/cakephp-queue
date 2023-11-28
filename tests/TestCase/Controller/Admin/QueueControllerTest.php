@@ -57,8 +57,6 @@ class QueueControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testIndex() {
-		$this->skipIf(true, 'Needs fixing');
-
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
 
 		$this->assertResponseCode(200);
