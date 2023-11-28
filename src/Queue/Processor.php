@@ -24,6 +24,7 @@ declare(ticks = 1);
 /**
  * Main shell to init and run queue workers.
  */
+#[\AllowDynamicProperties]
 class Processor {
 
 	/*

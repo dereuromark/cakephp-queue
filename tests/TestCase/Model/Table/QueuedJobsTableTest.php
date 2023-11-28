@@ -352,7 +352,8 @@ class QueuedJobsTableTest extends TestCase {
 			$tmp = $this->QueuedJobs->requestJob($capabilities);
 
 			$this->assertSame($item['name'], $tmp['job_task']);
-			$this->assertEquals($item['data'], unserialize($tmp['data']));
+			$dataValue = $tmp['data'] !== null ? unserialize($tmp['data']) : null;
+			$this->assertEquals($item['data'], $dataValue);
 		}
 	}
 
@@ -415,14 +416,14 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Queue.Example', $tmp['job_task']);
-		$this->assertFalse(unserialize($tmp['data']));
+		$this->assertNull($tmp['data']);
 
 		usleep(100000);
 		//and again.
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Queue.Example', $tmp['job_task']);
-		$this->assertFalse(unserialize($tmp['data']));
+		$this->assertNull($tmp['data']);
 
 		//Then some time passes
 		sleep(2);
@@ -437,7 +438,7 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Queue.Example', $tmp['job_task']);
-		$this->assertFalse(unserialize($tmp['data']));
+		$this->assertNull($tmp['data']);
 
 		//Then some more time passes
 		sleep(2);
@@ -452,7 +453,7 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Queue.Example', $tmp['job_task']);
-		$this->assertFalse(unserialize($tmp['data']));
+		$this->assertNull($tmp['data']);
 
 		//and now the queue is empty
 		$this->QueuedJobs->clearKey();
