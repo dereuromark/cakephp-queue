@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class Fixmissing extends AbstractMigration {
+class MigrationQueueFixMissing extends AbstractMigration {
 
 	/**
 	 * Change Method.

@@ -4,7 +4,7 @@ use Cake\Error\Debugger;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Migration\AbstractMigration;
 
-class AlterQueuedJobs extends AbstractMigration {
+class MigrationQueueAlterQueuedJobs extends AbstractMigration {
 
 	/**
 	 * Change Method.

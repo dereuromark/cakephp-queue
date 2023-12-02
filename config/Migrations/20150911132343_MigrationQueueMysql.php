@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class Rename extends AbstractMigration {
+class MigrationQueueMysql extends AbstractMigration {
 
 	/**
 	 * Change Method.
@@ -16,10 +16,14 @@ class Rename extends AbstractMigration {
 	 */
 	public function change() {
 		$table = $this->table('queued_tasks');
-		$table->rename('queued_jobs')
-			->renameColumn('task_group', 'job_group')
-			->renameColumn('jobtype', 'job_type')
-			->update();
+
+		$table->changeColumn('status', 'string', [
+		    'length' => 255,
+			'null' => true,
+			'default' => null,
+		]);
+
+		$table->save();
 	}
 
 }

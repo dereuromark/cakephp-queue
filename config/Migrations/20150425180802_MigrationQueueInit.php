@@ -2,7 +2,7 @@
 
 use Phinx\Migration\AbstractMigration;
 
-class Init extends AbstractMigration {
+class MigrationQueueInit extends AbstractMigration {
 
 	/**
 	 * Change Method.

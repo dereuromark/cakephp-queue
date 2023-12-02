@@ -4,7 +4,7 @@ use Cake\Error\Debugger;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Migration\AbstractMigration;
 
-class IncreaseDataSize extends AbstractMigration {
+class MigrationQueueDataSize extends AbstractMigration {
 
 	/**
 	 * Change Method.
