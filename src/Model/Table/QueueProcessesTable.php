@@ -112,9 +112,9 @@ class QueueProcessesTable extends Table {
 	 * @param string $value
 	 * @param array<string, mixed> $context
 	 *
-	 * @return bool
+	 * @return string|bool
 	 */
-	public function validateCount(string $value, array $context): bool {
+	public function validateCount(string $value, array $context) {
 		$maxWorkers = Config::maxworkers();
 		if (!$value || !$maxWorkers) {
 			return true;
@@ -122,7 +122,7 @@ class QueueProcessesTable extends Table {
 
 		$currentWorkers = $this->find()->where(['server' => $value])->count();
 		if ($currentWorkers >= $maxWorkers) {
-			return false;
+			return 'Too many workers running (' . $currentWorkers . '/' . $maxWorkers . '). Check your `Queue.maxworkers` config.';
 		}
 
 		return true;
