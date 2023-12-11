@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
+use Templating\View\Helper\IconHelper;
+
 trait LoadHelperTrait {
 
 	/**
@@ -12,7 +14,7 @@ trait LoadHelperTrait {
 		$helpers = [
 			'Tools.Time',
 			'Tools.Format',
-			'Tools.Icon',
+			class_exists(IconHelper::class) ? 'Templating.Icon' : 'Tools.Icon',
 			'Tools.Text',
 			'Shim.Configure',
 		];
