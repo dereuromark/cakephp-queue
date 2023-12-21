@@ -119,3 +119,37 @@ Do not run this with production ones, though.
 
 The console kill commands are also registered here. So if you run a worker locally,
 and you enter `Ctrl+C` or alike, it will also hard-kill this worker process.
+
+## Use DTOs
+Using [CakeDto](https://github.com/dereuromark/cakephp-dto) plugin you can make your code much more reliable, testable
+and developer-friendly.
+
+Set up a DTO per task in your `dto.xml`, e.g.
+```xml
+<dto name="OrderUpdateNotificationQueueData" immutable="true">
+    <field name="orderId" type="int" required="true"/>
+    <field name="type" type="string" required="true"/>
+    ...
+</dto>
+```
+Instead of a plain array you can now rely on a clean API for input:
+```php
+$data = OrderUpdateNotificationQueueDataDto::createFromArray([
+    'orderId' => $order->id,
+    'type' => 'orderConfirmationToCustomer',
+])->toArray();
+$this->getTableLocator()->get('Queue.QueuedJobs')->createJob('OrderUpdateNotification', $data);
+```
+Any of the fields not provided or defined will throw a clear exception.
+
+Same then for the counterpart within the task:
+```php
+public function run(array $data, int $jobId): void {
+    $queueData = OrderUpdateNotificationQueueDataDto::createFromArray($data);
+
+    $order = $this->fetchTable('Orders')->get($queueData->getOrderId(), contain: ['OrderItems']);
+    $this->getMailer('OrderConfirmation')->send($queueData->getType(), [$order]);
+}
+```
+
+PHPStan together with tests can now fully monitor and assert necessary data.

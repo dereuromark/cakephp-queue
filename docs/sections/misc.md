@@ -2,7 +2,7 @@
 
 ## Logging
 
-By default errors are always logged, and with log enabled also the execution of a job.
+By default, errors are always logged, and with log enabled also the execution of a job.
 Make sure you add this to your config:
 ```php
 'Log' => [
