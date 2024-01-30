@@ -110,8 +110,14 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 		$class = $data['class'] ?? null;
 		if ($class && (is_a($class, Message::class) || is_subclass_of($class, Message::class))) {
 			$settings = $data['settings'];
+			$serialized = $data['serialized'] ?? false;
 
-			$message = new $class($settings);
+			if ($serialized) {
+				$message = is_array($settings) ? (new Message())->createFromArray($settings) : unserialize($settings);
+			} else {
+				$message = new $class($settings);
+			}
+
 			try {
 				$transport = TransportFactory::get($data['transport'] ?? 'default');
 				$result = $transport->send($message);

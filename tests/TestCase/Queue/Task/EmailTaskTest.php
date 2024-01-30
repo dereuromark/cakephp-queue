@@ -7,11 +7,13 @@ use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\Mailer\Mailer;
+use Cake\Mailer\Message;
 use Cake\Mailer\Transport\DebugTransport;
 use Cake\Mailer\TransportFactory;
 use Cake\TestSuite\TestCase;
 use Queue\Console\Io;
 use Queue\Queue\Task\EmailTask;
+use Queue\Utility\Serializer;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
 use Tools\Mailer\Message as MailerMessage;
@@ -70,8 +72,47 @@ class EmailTaskTest extends TestCase {
 		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
-		$queuedJob = $queuedJobsTable->find()->orderDesc('id')->firstOrFail();
+		$queuedJob = $queuedJobsTable->find()->orderByDesc('id')->firstOrFail();
 		$this->assertSame('Queue.Email', $queuedJob->job_task);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testAddMessageSerialized() {
+		Configure::write('Queue.serializerClass', \Queue\Utility\JsonSerializer::class);
+
+		$message = new Message();
+		$message
+			->setSubject('I haz Cake')
+			->setEmailFormat(Message::MESSAGE_BOTH)
+			->setBody([
+				Message::MESSAGE_TEXT => 'text message',
+				Message::MESSAGE_HTML => '<strong>html message</strong>',
+			]);
+
+		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
+		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$queuedJobsTable->createJob('Email', [
+			'class' => Message::class,
+			'settings' => $message->__serialize(),
+			'serialized' => true,
+		]);
+
+		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
+		$queuedJob = $queuedJobsTable->find()->orderByDesc('id')->firstOrFail();
+
+		$settings = Serializer::deserialize($queuedJob->data)['settings'];
+		$message = (new Message())->createFromArray($settings);
+
+		$this->assertSame('I haz Cake', $message->getSubject());
+
+		$serialized = serialize($message);
+		$message = unserialize($serialized);
+
+		$this->assertSame('I haz Cake', $message->getSubject());
+
+		Configure::delete('Queue.serializerClass');
 	}
 
 	/**
