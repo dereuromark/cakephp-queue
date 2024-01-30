@@ -13,6 +13,7 @@ use Cake\Mailer\TransportFactory;
 use Cake\TestSuite\TestCase;
 use Queue\Console\Io;
 use Queue\Queue\Task\EmailTask;
+use Queue\Utility\JsonSerializer;
 use Queue\Utility\Serializer;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
@@ -23,7 +24,7 @@ class EmailTaskTest extends TestCase {
 	use TestTrait;
 
 	/**
-	 * @var array
+	 * @var array<string>
 	 */
 	protected array $fixtures = [
 		'plugin.Queue.QueuedJobs',
@@ -80,7 +81,7 @@ class EmailTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testAddMessageSerialized() {
-		Configure::write('Queue.serializerClass', \Queue\Utility\JsonSerializer::class);
+		Configure::write('Queue.serializerClass', JsonSerializer::class);
 
 		$message = new Message();
 		$message
