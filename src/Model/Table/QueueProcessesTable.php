@@ -67,14 +67,11 @@ class QueueProcessesTable extends Table {
 
 		$this->addBehavior('Timestamp');
 
-		$this->hasOne('CurrentQueuedJobs', [
+		$this->hasOne('QueuedJobs', [
 			'className' => 'Queue.QueuedJobs',
 			'foreignKey' => 'workerkey',
 			'bindingKey' => 'workerkey',
-			'propertyName' => 'active_job',
-			'conditions' => [
-				'CurrentQueuedJobs.completed IS NULL',
-			],
+			'propertyName' => 'jobs',
 		]);
 
 		$this->hasOne('CurrentQueuedJobs', [
