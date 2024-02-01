@@ -25,8 +25,6 @@ class QueueProcessesAddInfo extends AbstractMigration {
 				'length' => 150,
 				'null' => true,
 				'default' => null,
-				'encoding' => 'utf8mb4',
-				'collation' => 'utf8mb4_unicode_ci',
 			])
 			->save();
 	}
