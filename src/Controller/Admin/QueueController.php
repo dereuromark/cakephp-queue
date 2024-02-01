@@ -1,10 +1,13 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
 use App\Controller\AppController;
 use Cake\Core\App;
 use Cake\Http\Exception\NotFoundException;
+use Queue\Queue\AddFromBackendInterface;
+use Queue\Queue\AddInterface;
 use Queue\Queue\TaskFinder;
 
 /**
@@ -16,9 +19,9 @@ class QueueController extends AppController {
 	use LoadHelperTrait;
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	protected $modelClass = 'Queue.QueuedJobs';
+	protected ?string $defaultTable = 'Queue.QueuedJobs';
 
 	/**
 	 * @return void
@@ -36,14 +39,14 @@ class QueueController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function index() {
-		$this->loadModel('Queue.QueueProcesses');
-		$status = $this->QueueProcesses->status();
+		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
+		$status = $QueueProcesses->status();
 
 		$current = $this->QueuedJobs->getLength();
-		$pendingDetails = $this->QueuedJobs->getPendingStats();
+		$pendingDetails = $this->QueuedJobs->getPendingStats()->toArray();
 		$new = 0;
 		foreach ($pendingDetails as $pendingDetail) {
-			if ($pendingDetail['fetched'] || $pendingDetail['failed']) {
+			if ($pendingDetail['fetched'] || $pendingDetail['attempts']) {
 				continue;
 			}
 			$new++;
@@ -53,37 +56,44 @@ class QueueController extends AppController {
 
 		$taskFinder = new TaskFinder();
 		$tasks = $taskFinder->all();
-		$addableTasks = $taskFinder->allAddable();
+		$addableTasks = $taskFinder->allAddable(AddFromBackendInterface::class);
 
-		$servers = $this->QueueProcesses->find()->distinct(['server'])->find('list', ['keyField' => 'server', 'valueField' => 'server'])->toArray();
+		$servers = $QueueProcesses->find()
+			->distinct(['server'])
+			->where(['server IS NOT' => null])
+			->find(
+				'list',
+				keyField: 'server',
+				valueField: 'server',
+			)->toArray();
 		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks', 'addableTasks', 'servers'));
 	}
 
 	/**
-	 * @param string|null $job Deprecated: Use ?task=... query string instead.
-	 *   Note: This fails with plugin syntax, so only to be used for project level ones.
 	 * @throws \Cake\Http\Exception\NotFoundException
+	 *
 	 * @return \Cake\Http\Response|null
 	 */
-	public function addJob($job = null) {
+	public function addJob() {
 		$this->request->allowMethod('post');
 
-		$job = (string)$this->request->getQuery('task') ?: $job;
+		$job = (string)$this->request->getQuery('task');
 		if (!$job) {
 			throw new NotFoundException();
 		}
 
+		/** @var class-string<\Queue\Queue\Task> $className */
 		$className = App::className($job, 'Queue/Task', 'Task');
 		if (!$className) {
 			throw new NotFoundException('Class not found for job `' . $job . '`');
 		}
 
-		// Deprecated/Remove?
-		if (method_exists($className, 'init')) {
-			$className::init();
+		$object = new $className();
+		if ($object instanceof AddInterface) {
+			$object->add(null);
+		} else {
+			$this->QueuedJobs->createJob($job);
 		}
-
-		$this->QueuedJobs->createJob($job);
 
 		$this->Flash->success('Job ' . $job . ' added');
 
@@ -92,10 +102,12 @@ class QueueController extends AppController {
 
 	/**
 	 * @param int|null $id
+	 *
 	 * @throws \Cake\Http\Exception\NotFoundException
+	 *
 	 * @return \Cake\Http\Response|null
 	 */
-	public function resetJob($id = null) {
+	public function resetJob(?int $id = null) {
 		$this->request->allowMethod('post');
 		if (!$id) {
 			throw new NotFoundException();
@@ -113,7 +125,7 @@ class QueueController extends AppController {
 	 *
 	 * @return \Cake\Http\Response|null
 	 */
-	public function removeJob($id = null) {
+	public function removeJob(?int $id = null) {
 		$this->request->allowMethod('post');
 		$queuedJob = $this->QueuedJobs->get($id);
 
@@ -128,24 +140,24 @@ class QueueController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function processes() {
-		$this->loadModel('Queue.QueueProcesses');
+		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
 
 		if ($this->request->is('post') && $this->request->getQuery('end')) {
 			$pid = (string)$this->request->getQuery('end');
-			$this->QueueProcesses->endProcess($pid);
+			$QueueProcesses->endProcess($pid);
 
 			return $this->redirect(['action' => 'processes']);
 		}
 		if ($this->request->is('post') && $this->request->getQuery('kill')) {
 			$pid = (string)$this->request->getQuery('kill');
-			$this->QueueProcesses->terminateProcess($pid);
+			$QueueProcesses->terminateProcess($pid);
 
 			return $this->redirect(['action' => 'processes']);
 		}
 
-		$processes = $this->QueueProcesses->getProcesses();
-		$terminated = $this->QueueProcesses->find()->where(['terminate' => true])->all()->toArray();
-		$key = $this->QueueProcesses->buildServerString();
+		$processes = $QueueProcesses->getProcesses();
+		$terminated = $QueueProcesses->find()->where(['terminate' => true])->all()->toArray();
+		$key = $QueueProcesses->buildServerString();
 
 		$this->set(compact('terminated', 'processes', 'key'));
 	}
@@ -159,7 +171,7 @@ class QueueController extends AppController {
 		$this->request->allowMethod('post');
 		$resetted = $this->QueuedJobs->reset(null, (bool)$this->request->getQuery('full'));
 
-		$message = __d('queue', '{n} jobs reset for re-run', $resetted);
+		$message = __d('queue', '{0} jobs reset for re-run', $resetted);
 		$this->Flash->success($message);
 
 		return $this->redirect(['action' => 'index']);
@@ -174,7 +186,7 @@ class QueueController extends AppController {
 		$this->request->allowMethod('post');
 		$count = $this->QueuedJobs->flushFailedJobs();
 
-		$message = __d('queue', '{n} jobs removed', $count);
+		$message = __d('queue', '{0} jobs removed', $count);
 		$this->Flash->success($message);
 
 		return $this->redirect(['action' => 'index']);
@@ -200,7 +212,7 @@ class QueueController extends AppController {
 	 *
 	 * @return \Cake\Http\Response|null
 	 */
-	protected function refererRedirect($default) {
+	protected function refererRedirect(array|string $default) {
 		$url = $this->request->getQuery('redirect');
 		if (is_array($url)) {
 			throw new NotFoundException('Invalid array in query string');

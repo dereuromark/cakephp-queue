@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Queue;
 
@@ -20,7 +21,7 @@ class ProcessorTest extends TestCase {
 	/**
 	 * @var array<string>
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueueProcesses',
 		'plugin.Queue.QueuedJobs',
 	];

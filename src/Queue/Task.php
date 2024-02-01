@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * @author Andy Carter
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
@@ -7,9 +9,10 @@
 namespace Queue\Queue;
 
 use Cake\Console\ConsoleIo;
-use Cake\Datasource\ModelAwareTrait;
+use Cake\ORM\Locator\LocatorAwareTrait;
 use Psr\Log\LoggerInterface;
 use Queue\Console\Io;
+use Queue\Model\Table\QueuedJobsTable;
 
 /**
  * Queue Task.
@@ -19,17 +22,11 @@ use Queue\Console\Io;
  */
 abstract class Task implements TaskInterface {
 
-	use ModelAwareTrait;
+	use LocatorAwareTrait;
 
-	/**
-	 * @var string
-	 */
-	public $queueModelClass = 'Queue.QueuedJobs';
+	public string $queueModelClass = 'Queue.QueuedJobs';
 
-	/**
-	 * @var \Queue\Model\Table\QueuedJobsTable
-	 */
-	public $QueuedJobs;
+	public QueuedJobsTable $QueuedJobs;
 
 	/**
 	 * Timeout in seconds, after which the Task is reassigned to a new worker
@@ -39,7 +36,7 @@ abstract class Task implements TaskInterface {
 	 *
 	 * @var int|null
 	 */
-	public $timeout;
+	public ?int $timeout = null;
 
 	/**
 	 * Number of times a failed instance of this task should be restarted before giving up.
@@ -47,7 +44,7 @@ abstract class Task implements TaskInterface {
 	 *
 	 * @var int|null
 	 */
-	public $retries;
+	public ?int $retries = null;
 
 	/**
 	 * Rate limiting per worker in seconds.
@@ -55,7 +52,7 @@ abstract class Task implements TaskInterface {
 	 *
 	 * @var int
 	 */
-	public $rate = 0;
+	public int $rate = 0;
 
 	/**
 	 * Activate this if you want cost management per server to avoid server overloading.
@@ -66,7 +63,7 @@ abstract class Task implements TaskInterface {
 	 *
 	 * @var int
 	 */
-	public $costs = 0;
+	public int $costs = 0;
 
 	/**
 	 * Set to true if you want to make sure this specific task is never run in parallel, neither
@@ -75,17 +72,17 @@ abstract class Task implements TaskInterface {
 	 *
 	 * @var bool
 	 */
-	public $unique = false;
+	public bool $unique = false;
 
 	/**
 	 * @var \Queue\Console\Io
 	 */
-	protected $io;
+	protected Io $io;
 
 	/**
 	 * @var \Psr\Log\LoggerInterface|null
 	 */
-	protected $logger;
+	protected ?LoggerInterface $logger = null;
 
 	/**
 	 * @param \Queue\Console\Io|null $io IO
@@ -95,14 +92,20 @@ abstract class Task implements TaskInterface {
 		$this->io = $io ?: new Io(new ConsoleIo());
 		$this->logger = $logger;
 
-		$this->loadModel($this->queueModelClass);
-		if (isset($this->modelClass)) {
-			$this->loadModel();
+		$tableLocator = $this->getTableLocator();
+
+		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+		$QueuedJobs = $tableLocator->get($this->queueModelClass);
+		$this->QueuedJobs = $QueuedJobs;
+
+		if (isset($this->defaultTable)) {
+			$this->fetchTable();
 		}
 	}
 
 	/**
 	 * @throws \InvalidArgumentException
+	 *
 	 * @return string
 	 */
 	public static function taskName(): string {

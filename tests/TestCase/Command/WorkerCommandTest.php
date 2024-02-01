@@ -1,9 +1,9 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Command;
 
-use Cake\TestSuite\ConsoleIntegrationTestTrait;
+use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -16,7 +16,7 @@ class WorkerCommandTest extends TestCase {
 	/**
 	 * @var array<string>
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueueProcesses',
 	];
 
@@ -26,7 +26,7 @@ class WorkerCommandTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->useCommandRunner();
+		//$this->useCommandRunner();
 	}
 
 	/**

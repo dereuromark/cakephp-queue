@@ -1,21 +1,26 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue\Task;
 
+use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 
 /**
  * A Simple QueueTask example that runs for a while and updates the progress field.
  */
-class ProgressExampleTask extends Task implements AddInterface {
+class ProgressExampleTask extends Task implements AddInterface, AddFromBackendInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
-	 *
+	 */
+	public ?int $timeout = 120;
+
+	/**
 	 * @var int
 	 */
-	public $timeout = 120;
+	public const MINUTE = 60;
 
 	/**
 	 * Example add functionality.
@@ -43,7 +48,7 @@ class ProgressExampleTask extends Task implements AddInterface {
 		$this->io->out(' ');
 
 		$data = [
-			'duration' => 2 * MINUTE,
+			'duration' => 2 * static::MINUTE,
 		];
 		$this->QueuedJobs->createJob('Queue.ProgressExample', $data);
 		$this->io->success('OK, job created, now run the worker');
@@ -58,12 +63,13 @@ class ProgressExampleTask extends Task implements AddInterface {
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
 		$this->io->hr();
 		$this->io->out('CakePHP Queue ProgressExample task.');
-		$seconds = !empty($data['duration']) ? (int)$data['duration'] : 2 * MINUTE;
+		$seconds = !empty($data['duration']) ? (int)$data['duration'] : 2 * static::MINUTE;
 
 		$this->io->out('A total of ' . $seconds . ' seconds need to pass...');
 		for ($i = 0; $i < $seconds; $i++) {

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Generator\Task;
 
@@ -11,7 +12,7 @@ class QueuedJobTask implements TaskInterface {
 	/**
 	 * @var array<int>
 	 */
-	protected $aliases = [
+	protected array $aliases = [
 		'\Queue\Model\Table\QueuedJobsTable::createJob()' => 0,
 		'\Queue\Model\Table\QueuedJobsTable::isQueued()' => 1,
 	];

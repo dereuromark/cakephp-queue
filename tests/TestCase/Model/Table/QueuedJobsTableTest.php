@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
@@ -9,7 +11,7 @@ namespace Queue\Test\TestCase\Model\Table;
 
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Queue\Model\Table\QueuedJobsTable;
@@ -26,9 +28,9 @@ class QueuedJobsTableTest extends TestCase {
 	protected $QueuedJobs;
 
 	/**
-	 * @var array
+	 * @var array<string>
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueuedJobs',
 		'plugin.Queue.QueueProcesses',
 	];
@@ -41,7 +43,7 @@ class QueuedJobsTableTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$config = TableRegistry::exists('QueuedJobs') ? [] : ['className' => QueuedJobsTable::class];
+		$config = TableRegistry::getTableLocator()->exists('QueuedJobs') ? [] : ['className' => QueuedJobsTable::class];
 		$this->QueuedJobs = $this->getTableLocator()->get('QueuedJobs', $config);
 	}
 
@@ -105,13 +107,44 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testMarkJobDone() {
+		$job = $this->QueuedJobs->createJob('Foo', [
+			'some' => 'random',
+			'test' => 'data',
+		]);
+		$this->assertTrue($this->QueuedJobs->markJobDone($job));
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testMarkJobFailed() {
+		$job = $this->QueuedJobs->createJob('Foo', [
+			'some' => 'random',
+			'test' => 'data',
+		]);
+		$this->assertTrue($this->QueuedJobs->markJobFailed($job));
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testFlushFailedJobs() {
+		$this->QueuedJobs->createJob('Foo', [
+			'some' => 'random',
+			'test' => 'data',
+		]);
+		$this->assertSame(0, $this->QueuedJobs->flushFailedJobs());
+	}
+
+	/**
 	 * Test the basic create and fetch functions.
 	 *
 	 * @return void
 	 */
 	public function testCreateAndFetch() {
-		$this->_needsConnection();
-
 		//$capabilities is a list of tasks the worker can run.
 		$capabilities = [
 			'Foo' => [
@@ -143,7 +176,7 @@ class QueuedJobsTableTest extends TestCase {
 		$job = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame(1, $job->id);
 		$this->assertSame('Foo', $job->job_task);
-		$this->assertSame(0, $job->failed);
+		$this->assertSame(1, $job->attempts);
 		$this->assertNull($job->completed);
 		$this->assertSame($testData, unserialize($job->data));
 
@@ -196,8 +229,6 @@ class QueuedJobsTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testSequence() {
-		$this->_needsConnection();
-
 		//$capabilities is a list of tasks the worker can run.
 		$capabilities = [
 			'Foo' => [
@@ -255,9 +286,9 @@ class QueuedJobsTableTest extends TestCase {
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', null, ['notBefore' => '+ 1 Day']));
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', null, ['notBefore' => '2009-07-01 12:00:00']));
 		$data = $this->QueuedJobs->find('all')->toArray();
-		$this->assertWithinRange((new FrozenTime('+ 1 Min'))->toUnixString(), $data[0]['notbefore']->toUnixString(), 60);
-		$this->assertWithinRange((new FrozenTime('+ 1 Day'))->toUnixString(), $data[1]['notbefore']->toUnixString(), 60);
-		$this->assertWithinRange((new FrozenTime('2009-07-01 12:00:00'))->toUnixString(), $data[2]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new DateTime('+ 1 Min'))->toUnixString(), $data[0]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new DateTime('+ 1 Day'))->toUnixString(), $data[1]['notbefore']->toUnixString(), 60);
+		$this->assertWithinRange((new DateTime('2009-07-01 12:00:00'))->toUnixString(), $data[2]['notbefore']->toUnixString(), 60);
 	}
 
 	/**
@@ -323,7 +354,8 @@ class QueuedJobsTableTest extends TestCase {
 			$tmp = $this->QueuedJobs->requestJob($capabilities);
 
 			$this->assertSame($item['name'], $tmp['job_task']);
-			$this->assertEquals($item['data'], unserialize($tmp['data']));
+			$dataValue = $tmp['data'] !== null ? unserialize($tmp['data']) : null;
+			$this->assertEquals($item['data'], $dataValue);
 		}
 	}
 
@@ -386,14 +418,14 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Queue.Example', $tmp['job_task']);
-		$this->assertFalse(unserialize($tmp['data']));
+		$this->assertNull($tmp['data']);
 
 		usleep(100000);
 		//and again.
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Queue.Example', $tmp['job_task']);
-		$this->assertFalse(unserialize($tmp['data']));
+		$this->assertNull($tmp['data']);
 
 		//Then some time passes
 		sleep(2);
@@ -408,7 +440,7 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Queue.Example', $tmp['job_task']);
-		$this->assertFalse(unserialize($tmp['data']));
+		$this->assertNull($tmp['data']);
 
 		//Then some more time passes
 		sleep(2);
@@ -423,7 +455,7 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Queue.Example', $tmp['job_task']);
-		$this->assertFalse(unserialize($tmp['data']));
+		$this->assertNull($tmp['data']);
 
 		//and now the queue is empty
 		$this->QueuedJobs->clearKey();
@@ -457,14 +489,14 @@ class QueuedJobsTableTest extends TestCase {
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
 		$this->assertSame($data, unserialize($tmp['data']));
-		$this->assertSame(0, $tmp['failed']);
+		$this->assertSame(0, $tmp['attempts']);
 		sleep(2);
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
 		$this->assertSame($data, unserialize($tmp['data']));
-		$this->assertSame(1, $tmp['failed']);
+		$this->assertSame(1, $tmp['attempts']);
 		$this->assertSame('Restart after timeout', $tmp['failure_message']);
 	}
 
@@ -498,25 +530,21 @@ class QueuedJobsTableTest extends TestCase {
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
 		$this->assertSame(['1'], unserialize($tmp['data']));
-		$this->assertSame('0', $tmp['failed']);
+		$this->assertSame('0', $tmp['attempts']);
 		sleep(2);
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
 		$this->assertSame(['1'], unserialize($tmp['data']));
-		$this->assertSame('1', $tmp['failed']);
+		$this->assertSame('1', $tmp['attempts']);
 		$this->assertSame('Restart after timeout', $tmp['failure_message']);
 	}
 
 	/**
-	 * Testing requesting, only works for non-SQlite so far.
-	 *
 	 * @return void
 	 */
 	public function testRequestJob() {
-		$this->_needsConnection();
-
 		$capabilities = [
 			'Foo' => [
 				'name' => 'Foo',
@@ -538,8 +566,6 @@ class QueuedJobsTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testRequestGroup() {
-		$this->_needsConnection();
-
 		$capabilities = [
 			'Foo' => [
 				'name' => 'Foo',
@@ -594,11 +620,12 @@ class QueuedJobsTableTest extends TestCase {
 		$this->assertSame($data6, unserialize($tmp['data']));
 
 		// use FindProgress on the testgroup:
-		$progress = $this->QueuedJobs->find('all', [
-			'conditions' => [
+		$progress = $this->QueuedJobs->find(
+			'all',
+			conditions: [
 				'job_group' => 'testgroup',
 			],
-		])->toArray();
+		)->toArray();
 
 		$this->assertSame(3, count($progress));
 
@@ -611,8 +638,6 @@ class QueuedJobsTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testPriority() {
-		$this->_needsConnection();
-
 		$capabilities = [
 			'Foo' => [
 				'name' => 'Foo',
@@ -655,7 +680,7 @@ class QueuedJobsTableTest extends TestCase {
 		$result = $this->QueuedJobs->isQueued('foo-bar');
 		$this->assertTrue($result);
 
-		$queuedJob->completed = new FrozenTime();
+		$queuedJob->completed = new DateTime();
 		$this->QueuedJobs->saveOrFail($queuedJob);
 
 		$result = $this->QueuedJobs->isQueued('foo-bar');
@@ -668,9 +693,9 @@ class QueuedJobsTableTest extends TestCase {
 	public function testGetStats() {
 		$queuedJob = $this->QueuedJobs->newEntity([
 			'job_task' => 'Foo',
-			'completed' => (new FrozenTime())->subHour(2),
-			'fetched' => (new FrozenTime())->subHour(3),
-			'created' => (new FrozenTime())->subHour(5),
+			'completed' => (new DateTime())->subHours(2),
+			'fetched' => (new DateTime())->subHours(3),
+			'created' => (new DateTime())->subHours(5),
 		]);
 		$this->QueuedJobs->saveOrFail($queuedJob);
 

@@ -1,11 +1,11 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Command;
 
+use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
-use Cake\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -18,7 +18,7 @@ class RunCommandTest extends TestCase {
 	/**
 	 * @var array<string>
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueueProcesses',
 		'plugin.Queue.QueuedJobs',
 	];
@@ -37,7 +37,7 @@ class RunCommandTest extends TestCase {
 			'exitwhennothingtodo' => false,
 		]);
 
-		$this->useCommandRunner();
+		//$this->useCommandRunner();
 	}
 
 	/**
@@ -50,6 +50,22 @@ class RunCommandTest extends TestCase {
 
 		$output = $this->_out->output();
 		$this->assertStringContainsString('Looking for Job', $output);
+		$this->assertExitCode(0);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testServiceInjection(): void {
+		$this->_needsConnection();
+
+		$this->exec('queue add Foo');
+		$this->exec('queue run');
+
+		$output = $this->_out->output();
+		$this->assertStringContainsString('Looking for Job', $output);
+		$this->assertStringContainsString('CakePHP Foo Example.', $output);
+		$this->assertStringContainsString('My TestService', $output);
 		$this->assertExitCode(0);
 	}
 

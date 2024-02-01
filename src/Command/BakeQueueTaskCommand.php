@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Command;
 
@@ -19,12 +20,12 @@ class BakeQueueTaskCommand extends SimpleBakeCommand {
 	 *
 	 * @var string
 	 */
-	public $pathFragment = 'Queue/Task/';
+	public string $pathFragment = 'Queue/Task/';
 
 	/**
 	 * @var string
 	 */
-	protected $_name;
+	protected string $_name;
 
 	/**
 	 * @inheritDoc
@@ -48,6 +49,7 @@ class BakeQueueTaskCommand extends SimpleBakeCommand {
 	 * @param string $name The class to bake a test for.
 	 * @param \Cake\Console\Arguments $args The console arguments
 	 * @param \Cake\Console\ConsoleIo $io The console io
+	 *
 	 * @return void
 	 */
 	public function bakeTest(string $name, Arguments $args, ConsoleIo $io): void {
@@ -76,12 +78,23 @@ class BakeQueueTaskCommand extends SimpleBakeCommand {
 	 */
 	protected function generateTaskTestContent(string $name, string $namespace): string {
 		$testName = $name . 'Test';
-		$taskClassNamespace = $namespace . '\Queue\\Task\\' . $name;
+		$subNamespace = '';
+		$pos = strrpos($testName, '/');
+		if ($pos !== false) {
+			$subNamespace = '\\' . substr($testName, 0, $pos);
+			$testName = substr($testName, $pos + 1);
+		}
+		$taskClassNamespace = $namespace . '\Queue\\Task\\' . str_replace(DS, '\\', $name);
+
+		if (strpos($name, '/') !== false) {
+			$parts = explode('/', $name);
+			$name = array_pop($parts);
+		}
 
 		$content = <<<TXT
 <?php
 
-namespace $namespace\Test\TestCase\Queue\Task;
+namespace $namespace\Test\TestCase\Queue\Task$subNamespace;
 
 use Cake\TestSuite\TestCase;
 use $taskClassNamespace;
@@ -91,7 +104,7 @@ class $testName extends TestCase {
 	/**
 	 * @var array<string>
 	 */
-	protected \$fixtures = [
+	protected array \$fixtures = [
 		'plugin.Queue.QueuedJobs',
 		'plugin.Queue.QueueProcesses',
 	];
@@ -148,6 +161,7 @@ TXT;
 			'plugin' => $this->plugin,
 			'pluginPath' => $pluginPath,
 			'namespace' => $namespace,
+			'subNamespace' => $namespacePart ? ($namespacePart . '/') : '',
 			'name' => $name,
 			'add' => $arguments->getOption('add'),
 		];
@@ -171,6 +185,7 @@ TXT;
 	 * Gets the option parser instance and configures it.
 	 *
 	 * @param \Cake\Console\ConsoleOptionParser $parser Parser instance
+	 *
 	 * @return \Cake\Console\ConsoleOptionParser
 	 */
 	public function buildOptionParser(ConsoleOptionParser $parser): ConsoleOptionParser {

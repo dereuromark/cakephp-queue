@@ -24,6 +24,7 @@ class {{ name }} extends Task{{ add ? ' implements AddInterface' : '' }} {
 	 * @return void
 	 */
 	public function add(?string $data): void {
+		$this->QueuedJobs->createJob('{{ subNamespace }}{{ name }}');
 	}
 {% endif %}
 

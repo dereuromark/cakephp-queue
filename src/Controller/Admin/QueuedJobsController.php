@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
@@ -6,15 +7,14 @@ use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Http\Exception\NotFoundException;
-use Cake\I18n\FrozenTime;
-use Laminas\Diactoros\UploadedFile;
+use Cake\I18n\DateTime;
+use Cake\View\JsonView;
 use Queue\Queue\TaskFinder;
 use RuntimeException;
 
 /**
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
- *
- * @method \Queue\Model\Entity\QueuedJob[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
+ * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> paginate($object = null, array $settings = [])
  * @property \Search\Controller\Component\SearchComponent $Search
  */
 class QueuedJobsController extends AppController {
@@ -22,9 +22,9 @@ class QueuedJobsController extends AppController {
 	use LoadHelperTrait;
 
 	/**
-	 * @var array<mixed>
+	 * @var array<string, mixed>
 	 */
-	public $paginate = [
+	protected array $paginate = [
 		'order' => [
 			'created' => 'DESC',
 		],
@@ -35,12 +35,6 @@ class QueuedJobsController extends AppController {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-
-		if (!$this->components()->has('RequestHandler')) {
-			$this->loadComponent('RequestHandler', [
-				'enableBeforeRedirect' => false,
-			]);
-		}
 
 		$this->enableSearch();
 		$this->loadHelpers();
@@ -68,7 +62,7 @@ class QueuedJobsController extends AppController {
 	 */
 	public function index() {
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
-			$query = $this->QueuedJobs->find('search', ['search' => $this->request->getQuery()]);
+			$query = $this->QueuedJobs->find('search', search: $this->request->getQuery());
 		} else {
 			$query = $this->QueuedJobs->find();
 		}
@@ -77,7 +71,11 @@ class QueuedJobsController extends AppController {
 		$this->set(compact('queuedJobs'));
 
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
-			$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_task', 'valueField' => 'job_task'])->distinct('job_task')->toArray();
+			$jobTypes = $this->QueuedJobs->find()->where()->find(
+				'list',
+				keyField: 'job_task',
+				valueField: 'job_task',
+			)->distinct('job_task')->toArray();
 			$this->set(compact('jobTypes'));
 		}
 	}
@@ -86,17 +84,23 @@ class QueuedJobsController extends AppController {
 	 * Index method
 	 *
 	 * @param string|null $jobType
+	 *
 	 * @throws \Cake\Http\Exception\NotFoundException
+	 *
 	 * @return void
 	 */
-	public function stats($jobType = null) {
+	public function stats(?string $jobType = null): void {
 		if (!Configure::read('Queue.isStatisticEnabled')) {
 			throw new NotFoundException('Not enabled');
 		}
 
 		$stats = $this->QueuedJobs->getFullStats($jobType);
 
-		$jobTypes = $this->QueuedJobs->find()->where()->find('list', ['keyField' => 'job_task', 'valueField' => 'job_task'])->distinct('job_task')->toArray();
+		$jobTypes = $this->QueuedJobs->find()->where()->find(
+			'list',
+			keyField: 'job_task',
+			valueField: 'job_task',
+		)->distinct('job_task')->toArray();
 		$this->set(compact('stats', 'jobTypes'));
 	}
 
@@ -104,9 +108,10 @@ class QueuedJobsController extends AppController {
 	 * View method
 	 *
 	 * @param int|null $id Queued Job id.
+	 *
 	 * @return \Cake\Http\Response|null|void
 	 */
-	public function view($id = null) {
+	public function view(?int $id = null) {
 		$queuedJob = $this->QueuedJobs->get((int)$id, [
 			'contain' => ['WorkerProcesses'],
 		]);
@@ -120,19 +125,23 @@ class QueuedJobsController extends AppController {
 	}
 
 	/**
+	 * @return array<string>
+	 */
+	public function viewClasses(): array {
+		return [JsonView::class];
+	}
+
+	/**
 	 * @throws \RuntimeException
 	 *
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function import() {
 		if ($this->request->is(['post'])) {
-			/** @var \Laminas\Diactoros\UploadedFile|array<string, mixed> $file */
+			/** @var \Laminas\Diactoros\UploadedFile|null $file */
 			$file = $this->request->getData('file');
-			if ($file instanceof UploadedFile) {
-				$file = $this->fileToArray($file);
-			}
-			if ($file && $file['error'] == 0 && $file['size'] > 0) {
-				$content = file_get_contents($file['tmp_name']);
+			if ($file && $file->getError() == UPLOAD_ERR_OK && $file->getSize() > 0) {
+				$content = file_get_contents($file->getStream()->getMetadata('uri'));
 				if ($content === false) {
 					throw new RuntimeException('Cannot parse file');
 				}
@@ -144,26 +153,26 @@ class QueuedJobsController extends AppController {
 				$data = $json['queuedJob'];
 
 				unset($data['id']);
-				$data['created'] = new FrozenTime($data['created']);
+				$data['created'] = new DateTime($data['created']);
 
 				if ($this->request->getData('reset')) {
 					$data['fetched'] = null;
 					$data['completed'] = null;
 					$data['progress'] = null;
-					$data['failed'] = 0;
+					$data['attempts'] = 0;
 					$data['failure_message'] = null;
 					$data['workerkey'] = null;
 					$data['status'] = null;
 				}
 
 				if ($data['notbefore']) {
-					$data['notbefore'] = new FrozenTime($data['notbefore']);
+					$data['notbefore'] = new DateTime($data['notbefore']);
 				}
 				if ($data['fetched']) {
-					$data['fetched'] = new FrozenTime($data['fetched']);
+					$data['fetched'] = new DateTime($data['fetched']);
 				}
 				if ($data['completed']) {
-					$data['completed'] = new FrozenTime($data['completed']);
+					$data['completed'] = new DateTime($data['completed']);
 				}
 
 				$queuedJob = $this->QueuedJobs->newEntity($data);
@@ -188,9 +197,10 @@ class QueuedJobsController extends AppController {
 	 * Edit method
 	 *
 	 * @param int|null $id Queued Job id.
+	 *
 	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
-	public function edit($id = null) {
+	public function edit(?int $id = null) {
 		$queuedJob = $this->QueuedJobs->get($id, [
 			'contain' => [],
 		]);
@@ -216,9 +226,10 @@ class QueuedJobsController extends AppController {
 
 	/**
 	 * @param int|null $id Queued Job id.
+	 *
 	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
-	public function data($id = null) {
+	public function data(?int $id = null) {
 		return $this->edit($id);
 	}
 
@@ -226,9 +237,10 @@ class QueuedJobsController extends AppController {
 	 * Delete method
 	 *
 	 * @param int|null $id Queued Job id.
+	 *
 	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
-	public function delete($id = null) {
+	public function delete(?int $id = null) {
 		$this->request->allowMethod(['post', 'delete']);
 		$queuedJob = $this->QueuedJobs->get($id);
 		if ($this->QueuedJobs->delete($queuedJob)) {
@@ -242,6 +254,7 @@ class QueuedJobsController extends AppController {
 
 	/**
 	 * @throws \Cake\Http\Exception\NotFoundException
+	 *
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function execute() {
@@ -322,19 +335,6 @@ class QueuedJobsController extends AppController {
 	}
 
 	/**
-	 * @param \Laminas\Diactoros\UploadedFile $file
-	 *
-	 * @return array<string, mixed>
-	 */
-	protected function fileToArray(UploadedFile $file): array {
-		return [
-			'size' => $file->getSize(),
-			'error' => $file->getError(),
-			'tmp_name' => $file->getStream()->getMetadata('uri'),
-		];
-	}
-
-	/**
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function migrate() {
@@ -345,7 +345,7 @@ class QueuedJobsController extends AppController {
 			->select(['job_task'])
 			->distinct('job_task')
 			->disableHydration()
-			->find('list', ['keyField' => 'job_task', 'valueField' => 'job_task'])
+			->find('list', keyField: 'job_task', valueField: 'job_task')
 			->toArray();
 
 		$tasks = [];

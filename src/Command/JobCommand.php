@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Command;
 
@@ -8,18 +9,29 @@ use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;
 use Cake\Error\Debugger;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
 use Queue\Model\Entity\QueuedJob;
+use Queue\Model\Table\QueuedJobsTable;
+use Queue\Utility\Serializer;
 
 /**
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  */
 class JobCommand extends Command {
 
+	protected QueuedJobsTable $QueuedJobs;
+
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	protected $modelClass = 'Queue.QueuedJobs';
+	protected ?string $defaultTable = 'Queue.QueuedJobs';
+
+	/**
+	 * @return void
+	 */
+	public function initialize(): void {
+		$this->QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+	}
 
 	/**
 	 * @inheritDoc
@@ -53,6 +65,7 @@ class JobCommand extends Command {
 	/**
 	 * @param \Cake\Console\Arguments $args Arguments
 	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
+	 *
 	 * @return int|null|void
 	 */
 	public function execute(Arguments $args, ConsoleIo $io) {
@@ -70,7 +83,7 @@ class JobCommand extends Command {
 
 			/** @var array<\Queue\Model\Entity\QueuedJob> $jobs */
 			$jobs = $this->QueuedJobs->find()
-				->select(['id', 'job_task', 'completed', 'failed'])
+				->select(['id', 'job_task', 'completed', 'attempts'])
 				->orderDesc('id')
 				->limit(20)->all()->toArray();
 			if ($jobs) {
@@ -80,7 +93,7 @@ class JobCommand extends Command {
 			}
 
 			foreach ($jobs as $job) {
-				$io->out('- [' . $job->id . '] ' . $job->job_task . ' (' . ($job->completed ? 'completed' : 'failed ' . $job->failed . 'x') . ')');
+				$io->out('- [' . $job->id . '] ' . $job->job_task . ' (' . ($job->completed ? 'completed' : 'attempted ' . $job->attempts . 'x') . ')');
 			}
 
 			return static::CODE_ERROR;
@@ -241,13 +254,13 @@ class JobCommand extends Command {
 
 		$io->out('Completed: ' . ($queuedJob->completed ?: '-'));
 		if (!$queuedJob->completed) {
-			$io->out('Failed: ' . ($queuedJob->failed ?: '-'));
+			$io->out('Failed: ' . ($queuedJob->attempts ?: '-'));
 		}
-		if ($queuedJob->failed) {
+		if ($queuedJob->attempts) {
 			$io->out('Failure message: ' . ($queuedJob->failure_message ?: '-'));
 		}
 
-		$data = $queuedJob->data ? unserialize($queuedJob->data) : null;
+		$data = $queuedJob->data ? Serializer::deserialize($queuedJob->data) : null;
 		$io->out('Data: ' . Debugger::exportVar($data, 9));
 
 		return static::CODE_SUCCESS;
@@ -275,7 +288,7 @@ class JobCommand extends Command {
 			$io->abort('You disabled cleanuptimout in config. Aborting.');
 		}
 
-		$date = (new FrozenTime())->subSeconds((int)Configure::read('Queue.cleanuptimeout'));
+		$date = (new DateTime())->subSeconds((int)Configure::read('Queue.cleanuptimeout'));
 
 		$io->out('Deleting old jobs, that have finished before ' . $date);
 		$result = $this->QueuedJobs->cleanOldJobs();

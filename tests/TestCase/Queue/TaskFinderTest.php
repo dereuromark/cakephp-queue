@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Queue;
 
@@ -25,6 +26,9 @@ class TaskFinderTest extends TestCase {
 		$this->assertArrayHasKey('Queue.Example', $result);
 		$this->assertArrayHasKey('Foo', $result);
 		$this->assertArrayHasKey('Foo.Foo', $result);
+
+		$this->assertSame('TestApp\Queue\Task\Sub\SubFooTask', $result['Sub/SubFoo']);
+		$this->assertSame('Foo\Queue\Task\Sub\SubFooTask', $result['Foo.Sub/SubFoo']);
 	}
 
 	/**
@@ -47,11 +51,6 @@ class TaskFinderTest extends TestCase {
 
 		$result = $this->taskFinder->resolve(ExampleTask::taskName());
 		$this->assertSame('Queue.Example', $result);
-
-		$this->deprecated(function () {
-			$result = $this->taskFinder->resolve('Example');
-			$this->assertSame('Queue.Example', $result);
-		});
 	}
 
 	/**

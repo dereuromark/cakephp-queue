@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
@@ -6,20 +8,19 @@
 
 namespace Queue\Queue\Task;
 
+use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 
 /**
  * A cascading QueueTask example.
  */
-class SuperExampleTask extends Task implements AddInterface {
+class SuperExampleTask extends Task implements AddInterface, AddFromBackendInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
-	 *
-	 * @var int
 	 */
-	public $timeout = 10;
+	public ?int $timeout = 10;
 
 	/**
 	 * SuperExample add functionality.
@@ -58,6 +59,7 @@ class SuperExampleTask extends Task implements AddInterface {
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Queue\Task;
 
@@ -16,7 +17,7 @@ class SuperExampleTaskTest extends TestCase {
 	/**
 	 * @var array
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueuedJobs',
 	];
 

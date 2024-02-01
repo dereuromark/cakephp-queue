@@ -1,11 +1,13 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
+use Cake\ORM\Locator\LocatorAwareTrait;
+use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\Table;
-use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use Queue\Model\ProcessEndingException;
 use Queue\Queue\Config;
@@ -13,23 +15,26 @@ use Queue\Queue\Config;
 /**
  * QueueProcesses Model
  *
- * @method \Queue\Model\Entity\QueueProcess get($primaryKey, $options = [])
+ * @method \Cake\ORM\Locator\TableLocator getTableLocator()
+ * @mixin \Cake\ORM\Behavior\TimestampBehavior
+ * @method \Queue\Model\Entity\QueueProcess get(mixed $primaryKey, array|string $finder = 'all', \Psr\SimpleCache\CacheInterface|string|null $cache = null, \Closure|string|null $cacheKey = null, mixed ...$args)
  * @method \Queue\Model\Entity\QueueProcess newEntity(array $data, array $options = [])
  * @method array<\Queue\Model\Entity\QueueProcess> newEntities(array $data, array $options = [])
- * @method \Queue\Model\Entity\QueueProcess|false save(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \Queue\Model\Entity\QueueProcess|false save(\Cake\Datasource\EntityInterface $entity, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
  * @method array<\Queue\Model\Entity\QueueProcess> patchEntities(iterable $entities, array $data, array $options = [])
- * @method \Queue\Model\Entity\QueueProcess findOrCreate($search, ?callable $callback = null, $options = [])
- *
- * @mixin \Cake\ORM\Behavior\TimestampBehavior
- * @method \Queue\Model\Entity\QueueProcess saveOrFail(\Cake\Datasource\EntityInterface $entity, $options = [])
+ * @method \Queue\Model\Entity\QueueProcess findOrCreate($search, ?callable $callback = null, array $options = [])
+ * @method \Queue\Model\Entity\QueueProcess saveOrFail(\Cake\Datasource\EntityInterface $entity, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess newEmptyEntity()
- * @method \Queue\Model\Entity\QueueProcess[]|\Cake\Datasource\ResultSetInterface|false saveMany(iterable $entities, $options = [])
- * @method \Queue\Model\Entity\QueueProcess[]|\Cake\Datasource\ResultSetInterface saveManyOrFail(iterable $entities, $options = [])
- * @method \Queue\Model\Entity\QueueProcess[]|\Cake\Datasource\ResultSetInterface|false deleteMany(iterable $entities, $options = [])
- * @method \Queue\Model\Entity\QueueProcess[]|\Cake\Datasource\ResultSetInterface deleteManyOrFail(iterable $entities, $options = [])
+ * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess>|false saveMany(iterable $entities, array $options = [])
+ * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> saveManyOrFail(iterable $entities, array $options = [])
+ * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess>|false deleteMany(iterable $entities, array $options = [])
+ * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> deleteManyOrFail(iterable $entities, array $options = [])
+ * @property \Queue\Model\Table\QueuedJobsTable&\Cake\ORM\Association\HasOne $CurrentQueuedJobs
  */
 class QueueProcessesTable extends Table {
+
+	use LocatorAwareTrait;
 
 	/**
 	 * Sets connection name
@@ -50,6 +55,7 @@ class QueueProcessesTable extends Table {
 	 * Initialize method
 	 *
 	 * @param array<string, mixed> $config The configuration for the Table.
+	 *
 	 * @return void
 	 */
 	public function initialize(array $config): void {
@@ -61,13 +67,13 @@ class QueueProcessesTable extends Table {
 
 		$this->addBehavior('Timestamp');
 
-        $this->hasMany('QueuedJobs', [
+		$this->hasOne('CurrentQueuedJobs', [
 			'className' => 'Queue.QueuedJobs',
 			'foreignKey' => 'workerkey',
 			'bindingKey' => 'workerkey',
-			'propertyName' => 'jobs',
+			'propertyName' => 'active_job',
 			'conditions' => [
-				'QueuedJobs.completed IS NULL',
+				'CurrentQueuedJobs.completed IS NULL',
 			],
 		]);
 
@@ -83,6 +89,7 @@ class QueueProcessesTable extends Table {
 	 * Default validation rules.
 	 *
 	 * @param \Cake\Validation\Validator $validator Validator instance.
+	 *
 	 * @return \Cake\Validation\Validator
 	 */
 	public function validationDefault(Validator $validator): Validator {
@@ -112,9 +119,9 @@ class QueueProcessesTable extends Table {
 	 * @param string $value
 	 * @param array<string, mixed> $context
 	 *
-	 * @return bool
+	 * @return string|bool
 	 */
-	public function validateCount($value, array $context): bool {
+	public function validateCount(string $value, array $context) {
 		$maxWorkers = Config::maxworkers();
 		if (!$value || !$maxWorkers) {
 			return true;
@@ -122,18 +129,18 @@ class QueueProcessesTable extends Table {
 
 		$currentWorkers = $this->find()->where(['server' => $value])->count();
 		if ($currentWorkers >= $maxWorkers) {
-			return false;
+			return 'Too many workers running (' . $currentWorkers . '/' . $maxWorkers . '). Check your `Queue.maxworkers` config.';
 		}
 
 		return true;
 	}
 
 	/**
-	 * @return \Cake\ORM\Query
+	 * @return \Cake\ORM\Query\SelectQuery
 	 */
-	public function findActive() {
+	public function findActive(): SelectQuery {
 		$timeout = Config::defaultworkertimeout();
-		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
+		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
 		return $this->find()->where(['modified > ' => $thresholdTime]);
 	}
@@ -160,8 +167,9 @@ class QueueProcessesTable extends Table {
 
 	/**
 	 * @param string $pid
-     * @param int $pid
+	 *
 	 * @throws \Queue\Model\ProcessEndingException
+	 *
 	 * @return void
 	 */
 	public function update(string $pid, int $jobId = NULL): void {
@@ -176,8 +184,8 @@ class QueueProcessesTable extends Table {
 			throw new ProcessEndingException('PID terminated: ' . $pid);
 		}
 
-		$queueProcess->modified = new FrozenTime();
-        $queueProcess->active_job_id = $jobId;
+		$queueProcess->modified = new DateTime();
+		$queueProcess->active_job_id = $jobId;
 		$this->saveOrFail($queueProcess);
 	}
 
@@ -199,23 +207,22 @@ class QueueProcessesTable extends Table {
 	 * @return int
 	 */
 	public function cleanEndedProcesses(): int {
-		return 0;
 		$timeout = Config::defaultworkertimeout();
-		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
+		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
 		return $this->deleteAll(['modified <' => $thresholdTime]);
 	}
 
 	/**
 	 * If pid logging is enabled, will return an array with
-	 * - time: Timestamp as FrozenTime object
+	 * - time: Timestamp as DateTime object
 	 * - workers: int Count of currently running workers
 	 *
 	 * @return array<string, mixed>
 	 */
 	public function status(): array {
 		$timeout = Config::defaultworkertimeout();
-		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
+		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
 		$results = $this->find()
 			->where(['modified >' => $thresholdTime])
@@ -230,7 +237,7 @@ class QueueProcessesTable extends Table {
 
 		$count = count($results);
 		$record = array_shift($results);
-		/** @var \Cake\I18n\FrozenTime $time */
+		/** @var \Cake\I18n\DateTime $time */
 		$time = $record['modified'];
 
 		return [
@@ -245,11 +252,12 @@ class QueueProcessesTable extends Table {
 	 * $forThisServer only works for DB approach.
 	 *
 	 * @param bool $forThisServer
+	 *
 	 * @return array<\Queue\Model\Entity\QueueProcess>
 	 */
 	public function getProcesses(bool $forThisServer = false): array {
 		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
-		$QueueProcesses = TableRegistry::getTableLocator()->get('Queue.QueueProcesses');
+		$QueueProcesses = $this->getTableLocator()->get('Queue.QueueProcesses');
 		$query = $QueueProcesses->findActive()
 			->contain(['CurrentQueuedJobs'])
 			->where(['terminate' => false]);
@@ -268,6 +276,7 @@ class QueueProcessesTable extends Table {
 	 * Soft ending of a running job, e.g. when migration is starting
 	 *
 	 * @param string $pid
+	 *
 	 * @return void
 	 */
 	public function endProcess(string $pid): void {
@@ -287,6 +296,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @param string $pid
 	 * @param int $sig Signal (defaults to graceful SIGTERM = 15)
+	 *
 	 * @return void
 	 */
 	public function terminateProcess(string $pid, int $sig = SIGTERM): void {

@@ -1,7 +1,7 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var \Queue\Model\Entity\QueuedJob[]|\Cake\Collection\CollectionInterface $queuedJobs
+ * @var iterable<\Queue\Model\Entity\QueuedJob> $queuedJobs
  */
 
 use Cake\Core\Configure;
@@ -21,7 +21,7 @@ use Cake\Core\Plugin;
 
 	<?= __d('queue', 'Current server time') ?>:
 	<br>
-	<?php echo $this->Time->nice(new \Cake\I18n\FrozenTime()); ?>
+	<?php echo $this->Time->nice(new \Cake\I18n\DateTime()); ?>
 
 </nav>
 <div class="content action-index index large-9 medium-8 columns col-sm-8 col-12">
@@ -44,7 +44,7 @@ use Cake\Core\Plugin;
 				<th><?= $this->Paginator->sort('notbefore', null, ['direction' => 'desc']) ?></th>
 				<th><?= $this->Paginator->sort('fetched', null, ['direction' => 'desc']) ?></th>
 				<th><?= $this->Paginator->sort('completed', null, ['direction' => 'desc']) ?></th>
-				<th><?= $this->Paginator->sort('failed') ?></th>
+				<th><?= $this->Paginator->sort('attempts') ?></th>
 				<th><?= $this->Paginator->sort('status') ?></th>
 				<th><?= $this->Paginator->sort('priority', null, ['direction' => 'desc']) ?></th>
 				<th class="actions"><?= __d('queue', 'Actions') ?></th>
@@ -58,7 +58,7 @@ use Cake\Core\Plugin;
 				<td>
 					<?= h($queuedJob->reference) ?: '---' ?>
 					<?php if ($queuedJob->data) {
-						echo $this->Format->icon('cubes', ['title' => $this->Text->truncate($queuedJob->data, 1000)]);
+						echo $this->Icon->render('cubes', ['title' => $this->Text->truncate($queuedJob->data, 1000)]);
 					}
 					?>
 				</td>
@@ -86,13 +86,22 @@ use Cake\Core\Plugin;
 						<div><small><code><?php echo h($queuedJob->workerkey); ?></code></small></div>
 					<?php } ?>
 				</td>
-				<td><?= $this->Format->ok($this->Time->nice($queuedJob->completed), (bool)$queuedJob->completed) ?></td>
-				<td><?= $this->Format->ok($this->Queue->fails($queuedJob), !$queuedJob->failed); ?></td>
+				<td>
+                    <?= $this->Format->ok($this->Time->nice($queuedJob->completed), (bool)$queuedJob->completed) ?>
+                    <?php if ($queuedJob->completed) { ?>
+                    <div>
+                        <small><?php
+                            echo '<span title="Duration">' . $this->Time->duration($queuedJob->completed->diff($queuedJob->fetched)) . '</span>';
+                        ?></small>
+                    </div>
+                    <?php } ?>
+                </td>
+				<td><?= $this->Format->ok($this->Queue->attempts($queuedJob), $queuedJob->completed || $queuedJob->attempts < 1); ?></td>
 				<td>
 					<?= h($queuedJob->status) ?>
 					<?php if (!$queuedJob->completed && $queuedJob->fetched) { ?>
 						<div>
-							<?php if (!$queuedJob->failed) { ?>
+							<?php if (!$queuedJob->failure_message) { ?>
 								<?php echo $this->QueueProgress->progress($queuedJob) ?>
 								<br>
 								<?php
@@ -107,12 +116,12 @@ use Cake\Core\Plugin;
 				</td>
 				<td><?= $this->Number->format($queuedJob->priority) ?></td>
 				<td class="actions">
-				<?= $this->Html->link($this->Format->icon('view'), ['action' => 'view', $queuedJob->id], ['escapeTitle' => false]); ?>
+				<?= $this->Html->link($this->Icon->render('view'), ['action' => 'view', $queuedJob->id], ['escapeTitle' => false]); ?>
 
 				<?php if (!$queuedJob->completed) { ?>
-					<?= $this->Html->link($this->Format->icon('edit'), ['action' => 'edit', $queuedJob->id], ['escapeTitle' => false]); ?>
+					<?= $this->Html->link($this->Icon->render('edit'), ['action' => 'edit', $queuedJob->id], ['escapeTitle' => false]); ?>
 				<?php } ?>
-				<?= $this->Form->postLink($this->Format->icon('delete'), ['action' => 'delete', $queuedJob->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id)]); ?>
+				<?= $this->Form->postLink($this->Icon->render('delete'), ['action' => 'delete', $queuedJob->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id)]); ?>
 				</td>
 			</tr>
 			<?php endforeach; ?>

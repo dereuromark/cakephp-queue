@@ -1,19 +1,23 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Datasource\ConnectionManager;
-use Cake\I18n\FrozenTime;
-use Cake\TestSuite\IntegrationTestCase;
+use Cake\Http\ServerRequest;
+use Cake\I18n\DateTime;
+use Cake\TestSuite\IntegrationTestTrait;
 use Queue\Controller\Admin\QueueController;
+use Shim\TestSuite\TestCase;
 use Shim\TestSuite\TestTrait;
-use Tools\Utility\FrozenTime as UtilityFrozenTime;
+use Tools\I18n\DateTime as ToolsDateTime;
 
 /**
  * @uses \Queue\Controller\Admin\QueueController
  */
-class QueueControllerTest extends IntegrationTestCase {
+class QueueControllerTest extends TestCase {
 
+	use IntegrationTestTrait;
 	use TestTrait;
 
 	/**
@@ -21,7 +25,7 @@ class QueueControllerTest extends IntegrationTestCase {
 	 *
 	 * @var array
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueuedJobs',
 		'plugin.Queue.QueueProcesses',
 	];
@@ -39,12 +43,12 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testLoadHelpers(): void {
-		$controller = new QueueController();
+		$controller = new QueueController(new ServerRequest(['url' => 'controller/posts/index']));
 		$this->invokeMethod($controller, 'loadHelpers');
 
 		$view = $controller->createView();
 		$engine = $view->Time->getConfig('engine');
-		$this->assertSame(UtilityFrozenTime::class, $engine);
+		$this->assertTrue(in_array($engine, [DateTime::class, ToolsDateTime::class], true));
 	}
 
 	/**
@@ -53,8 +57,6 @@ class QueueControllerTest extends IntegrationTestCase {
 	 * @return void
 	 */
 	public function testIndex() {
-		$this->_needsConnection();
-
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
 
 		$this->assertResponseCode(200);
@@ -111,7 +113,7 @@ class QueueControllerTest extends IntegrationTestCase {
 		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
-			'failed' => 1,
+			'attempts' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -130,7 +132,7 @@ class QueueControllerTest extends IntegrationTestCase {
 		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
-			'failed' => 1,
+			'attempts' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -140,7 +142,7 @@ class QueueControllerTest extends IntegrationTestCase {
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
-		$this->assertSame(0, $job->failed);
+		$this->assertSame(0, $job->attempts);
 	}
 
 	/**
@@ -150,7 +152,7 @@ class QueueControllerTest extends IntegrationTestCase {
 		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
-			'failed' => 1,
+			'attempts' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -162,7 +164,7 @@ class QueueControllerTest extends IntegrationTestCase {
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
-		$this->assertSame(0, $job->failed);
+		$this->assertSame(0, $job->attempts);
 	}
 
 	/**
@@ -172,7 +174,7 @@ class QueueControllerTest extends IntegrationTestCase {
 		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
-			'failed' => 1,
+			'attempts' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -184,7 +186,7 @@ class QueueControllerTest extends IntegrationTestCase {
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
-		$this->assertSame(0, $job->failed);
+		$this->assertSame(0, $job->attempts);
 	}
 
 	/**
@@ -194,7 +196,7 @@ class QueueControllerTest extends IntegrationTestCase {
 		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
-			'failed' => 1,
+			'attempts' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -210,7 +212,7 @@ class QueueControllerTest extends IntegrationTestCase {
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->find()->where(['id' => $job->id])->firstOrFail();
-		$this->assertSame(0, $job->failed);
+		$this->assertSame(0, $job->attempts);
 	}
 
 	/**
@@ -220,7 +222,7 @@ class QueueControllerTest extends IntegrationTestCase {
 		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
-			'failed' => 1,
+			'attempts' => 1,
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -230,7 +232,7 @@ class QueueControllerTest extends IntegrationTestCase {
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
 		$job = $jobsTable->get($job->id);
-		$this->assertSame(0, $job->failed);
+		$this->assertSame(0, $job->attempts);
 	}
 
 	/**
@@ -240,8 +242,8 @@ class QueueControllerTest extends IntegrationTestCase {
 		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
-			'failed' => 1,
-			'fetched' => (new FrozenTime())->subHour(),
+			'attempts' => 1,
+			'fetched' => (new DateTime())->subHours(1),
 		]);
 		$jobsTable->saveOrFail($job);
 

@@ -1,11 +1,11 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Command;
 
+use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\Core\Configure;
-use Cake\I18n\FrozenTime;
-use Cake\TestSuite\ConsoleIntegrationTestTrait;
+use Cake\I18n\DateTime;
 use Cake\TestSuite\TestCase;
 use Queue\Model\Entity\QueuedJob;
 
@@ -19,7 +19,7 @@ class JobCommandTest extends TestCase {
 	/**
 	 * @var array<string>
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueuedJobs',
 	];
 
@@ -29,7 +29,7 @@ class JobCommandTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->useCommandRunner();
+		//$this->useCommandRunner();
 
 		Configure::write('Queue.cleanuptimeout', 10);
 	}
@@ -91,7 +91,7 @@ class JobCommandTest extends TestCase {
 	 * @return void
 	 */
 	public function testExecuteRerun(): void {
-		$job = $this->createJob(['completed' => new FrozenTime()]);
+		$job = $this->createJob(['completed' => new DateTime()]);
 		$this->exec('queue job rerun ' . $job->id);
 
 		$output = $this->_out->output();
@@ -102,7 +102,7 @@ class JobCommandTest extends TestCase {
 	 * @return void
 	 */
 	public function testExecuteRerunAll(): void {
-		$this->createJob(['completed' => new FrozenTime()]);
+		$this->createJob(['completed' => new DateTime()]);
 		$this->exec('queue job rerun all');
 
 		$output = $this->_out->output();
@@ -132,6 +132,7 @@ class JobCommandTest extends TestCase {
 
 	/**
 	 * @param array $data
+	 *
 	 * @return \Queue\Model\Entity\QueuedJob
 	 */
 	protected function createJob(array $data = []): QueuedJob {

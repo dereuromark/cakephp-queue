@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
@@ -6,6 +8,7 @@
 
 namespace Queue\Queue\Task;
 
+use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 use RuntimeException;
@@ -13,26 +16,22 @@ use RuntimeException;
 /**
  * A retry QueueTask example.
  */
-class RetryExampleTask extends Task implements AddInterface {
+class RetryExampleTask extends Task implements AddInterface, AddFromBackendInterface {
 
 	/**
 	 * Timeout for run, after which the Task is reassigned to a new worker.
-	 *
-	 * @var int
 	 */
-	public $timeout = 10;
+	public ?int $timeout = 10;
 
 	/**
 	 * Number of times a failed instance of this task should be restarted before giving up.
-	 *
-	 * @var int
 	 */
-	public $retries = 4;
+	public ?int $retries = 4;
 
 	/**
 	 * @var string
 	 */
-	protected static $file = TMP . 'task_retry.txt';
+	protected static string $file = TMP . 'task_retry.txt';
 
 	/**
 	 * This is only for demo/testing purposes.
@@ -96,6 +95,7 @@ class RetryExampleTask extends Task implements AddInterface {
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {

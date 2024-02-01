@@ -33,9 +33,9 @@ use Cake\Core\Configure;
 		<h2><?php echo __d('queue', 'Status'); ?></h2>
 		<?php if ($status) { ?>
 			<?php
-			/** @var \Cake\I18n\FrozenTime $time */
+			/** @var \Cake\I18n\DateTime $time */
 			$time = $status['time'];
-			$running = $time->addMinute()->isFuture();
+			$running = $time->addMinutes(1)->isFuture();
 			?>
 			<?php echo $this->Format->yesNo($running); ?> <?php echo $running ? __d('queue', 'Running') : __d('queue', 'Not running'); ?> (<?php echo __d('queue', 'last {0}', $this->Time->relLengthOfTime($status['time']))?>)
 
@@ -83,7 +83,7 @@ use Cake\Core\Configure;
 						$status = ' (' . __d('queue', 'status') . ': ' . h($pendingJob->status) . ')';
 					}
 
-					if (!$pendingJob->failed || !$pendingJob->failure_message) {
+					if (!$pendingJob->failure_message) {
 						echo '<li>';
 						echo __d('queue', 'Progress') . ': ';
 						echo $this->QueueProgress->progress($pendingJob) . $status;
@@ -92,7 +92,7 @@ use Cake\Core\Configure;
 						echo '</li>';
 					} else {
 						echo '<li><i>' . $this->Queue->failureStatus($pendingJob) . '</i>';
-  						echo '<div>' . __d('queue', 'Failures') . ': ' . $this->Queue->fails($pendingJob) . $reset . '</div>';
+  						echo '<div>' . __d('queue', 'Attempts') . ': ' . $this->Queue->attempts($pendingJob) . $reset . '</div>';
   						echo '</li>';
 						if ($pendingJob->failure_message) {
 							echo '<li>' . __d('queue', 'Failure Message') . ': ' . $this->Text->truncate($pendingJob->failure_message, 200) . '</li>';
@@ -166,7 +166,7 @@ use Cake\Core\Configure;
 		</ul>
 
 		<h2>Trigger Jobs</h2>
-		<p>These jobs implement the AddInterface</p>
+		<p>These jobs implement the AddFromBackendInterface</p>
 		<ul>
 			<?php
 			foreach ($addableTasks as $task => $className) {
@@ -180,6 +180,7 @@ use Cake\Core\Configure;
 			}
 			?>
 		</ul>
+		<p><small>Jobs just implementing AddInterface can be added from CLI instead.</small></p>
 
 		<h2>Trigger Test/Demo Jobs</h2>
 		<ul>

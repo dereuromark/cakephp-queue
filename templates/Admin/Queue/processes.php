@@ -7,7 +7,7 @@
  * @var string $key
  */
 
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
 
 ?>
 
@@ -35,7 +35,7 @@ foreach ($processes as $process) {
 			'action' => 'view',
 			$process->active_job->id
 		]) : 'Currently no job is being processed by this worker') . '</li>';
-	echo '<li>Last run: ' . $this->Time->nice(new FrozenTime($process->modified)) . '</li>';
+	echo '<li>Last run: ' . $this->Time->nice(new DateTime($process->modified)) . '</li>';
 
 	echo '<li>End: ' . $this->Form->postLink(__d('queue', 'Finish current job and end'), ['action' => 'processes', '?' => ['end' => $process->pid]], ['confirm' => 'Sure?', 'class' => 'button secondary btn margin btn-secondary']) . ' (next loop run)</li>';
 	if ($process->workerkey === $key || !$this->Configure->read('Queue.multiserver')) {

@@ -1,19 +1,24 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Controller\Admin;
 
-use Cake\I18n\FrozenTime;
-use Shim\TestSuite\IntegrationTestCase;
+use Cake\I18n\DateTime;
+use Cake\TestSuite\IntegrationTestTrait;
+use Queue\Model\Table\QueuedJobsTable;
+use Shim\TestSuite\TestCase;
 
 /**
  * @uses \Queue\Controller\Admin\QueueProcessesController
  */
-class QueueProcessesControllerTest extends IntegrationTestCase {
+class QueueProcessesControllerTest extends TestCase {
+
+	use IntegrationTestTrait;
 
 	/**
 	 * @var array
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueueProcesses',
 		'plugin.Queue.QueuedJobs',
 	];
@@ -95,7 +100,7 @@ class QueueProcessesControllerTest extends IntegrationTestCase {
 	public function testCleanup() {
 		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
 		$queueProcess = $this->getTableLocator()->get('Queue.QueueProcesses')->find()->firstOrFail();
-		$queueProcess->modified = new FrozenTime(time() - 4 * DAY);
+		$queueProcess->modified = new DateTime(time() - 4 * QueuedJobsTable::DAY);
 		$this->getTableLocator()->get('Queue.QueueProcesses')->saveOrFail($queueProcess);
 
 		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueueProcesses', 'action' => 'cleanup']);

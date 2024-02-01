@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
@@ -68,7 +70,9 @@ class ExecuteTask extends Task implements AddInterface {
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @throws \Queue\Model\QueueException
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
@@ -107,8 +111,8 @@ class ExecuteTask extends Task implements AddInterface {
 		$this->io->out($output);
 
 		if ($data['log']) {
-			$this->loadModel('Queue.QueueProcesses');
-			$server = $this->QueueProcesses->buildServerString();
+			$queueProcesses = $this->getTableLocator()->get('Queue.QueueProcesses');
+			$server = $queueProcesses->buildServerString();
 			$this->log($server . ': `' . $command . '` exits with `' . $exitCode . '` and returns `' . print_r($output, true) . '`' . PHP_EOL . 'Data : ' . print_r($data, true), 'info');
 		}
 

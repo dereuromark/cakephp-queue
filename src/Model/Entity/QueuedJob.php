@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Model\Entity;
 
@@ -10,12 +11,12 @@ use Cake\ORM\Entity;
  * @property string|null $data
  * @property string|null $job_group
  * @property string|null $reference
- * @property \Cake\I18n\FrozenTime $created
- * @property \Cake\I18n\FrozenTime|null $notbefore
- * @property \Cake\I18n\FrozenTime|null $fetched
- * @property \Cake\I18n\FrozenTime|null $completed
+ * @property \Cake\I18n\DateTime $created
+ * @property \Cake\I18n\DateTime|null $notbefore
+ * @property \Cake\I18n\DateTime|null $fetched
+ * @property \Cake\I18n\DateTime|null $completed
  * @property float|null $progress
- * @property int $failed
+ * @property int|null $attempts
  * @property string|null $failure_message
  * @property string|null $workerkey
  * @property string|null $status
@@ -27,7 +28,7 @@ class QueuedJob extends Entity {
 	/**
 	 * @var array<string, bool>
 	 */
-	protected $_accessible = [
+	protected array $_accessible = [
 		'*' => true,
 		'id' => false,
 	];

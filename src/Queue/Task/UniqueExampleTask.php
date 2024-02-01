@@ -1,24 +1,26 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue\Task;
 
+use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 
 /**
  * A Unique QueueTask example.
  */
-class UniqueExampleTask extends Task implements AddInterface {
+class UniqueExampleTask extends Task implements AddInterface, AddFromBackendInterface {
 
 	/**
 	 * @var int
 	 */
-	protected $sleep = 10;
+	protected int $sleep = 10;
 
 	/**
 	 * @var bool
 	 */
-	public $unique = true;
+	public bool $unique = true;
 
 	/**
 	 * To invoke from CLI execute:
@@ -53,6 +55,7 @@ class UniqueExampleTask extends Task implements AddInterface {
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
@@ -67,6 +70,7 @@ class UniqueExampleTask extends Task implements AddInterface {
 
 	/**
 	 * @param int $seconds
+	 *
 	 * @return void
 	 */
 	public function setSleep(int $seconds): void {

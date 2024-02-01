@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
@@ -8,8 +9,7 @@ use Exception;
 
 /**
  * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
- *
- * @method \Queue\Model\Entity\QueueProcess[]|\Cake\Datasource\ResultSetInterface paginate($object = null, array $settings = [])
+ * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> paginate($object = null, array $settings = [])
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  */
 class QueueProcessesController extends AppController {
@@ -17,9 +17,9 @@ class QueueProcessesController extends AppController {
 	use LoadHelperTrait;
 
 	/**
-	 * @var array<mixed>
+	 * @var array<string, mixed>
 	 */
-	public $paginate = [
+	protected array $paginate = [
 		'order' => [
 			'created' => 'DESC',
 		],
@@ -40,7 +40,7 @@ class QueueProcessesController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function index() {
-		$queueProcesses = $this->paginate()->toArray();
+		$queueProcesses = $this->paginate();
 
 		$this->set(compact('queueProcesses'));
 	}
@@ -49,9 +49,10 @@ class QueueProcessesController extends AppController {
 	 * View method
 	 *
 	 * @param int|null $id Queue Process id.
+	 *
 	 * @return \Cake\Http\Response|null|void
 	 */
-	public function view($id = null) {
+	public function view(?int $id = null) {
 		$queueProcess = $this->QueueProcesses->get($id, [
 			'contain' => [],
 		]);
@@ -63,9 +64,10 @@ class QueueProcessesController extends AppController {
 	 * Edit method
 	 *
 	 * @param int|null $id Queue Process id.
+	 *
 	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
-	public function edit($id = null) {
+	public function edit(?int $id = null) {
 		$queueProcess = $this->QueueProcesses->get($id, [
 			'contain' => [],
 		]);
@@ -85,9 +87,10 @@ class QueueProcessesController extends AppController {
 
 	/**
 	 * @param int|null $id Queue Process id.
+	 *
 	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
-	public function terminate($id = null) {
+	public function terminate(?int $id = null) {
 		$this->request->allowMethod(['post', 'delete']);
 
 		try {
@@ -104,14 +107,16 @@ class QueueProcessesController extends AppController {
 
 	/**
 	 * @param int|null $id Queue Process id.
+	 * @param int|null $sig Signal (defaults to graceful SIGTERM = 15).
+	 *
 	 * @return \Cake\Http\Response|null|void Redirects to index.
 	 */
-	public function delete($id = null) {
+	public function delete(?int $id = null, ?int $sig = null) {
 		$this->request->allowMethod(['post', 'delete']);
 		$queueProcess = $this->QueueProcesses->get($id);
 
 		if (!Configure::read('Queue.multiserver')) {
-			$this->QueueProcesses->terminateProcess($queueProcess->pid);
+			$this->QueueProcesses->terminateProcess($queueProcess->pid, $sig ?: SIGTERM);
 		}
 
 		if ($this->QueueProcesses->delete($queueProcess)) {

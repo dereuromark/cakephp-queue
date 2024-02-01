@@ -1,15 +1,20 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
-use Cake\TestSuite\IntegrationTestCase;
+use Cake\TestSuite\IntegrationTestTrait;
+use Laminas\Diactoros\UploadedFile;
+use Shim\TestSuite\TestCase;
 
 /**
  * @uses \Queue\Controller\Admin\QueuedJobsController
  */
-class QueuedJobsControllerTest extends IntegrationTestCase {
+class QueuedJobsControllerTest extends TestCase {
+
+	use IntegrationTestTrait;
 
 	/**
 	 * @return void
@@ -23,7 +28,7 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 	/**
 	 * @var array
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueuedJobs',
 		'plugin.Queue.QueueProcesses',
 	];
@@ -151,7 +156,8 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 	public function testViewJson() {
 		$queuedJob = $this->createJob();
 
-		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'view', $queuedJob->id, '_ext' => 'json']);
+		$this->requestAsJson();
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'view', $queuedJob->id]);
 
 		$this->assertResponseCode(200);
 
@@ -169,11 +175,7 @@ class QueuedJobsControllerTest extends IntegrationTestCase {
 		$jsonFile = TESTS . 'test_files' . DS . 'queued-job.json';
 
 		$data = [
-			'file' => [
-				'size' => 1,
-				'error' => 0,
-				'tmp_name' => $jsonFile,
-			],
+			'file' => new UploadedFile($jsonFile, 1, 0, 'queued-job.json', 'application/json'),
 		];
 
 		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'import'], $data);

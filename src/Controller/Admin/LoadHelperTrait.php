@@ -1,8 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
-use Cake\Core\Configure;
+use Templating\View\Helper\IconHelper;
 
 trait LoadHelperTrait {
 
@@ -11,18 +12,14 @@ trait LoadHelperTrait {
 	 */
 	protected function loadHelpers(): void {
 		$helpers = [
-			'Time' => ['class' => 'Tools.Time', 'config' => ['engine' => 'Tools\Utility\FrozenTime']],
+			'Tools.Time',
 			'Tools.Format',
+			class_exists(IconHelper::class) ? 'Templating.Icon' : 'Tools.Icon',
 			'Tools.Text',
 			'Shim.Configure',
 		];
 
-		$version = Configure::version();
-		if (version_compare($version, '4.3.0') >= 0) {
-			$this->viewBuilder()->addHelpers($helpers);
-		} else {
-			$this->viewBuilder()->setHelpers($helpers);
-		}
+		$this->viewBuilder()->addHelpers($helpers);
 	}
 
 }

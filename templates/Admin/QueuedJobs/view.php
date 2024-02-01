@@ -3,6 +3,10 @@
  * @var \App\View\AppView $this
  * @var \Queue\Model\Entity\QueuedJob $queuedJob
  */
+
+use Brick\VarExporter\VarExporter;
+use Queue\Utility\Serializer;
+
 ?>
 <nav class="actions large-3 medium-4 columns col-sm-4 col-12" id="actions-sidebar">
 	<ul class="side-nav nav nav-pills flex-column">
@@ -79,7 +83,7 @@
 			<th><?= __d('queue', 'Progress') ?></th>
 			<td>
 				<?php if (!$queuedJob->completed && $queuedJob->fetched) { ?>
-					<?php if (!$queuedJob->failed || !$queuedJob->failure_message) { ?>
+					<?php if (!$queuedJob->failure_message) { ?>
 						<?php echo $this->QueueProgress->progress($queuedJob) ?>
 						<br>
 						<?php
@@ -93,13 +97,13 @@
 			</td>
 		</tr>
 		<tr>
-			<th><?= __d('queue', 'Failed') ?></th>
+			<th><?= __d('queue', 'Attempts') ?></th>
 			<td>
-				<?= $queuedJob->failed ? $this->Format->ok($this->Queue->fails($queuedJob), !$queuedJob->failed)  : '' ?>
+				<?= $queuedJob->attempts ? $this->Format->ok($this->Queue->attempts($queuedJob), $queuedJob->completed || $queuedJob->attempts < 1) : '' ?>
 				<?php
 				if ($this->Queue->hasFailed($queuedJob)) {
 					echo ' ' . $this->Form->postLink(__d('queue', 'Soft reset'), ['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure?', 'class' => 'button button-primary btn margin btn-primary']);
-				} elseif (!$queuedJob->completed && $queuedJob->fetched && $queuedJob->failed && $queuedJob->failure_message) {
+				} elseif (!$queuedJob->completed && $queuedJob->fetched && $queuedJob->attempts && $queuedJob->failure_message) {
 					echo ' ' . $this->Form->postLink(__d('queue', 'Force reset'), ['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure? This job is currently waiting to be re-queued.', 'class' => 'button button-primary btn margin btn-primary']);
 				}
 				?>
@@ -120,19 +124,25 @@
 		</tr>
 	</table>
 	<div class="row">
+		<div class="col-md-12">
 		<h3><?= __d('queue', 'Data') ?></h3>
+		<p>
 		<?= $queuedJob->data ? $this->Text->autoParagraph(h($queuedJob->data)) : ''; ?>
+		</p>
 		<?php
-			if ($queuedJob->data && $this->Configure->read('debug')) {
-				$data = unserialize($queuedJob->data);
-				echo '<h4>Unserialized content (debug only)</h4>';
-				echo '<pre>' . h(print_r($data, true)) . '</pre>';
+			if ($queuedJob->data) {
+				$data = Serializer::deserialize($queuedJob->data);
+				echo '<h4>Unserialized content</h4>';
+				echo '<pre>' . h(VarExporter::export($data, VarExporter::TRAILING_COMMA_IN_ARRAY)) . '</pre>';
 			}
 		?>
+		</div>
 	</div>
 	<div class="row">
+		<div class="col-md-12">
 		<h3><?= __d('queue', 'Failure Message') ?></h3>
 		<?= $queuedJob->failure_message ? $this->Text->autoParagraph(h($queuedJob->failure_message)) : ''; ?>
+	</div>
 	</div>
 
 </div>

@@ -1,31 +1,36 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue;
 
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
-use Cake\Filesystem\Folder;
-use InvalidArgumentException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RecursiveRegexIterator;
+use RegexIterator;
+use RuntimeException;
 
 class TaskFinder {
 
 	/**
 	 * @phpstan-var array<string, class-string<\Queue\Queue\Task>>|null
-	 *
 	 * @var array<string>|null
 	 */
-	protected $tasks;
+	protected ?array $tasks = null;
 
 	/**
 	 * @phpstan-return array<string, class-string<\Queue\Queue\Task>>
 	 *
+	 * @param string $type Type of interface.
+	 *
 	 * @return array<string>
 	 */
-	public function allAddable(): array {
+	public function allAddable(string $type = AddInterface::class): array {
 		$all = $this->all();
 		foreach ($all as $task => $class) {
-			if (!is_subclass_of($class, AddInterface::class, true)) {
+			if (!is_subclass_of($class, $type, true)) {
 				unset($all[$task]);
 			}
 		}
@@ -75,17 +80,34 @@ class TaskFinder {
 	 * @return array<string>
 	 */
 	protected function getTasks(string $path, ?string $plugin = null): array {
-		$Folder = new Folder($path);
+		if (!is_dir($path)) {
+			return [];
+		}
 
 		$tasks = [];
 		$ignoredTasks = Config::ignoredTasks();
-		$files = $Folder->find('.+Task\.php');
-		foreach ($files as $file) {
-			$name = basename($file, 'Task.php');
+
+		$directoryIterator = new RecursiveDirectoryIterator($path);
+		$recursiveIterator = new RecursiveIteratorIterator($directoryIterator);
+		$iterator = new RegexIterator($recursiveIterator, '#.+\b(\w+)Task\.php$#', RecursiveRegexIterator::GET_MATCH);
+		/** @var array<string> $file */
+		foreach ($iterator as $file) {
+			$path = str_replace(DS, '/', $file[0]);
+			$pos = strpos($path, 'src/Queue/Task/');
+			if ($pos) {
+				$name = substr($path, $pos + strlen('src/Queue/Task/'), -8);
+			} else {
+				$pos = strpos($path, APP_DIR . '/Queue/Task/');
+				if (!$pos) {
+					continue;
+				}
+				$name = substr($path, $pos + strlen(APP_DIR . '/Queue/Task/'), -8);
+			}
+
 			$namespace = $plugin ? str_replace('/', '\\', $plugin) : Configure::read('App.namespace');
 
 			/** @phpstan-var class-string<\Queue\Queue\Task> $className */
-			$className = $namespace . '\Queue\Task\\' . $name . 'Task';
+			$className = $namespace . '\Queue\Task\\' . str_replace('/', '\\', $name) . 'Task';
 			$key = $plugin ? $plugin . '.' . $name : $name;
 
 			if (!in_array($className, $ignoredTasks, true)) {
@@ -135,7 +157,7 @@ class TaskFinder {
 			}
 		}
 
-		throw new InvalidArgumentException('No job type can be resolved for ' . $jobTask);
+		throw new RuntimeException('No job type can be resolved for ' . $jobTask);
 	}
 
 	/**
@@ -153,7 +175,7 @@ class TaskFinder {
 			}
 		}
 
-		throw new InvalidArgumentException('No such task: ' . $name);
+		throw new RuntimeException('No such task: ' . $name);
 	}
 
 }

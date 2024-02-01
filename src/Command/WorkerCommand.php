@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Command;
 
@@ -7,7 +8,8 @@ use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;
-use Cake\I18n\FrozenTime;
+use Cake\I18n\DateTime;
+use Queue\Model\Table\QueueProcessesTable;
 use Queue\Queue\Config;
 
 /**
@@ -15,10 +17,19 @@ use Queue\Queue\Config;
  */
 class WorkerCommand extends Command {
 
+	protected QueueProcessesTable $QueueProcesses;
+
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	protected $modelClass = 'Queue.QueueProcesses';
+	protected ?string $defaultTable = 'Queue.QueueProcesses';
+
+	/**
+	 * @return void
+	 */
+	public function initialize(): void {
+		$this->QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
+	}
 
 	/**
 	 * @inheritDoc
@@ -52,6 +63,7 @@ class WorkerCommand extends Command {
 	/**
 	 * @param \Cake\Console\Arguments $args Arguments
 	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
+	 *
 	 * @return int|null|void
 	 */
 	public function execute(Arguments $args, ConsoleIo $io) {
@@ -179,7 +191,7 @@ class WorkerCommand extends Command {
 		if (!$timeout) {
 			$io->abort('You disabled `defaultworkertimeout` in config. Aborting.');
 		}
-		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
+		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
 		$io->out('Deleting old/outdated processes, that have finished before ' . $thresholdTime);
 		$result = $this->QueueProcesses->cleanEndedProcesses();

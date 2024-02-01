@@ -20,9 +20,9 @@
 		<?php
 			echo $this->Form->control('job_task', ['options' => $tasks, 'empty' => true]);
 
-			echo '<p>Current (server) time: ' . (new \Cake\I18n\FrozenTime()) . '</>';
+			echo '<p>Current (server) time: ' . (new \Cake\I18n\DateTime()) . '</>';
 
-			echo $this->Form->control('notbefore', ['default' => (new \Cake\I18n\FrozenTime())->addMinutes(5)]);
+			echo $this->Form->control('notbefore', ['default' => (new \Cake\I18n\DateTime())->addMinutes(5)]);
 
 			echo '<p>The target time must also be in that (server) time(zone).</p>';
 		?>

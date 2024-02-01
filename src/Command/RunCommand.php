@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Command;
 
@@ -6,6 +7,7 @@ use Cake\Command\Command;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
+use Cake\Core\ContainerInterface;
 use Cake\Log\Log;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -16,6 +18,18 @@ use Queue\Queue\Processor;
  * Main execution of queued jobs.
  */
 class RunCommand extends Command {
+
+	/**
+	 * @var \Cake\Core\ContainerInterface
+	 */
+	protected ContainerInterface $container;
+
+	/**
+	 * @param \Cake\Core\ContainerInterface $container
+	 */
+	public function __construct(ContainerInterface $container) {
+		$this->container = $container;
+	}
 
 	/**
 	 * @inheritDoc
@@ -68,6 +82,7 @@ class RunCommand extends Command {
 
 	/**
 	 * @param \Cake\Console\Arguments $args Arguments
+	 *
 	 * @return \Psr\Log\LoggerInterface
 	 */
 	protected function getLogger(Arguments $args): LoggerInterface {
@@ -86,12 +101,13 @@ class RunCommand extends Command {
 	 *
 	 * @param \Cake\Console\Arguments $args Arguments
 	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
+	 *
 	 * @return int
 	 */
 	public function execute(Arguments $args, ConsoleIo $io): int {
 		$logger = $this->getLogger($args);
 		$io = new Io($io);
-		$processor = new Processor($io, $logger);
+		$processor = new Processor($io, $logger, $this->container);
 
 		return $processor->run($args->getOptions());
 	}

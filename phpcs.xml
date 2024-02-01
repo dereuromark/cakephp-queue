@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<ruleset name="plugin">
+    <config name="installed_paths" value="../../fig-r/psr2r-sniffer"/>
+    <arg value="nps"/>
+
+    <file>config/</file>
+    <file>src/</file>
+    <file>tests/</file>
+
+	<exclude-pattern>/tests/test_files/</exclude-pattern>
+
+    <rule ref="PSR2R"/>
+    <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
+        <exclude-pattern>*/config/Migrations/*</exclude-pattern>
+    </rule>
+	<rule ref="PhpCollective.Commenting.DocBlockTagGrouping"/>
+    <rule ref="PhpCollective.Classes.ClassFileName.NoMatch">
+        <exclude-pattern>*/config/Migrations/*</exclude-pattern>
+    </rule>
+</ruleset>

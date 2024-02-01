@@ -1,9 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Migration;
 
 use Cake\Core\App;
-use Cake\Filesystem\Folder;
 
 class OldTaskFinder {
 
@@ -16,7 +16,7 @@ class OldTaskFinder {
 	 *
 	 * @return array<string>
 	 */
-	public function all(?string $plugin) {
+	public function all(?string $plugin): array {
 		$paths = App::classPath('Shell/Task', $plugin);
 
 		$allTasks = [];
@@ -35,17 +35,16 @@ class OldTaskFinder {
 	 *
 	 * @return array<string>
 	 */
-	protected function getTasks(string $path, ?string $plugin) {
-		$Folder = new Folder($path);
-		$res = $Folder->find('Queue.+Task\.php');
+	protected function getTasks(string $path, ?string $plugin): array {
+		$res = glob($path . '*Task.php') ?: [];
 
 		$tasks = [];
-		foreach ($res as $key => $r) {
+		foreach ($res as $r) {
 			$name = basename($r, 'Task.php');
 			$name = substr($name, 5);
 
 			$taskKey = $plugin ? $plugin . '.' . $name : $name;
-			$tasks[$taskKey] = $path . $r;
+			$tasks[$taskKey] = $path . basename($r);
 		}
 
 		return $tasks;

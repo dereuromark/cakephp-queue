@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Model\Table;
 
@@ -21,10 +22,11 @@ class QueueProcessesTableTest extends TestCase {
 	protected $QueueProcesses;
 
 	/**
-	 * @var array
+	 * @var array<string>
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueueProcesses',
+		'plugin.Queue.QueuedJobs',
 	];
 
 	/**
@@ -34,7 +36,7 @@ class QueueProcessesTableTest extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('QueueProcesses') ? [] : ['className' => QueueProcessesTable::class];
+		$config = TableRegistry::getTableLocator()->exists('QueueProcesses') ? [] : ['className' => QueueProcessesTable::class];
 		$this->QueueProcesses = $this->getTableLocator()->get('QueueProcesses', $config);
 
 		Configure::delete('Queue.maxworkers');
@@ -130,7 +132,7 @@ class QueueProcessesTableTest extends TestCase {
 		$queuedProcessesTable->saveOrFail($queuedProcess);
 
 		$gotSignal = false;
-		pcntl_signal(SIGUSR1, function() use (&$gotSignal) {
+		pcntl_signal(SIGUSR1, function () use (&$gotSignal) {
 			$gotSignal = true;
 		});
 

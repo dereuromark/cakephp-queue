@@ -1,10 +1,18 @@
 <?php
+declare(strict_types=1);
 
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
+use Cake\Core\Plugin;
+use Cake\Database\Connection;
 use Cake\Datasource\ConnectionManager;
-use Cake\Filesystem\Folder;
 use Cake\Mailer\TransportFactory;
+use Cake\TestSuite\Fixture\SchemaLoader;
+use Foo\FooPlugin;
+use Queue\QueuePlugin;
+use Shim\Filesystem\Folder;
+use TestApp\Controller\AppController;
+use Tools\View\Icon\BootstrapIcon;
 
 if (!defined('DS')) {
 	define('DS', DIRECTORY_SEPARATOR);
@@ -36,6 +44,7 @@ ini_set('intl.default_locale', 'de-DE');
 
 require PLUGIN_ROOT . '/vendor/autoload.php';
 require CORE_PATH . 'config/bootstrap.php';
+require CAKE . 'functions.php';
 
 Configure::write('App', [
 	'namespace' => 'TestApp',
@@ -44,6 +53,11 @@ Configure::write('App', [
 		'templates' => [
 			PLUGIN_ROOT . DS . 'tests' . DS . 'test_app' . DS . 'templates' . DS,
 		],
+	],
+]);
+Configure::write('Icon', [
+	'sets' => [
+		'bs' => BootstrapIcon::class,
 	],
 ]);
 
@@ -91,10 +105,10 @@ $cache = [
 
 Cache::setConfig($cache);
 
-class_alias(TestApp\Controller\AppController::class, 'App\Controller\AppController');
+class_alias(AppController::class, 'App\Controller\AppController');
 
-Cake\Core\Plugin::getCollection()->add(new Queue\Plugin());
-Cake\Core\Plugin::getCollection()->add(new Foo\Plugin());
+Plugin::getCollection()->add(new QueuePlugin());
+Plugin::getCollection()->add(new FooPlugin());
 
 TransportFactory::setConfig('default', [
 	'className' => 'Debug',
@@ -102,35 +116,23 @@ TransportFactory::setConfig('default', [
 TransportFactory::setConfig('queue', [
 	'className' => 'Queue.Queue',
 ]);
-/*
-Cake\Mailer\TransportFactory::setConfig('default', [
-	'transport' => 'default',
-]);
-*/
 
-// Allow local overwrite
-// E.g. in your console: export DB_URL="mysql://root:secret@127.0.0.1/cake_test"
-if (getenv('DB_URL')) {
-	ConnectionManager::setConfig('test', [
-		'url' => getenv('DB_URL'),
-		'quoteIdentifiers' => false,
-		'cacheMetadata' => true,
-	]);
-
-	return;
-}
-
-if (!getenv('DB_CLASS')) {
+if (!getenv('DB_URL')) {
 	putenv('DB_CLASS=Cake\Database\Driver\Sqlite');
 	putenv('DB_URL=sqlite:///:memory:');
 }
 
 // Uses Travis config then (MySQL, Postgres, ...)
 ConnectionManager::setConfig('test', [
-	'className' => 'Cake\Database\Connection',
+	'className' => Connection::class,
 	'driver' => getenv('DB_CLASS') ?: null,
-	'dsn' => getenv('DB_URL') ?: null,
+	'url' => getenv('DB_URL') ?: null,
 	'timezone' => 'UTC',
 	'quoteIdentifiers' => false,
 	'cacheMetadata' => true,
 ]);
+
+if (env('FIXTURE_SCHEMA_METADATA')) {
+	$loader = new SchemaLoader();
+	$loader->loadInternalFile(env('FIXTURE_SCHEMA_METADATA'));
+}

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Queue\Task;
 
@@ -18,7 +19,7 @@ class ExecuteTaskTest extends TestCase {
 	/**
 	 * @var array
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueuedJobs',
 	];
 
@@ -68,7 +69,7 @@ class ExecuteTaskTest extends TestCase {
 		$exception = null;
 		try {
 			$this->Task->run(['command' => 'fooooobbbaraar -eeee'], 0);
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$exception = $e;
 		}
 

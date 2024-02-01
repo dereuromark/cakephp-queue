@@ -1,9 +1,9 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Command;
 
-use Cake\TestSuite\ConsoleIntegrationTestTrait;
+use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -16,7 +16,7 @@ class InfoCommandTest extends TestCase {
 	/**
 	 * @var array<string>
 	 */
-	protected $fixtures = [
+	protected array $fixtures = [
 		'plugin.Queue.QueueProcesses',
 		'plugin.Queue.QueuedJobs',
 	];
@@ -26,7 +26,7 @@ class InfoCommandTest extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$this->useCommandRunner();
+		//$this->useCommandRunner();
 	}
 
 	/**
@@ -36,7 +36,7 @@ class InfoCommandTest extends TestCase {
 		$this->exec('queue info');
 
 		$output = $this->_out->output();
-		$this->assertStringContainsString('12 tasks available:', $output);
+		$this->assertStringContainsString('15 tasks available:', $output);
 		$this->assertExitCode(0);
 	}
 

@@ -1,24 +1,26 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Queue\Task;
 
+use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
 use Queue\Queue\Task;
 
 /**
  * A Costs QueueTask example.
  */
-class CostsExampleTask extends Task implements AddInterface {
+class CostsExampleTask extends Task implements AddInterface, AddFromBackendInterface {
 
 	/**
 	 * @var int
 	 */
-	public $costs = 55;
+	public int $costs = 55;
 
 	/**
 	 * @var int
 	 */
-	protected $sleep = 10;
+	protected int $sleep = 10;
 
 	/**
 	 * To invoke from CLI execute:
@@ -52,6 +54,7 @@ class CostsExampleTask extends Task implements AddInterface {
 	 *
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
+	 *
 	 * @return void
 	 */
 	public function run(array $data, int $jobId): void {
@@ -66,6 +69,7 @@ class CostsExampleTask extends Task implements AddInterface {
 
 	/**
 	 * @param int $seconds
+	 *
 	 * @return void
 	 */
 	public function setSleep(int $seconds): void {

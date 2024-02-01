@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace TestApp\Model\Table;
 
@@ -16,7 +17,7 @@ class QueuedJobsTable extends BaseQueuedJobsTable {
 	 *
 	 * @return void
 	 */
-	public function clearKey() {
+	public function clearKey(): void {
 		$this->_key = null;
 	}
 

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Queue\Command;
 
@@ -10,16 +11,12 @@ use Cake\Core\Configure;
 use Cake\I18n\Number;
 use Queue\Queue\TaskFinder;
 
-/**
- * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
- * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
- */
 class InfoCommand extends Command {
 
 	/**
-	 * @var string
+	 * @var string|null
 	 */
-	protected $modelClass = 'Queue.QueuedJobs';
+	protected ?string $defaultTable = 'Queue.QueuedJobs';
 
 	/**
 	 * @inheritDoc
@@ -44,6 +41,7 @@ class InfoCommand extends Command {
 	/**
 	 * @param \Cake\Console\Arguments $args Arguments
 	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
+	 *
 	 * @return int|null|void
 	 */
 	public function execute(Arguments $args, ConsoleIo $io) {
@@ -78,22 +76,24 @@ class InfoCommand extends Command {
 		$io->hr();
 		$io->out();
 
-		$io->out('Total unfinished jobs: ' . $this->QueuedJobs->getLength());
-		$this->loadModel('Queue.QueueProcesses');
-		$status = $this->QueueProcesses->status();
+		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$QueueProcesses = $this->getTableLocator()->get('Queue.QueueProcesses');
+
+		$io->out('Total unfinished jobs: ' . $QueuedJobs->getLength());
+		$status = $QueueProcesses->status();
 		$io->out('Current running workers: ' . ($status ? $status['workers'] : '-'));
 		$io->out('Last run: ' . ($status ? $status['time']->nice() : '-'));
-		$io->out('Server name: ' . $this->QueueProcesses->buildServerString());
+		$io->out('Server name: ' . $QueueProcesses->buildServerString());
 
 		$io->out();
 		$io->hr();
 		$io->out();
 
 		$io->out('Jobs currently in the queue:');
-		$types = $this->QueuedJobs->getTypes()->toArray();
+		$types = $QueuedJobs->getTypes()->toArray();
 		//TODO: refactor using $io->helper table?
 		foreach ($types as $type) {
-			$io->out(' - ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $this->QueuedJobs->getLength($type));
+			$io->out(' - ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $QueuedJobs->getLength($type));
 		}
 
 		$io->out();
@@ -101,7 +101,7 @@ class InfoCommand extends Command {
 		$io->out();
 
 		$io->out('Finished job statistics:');
-		$data = $this->QueuedJobs->getStats();
+		$data = $QueuedJobs->getStats();
 		//TODO: refactor using $io->helper table?
 		foreach ($data as $item) {
 			$io->out(' - ' . $item['job_task'] . ': ');
