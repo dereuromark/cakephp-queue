@@ -26,7 +26,7 @@ class AddIndexesToQueuedJobs extends AbstractMigration
 			'notbefore',
 		],[
 			'completed',
-			'failed',
+			'attempts',
 			'job_group',
 			'job_task',
 			'priority',
