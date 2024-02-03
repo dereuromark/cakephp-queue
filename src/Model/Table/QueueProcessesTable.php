@@ -205,6 +205,11 @@ class QueueProcessesTable extends Table {
 	 */
 	public function cleanEndedProcesses(): int {
 		$timeout = Config::defaultworkertimeout();
+
+		if (!$timeout) {
+			return 0;
+		}
+
 		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
 		return $this->deleteAll(['modified <' => $thresholdTime]);
