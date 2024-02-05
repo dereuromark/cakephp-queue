@@ -145,7 +145,7 @@ class QueuedJobsTable extends Table {
 		$searchManager = $this->behaviors()->Search->searchManager();
 		$searchManager
 			->value('job_task')
-			->like('search', ['fields' => ['job_group', 'reference'], 'before' => true, 'after' => true])
+			->like('search', ['fields' => ['job_group', 'reference', 'status'], 'before' => true, 'after' => true])
 			->add('status', 'Search.Callback', [
 				'callback' => function (SelectQuery $query, array $args, $filter) {
 					$status = $args['status'];
