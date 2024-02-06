@@ -67,19 +67,15 @@ class QueueProcessesTable extends Table {
 
 		$this->addBehavior('Timestamp');
 
-		$this->hasOne('QueuedJobs', [
+		$this->hasOne('CurrentQueuedJobs', [
 			'className' => 'Queue.QueuedJobs',
 			'foreignKey' => 'workerkey',
 			'bindingKey' => 'workerkey',
-			'propertyName' => 'jobs',
+			'propertyName' => 'active_job',
+			'conditions' => [
+				'CurrentQueuedJobs.completed IS NULL',
+			],
 		]);
-
-		$this->hasOne('CurrentQueuedJobs', [
-			'className' => 'Queue.QueuedJobs',
-			'foreignKey' => 'id',
-			'bindingKey' => 'active_job_id',
-			'propertyName' => 'current_job'
-        ]);
 	}
 
 	/**
@@ -145,15 +141,14 @@ class QueueProcessesTable extends Table {
 	/**
 	 * @param string $pid
 	 * @param string $key
-	 * @param string $arguments
+	 *
 	 * @return int
 	 */
-	public function add(string $pid, string $key, string $arguments = NULL): int {
+	public function add(string $pid, string $key): int {
 		$data = [
 			'pid' => $pid,
 			'server' => $this->buildServerString(),
 			'workerkey' => $key,
-			'arguments' => $arguments
 		];
 
 		$queueProcess = $this->newEntity($data);
@@ -169,7 +164,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return void
 	 */
-	public function update(string $pid, int $jobId = NULL): void {
+	public function update(string $pid): void {
 		$conditions = [
 			'pid' => $pid,
 			'server IS' => $this->buildServerString(),
@@ -182,7 +177,6 @@ class QueueProcessesTable extends Table {
 		}
 
 		$queueProcess->modified = new DateTime();
-		$queueProcess->active_job_id = $jobId;
 		$this->saveOrFail($queueProcess);
 	}
 
@@ -204,15 +198,9 @@ class QueueProcessesTable extends Table {
 	 * @return int
 	 */
 	public function cleanEndedProcesses(): int {
-		$timeout = Config::defaultworkertimeout();
+		$activeProcesses = $this->findActive()->all()->extract('id')->toArray();
 
-		if (!$timeout) {
-			return 0;
-		}
-
-		$thresholdTime = (new DateTime())->subSeconds($timeout);
-
-		return $this->deleteAll(['modified <' => $thresholdTime]);
+		return $this->deleteAll(['id NOT IN' => $activeProcesses]);
 	}
 
 	/**

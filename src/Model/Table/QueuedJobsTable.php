@@ -145,7 +145,7 @@ class QueuedJobsTable extends Table {
 		$searchManager = $this->behaviors()->Search->searchManager();
 		$searchManager
 			->value('job_task')
-			->like('search', ['fields' => ['job_group', 'reference'], 'before' => true, 'after' => true])
+			->like('search', ['fields' => ['job_group', 'reference', 'status'], 'before' => true, 'after' => true])
 			->add('status', 'Search.Callback', [
 				'callback' => function (SelectQuery $query, array $args, $filter) {
 					$status = $args['status'];
@@ -535,7 +535,7 @@ class QueuedJobsTable extends Table {
 			$constraintJobs = array_keys($costConstraints + $uniqueConstraints);
 			$runningJobs = $this->find('queued')
 				->contain(['WorkerProcesses'])
-				->where(['QueuedJobs.job_task IN' => $constraintJobs, 'QueuedJobs.workerkey IS NOT' => null, 'QueuedJobs.workerkey !=' => $this->_key, 'WorkerProcesses.modified >' => Config::defaultworkertimeout()])
+				->where(['QueuedJobs.job_task IN' => $constraintJobs, 'QueuedJobs.workerkey IS NOT' => null, 'QueuedJobs.workerkey !=' => $this->_key, 'WorkerProcesses.modified >' => (new DateTime())->subSeconds(Config::defaultworkertimeout())])
 				->all()
 				->toArray();
 		}
