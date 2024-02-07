@@ -184,7 +184,7 @@ class QueuedJobsControllerTest extends TestCase {
 
 		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
-		$queuedJob = $queuedJobs->find()->orderDesc('id')->firstOrFail();
+		$queuedJob = $queuedJobs->find()->orderByDesc('id')->firstOrFail();
 
 		$this->assertSame('Webhook', $queuedJob->job_task);
 		$this->assertSame('web-hook-102803234', $queuedJob->reference);

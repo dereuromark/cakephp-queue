@@ -412,7 +412,7 @@ class QueuedJobsTable extends Table {
 			->select($fields)
 			->where($conditions)
 			->enableHydration(false)
-			->orderDesc('id')
+			->orderByDesc('id')
 			->limit(static::STATS_LIMIT)
 			->all()
 			->toArray();

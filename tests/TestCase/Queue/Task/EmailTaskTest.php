@@ -110,8 +110,8 @@ class EmailTaskTest extends TestCase {
 
 		$this->assertSame('I haz Cake', $message->getSubject());
 
-		$serialized = serialize($message);
-		$message = unserialize($serialized);
+		$serialized = EmailTask::serialize($message);
+		$message = EmailTask::unserialize(new Message(), $serialized);
 
 		$this->assertSame('I haz Cake', $message->getSubject());
 
@@ -120,6 +120,42 @@ class EmailTaskTest extends TestCase {
 		$this->assertInstanceOf(Message::class, $this->Task->message);
 
 		Configure::delete('Queue.serializerClass');
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testAddMessagePhpSerialized() {
+		$message = new Message();
+		$message
+			->setSubject('I haz Cake')
+			->setEmailFormat(Message::MESSAGE_BOTH)
+			->setBody([
+				Message::MESSAGE_TEXT => 'text message',
+				Message::MESSAGE_HTML => '<strong>html message</strong>',
+			]);
+
+		$data = [
+			'class' => Message::class,
+			'settings' => serialize($message),
+			'serialized' => true,
+		];
+
+		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
+		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$queuedJobsTable->createJob('Email', $data);
+
+		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
+		$queuedJob = $queuedJobsTable->find()->orderByDesc('id')->firstOrFail();
+
+		$settings = Serializer::deserialize($queuedJob->data)['settings'];
+		$message = unserialize($settings);
+
+		$this->assertSame('I haz Cake', $message->getSubject());
+
+		$this->Task->run($data, 0);
+
+		$this->assertInstanceOf(Message::class, $this->Task->message);
 	}
 
 	/**
@@ -193,7 +229,7 @@ class EmailTaskTest extends TestCase {
 		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$queuedJobsTable->createJob('Queue.Email', ['class' => $class, 'settings' => $settings]);
 
-		$queuedJob = $queuedJobsTable->find()->orderDesc('id')->firstOrFail();
+		$queuedJob = $queuedJobsTable->find()->orderByDesc('id')->firstOrFail();
 		$data = unserialize($queuedJob->data);
 		/** @var \TestApp\Mailer\TestMailer $mailer */
 		$class = $data['class'];

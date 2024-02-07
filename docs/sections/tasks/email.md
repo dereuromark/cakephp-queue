@@ -65,6 +65,7 @@ $data = [
     'serialized' => true,
 ];
 ```
+You can also use the convenience method `EmailTask::serialize()` here.
 
 It will not yet send emails here, only assemble them.
 The Email Queue task triggers the `deliver()` method.

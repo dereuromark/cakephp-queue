@@ -95,6 +95,25 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 	}
 
 	/**
+	 * @param \Cake\Mailer\Message $message
+	 *
+	 * @return array
+	 */
+	public static function serialize(Message $message): array {
+		return $message->__serialize();
+	}
+
+	/**
+	 * @param \Cake\Mailer\Message $object
+	 * @param array $config
+	 *
+	 * @return \Cake\Mailer\Message
+	 */
+	public static function unserialize(Message $object, array $config): Message {
+		return $object->createFromArray($config);
+	}
+
+	/**
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
 	 *
@@ -117,7 +136,7 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 			$serialized = $data['serialized'] ?? false;
 
 			if ($serialized) {
-				$this->message = is_array($settings) ? $object->createFromArray($settings) : unserialize($settings);
+				$this->message = is_array($settings) ? static::unserialize($object, $settings) : unserialize($settings);
 			} else {
 				/** @var class-string<\Cake\Mailer\Message> $class */
 				$this->message = new $class($settings);
