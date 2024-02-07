@@ -198,13 +198,10 @@ class QueueProcessesTable extends Table {
 	 * @return int
 	 */
 	public function cleanEndedProcesses(): int {
-		$activeProcesses = $this->findActive()->all()->extract('id')->toArray();
-		$conditions = [];
-		if (count($activeProcesses) > 0) {
-			$conditions = ['id NOT IN' => $activeProcesses];
-		}
+		$timeout = Config::defaultworkertimeout();
+		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
-		return $this->deleteAll($conditions);
+		return $this->deleteAll(['modified <' => $thresholdTime]);
 	}
 
 	/**
