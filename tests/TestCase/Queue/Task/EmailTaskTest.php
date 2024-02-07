@@ -92,13 +92,15 @@ class EmailTaskTest extends TestCase {
 				Message::MESSAGE_HTML => '<strong>html message</strong>',
 			]);
 
-		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
-		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
-		$queuedJobsTable->createJob('Email', [
+		$data = [
 			'class' => Message::class,
 			'settings' => $message->__serialize(),
 			'serialized' => true,
-		]);
+		];
+
+		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
+		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$queuedJobsTable->createJob('Email', $data);
 
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
 		$queuedJob = $queuedJobsTable->find()->orderByDesc('id')->firstOrFail();
@@ -112,6 +114,10 @@ class EmailTaskTest extends TestCase {
 		$message = unserialize($serialized);
 
 		$this->assertSame('I haz Cake', $message->getSubject());
+
+		$this->Task->run($data, 0);
+
+		$this->assertInstanceOf(Message::class, $this->Task->message);
 
 		Configure::delete('Queue.serializerClass');
 	}
