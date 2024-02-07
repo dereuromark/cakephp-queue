@@ -84,7 +84,7 @@ class JobCommand extends Command {
 			/** @var array<\Queue\Model\Entity\QueuedJob> $jobs */
 			$jobs = $this->QueuedJobs->find()
 				->select(['id', 'job_task', 'completed', 'attempts'])
-				->orderDesc('id')
+				->orderByDesc('id')
 				->limit(20)->all()->toArray();
 			if ($jobs) {
 				$io->out('Last jobs are:');

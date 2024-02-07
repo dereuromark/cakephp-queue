@@ -32,6 +32,8 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 
 	public Mailer $mailer;
 
+	public Message $message;
+
 	/**
 	 * List of default variables for Email class.
 	 *
@@ -93,6 +95,25 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 	}
 
 	/**
+	 * @param \Cake\Mailer\Message $message
+	 *
+	 * @return array
+	 */
+	public static function serialize(Message $message): array {
+		return $message->__serialize();
+	}
+
+	/**
+	 * @param \Cake\Mailer\Message $object
+	 * @param array $config
+	 *
+	 * @return \Cake\Mailer\Message
+	 */
+	public static function unserialize(Message $object, array $config): Message {
+		return $object->createFromArray($config);
+	}
+
+	/**
 	 * @param array<string, mixed> $data The array passed to QueuedJobsTable::createJob()
 	 * @param int $jobId The id of the QueuedJob entity
 	 *
@@ -108,13 +129,22 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 
 		/** @var class-string<\Cake\Mailer\Message>|object|null $class */
 		$class = $data['class'] ?? null;
-		if ($class && (is_a($class, Message::class) || is_subclass_of($class, Message::class))) {
+		/** @var \Cake\Mailer\Message|null $object */
+		$object = $class ? new $class() : null;
+		if ($class && $object && (is_subclass_of($class, Message::class) || is_a($object, Message::class))) {
 			$settings = $data['settings'];
+			$serialized = $data['serialized'] ?? false;
 
-			$message = new $class($settings);
+			if ($serialized) {
+				$this->message = is_array($settings) ? static::unserialize($object, $settings) : unserialize($settings);
+			} else {
+				/** @var class-string<\Cake\Mailer\Message> $class */
+				$this->message = new $class($settings);
+			}
+
 			try {
 				$transport = TransportFactory::get($data['transport'] ?? 'default');
-				$result = $transport->send($message);
+				$result = $transport->send($this->message);
 			} catch (Throwable $e) {
 				$error = $e->getMessage();
 				$error .= ' (line ' . $e->getLine() . ' in ' . $e->getFile() . ')' . PHP_EOL . $e->getTraceAsString();

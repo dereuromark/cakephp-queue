@@ -217,7 +217,7 @@ class QueueProcessesTable extends Table {
 
 		$results = $this->find()
 			->where(['modified >' => $thresholdTime])
-			->orderDesc('modified')
+			->orderByDesc('modified')
 			->enableHydration(false)
 			->all()
 			->toArray();

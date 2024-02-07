@@ -78,7 +78,7 @@ class WorkerCommand extends Command {
 
 			/** @var array<\Queue\Model\Entity\QueueProcess> $processes */
 			$processes = $this->QueueProcesses->find()
-				->orderDesc('modified')
+				->orderByDesc('modified')
 				->limit(10)->all()->toArray();
 			if ($processes) {
 				$io->out('Last jobs are:');
