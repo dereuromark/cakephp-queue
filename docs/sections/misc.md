@@ -39,18 +39,19 @@ From CLI you run this to rerun all of a specific job type at once:
 ```
 bin/cake queue rerun FooBar
 ```
-You can add an additional reference to rerun a specific job.
+You can add a reference to rerun a specific job.
 
 ## Using custom finder
 You can use a convenience finder for tasks that are still queued, that means not yet finished.
 ```php
-$query = $this->QueuedJobs->find('queued')->...;
+$queuedJobsTable = $this->fetchTable('Queue.QueuedJobs');
+$query = $queuedJobsTable->find('queued')->...;
 ```
 This includes also failed ones if not filtered further using `where()` conditions.
 
 ## Notes
 
-`<TaskName>` is the complete class name without the Task suffix (eg. Example or PluginName.Example).
+`<TaskName>` is the complete class name without the Task suffix (e.g. Example or PluginName.Example).
 
 Custom tasks should be placed in `src/Queue/Task/`.
 Tasks should be named `SomethingTask` and implement the Queue "Task".
