@@ -160,7 +160,7 @@ class FooTask extends Task {
             ['id' => $jobId]
         );
         $foo->doFirstPartOfTask();
-        $queuedJobsTable->updateProgress($jobId, 33);
+        $queuedJobsTable->updateProgress($jobId, 0.33);
 
         // Part two
         $queuedJobsTable->updateAll(
@@ -168,7 +168,7 @@ class FooTask extends Task {
             ['id' => $jobId]
         );
         $foo->doNextPartOfTask();
-        $queuedJobsTable->updateProgress($jobId, 66);
+        $queuedJobsTable->updateProgress($jobId, 0.66);
 
         // Part three
         $queuedJobsTable->updateAll(
@@ -176,7 +176,7 @@ class FooTask extends Task {
             ['id' => $jobId]
         );
         $foo->doLastPartOfTask();
-        $queuedJobsTable->updateProgress($jobId, 100);
+        $queuedJobsTable->updateProgress($jobId, 1.00);
 
         // Done
         $queuedJobsTable->updateAll(
