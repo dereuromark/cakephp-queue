@@ -1,5 +1,6 @@
 <?php
 
+use Cake\Datasource\ConnectionManager;
 use Phinx\Migration\AbstractMigration;
 
 class MigrationAddIndex extends AbstractMigration {
@@ -11,7 +12,11 @@ class MigrationAddIndex extends AbstractMigration {
 		// Shim: make sure this is void when a migrating with `202311128071500` instead of `20231112807150` has been run already.
 		$result = $this->query('SELECT * FROM queue_phinxlog WHERE version = \'202311128071500\' LIMIT 1')->fetch();
 		if ($result) {
-			$this->execute('DELETE FROM queue_phinxlog WHERE version = \'202311128071500\' LIMIT 1');
+			$sql = 'DELETE FROM queue_phinxlog WHERE version = \'202311128071500\' LIMIT 1';
+			if (ConnectionManager::getConfig('default')['driver'] === 'Cake\Database\Driver\Sqlserver') {
+				$sql = 'DELETE TOP(1) FROM [queue_phinxlog] WHERE [version] = \'202311128071500\'';
+			}
+			$this->execute($sql);
 
 			return;
 		}
