@@ -889,7 +889,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return \Cake\ORM\Query\SelectQuery The query builder
 	 */
-	public function findQueued(SelectQuery $query, array $options): SelectQuery {
+	public function findQueued(SelectQuery $query, array $options = []): SelectQuery {
 		return $query->where(['completed IS' => null]);
 	}
 
