@@ -4,6 +4,7 @@
  * @var iterable<\Queue\Model\Entity\QueuedJob> $queuedJobs
  */
 
+use Brick\VarExporter\VarExporter;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 
@@ -58,7 +59,8 @@ use Cake\Core\Plugin;
 				<td>
 					<?= h($queuedJob->reference) ?: '---' ?>
 					<?php if ($queuedJob->data) {
-						echo $this->Icon->render('cubes', ['title' => $this->Text->truncate($queuedJob->data, 1000)]);
+						$data = VarExporter::export($queuedJob->data, VarExporter::TRAILING_COMMA_IN_ARRAY);
+						echo $this->Icon->render('cubes', [], ['title' => $this->Text->truncate($data, 1000)]);
 					}
 					?>
 				</td>

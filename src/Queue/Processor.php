@@ -17,7 +17,6 @@ use Queue\Model\ProcessEndingException;
 use Queue\Model\QueueException;
 use Queue\Model\Table\QueuedJobsTable;
 use Queue\Model\Table\QueueProcessesTable;
-use Queue\Utility\Serializer;
 use RuntimeException;
 use Throwable;
 
@@ -205,7 +204,7 @@ class Processor {
 		try {
 			$this->time = time();
 
-			$data = $queuedJob->data ? Serializer::deserialize($queuedJob->data) : null;
+			$data = $queuedJob->data;
 			$task = $this->loadTask($taskName);
 			$traits = class_uses($task);
 			if ($this->container && $traits && in_array(ServicesTrait::class, $traits, true)) {

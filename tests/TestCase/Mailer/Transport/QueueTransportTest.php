@@ -49,9 +49,9 @@ class QueueTransportTest extends TestCase {
 
 		$result = $this->QueueTransport->send($message);
 		$this->assertSame('Queue.Email', $result['job_task']);
-		$this->assertTrue(strlen($result['data']) < 10000);
+		$this->assertNotEmpty($result['data']);
 
-		$output = unserialize($result['data']);
+		$output = $result['data'];
 		$this->assertInstanceOf(Message::class, $output['settings']);
 
 		/** @var \Cake\Mailer\Message $message */
