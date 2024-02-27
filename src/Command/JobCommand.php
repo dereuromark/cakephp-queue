@@ -12,7 +12,6 @@ use Cake\Error\Debugger;
 use Cake\I18n\DateTime;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\Table\QueuedJobsTable;
-use Queue\Utility\Serializer;
 
 /**
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
@@ -260,7 +259,7 @@ class JobCommand extends Command {
 			$io->out('Failure message: ' . ($queuedJob->failure_message ?: '-'));
 		}
 
-		$data = $queuedJob->data ? Serializer::deserialize($queuedJob->data) : null;
+		$data = $queuedJob->data;
 		$io->out('Data: ' . Debugger::exportVar($data, 9));
 
 		return static::CODE_SUCCESS;

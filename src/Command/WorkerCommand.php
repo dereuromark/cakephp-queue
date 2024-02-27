@@ -35,7 +35,7 @@ class WorkerCommand extends Command {
 	 * @inheritDoc
 	 */
 	public static function defaultName(): string {
-		return 'queue job';
+		return 'queue worker';
 	}
 
 	/**
@@ -45,7 +45,7 @@ class WorkerCommand extends Command {
 		$parser = parent::getOptionParser();
 
 		$parser->addArgument('action', [
-			'help' => 'Action (end, kill)',
+			'help' => 'Action (end, kill, maintenance)',
 			'required' => false,
 		]);
 		$parser->addArgument('pid', [

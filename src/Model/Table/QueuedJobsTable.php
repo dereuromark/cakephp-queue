@@ -16,9 +16,9 @@ use InvalidArgumentException;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
-use Queue\Utility\Serializer;
 use RuntimeException;
 use Search\Manager;
+use Cake\Database\Schema\TableSchemaInterface;
 
 /**
  * @author MGriesbach@gmail.com
@@ -126,6 +126,16 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * @return \Cake\Database\Schema\TableSchemaInterface
+	 */
+	public function getSchema(): TableSchemaInterface {
+		$schema = parent::getSchema();
+		$schema->setColumnType('data', 'json');
+
+		return $schema;
+	}
+
+	/**
 	 * @param \Cake\Event\EventInterface $event
 	 * @param \ArrayObject<string, mixed> $data
 	 * @param \ArrayObject<string, mixed> $options
@@ -209,7 +219,7 @@ class QueuedJobsTable extends Table {
 	public function createJob(string $jobTask, ?array $data = null, array $config = []): QueuedJob {
 		$queuedJob = [
 			'job_task' => $this->jobTask($jobTask),
-			'data' => is_array($data) ? Serializer::serialize($data) : null,
+			'data' => $data,
 			'job_group' => !empty($config['group']) ? $config['group'] : null,
 			'notbefore' => !empty($config['notBefore']) ? $this->getDateTime($config['notBefore']) : null,
 		] + $config;
@@ -697,6 +707,7 @@ class QueuedJobsTable extends Table {
 	public function markJobDone(QueuedJob $job): bool {
 		$fields = [
 			'progress' => 1,
+			'failed' => NULL,
 			'completed' => $this->getDateTime(),
 		];
 		$job = $this->patchEntity($job, $fields);
@@ -715,6 +726,7 @@ class QueuedJobsTable extends Table {
 	public function markJobFailed(QueuedJob $job, ?string $failureMessage = null): bool {
 		$fields = [
 			'failure_message' => $failureMessage,
+			'failed' => $this->getDateTime(),
 		];
 		$job = $this->patchEntity($job, $fields);
 

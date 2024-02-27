@@ -18,7 +18,7 @@ use Cake\ORM\Entity;
  * @property string|null $server
  * @property string $workerkey
  * @property \Queue\Model\Entity\QueuedJob|null $active_job
-  * @property \Queue\Model\Entity\QueuedJob[] $jobs
+ * @property \Queue\Model\Entity\QueuedJob[] $jobs
  */
 class QueueProcess extends Entity {
 
