@@ -143,7 +143,7 @@ class QueueProcessesTable extends Table {
 		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
-		return $this->find()->where(['modified > ' => $thresholdTime]);
+		return $this->find()->where(['modified >' => $thresholdTime]);
 	}
 
 	/**
@@ -265,7 +265,7 @@ class QueueProcessesTable extends Table {
 
 		$results = $this->find()
 			->where(['modified >' => $thresholdTime])
-			->orderDesc('modified')
+			->orderByDesc('modified')
 			->enableHydration(false)
 			->all()
 			->toArray();

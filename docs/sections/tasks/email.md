@@ -57,48 +57,42 @@ $data = [
 ];
  ```
 
-You can also assemble a Mailer object manually and pass that along as settings directly:
+You can also assemble a Message object manually and pass that along as serialized settings array directly:
 ```php
 $data = [
-    'settings' => $mailerObject,
-    'content' => $content,
+    'class' => \Cake\Mailer\Message::class,
+    'settings' => $messageObject->__serialize(),
+    'serialized' => true,
+];
+```
+You can also use the convenience method `EmailTask::serialize()` here.
+
+It will not yet send emails here, only assemble them.
+The Email Queue task triggers the `deliver()` method.
+
+Or even pass it as serialized string:
+```php
+$data = [
+    'class' => \Cake\Mailer\Message::class,
+    'settings' => serialize($messageObject),
+    'serialized' => true,
 ];
 ```
 Deprecated: This is not recommended as it breaks as soon as the code changes.
 
-Or send reusable Emails via the Mailer object:
-```php
-$data = [
-    'settings' => $mailerObject,
-    'action' => 'myReusableEmail', // instead of content or headers
-    'vars' => [$var1, $var2, $var3]
-];
-```
-Deprecated: This is not recommended as it breaks as soon as the code changes.
-
-Inside a controller you can for example do this for your mailers:
-```php
-$mailer = $this->getMailer('User');
-$mailer->viewBuilder()
-    ->setTemplate('register');
-$mailer->set...(...);
-
-$this->loadModel('Queue.QueuedJobs')->createJob(
-    'Queue.Email',
-    ['settings' => $mailer]
-);
-```
-Do not send your emails here, only assemble them. The Email Queue task triggers the `deliver()` method.
-
-Note: In this case the object is stored serialized in the DB.
+Note: In this last case the object is stored PHP serialized in the DB.
 This can break when upgrading your core and the underlying class changes.
 So make sure to only upgrade your code when all jobs have been finished.
 
+
+## Using custom Email class
 If you are not using CakePHP core Email task:
 
 The recommended way for Email task together with JsonSerializer is using the FQCN class string of the Message class:
 
 ```php
+use App\Mailer\Message; // or your custom FQCN
+
 $data = [
     'class' => Message::class,
     'settings' => $settings,

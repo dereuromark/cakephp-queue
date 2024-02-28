@@ -41,8 +41,8 @@ class YourNameForItTask extends Task {
      * @return void
      */
     public function run(array $data, int $jobId): void {
-        $this->loadModel('FooBars');
-        if (!$this->FooBars->doSth()) {
+        $fooBarsTable = $this->fetchTable('FooBars');
+        if (!$fooBarsTable->doSth()) {
             throw new RuntimeException('Couldnt do sth.');
         }
     }

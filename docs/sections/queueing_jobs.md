@@ -33,9 +33,9 @@ The `createJob()` function takes three arguments.
 For sending emails, for example:
 
 ```php
-// In your controller
-$this->loadModel('Queue.QueuedJobs');
-$this->QueuedJobs->createJob('Queue.Email', ['to' => 'user@example.org', ...]);
+// In your controller or where TableAwareTrait is used
+$queuedJobsTable = $this->fetchTable('Queue.QueuedJobs');
+$queuedJobsTable->createJob('Queue.Email', ['to' => 'user@example.org', ...]);
 
 // Somewhere in the model or lib
 TableRegistry::getTableLocator()->get('Queue.QueuedJobs')
@@ -61,7 +61,7 @@ find the usage more easily, you can also use `<TaskClassName>::class` for `creat
 ```php
 use Queue\Queue\Task\EmailTask;
 
-$this->QueuedJobs->createJob(EmailTask::class, ['to' => 'user@example.org', ...]);
+$queuedJobsTable->createJob(EmailTask::class, ['to' => 'user@example.org', ...]);
 ```
 This does, however, require adding use statements for each such line on top.
 
@@ -72,7 +72,7 @@ use Queue\Queue\Task\EmailTask;
 
 $taskName = EmailTask::taskName();
 
-$this->QueuedJobs->createJob($taskName, ['to' => 'user@example.org', ...]);
+$queuedJobsTable->createJob($taskName, ['to' => 'user@example.org', ...]);
 ```
 This can be useful when more dynamically adding certain jobs of different types.
 
@@ -98,14 +98,14 @@ In your logic you can check on this using `isQueued()` and a unique reference:
     public function triggerImport() {
         $this->request->allowMethod('post');
 
-        $this->loadModel('Queue.QueuedJobs');
-        if ($this->QueuedJobs->isQueued('my-import', 'Queue.Execute')) {
+        $queuedJobsTable = $this->fetchTable('Queue.QueuedJobs');
+        if ($queuedJobsTable->isQueued('my-import', 'Queue.Execute')) {
             $this->Flash->error('Job already running');
 
             return $this->redirect($this->referer(['action' => 'index']));
         }
 
-        $this->QueuedJobs->createJob(
+        $queuedJobsTable->createJob(
            'Queue.Execute',
             ['command' => 'bin/cake importer run'],
             ['reference' => 'my-import', 'priority' => 2]
@@ -131,7 +131,7 @@ The `createJob()` method returns the entity. So you can store the ID and at any 
 
 ```php
 // Within your regular web application
-$job = $this->QueuedJobs->createJob(...);
+$job = $queuedJobsTable->createJob(...);
 $id = $job->id;
 // Store
 
@@ -139,7 +139,7 @@ $id = $job->id;
 $totalRecords = count($records);
 foreach ($records as $i => $record) {
     $this->processImageRendering($record);
-    $this->QueuedJobs->updateProgress($id, ($i + 1) / $totalRecords);
+    $queuedJobsTable->updateProgress($id, ($i + 1) / $totalRecords);
 }
 ```
 
@@ -151,35 +151,35 @@ class FooTask extends Task {
 
     public function run(array $data, int $jobId): void {
         // Initializing
-        $jobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+        $queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
         $foo = new Foo();
 
         // Part one
-        $jobsTable->updateAll(
+        $queuedJobsTable->updateAll(
             ['status' => 'Doing the first thing'],
             ['id' => $jobId]
         );
         $foo->doFirstPartOfTask();
-        $jobsTable->updateProgress($jobId, 33);
+        $queuedJobsTable->updateProgress($jobId, 0.33);
 
         // Part two
-        $jobsTable->updateAll(
+        $queuedJobsTable->updateAll(
             ['status' => 'Doing the next thing'],
             ['id' => $jobId]
         );
         $foo->doNextPartOfTask();
-        $jobsTable->updateProgress($jobId, 66);
+        $queuedJobsTable->updateProgress($jobId, 0.66);
 
         // Part three
-        $jobsTable->updateAll(
+        $queuedJobsTable->updateAll(
             ['status' => 'Doing the last thing'],
             ['id' => $jobId]
         );
         $foo->doLastPartOfTask();
-        $jobsTable->updateProgress($jobId, 100);
+        $queuedJobsTable->updateProgress($jobId, 1.00);
 
         // Done
-        $jobsTable->updateAll(
+        $queuedJobsTable->updateAll(
             ['status' => 'Done doing things'],
             ['id' => $jobId]
         );
@@ -189,7 +189,7 @@ class FooTask extends Task {
 
 Get progress status in website and display:
 ```php
-$job = $this->QueuedJobs->get($id);
+$job = $queuedJobsTable->get($id);
 
 $progress = $job->progress; // A float from 0 to 1
 echo $this->Number->toPercentage($progress, 0, ['multiply' => true]) . '%'; // Outputs 87% for example

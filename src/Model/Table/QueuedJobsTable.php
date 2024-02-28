@@ -422,7 +422,7 @@ class QueuedJobsTable extends Table {
 			->select($fields)
 			->where($conditions)
 			->enableHydration(false)
-			->orderDesc('id')
+			->orderByDesc('id')
 			->limit(static::STATS_LIMIT)
 			->all()
 			->toArray();
@@ -901,7 +901,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return \Cake\ORM\Query\SelectQuery The query builder
 	 */
-	public function findQueued(SelectQuery $query): SelectQuery {
+	public function findQueued(SelectQuery $query, array $options = []): SelectQuery {
 		return $query->where(['completed IS' => null]);
 	}
 

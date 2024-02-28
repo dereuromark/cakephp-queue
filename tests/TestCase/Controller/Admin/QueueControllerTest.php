@@ -102,7 +102,7 @@ class QueueControllerTest extends TestCase {
 		$this->assertResponseCode(302);
 
 		/** @var \Queue\Model\Entity\QueuedJob $job */
-		$job = $jobsTable->find()->orderDesc('id')->firstOrFail();
+		$job = $jobsTable->find()->orderByDesc('id')->firstOrFail();
 		$this->assertSame('Queue.Example', $job->job_task);
 	}
 
