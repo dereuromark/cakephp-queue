@@ -5,6 +5,7 @@ namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
 use Cake\I18n\DateTime;
+use Cake\Log\Log;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\Table;
@@ -225,17 +226,24 @@ class QueueProcessesTable extends Table {
 		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
-		return $this->deleteAll(['modified <' => $thresholdTime]) + $this->cleanNotActiveProcesses();
+		return $this->deleteAll(['modified <' => $thresholdTime]);
 	}
 
 	/**
 	 * Remove QueueProcesses which have not an active PID attached
+	 * and Terminates processes which are running out of maximum running time
 	 * @return int
 	 */
-	public function cleanNotActiveProcesses(): int {
+	public function clearProcesses(): int {
+		$timeout = Config::defaultworkertimeout();
+		$thresholdTime = (new DateTime())->subSeconds($timeout);
+
 		$cleaned_processed = 0;
 		foreach ($this->findForServer() as $process) {
-			if ($this->isProcessRunning($process->pid) === FALSE) {
+			if ($this->isProcessRunning($process->pid) === FALSE || $process->modified->getTimestamp() < $thresholdTime->getTimestamp()) {
+
+				$this->terminateProcess($process->pid);
+
 				if (!is_null($process->active_job_id)) {
 					$job = $this->CurrentQueuedJobs->findById($process->active_job_id)->first();
 
@@ -243,8 +251,6 @@ class QueueProcessesTable extends Table {
 						$this->CurrentQueuedJobs->reset($job->id, TRUE);
 					}
 				}
-
-				$this->delete($process);
 				$cleaned_processed++;
 			}
 		}
