@@ -13,8 +13,6 @@ use Cake\Mailer\TransportFactory;
 use Cake\TestSuite\TestCase;
 use Queue\Console\Io;
 use Queue\Queue\Task\EmailTask;
-use Queue\Utility\JsonSerializer;
-use Queue\Utility\Serializer;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
 use Tools\Mailer\Message as MailerMessage;
@@ -81,8 +79,6 @@ class EmailTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testAddMessageSerialized() {
-		Configure::write('Queue.serializerClass', JsonSerializer::class);
-
 		$message = new Message();
 		$message
 			->setSubject('I haz Cake')
@@ -105,7 +101,7 @@ class EmailTaskTest extends TestCase {
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
 		$queuedJob = $queuedJobsTable->find()->orderByDesc('id')->firstOrFail();
 
-		$settings = Serializer::deserialize($queuedJob->data)['settings'];
+		$settings = $queuedJob->data['settings'];
 		$message = (new Message())->createFromArray($settings);
 
 		$this->assertSame('I haz Cake', $message->getSubject());
@@ -118,8 +114,6 @@ class EmailTaskTest extends TestCase {
 		$this->Task->run($data, 0);
 
 		$this->assertInstanceOf(Message::class, $this->Task->message);
-
-		Configure::delete('Queue.serializerClass');
 	}
 
 	/**
@@ -148,7 +142,7 @@ class EmailTaskTest extends TestCase {
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
 		$queuedJob = $queuedJobsTable->find()->orderByDesc('id')->firstOrFail();
 
-		$settings = Serializer::deserialize($queuedJob->data)['settings'];
+		$settings = $queuedJob->data['settings'];
 		$message = unserialize($settings);
 
 		$this->assertSame('I haz Cake', $message->getSubject());
@@ -230,8 +224,7 @@ class EmailTaskTest extends TestCase {
 		$queuedJobsTable->createJob('Queue.Email', ['class' => $class, 'settings' => $settings]);
 
 		$queuedJob = $queuedJobsTable->find()->orderByDesc('id')->firstOrFail();
-		$data = unserialize($queuedJob->data);
-		/** @var \TestApp\Mailer\TestMailer $mailer */
+		$data = $queuedJob->data;
 		$class = $data['class'];
 
 		$transportMock = $this->createMock(

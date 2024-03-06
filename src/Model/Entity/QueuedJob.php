@@ -8,7 +8,7 @@ use Cake\ORM\Entity;
 /**
  * @property int $id
  * @property string $job_task
- * @property string|null $data
+ * @property array<string, mixed>|null $data
  * @property string|null $job_group
  * @property string|null $reference
  * @property \Cake\I18n\DateTime $created

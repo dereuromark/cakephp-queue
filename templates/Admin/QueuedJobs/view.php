@@ -126,14 +126,10 @@ use Queue\Utility\Serializer;
 	<div class="row">
 		<div class="col-md-12">
 		<h3><?= __d('queue', 'Data') ?></h3>
-		<p>
-		<?= $queuedJob->data ? $this->Text->autoParagraph(h($queuedJob->data)) : ''; ?>
-		</p>
 		<?php
 			if ($queuedJob->data) {
-				$data = Serializer::deserialize($queuedJob->data);
-				echo '<h4>Unserialized content</h4>';
-				echo '<pre>' . h(VarExporter::export($data, VarExporter::TRAILING_COMMA_IN_ARRAY)) . '</pre>';
+				//$data = Serializer::serialize($queuedJob->data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+				echo '<pre>' . h(VarExporter::export($queuedJob->data, VarExporter::TRAILING_COMMA_IN_ARRAY)) . '</pre>';
 			}
 		?>
 		</div>
