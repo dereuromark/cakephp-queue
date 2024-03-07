@@ -1,7 +1,7 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var mixed $_isSearch
+ * @var bool $_isSearch
  */
 ?>
 <div class="queue-search-queued-jobs" style="float: right">

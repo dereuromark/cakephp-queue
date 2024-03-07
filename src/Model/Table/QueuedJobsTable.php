@@ -14,6 +14,7 @@ use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use InvalidArgumentException;
+use Queue\Config\JobConfig;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
@@ -202,6 +203,13 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * @return \Queue\Config\JobConfig
+	 */
+	public function createConfig(): JobConfig {
+		return new JobConfig();
+	}
+
+	/**
 	 * Adds a new job to the queue.
 	 *
 	 * Config
@@ -212,17 +220,24 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @param string $jobTask Job task name or FQCN
 	 * @param array<string, mixed>|null $data Array of data
-	 * @param array<string, mixed> $config Config to save along with the job
+	 * @param \Queue\Config\JobConfig|array<string, mixed> $config Config to save along with the job
 	 *
 	 * @return \Queue\Model\Entity\QueuedJob Saved job entity
 	 */
-	public function createJob(string $jobTask, ?array $data = null, array $config = []): QueuedJob {
+	public function createJob(string $jobTask, ?array $data = null, array|JobConfig $config = []): QueuedJob {
+		if (!$config instanceof JobConfig) {
+			$config = $this->createConfig()->fromArray($config);
+		}
+
 		$queuedJob = [
 			'job_task' => $this->jobTask($jobTask),
 			'data' => $data,
-			'job_group' => !empty($config['group']) ? $config['group'] : null,
-			'notbefore' => !empty($config['notBefore']) ? $this->getDateTime($config['notBefore']) : null,
-		] + $config;
+			'notbefore' => $config->hasNotBefore() ? $this->getDateTime($config->getNotBeforeOrFail()) : null,
+			'priority' => $config->getPriority(),
+		] + $config->toArray();
+		if ($queuedJob['priority'] === null) {
+			unset($queuedJob['priority']);
+		}
 
 		$queuedJob = $this->newEntity($queuedJob);
 
