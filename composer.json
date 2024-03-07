@@ -36,6 +36,7 @@
 		"cakephp/migrations": "^4.0.1",
 		"dereuromark/cakephp-ide-helper": "^2.0.0",
 		"dereuromark/cakephp-tools": "^3.0.0",
+		"dereuromark/cakephp-dto": "^2.1.0",
 		"fig-r/psr2r-sniffer": "dev-next",
 		"friendsofcake/search": "^7.0.0",
 		"phpunit/phpunit": "^10.1"

@@ -237,7 +237,7 @@ class QueuedJobsTable extends Table {
 			$data = $data->toArray();
 		}
 		if ($data !== null && !is_array($data)) {
-			throw new InvalidArgumentException('Data must be an array or implement `' . FromArrayToArrayInterface::class . '`');
+			throw new InvalidArgumentException('Data must be `array|null`, implement `' . FromArrayToArrayInterface::class . '` or provide a `toArray()` method');
 		}
 
 		$queuedJob = [
