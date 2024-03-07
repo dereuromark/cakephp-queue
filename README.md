@@ -48,3 +48,6 @@ See [Sandbox app](https://sandbox.dereuromark.de/sandbox/queue-examples).
 
 ## Installation and Usage
 See [Documentation](docs/).
+
+## Cronjob based background scheduling
+If you are looking for scheduling certain background jobs: This plugin works flawlessly with [QueueScheduler plugin](https://github.com/dereuromark/cakephp-queue-scheduler).
