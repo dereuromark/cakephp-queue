@@ -42,9 +42,6 @@ class QueuePlugin extends BasePlugin {
 		if (class_exists('Bake\Command\SimpleBakeCommand')) {
 			$commands->add('bake queue_task', BakeQueueTaskCommand::class);
 		}
-		if (Configure::read('debug')) {
-			$commands->add('queue migrate_tasks', MigrateTasksCommand::class);
-		}
 
 		return $commands;
 	}
