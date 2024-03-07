@@ -359,7 +359,7 @@ class QueueProcessesTable extends Table {
 
 		sleep(1);
 
-		if ($this->isProcessRunning((int)$pid) !== TRUE) {
+		if ($this->isProcessRunning($pid) !== TRUE) {
 			$this->deleteAll(['pid' => $pid]);
 		};
 	}

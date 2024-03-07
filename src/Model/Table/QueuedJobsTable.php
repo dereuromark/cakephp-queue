@@ -230,6 +230,20 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * @param SelectQuery $query
+	 * @return SelectQuery
+	 */
+	public function findBroken(SelectQuery $query)
+	{
+		$workerkeys = $this->WorkerProcesses->subquery()->select(['workerkey']);
+		return $query->where([
+			'fetched IS NOT' => NULL,
+			'completed IS' => NULL,
+			'workerkey NOT IN' => $workerkeys
+		]);
+	}
+
+	/**
 	 * @param class-string<\Queue\Queue\Task>|string $jobType
 	 *
 	 * @return string
