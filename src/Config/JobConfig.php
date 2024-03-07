@@ -1,8 +1,4 @@
 <?php
-/**
- * !!! Auto generated file. Do not directly modify this file. !!!
- * You can either version control this or generate the file on the fly prior to usage/deployment.
- */
 
 namespace Queue\Config;
 
@@ -11,6 +7,10 @@ use RuntimeException;
 
 /**
  * JobConfig DTO
+ *
+ * For legacy reasons
+ * - camelCased by default for input (application)
+ * - under_scored by default for output (DB)
  */
 class JobConfig {
 
@@ -95,21 +95,21 @@ class JobConfig {
 	 * @var array<string, array<string, string>>
 	 */
 	protected array $_keyMap = [
-		'camel' => [
+		self::TYPE_CAMEL => [
 			'priority' => 'priority',
 			'notbefore' => 'notBefore',
 			'jobGroup' => 'group',
 			'reference' => 'reference',
 			'status' => 'status',
 		],
-		'underscored' => [
+		self::TYPE_UNDERSCORED => [
 			'priority' => 'priority',
 			'notbefore' => 'notBefore',
 			'job_group' => 'group',
 			'reference' => 'reference',
 			'status' => 'status',
 		],
-		'dashed' => [
+		self::TYPE_DASHED => [
 			'priority' => 'priority',
 			'notbefore' => 'notBefore',
 			'job-group' => 'group',
@@ -166,7 +166,7 @@ class JobConfig {
 	 * @return array<string>
 	 */
 	public function fields(): array {
-		return array_values($this->_keyMap['camel']);
+		return array_values($this->_keyMap[static::TYPE_CAMEL]);
 	}
 
 	/**
