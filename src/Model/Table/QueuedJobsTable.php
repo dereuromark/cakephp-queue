@@ -13,6 +13,7 @@ use Cake\I18n\DateTime;
 use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use CakeDto\Dto\FromArrayToArrayInterface;
 use InvalidArgumentException;
 use Queue\Config\JobConfig;
 use Queue\Model\Entity\QueuedJob;
@@ -217,16 +218,26 @@ class QueuedJobsTable extends Table {
 	 * - notBefore: Optional date which must not be preceded
 	 * - group: Used to group similar QueuedJobs
 	 * - reference: An optional reference string
+	 * - status: To set an initial status text
 	 *
-	 * @param string $jobTask Job task name or FQCN
-	 * @param array<string, mixed>|null $data Array of data
-	 * @param \Queue\Config\JobConfig|array<string, mixed> $config Config to save along with the job
+	 * @param string $jobTask Job task name or FQCN.
+	 * @param object|array<string, mixed>|null $data Array of data or DTO like object.
+	 * @param \Queue\Config\JobConfig|array<string, mixed> $config Config to save along with the job.
 	 *
 	 * @return \Queue\Model\Entity\QueuedJob Saved job entity
 	 */
-	public function createJob(string $jobTask, ?array $data = null, array|JobConfig $config = []): QueuedJob {
+	public function createJob(string $jobTask, array|object|null $data = null, array|JobConfig $config = []): QueuedJob {
 		if (!$config instanceof JobConfig) {
 			$config = $this->createConfig()->fromArray($config);
+		}
+
+		if ($data instanceof FromArrayToArrayInterface) {
+			$data = $data->toArray();
+		} elseif (is_object($data) && method_exists($data, 'toArray')) {
+			$data = $data->toArray();
+		}
+		if ($data !== null && !is_array($data)) {
+			throw new InvalidArgumentException('Data must be an array or implement `' . FromArrayToArrayInterface::class . '`');
 		}
 
 		$queuedJob = [
