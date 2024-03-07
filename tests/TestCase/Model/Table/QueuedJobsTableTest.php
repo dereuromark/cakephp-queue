@@ -16,6 +16,7 @@ use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Queue\Model\Table\QueuedJobsTable;
 use Queue\Queue\Task\ExampleTask;
+use TestApp\Dto\MyTaskDto;
 
 /**
  * Queue\Model\Table\QueuedJobsTable Test Case
@@ -221,6 +222,46 @@ class QueuedJobsTableTest extends TestCase {
 			'test' => 'data',
 		]);
 		$this->assertTrue((bool)$queuedJob);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testCreateWithDto() {
+		$array = [
+			'some' => 'random',
+			'test' => 'data',
+		];
+		$dto = new MyTaskDto($array);
+
+		$queuedJob = $this->QueuedJobs->createJob(ExampleTask::class, $dto);
+		$this->assertTrue((bool)$queuedJob);
+		$this->assertSame($array, $queuedJob->data);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testCreateWithObject() {
+		$array = [
+			'some' => 'random',
+			'test' => 'data',
+		];
+		$dto = new class() {
+			/**
+			 * @return string[]
+			 */
+			public function toArray(): array {
+				return [
+					'some' => 'random',
+					'test' => 'data',
+				];
+			}
+		};
+
+		$queuedJob = $this->QueuedJobs->createJob(ExampleTask::class, $dto);
+		$this->assertTrue((bool)$queuedJob);
+		$this->assertSame($array, $queuedJob->data);
 	}
 
 	/**
