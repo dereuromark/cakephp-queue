@@ -25,8 +25,9 @@ to do this.
 
 The `createJob()` function takes three arguments.
 - The first argument is the name of the type of job that you are creating.
-- The second argument is optional, but if set must be an array of data and will be passed as a parameter to the `run()` function of the worker.
-- The third argument is options (`'notBefore'`, `'priority'`, `'group'`).
+- The second argument is optional, but if set must be an array of data and will be passed as a payload parameter to the `run()` function of the worker.
+  It can also be a (DTO) object that implements `CakeDto\Dto\FromArrayToArrayInterface` or provides `toArray()` method.
+- The third argument is options (`'notBefore'`, `'priority'`, `'group'`, `'reference'`). Either as array or `Queue\Config\JobConfig` class.
 
 > `priority` is sorted ascending, therefore a task with priority 1 will be executed before a task with priority 5
 
@@ -75,6 +76,44 @@ $taskName = EmailTask::taskName();
 $queuedJobsTable->createJob($taskName, ['to' => 'user@example.org', ...]);
 ```
 This can be useful when more dynamically adding certain jobs of different types.
+
+## Creating using objects
+*new in v8*
+
+It allows a more speaking API, which already has maximum IDE and Stan support:
+```php
+$dataDto = OrderUpdateNotificationQueueDataDto::createFromArray([
+    OrderUpdateNotificationQueueDataDto::FIELD_ORDER_ID => $order->id,
+    OrderUpdateNotificationQueueDataDto::FIELD_MAILER => 'CustomerRequest',
+    OrderUpdateNotificationQueueDataDto::FIELD_TYPE => 'request',
+]);
+$config = $queuedJobsTable->newConfig()
+    ->setPriority(2)
+    ->setReference('foo')
+    ->setNotBefore('+1 hour');
+$queuedJobsTable->createJob('OrderUpdateNotification', $dataDto, $config);
+```
+Such DTOs can easily be created using the [CakeDto plugin](https://github.com/dereuromark/cakephp-dto), e.g:
+```xml
+    <dto name="EventUpdateNotificationQueueData" immutable="true">
+        <field name="eventId" type="int" required="true"/>
+        <field name="mailer" type="string" required="true"/>
+        <field name="type" type="string" required="true"/>
+    </dto>
+```
+
+Inside your task you can then re-build it for a speaking API:
+```php
+public function run(array $data, int $jobId): void {
+    $dataDto = OrderUpdateNotificationQueueDataDto::createFromArray($data);
+
+    $order = $this->fetchTable('Orders')->get($dataDto->getOrderId());
+    $this->getMailer($queueData->getMailer())->send($dataDto->getType(), [$order]);
+}
+```
+No more magic strings and unclear associative arrays.
+
+Note: Using speaking API is recommended but fully optional. You can still use arrays as usual.
 
 ## Running only specific tasks per worker
 You can filter "running" by group or even type:
