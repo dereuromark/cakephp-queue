@@ -13,14 +13,17 @@ trait ServicesTrait {
 	protected ContainerInterface $container;
 
 	/**
-	 * @param string $id Classname or identifier of the service you want to retrieve
+	 * @template OBJECT
+	 *
+	 * @param class-string<OBJECT> $id Classname or identifier of the service you want to retrieve
 	 *
 	 * @throws \Psr\Container\NotFoundExceptionInterface
 	 * @throws \Psr\Container\ContainerExceptionInterface
 	 *
-	 * @return mixed
+	 * @return OBJECT
 	 */
-	protected function getService(string $id): mixed {
+	protected function getService(string $id) {
+
 		return $this->container->get($id);
 	}
 
