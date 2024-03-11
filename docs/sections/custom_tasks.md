@@ -56,12 +56,14 @@ This is usually the default inside custom tasks.
 
 ## DI Container Example
 
-If you use the [Dependency Injection Container](https://book.cakephp.org/4/en/development/dependency-injection.html) provided by CakePHP you can also use it inside your tasks.
+If you use the [Dependency Injection Container](https://book.cakephp.org/5/en/development/dependency-injection.html) provided by CakePHP you can also use
+it inside your tasks.
 
 ```php
 use Queue\Queue\ServicesTrait;
 
 class MyCustomTask extends Task {
+
     use ServicesTrait;
 
     public function run(array $data, int $jobId): void {

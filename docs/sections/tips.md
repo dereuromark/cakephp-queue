@@ -138,11 +138,11 @@ Set up a DTO per task in your `dto.xml`, e.g.
 ```
 Instead of a plain array you can now rely on a clean API for input:
 ```php
-$data = OrderUpdateNotificationQueueDataDto::createFromArray([
+$dataDto = OrderUpdateNotificationQueueDataDto::createFromArray([
     'orderId' => $order->id,
     'type' => 'orderConfirmationToCustomer',
-])->toArray();
-$this->getTableLocator()->get('Queue.QueuedJobs')->createJob('OrderUpdateNotification', $data);
+]);
+$this->getTableLocator()->get('Queue.QueuedJobs')->createJob('OrderUpdateNotification', $dataDto);
 ```
 Any of the fields not provided or defined will throw a clear exception.
 
