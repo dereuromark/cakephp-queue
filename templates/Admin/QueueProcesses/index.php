@@ -50,7 +50,7 @@ use Queue\Queue\Config;
 						echo $modified;
 					?>
 				</td>
-				<td><?= $this->Format->yesNo(!$queueProcess->terminate) ?></td>
+				<td><?= $this->element('Queue.yes_no', ['value' => !$queueProcess->terminate]) ?></td>
 				<td><?= h($queueProcess->server) ?></td>
 				<td class="actions">
 					<?= $this->Html->link($this->Icon->render('view'), ['action' => 'view', $queueProcess->id], ['escapeTitle' => false]); ?>

@@ -5,7 +5,7 @@
  *
  * To modify these parameters, copy this file into your own CakePHP config directory or copy the array into your existing file.
  */
-use Tools\View\Icon\BootstrapIcon;
+use Templating\View\Icon\BootstrapIcon;
 
 return [
 	'Queue' => [

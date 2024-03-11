@@ -37,7 +37,7 @@ use Cake\Core\Configure;
 			$time = $status['time'];
 			$running = $time->addMinutes(1)->isFuture();
 			?>
-			<?php echo $this->Format->yesNo($running); ?> <?php echo $running ? __d('queue', 'Running') : __d('queue', 'Not running'); ?> (<?php echo __d('queue', 'last {0}', $this->Time->relLengthOfTime($status['time']))?>)
+			<?php echo $this->element('Queue.yes_no', ['value' => $running]); ?> <?php echo $running ? __d('queue', 'Running') : __d('queue', 'Not running'); ?> (<?php echo __d('queue', 'last {0}', $this->Time->relLengthOfTime($status['time']))?>)
 
 			<?php
 			echo '<div><small>Currently ' . $this->Html->link($status['workers'] . ' worker(s)', ['action' => 'processes']) . ' total.</small></div>';
@@ -136,7 +136,7 @@ use Cake\Core\Configure;
 		Server:
 		<ul>
 			<li>
-				<code>posix</code> extension enabled (optional, recommended): <?php echo $this->Format->yesNo(function_exists('posix_kill')); ?>
+				<code>posix</code> extension enabled (optional, recommended): <?php echo $this->element('Queue.yes_no', ['value' => function_exists('posix_kill')]); ?>
 			</li>
 		</ul>
 

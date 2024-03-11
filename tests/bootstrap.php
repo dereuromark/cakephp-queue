@@ -11,9 +11,9 @@ use Cake\TestSuite\Fixture\SchemaLoader;
 use Foo\FooPlugin;
 use Queue\QueuePlugin;
 use Shim\Filesystem\Folder;
+use Templating\View\Icon\BootstrapIcon;
 use TestApp\Controller\AppController;
 use TestApp\View\AppView;
-use Tools\View\Icon\BootstrapIcon;
 
 if (!defined('DS')) {
 	define('DS', DIRECTORY_SEPARATOR);
