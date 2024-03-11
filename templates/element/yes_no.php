@@ -7,9 +7,9 @@
  */
 ?>
 <?php
-	if (isset($this->IconSnippet)) {
+	if ($this->helpers()->has('IconSnippet')) {
 		echo $this->IconSnippet->yesNo($value);
-	} elseif (isset($this->Format)) {
+	} elseif ($this->helpers()->has('Format')) {
 		echo $this->Format->yesNo($value);
 	} else {
 		echo $value ? '<span class="yes-no yes-no-yes">Yes</span>' : '<span class="yes-no yes-no-no">No</span>';
