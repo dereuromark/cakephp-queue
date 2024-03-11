@@ -12,6 +12,7 @@ use Foo\FooPlugin;
 use Queue\QueuePlugin;
 use Shim\Filesystem\Folder;
 use TestApp\Controller\AppController;
+use TestApp\View\AppView;
 use Tools\View\Icon\BootstrapIcon;
 
 if (!defined('DS')) {
@@ -106,6 +107,7 @@ $cache = [
 Cache::setConfig($cache);
 
 class_alias(AppController::class, 'App\Controller\AppController');
+class_alias(AppView::class, 'App\View\AppView');
 
 Plugin::getCollection()->add(new QueuePlugin());
 Plugin::getCollection()->add(new FooPlugin());
