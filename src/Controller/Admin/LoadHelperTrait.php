@@ -5,6 +5,7 @@ namespace Queue\Controller\Admin;
 
 use Templating\View\Helper\IconHelper;
 use Templating\View\Helper\IconSnippetHelper;
+use Templating\View\Helper\TemplatingHelper;
 
 trait LoadHelperTrait {
 
@@ -21,6 +22,9 @@ trait LoadHelperTrait {
 		];
 		if (class_exists(IconSnippetHelper::class)) {
 			$helpers[] = 'Templating.IconSnippet';
+		}
+		if (class_exists(TemplatingHelper::class)) {
+			$helpers[] = 'Templating.Templating';
 		}
 
 		$this->viewBuilder()->addHelpers($helpers);

@@ -98,7 +98,7 @@ use Cake\Core\Plugin;
                     </div>
                     <?php } ?>
                 </td>
-				<td><?= $this->Format->ok($this->Queue->attempts($queuedJob), $queuedJob->completed || $queuedJob->attempts < 1); ?></td>
+				<td><?= $this->element('Queue.ok', ['value' => $this->Queue->attempts($queuedJob), 'ok' => $queuedJob->completed || $queuedJob->attempts < 1]); ?></td>
 				<td>
 					<?= h($queuedJob->status) ?>
 					<?php if (!$queuedJob->completed && $queuedJob->fetched) { ?>

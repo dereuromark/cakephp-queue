@@ -99,7 +99,7 @@ use Queue\Utility\Serializer;
 		<tr>
 			<th><?= __d('queue', 'Attempts') ?></th>
 			<td>
-				<?= $queuedJob->attempts ? $this->Format->ok($this->Queue->attempts($queuedJob), $queuedJob->completed || $queuedJob->attempts < 1) : '' ?>
+				<?= $queuedJob->attempts ? $this->element('Queue.ok', ['value' => $this->Queue->attempts($queuedJob), 'ok' => $queuedJob->completed || $queuedJob->attempts < 1]) : '' ?>
 				<?php
 				if ($this->Queue->hasFailed($queuedJob)) {
 					echo ' ' . $this->Form->postLink(__d('queue', 'Soft reset'), ['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id], ['confirm' => 'Sure?', 'class' => 'button button-primary btn margin btn-primary']);
