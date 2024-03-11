@@ -23,6 +23,10 @@ return [
 ];
 ```
 
+If you now click into the first argument of `createJob()`, it should show you the available ones to quickly select:
+
+![](resources/autocomplete.png)
+
 ## Only pass identification data if possible
 
 If you have larger data sets, or maybe even objects/entities, do not pass those.
