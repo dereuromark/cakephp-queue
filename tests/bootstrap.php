@@ -13,7 +13,7 @@ use Queue\QueuePlugin;
 use Shim\Filesystem\Folder;
 use TestApp\Controller\AppController;
 use TestApp\View\AppView;
-use Tools\View\Icon\BootstrapIcon;
+use Templating\View\Icon\BootstrapIcon;
 
 if (!defined('DS')) {
 	define('DS', DIRECTORY_SEPARATOR);

@@ -37,7 +37,10 @@ use Queue\Queue\Config;
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Active') ?></th>
-			<td><?= $this->Format->yesNo(!$queueProcess->terminate) ?></td>
+			<td>
+				<?= $this->element('Queue.yes_no', ['value' => !$queueProcess->terminate]) ?>
+				<?php echo !$queueProcess->terminate ? 'Yes' : 'No' ?>
+			</td>
 		</tr>
 		<tr>
 			<th><?= __d('queue', 'Server') ?></th>
