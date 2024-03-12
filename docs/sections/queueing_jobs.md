@@ -238,7 +238,7 @@ echo h($status); // Outputs "Doing the last thing" for example
 ```
 
 ### Progress Bar
-Using Tools plugin 1.9.6+ you can also use the more visual progress bar (or any custom one of yours):
+You can also use the more visual progress bar (or any custom one of yours):
 
 ```php
 echo $this->QueueProgress->progressBar($queuedJob, 18);
@@ -247,7 +247,7 @@ echo $this->QueueProgress->progressBar($queuedJob, 18);
 
 The length refers to the amount of chars to display.
 
-Using Tools plugin 1.9.7+ you can even use HTML5 progress bar (easier to style using CSS).
+You can even use HTML5 progress bar (easier to style using CSS).
 For this it is recommended to add the textual one from above as fallback, though:
 ```php
 $textProgressBar = $this->QueueProgress->progressBar($queuedJob, 18);
@@ -285,7 +285,7 @@ echo $this->QueueProgress->htmlTimeoutProgressBar($queuedJob, $textTimeoutProgre
 
 ## Adding jobs from CLI or as click
 
-If you want to also allow adding jobs from CLI, you need to implement the AddInterface:
+If you want also to allow adding jobs from CLI, you need to implement the AddInterface:
 ```php
 ...
 use Queue/Queue/AddInterface;
