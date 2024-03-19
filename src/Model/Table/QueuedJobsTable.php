@@ -748,6 +748,28 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * Resets all the jobs which have become orphan: the parent process is killed/stopped,
+	 * but workerkey still present
+	 *
+	 * Resets all which are not completed
+	 * @return int
+	 */
+	public function resetOrphanedJobs(): int {
+		$subquery = $this->WorkerProcesses->findActive()->select(['workerkey']);
+
+		$jobs = $this->find()->where([
+			'workerkey IS NOT' => NULL,
+			'workerkey NOT IN' => $subquery
+		]);
+
+		foreach ($jobs as $job) {
+			$this->reset($job->id, TRUE);
+		}
+
+		return $jobs->count();
+	}
+
+	/**
 	 * Removes all failed jobs.
 	 *
 	 * @return int Count of deleted rows
