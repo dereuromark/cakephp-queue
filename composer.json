@@ -34,7 +34,7 @@
 		"cakephp/plugin-installer": "^1.3",
 		"dereuromark/cakephp-ide-helper": "^1.0.0",
 		"dereuromark/cakephp-tools": "^2.4.0",
-		"fig-r/psr2r-sniffer": "dev-master",
+		"fig-r/psr2r-sniffer": "^1.5.1",
 		"friendsofcake/search": "^6.0.0",
 		"phpunit/phpunit": "^9.5"
 	},
