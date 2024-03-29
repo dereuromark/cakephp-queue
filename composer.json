@@ -38,7 +38,7 @@
 		"dereuromark/cakephp-templating": "^0.2.1",
 		"dereuromark/cakephp-tools": "^3.0.0",
 		"dereuromark/cakephp-dto": "^2.1.0",
-		"fig-r/psr2r-sniffer": "dev-next",
+		"fig-r/psr2r-sniffer": "dev-master",
 		"friendsofcake/search": "^7.0.0",
 		"phpunit/phpunit": "^10.1"
 	},
