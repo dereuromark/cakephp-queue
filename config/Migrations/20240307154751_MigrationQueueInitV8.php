@@ -20,7 +20,7 @@ class MigrationQueueInitV8 extends AbstractMigration {
 		if (ConnectionManager::getConfig('default')['driver'] === 'Cake\Database\Driver\Sqlserver') {
 			$this->execute('DELETE FROM queue_phinxlog WHERE [version] < \'' . $version . '\'');
 		} else {
-			$this->execute('DELETE FROM queue_phinxlog WHERE `version` < \'' . $version . '\'');
+			$this->execute('DELETE FROM queue_phinxlog WHERE version < \'' . $version . '\'');
 		}
 
 		if ($this->hasTable('queued_jobs')) {
