@@ -9,7 +9,6 @@ use Cake\I18n\DateTime;
 use Cake\TestSuite\IntegrationTestTrait;
 use Queue\Controller\Admin\QueueController;
 use Shim\TestSuite\TestCase;
-use Shim\TestSuite\TestTrait;
 use Tools\I18n\DateTime as ToolsDateTime;
 
 /**
@@ -18,7 +17,6 @@ use Tools\I18n\DateTime as ToolsDateTime;
 class QueueControllerTest extends TestCase {
 
 	use IntegrationTestTrait;
-	use TestTrait;
 
 	/**
 	 * Fixtures
