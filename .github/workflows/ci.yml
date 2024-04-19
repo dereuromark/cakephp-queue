@@ -86,9 +86,11 @@ jobs:
       - name: Validate prefer-lowest
         run: if ${{ matrix.prefer-lowest == 'prefer-lowest' }}; then vendor/bin/validate-prefer-lowest -m; fi
 
-      - name: Code Coverage Report
+      - name: Upload coverage reports to Codecov
         if: success() && matrix.php-version == '8.1'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   validation:
     name: Coding Standard & Static Analysis
