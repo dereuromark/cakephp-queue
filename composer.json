@@ -27,12 +27,12 @@
 	},
 	"require": {
 		"php": ">=8.1",
-		"brick/varexporter": "^0.4.0 || ^0.5.0",
+		"brick/varexporter": "^0.5.0",
 		"cakephp/cakephp": "^5.0.0"
 	},
 	"require-dev": {
 		"cakedc/cakephp-phpstan": "^3.0.0",
-		"cakephp/bake": "^3.0.1",
+		"cakephp/bake": "dev-3.next as 3.0.1",
 		"cakephp/migrations": "^4.0.1",
 		"dereuromark/cakephp-ide-helper": "^2.0.0",
 		"dereuromark/cakephp-templating": "^0.2.1",
