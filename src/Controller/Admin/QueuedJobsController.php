@@ -112,7 +112,8 @@ class QueuedJobsController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function view(?int $id = null) {
-		$queuedJob = $this->QueuedJobs->get((int)$id,
+		$queuedJob = $this->QueuedJobs->get(
+			(int)$id,
 			contain: ['WorkerProcesses'],
 		);
 
