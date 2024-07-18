@@ -55,7 +55,7 @@ use Cake\Core\Plugin;
 			<?php foreach ($queuedJobs as $queuedJob): ?>
 			<tr>
 				<td><?= h($queuedJob->job_task) ?></td>
-				<td><?= h($queuedJob->job_group) ?: '---'  ?></td>
+				<td><?= h($queuedJob->job_group) ?: '---' ?></td>
 				<td>
 					<?= h($queuedJob->reference) ?: '---' ?>
 					<?php if ($queuedJob->data) {

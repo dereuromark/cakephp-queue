@@ -112,9 +112,9 @@ class QueuedJobsController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function view(?int $id = null) {
-		$queuedJob = $this->QueuedJobs->get((int)$id, [
-			'contain' => ['WorkerProcesses'],
-		]);
+		$queuedJob = $this->QueuedJobs->get((int)$id,
+			contain: ['WorkerProcesses'],
+		);
 
 		if ($this->request->getParam('_ext') && $this->request->getParam('_ext') === 'json' && $this->request->getQuery('download')) {
 			$this->response = $this->response->withDownload('queued-job-' . $id . '.json');
@@ -201,9 +201,7 @@ class QueuedJobsController extends AppController {
 	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit(?int $id = null) {
-		$queuedJob = $this->QueuedJobs->get($id, [
-			'contain' => [],
-		]);
+		$queuedJob = $this->QueuedJobs->get($id);
 		if ($queuedJob->completed) {
 			$this->Flash->error(__d('queue', 'The queued job is already completed.'));
 

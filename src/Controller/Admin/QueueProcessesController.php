@@ -53,9 +53,7 @@ class QueueProcessesController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function view(?int $id = null) {
-		$queueProcess = $this->QueueProcesses->get($id, [
-			'contain' => [],
-		]);
+		$queueProcess = $this->QueueProcesses->get($id);
 
 		$this->set(compact('queueProcess'));
 	}
@@ -68,9 +66,7 @@ class QueueProcessesController extends AppController {
 	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit(?int $id = null) {
-		$queueProcess = $this->QueueProcesses->get($id, [
-			'contain' => [],
-		]);
+		$queueProcess = $this->QueueProcesses->get($id);
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$queueProcess = $this->QueueProcesses->patchEntity($queueProcess, $this->request->getData());
 			if ($this->QueueProcesses->save($queueProcess)) {
