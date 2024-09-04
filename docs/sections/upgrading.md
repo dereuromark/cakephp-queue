@@ -6,6 +6,12 @@
 - Make sure you are not using PHP serialize anymore, it is now all JSON. It is also happening automatically behind the scenes, so remove your
   manual calls where they are not needed anymore.
 
+  That includes the config
+  ```
+  'serializerClass' => ..., // FQCN
+  ```
+  etc
+
 ## Coming from before v7?
 If you are upgrading from Cake3/4 and v5/v6, make sure to install v7 firs, run all migrations,
 then jump to v8.
