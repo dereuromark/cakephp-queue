@@ -34,6 +34,8 @@ class QueueControllerTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 
+		$this->loadPlugins(['Queue']);
+
 		$this->disableErrorHandlerMiddleware();
 	}
 

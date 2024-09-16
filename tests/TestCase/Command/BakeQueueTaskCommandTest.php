@@ -30,7 +30,8 @@ class BakeQueueTaskCommandTest extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		//$this->useCommandRunner();
+
+		$this->loadPlugins(['Queue']);
 
 		$this->removeFiles();
 	}

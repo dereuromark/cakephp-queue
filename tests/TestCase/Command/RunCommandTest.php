@@ -29,6 +29,8 @@ class RunCommandTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 
+		$this->loadPlugins(['Queue']);
+
 		Configure::write('Queue', [
 			'sleeptime' => 1,
 			'defaultworkertimeout' => 3,
@@ -36,8 +38,6 @@ class RunCommandTest extends TestCase {
 			'cleanuptimeout' => 10,
 			'exitwhennothingtodo' => false,
 		]);
-
-		//$this->useCommandRunner();
 	}
 
 	/**

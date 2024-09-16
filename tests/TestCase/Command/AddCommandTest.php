@@ -27,6 +27,7 @@ class AddCommandTest extends TestCase {
 		parent::setUp();
 
 		//$this->useCommandRunner();
+		$this->loadPlugins(['Queue']);
 	}
 
 	/**
