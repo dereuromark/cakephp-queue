@@ -5,7 +5,6 @@
  */
 
 use Brick\VarExporter\VarExporter;
-use Queue\Utility\Serializer;
 
 ?>
 <nav class="actions large-3 medium-4 columns col-sm-4 col-12" id="actions-sidebar">
@@ -128,7 +127,6 @@ use Queue\Utility\Serializer;
 		<h3><?= __d('queue', 'Data') ?></h3>
 		<?php
 			if ($queuedJob->data) {
-				//$data = Serializer::serialize($queuedJob->data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 				echo '<pre>' . h(VarExporter::export($queuedJob->data, VarExporter::TRAILING_COMMA_IN_ARRAY)) . '</pre>';
 			}
 		?>
