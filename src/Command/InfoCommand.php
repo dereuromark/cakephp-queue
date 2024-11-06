@@ -76,8 +76,9 @@ class InfoCommand extends Command {
 		$io->hr();
 		$io->out();
 
-		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
-		$QueueProcesses = $this->getTableLocator()->get('Queue.QueueProcesses');
+		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
 
 		$io->out('Total unfinished jobs: ' . $QueuedJobs->getLength());
 		$status = $QueueProcesses->status();
@@ -95,6 +96,11 @@ class InfoCommand extends Command {
 		foreach ($types as $type) {
 			$io->out(' - ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $QueuedJobs->getLength($type));
 		}
+
+		$io->out();
+
+		$scheduled = $QueuedJobs->getScheduledStats()->count();
+		$io->out('Jobs currently scheduled to run in the future: ' . $scheduled);
 
 		$io->out();
 		$io->hr();
