@@ -52,21 +52,16 @@ class QueueController extends AppController {
 			$new++;
 		}
 
+		$scheduledDetails = $this->QueuedJobs->getScheduledStats()->toArray();
+
 		$data = $this->QueuedJobs->getStats();
 
 		$taskFinder = new TaskFinder();
 		$tasks = $taskFinder->all();
 		$addableTasks = $taskFinder->allAddable(AddFromBackendInterface::class);
 
-		$servers = $QueueProcesses->find()
-			->distinct(['server'])
-			->where(['server IS NOT' => null])
-			->find(
-				'list',
-				keyField: 'server',
-				valueField: 'server',
-			)->toArray();
-		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'status', 'tasks', 'addableTasks', 'servers'));
+		$servers = $QueueProcesses->serverList();
+		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'scheduledDetails', 'status', 'tasks', 'addableTasks', 'servers'));
 	}
 
 	/**

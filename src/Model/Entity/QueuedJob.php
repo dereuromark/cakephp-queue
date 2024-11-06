@@ -33,4 +33,15 @@ class QueuedJob extends Entity {
 		'id' => false,
 	];
 
+	/**
+	 * @return string[]
+	 */
+	public static function statusesForSearch(): array {
+		return [
+			'completed' => 'Completed',
+			'in_progress' => 'In Progress',
+			'scheduled' => 'Scheduled',
+		];
+	}
+
 }

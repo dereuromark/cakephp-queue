@@ -348,4 +348,18 @@ class QueueProcessesTable extends Table {
 		return $serverName ?: null;
 	}
 
+	/**
+	 * @return array<string, string>
+	 */
+	public function serverList(): array {
+		return $this->find()
+			->distinct(['server'])
+			->where(['server IS NOT' => null])
+			->find(
+				'list',
+				keyField: 'server',
+				valueField: 'server',
+			)->toArray();
+	}
+
 }

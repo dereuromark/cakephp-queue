@@ -167,7 +167,17 @@ class QueuedJobsTable extends Table {
 						return true;
 					}
 					if ($status === 'in_progress') {
-						$query->where(['completed IS' => null]);
+						$query->where([
+						'completed IS' => null,
+						'OR' => [
+							'notbefore <=' => new DateTime(),
+							'notbefore IS' => null,
+						]]);
+
+						return true;
+					}
+					if ($status === 'scheduled') {
+						$query->where(['completed IS' => null, 'notbefore >' => new DateTime()]);
 
 						return true;
 					}
@@ -304,6 +314,10 @@ class QueuedJobsTable extends Table {
 		$findConf = [
 			'conditions' => [
 				'completed IS' => null,
+				'OR' => [
+					'notbefore <=' => new DateTime(),
+					'notbefore IS' => null,
+				],
 			],
 		];
 		if ($type !== null) {
@@ -794,6 +808,10 @@ class QueuedJobsTable extends Table {
 		];
 		$conditions = [
 			'completed IS' => null,
+			'OR' => [
+				'notbefore <=' => new DateTime(),
+				'notbefore IS' => null,
+			],
 		];
 		if ($id) {
 			$conditions['id'] = $id;
@@ -875,6 +893,37 @@ class QueuedJobsTable extends Table {
 			],
 			'conditions' => [
 				'completed IS' => null,
+				'OR' => [
+					'notbefore <=' => new DateTime(),
+					'notbefore IS' => null,
+				],
+			],
+		];
+
+		return $this->find('all', ...$findCond);
+	}
+
+	/**
+	 * @return \Cake\ORM\Query\SelectQuery
+	 */
+	public function getScheduledStats(): SelectQuery {
+		$findCond = [
+			'fields' => [
+				'id',
+				'job_task',
+				'created',
+				'status',
+				'priority',
+				'fetched',
+				'progress',
+				'reference',
+				'notbefore',
+				'attempts',
+				'failure_message',
+			],
+			'conditions' => [
+				'completed IS' => null,
+				'notbefore >' => new DateTime(),
 			],
 		];
 
