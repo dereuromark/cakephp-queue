@@ -87,7 +87,7 @@ class QueuedJobsControllerTest extends TestCase {
 
 		$this->assertResponseCode(302);
 
-		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$queuedJobs = $this->fetchTable('Queue.QueuedJobs');
 		/** @var \Queue\Model\Entity\QueuedJob $modifiedJob */
 		$modifiedJob = $queuedJobs->get($job->id);
 		$this->assertSame(8, $modifiedJob->priority);
@@ -97,11 +97,38 @@ class QueuedJobsControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testData() {
-		$job = $this->createJob();
+		$job = $this->createJob(['data' => '{"verbose":true,"count":22,"string":"string"}']);
 
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'data', $job->id]);
 
 		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testDataPost() {
+		$job = $this->createJob();
+
+		$data = [
+			'data_string' => <<<JSON
+{
+    "class": "App\\\\Command\\\\RealNotificationCommand",
+    "args": [
+        "--verbose",
+        "-d"
+    ]
+}
+JSON,
+		];
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'data', $job->id], $data);
+
+		$this->assertResponseCode(302);
+
+		/** @var \Queue\Model\Entity\QueuedJob $job */
+		$job = $this->fetchTable('Queue.QueuedJobs')->get($job->id);
+		$expected = '{"class":"App\\\\Command\\\\RealNotificationCommand","args":["--verbose","-d"]}';
+		$this->assertSame($expected, $job->data);
 	}
 
 	/**

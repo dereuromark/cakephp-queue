@@ -18,7 +18,7 @@
 	<fieldset>
 		<legend><?= __d('queue', 'Edit Queued Job Payload') ?></legend>
 		<?php
-			echo $this->Form->control('data', ['rows' => 20]);
+			echo $this->Form->control('data_string', ['rows' => 20]);
 		?>
 	</fieldset>
 	<?= $this->Form->button(__d('queue', 'Submit')) ?>
