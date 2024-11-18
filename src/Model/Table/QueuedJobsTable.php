@@ -6,7 +6,6 @@ namespace Queue\Model\Table;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
-use Cake\Database\Schema\TableSchemaInterface;
 use Cake\Event\EventInterface;
 use Cake\Http\Exception\NotImplementedException;
 use Cake\I18n\DateTime;
