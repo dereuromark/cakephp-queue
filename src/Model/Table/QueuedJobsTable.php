@@ -125,16 +125,8 @@ class QueuedJobsTable extends Table {
 				'WorkerProcesses.workerkey = QueuedJobs.workerkey',
 			],
 		]);
-	}
 
-	/**
-	 * @return \Cake\Database\Schema\TableSchemaInterface
-	 */
-	public function getSchema(): TableSchemaInterface {
-		$schema = parent::getSchema();
-		$schema->setColumnType('data', 'json');
-
-		return $schema;
+		$this->getSchema()->setColumnType('data', 'json');
 	}
 
 	/**
