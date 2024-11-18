@@ -126,9 +126,13 @@ use Brick\VarExporter\VarExporter;
 		<div class="col-md-12">
 		<h3><?= __d('queue', 'Data') ?></h3>
 		<?php
-			if ($queuedJob->data) {
-				echo '<pre>' . h(VarExporter::export($queuedJob->data, VarExporter::TRAILING_COMMA_IN_ARRAY)) . '</pre>';
+		if ($queuedJob->data) {
+			$data = $queuedJob->data;
+			if ($data && !is_array($data)) {
+				$data = json_decode($queuedJob->data, true);
 			}
+			echo '<pre>' . h(VarExporter::export($data, VarExporter::TRAILING_COMMA_IN_ARRAY)) . '</pre>';
+		}
 		?>
 		</div>
 	</div>

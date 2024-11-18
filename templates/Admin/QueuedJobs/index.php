@@ -59,7 +59,11 @@ use Cake\Core\Plugin;
 				<td>
 					<?= h($queuedJob->reference) ?: '---' ?>
 					<?php if ($queuedJob->data) {
-						$data = VarExporter::export($queuedJob->data, VarExporter::TRAILING_COMMA_IN_ARRAY);
+						$data = $queuedJob->data;
+						if ($data && !is_array($data)) {
+							$data = json_decode($queuedJob->data, true);
+						}
+						$data = VarExporter::export($data, VarExporter::TRAILING_COMMA_IN_ARRAY);
 						echo $this->Icon->render('cubes', [], ['title' => $this->Text->truncate($data, 1000)]);
 					}
 					?>
