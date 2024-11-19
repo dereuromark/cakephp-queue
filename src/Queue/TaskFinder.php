@@ -68,6 +68,8 @@ class TaskFinder {
 			}
 		}
 
+		ksort($this->tasks);
+
 		return $this->tasks;
 	}
 
