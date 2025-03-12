@@ -27,7 +27,7 @@
 	},
 	"require": {
 		"php": ">=8.1",
-		"brick/varexporter": "^0.4.0 || ^0.5.0",
+		"brick/varexporter": "^0.4.0 || ^0.5.0 || ^0.6.0",
 		"cakephp/cakephp": "^5.0.0"
 	},
 	"require-dev": {
