@@ -290,7 +290,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return void
 	 */
-	public function terminateProcess(string $pid, ?int $sig = null): void {
+	public function terminateProcess(string $pid, ?int $sig = 0): void {
 		if (!$pid) {
 			return;
 		}
