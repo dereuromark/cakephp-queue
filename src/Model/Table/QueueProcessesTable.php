@@ -286,7 +286,7 @@ class QueueProcessesTable extends Table {
 	 * We might need to run some exec() kill command here instead.
 	 *
 	 * @param string $pid
-	 * @param int|null $sig Signal (defaults to graceful SIGTERM = 15)
+	 * @param int $sig Signal (defaults to graceful SIGTERM = 15)
 	 *
 	 * @return void
 	 */
