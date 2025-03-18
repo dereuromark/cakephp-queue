@@ -296,7 +296,7 @@ class QueueProcessesTable extends Table {
 		}
 
 		// In the Windows operating system the SIGTERM constant is not defined
-        if (!is_int($sig) && defined('SIGTERM')) {
+        if (!$sig && defined('SIGTERM')) {
             $sig = \SIGTERM;
         }
 		
