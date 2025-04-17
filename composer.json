@@ -40,7 +40,7 @@
 		"dereuromark/cakephp-dto": "^2.1.0",
 		"fig-r/psr2r-sniffer": "dev-master",
 		"friendsofcake/search": "^7.0.0",
-		"phpunit/phpunit": "^10.1"
+		"phpunit/phpunit": "^10.1 || ^11.5"
 	},
 	"suggest": {
 		"dereuromark/cakephp-ide-helper": "For maximum IDE support, especially around createJob() usage.",
