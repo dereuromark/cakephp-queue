@@ -7,8 +7,8 @@ Especially if you use PHPStorm, this will make it possible to get support here.
 
 Include that plugin, set up your generator config and run e.g. `bin/cake phpstorm generate`.
 
-If you use `$this->addPlugin('Queue', ['bootstrap' => true, ...])`, the necessary config is already auto-included (recommended).
-Otherwise you can manually include the Queue plugin generator tasks in your `config/app.php` on project level:
+If you have bootstrap loading enabled, the necessary config is already auto-included (recommended).
+Otherwise, you can manually include the Queue plugin generator tasks in your `config/app.php` on project level:
 
 ```php
 use Queue\Generator\Task\QueuedJobTask;

@@ -4,13 +4,14 @@
 ```
 composer require dereuromark/cakephp-queue
 ```
-Load the plugin in your `src/Application.php`'s bootstrap() using:
-```php
-$this->addPlugin('Queue');
+Load the plugin
 ```
+bin/cake plugin load Queue
+```
+
 If you don't want to also access the backend controller (just using CLI), you need to use
-```php
-$this->addPlugin('Queue', ['routes' => false]);
+```
+bin/cake plugin load Queue --no-routes
 ```
 
 Important: Make sure to use authentication if you are using the backend. You do not want visitors to be able to browse it.
