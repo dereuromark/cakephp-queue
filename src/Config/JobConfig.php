@@ -232,8 +232,6 @@ class JobConfig {
 	/**
 	 * @param int $priority
 	 *
-	 * @throws \RuntimeException If value is not present.
-	 *
 	 * @return $this
 	 */
 	public function setPriorityOrFail(int $priority) {
@@ -282,8 +280,6 @@ class JobConfig {
 
 	/**
 	 * @param \Cake\I18n\DateTime|string|int|null $notBefore
-	 *
-	 * @throws \RuntimeException If value is not present.
 	 *
 	 * @return $this
 	 */
@@ -388,8 +384,6 @@ class JobConfig {
 	/**
 	 * @param string $reference
 	 *
-	 * @throws \RuntimeException If value is not present.
-	 *
 	 * @return $this
 	 */
 	public function setReferenceOrFail(string $reference) {
@@ -438,8 +432,6 @@ class JobConfig {
 
 	/**
 	 * @param string $status
-	 *
-	 * @throws \RuntimeException If value is not present.
 	 *
 	 * @return $this
 	 */
