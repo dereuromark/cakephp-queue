@@ -31,7 +31,7 @@
 		"cakephp/cakephp": "^5.0.0"
 	},
 	"require-dev": {
-		"cakedc/cakephp-phpstan": "^3.0.0",
+		"cakedc/cakephp-phpstan": "^4.0.0",
 		"cakephp/bake": "^3.0.1",
 		"cakephp/migrations": "^4.0.1",
 		"dereuromark/cakephp-ide-helper": "^2.0.0",
