@@ -333,8 +333,6 @@ class JobConfig {
 	/**
 	 * @param string $group
 	 *
-	 * @throws \RuntimeException If value is not present.
-	 *
 	 * @return $this
 	 */
 	public function setGroupOrFail(string $group) {
