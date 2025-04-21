@@ -9,9 +9,11 @@ parameters:
 			- abort
 		Cake\Console\ConsoleIo:
 			- abort
+	treatPhpDocTypesAsCertain: false
 	ignoreErrors:
 		- identifier: missingType.iterableValue
 		- identifier: missingType.generics
+		- identifier: trait.unused
 		- '#Access to an undefined property Cake\\ORM\\BehaviorRegistry::\$Search#'
 		- '#Negated boolean expression is always false.#'
 		- '#Parameter \#1 \$.+ of function call_user_func_array expects .+, array.+ given.#'

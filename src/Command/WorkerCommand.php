@@ -105,6 +105,7 @@ class WorkerCommand extends Command {
 			$io->abort('Clean action does not have a 2nd argument.');
 		}
 
+		/** @phpstan-ignore-next-line */
 		return $this->$action($io, $pid);
 	}
 

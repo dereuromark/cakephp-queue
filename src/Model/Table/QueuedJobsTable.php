@@ -970,29 +970,6 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
-	 * //FIXME
-	 *
-	 * @return void
-	 */
-	public function clearDoublettes(): void {
-		/** @var array<int> $x */
-		$x = $this->getConnection()->selectQuery('SELECT max(id) as id FROM `' . $this->getTable() . '`
-	WHERE completed is NULL
-	GROUP BY data
-	HAVING COUNT(id) > 1');
-
-		$start = 0;
-		$x = array_keys($x);
-		$numX = count($x);
-		while ($start <= $numX) {
-			$this->deleteAll([
-				'id' => array_slice($x, $start, 10),
-			]);
-			$start = $start + 100;
-		}
-	}
-
-	/**
 	 * Generates a unique Identifier for the current worker thread.
 	 *
 	 * Useful to identify the currently running processes for this thread.

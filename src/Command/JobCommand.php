@@ -114,6 +114,7 @@ class JobCommand extends Command {
 		}
 
 		if ($id === 'all') {
+			assert($action !== 'clean' && $action !== 'flush');
 			$action .= 'All';
 
 			return $this->$action($io);
