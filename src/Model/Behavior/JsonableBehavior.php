@@ -88,7 +88,7 @@ class JsonableBehavior extends Behavior {
 	 *
 	 * @return void
 	 */
-	public function beforeFind(EventInterface $event, SelectQuery $query, ArrayObject $options, bool $primary) {
+	public function beforeFind(EventInterface $event, SelectQuery $query, ArrayObject $options, bool $primary): void {
 		$query->formatResults(function (CollectionInterface $results) {
 			return $results->map(function ($row) {
 				if (!$row instanceof Entity) {
@@ -130,7 +130,7 @@ class JsonableBehavior extends Behavior {
 	 *
 	 * @return void
 	 */
-	public function beforeSave(EventInterface $event, EntityInterface $entity, ArrayObject $options) {
+	public function beforeSave(EventInterface $event, EntityInterface $entity, ArrayObject $options): void {
 		$fields = $this->_getMappedFields();
 
 		foreach ($fields as $map => $field) {
