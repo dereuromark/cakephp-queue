@@ -114,10 +114,12 @@ class QueuedTask extends QueueAppModel {
                 $dupeKey = $data['company_id'] . '.' . $data['sub_service_id'];
                 break;
             case 'SaveConnection':
-                $dupeKey = $data['bidId'];
+				$additionalKey = isset($data['isStatusChanged']) ? (int) $data['isStatusChanged'] : 0;
+                $dupeKey = $data['bidId'] . '.' . $additionalKey;
                 break;
             case 'SaveSingleConnection':
-                $dupeKey = $data['provider'] . '.' . $data['bidId'];
+				$additionalKey = isset($data['isStatusChanged']) ? (int) $data['isStatusChanged'] : 0;
+                $dupeKey = $data['provider'] . '.' . $data['bidId'] . '.' . $additionalKey;
                 break;
             case 'SyncIntercomCompany':
                 $dupeKey = $data['company_id'];
@@ -195,8 +197,6 @@ class QueuedTask extends QueueAppModel {
             'conditions' => [
                 'created < ' => $backDate,
                 'fetched IS NULL',
-                'notbefore IS NULL',
-
             ],
             'contain' => false
         ]) as $queuedTask) {
