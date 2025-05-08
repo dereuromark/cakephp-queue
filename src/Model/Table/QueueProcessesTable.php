@@ -199,7 +199,7 @@ class QueueProcessesTable extends Table {
 		}
 
 		return $this->deleteAll(function (QueryExpression $exp) use ($ids): QueryExpression {
-			return $exp->notIn('id', $ids)
+			return $exp->notIn('id', $ids);
 		});
 	}
 
