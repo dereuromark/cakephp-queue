@@ -3,7 +3,9 @@
 namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\Database\Expression\QueryExpression;
 use Cake\I18n\FrozenTime;
+use Cake\ORM\Table;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
@@ -190,13 +192,15 @@ class QueueProcessesTable extends Table {
 	 */
 	public function cleanEndedProcesses(): int {
 		$activeProcesses = $this->findActive()->select(['id']);
-		$ids = $activeProcesses->all()->extract('id');
+		$ids = $activeProcesses->all()->extract('id')->toArray();
 
-		if (empty($ids)) {
+		if (sizeof($ids) < 1) {
 			return 0;
 		}
 
-		return $this->deleteAll(['id NOT IN' => $ids]);
+		return $this->deleteAll(function (QueryExpression $exp) use ($ids): QueryExpression {
+			return $exp->notIn('id', $ids)
+		});
 	}
 
 	/**
