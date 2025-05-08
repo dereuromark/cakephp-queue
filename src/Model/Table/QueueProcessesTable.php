@@ -194,7 +194,7 @@ class QueueProcessesTable extends Table {
 		$ids = $activeProcesses->all()->extract('id')->toArray();
 
 		return $this->deleteAll(function (QueryExpression $exp) use ($ids): QueryExpression {
-			return count($ids) > 0 ? $exp->notIn('id', $ids) : $exp;
+			return $exp->notIn('id', count($ids) > 0 ? $ids : [-1]);
 		});
 	}
 
