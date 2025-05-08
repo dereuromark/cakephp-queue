@@ -189,9 +189,14 @@ class QueueProcessesTable extends Table {
 	 * @return int
 	 */
 	public function cleanEndedProcesses(): int {
-		$activeProcesses = $this->findActive();
+		$activeProcesses = $this->findActive()->select(['id']);
+		$ids = $activeProcesses->all()->extract('id');
 
-		return $this->deleteAll(['id NOT IN' => $activeProcesses->select(['id'])]);
+		if (empty($ids)) {
+			return 0;
+		}
+
+		return $this->deleteAll(['id NOT IN' => $ids]);
 	}
 
 	/**
