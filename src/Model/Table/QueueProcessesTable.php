@@ -193,12 +193,8 @@ class QueueProcessesTable extends Table {
 		$activeProcesses = $this->findActive()->select(['id']);
 		$ids = $activeProcesses->all()->extract('id')->toArray();
 
-		if (sizeof($ids) < 1) {
-			return 0;
-		}
-
 		return $this->deleteAll(function (QueryExpression $exp) use ($ids): QueryExpression {
-			return $exp->notIn('id', $ids);
+			return count($ids) > 0 ? $exp->notIn('id', $ids) : $exp;
 		});
 	}
 
