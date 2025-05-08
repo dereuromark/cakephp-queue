@@ -10,14 +10,16 @@ use Brick\VarExporter\VarExporter;
 <nav class="actions large-3 medium-4 columns col-sm-4 col-12" id="actions-sidebar">
 	<ul class="side-nav nav nav-pills flex-column">
 		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?> </li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Export'), ['action' => 'view', $queuedJob->id, '_ext' => 'json', '?' => ['download' => true]]) ?> </li>
+		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index'], ['class' => 'nav-link']) ?> </li>
+		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Export'), ['action' => 'view', $queuedJob->id, '_ext' => 'json', '?' => ['download' => true]], ['class' => 'nav-link']) ?> </li>
 
 		<?php if (!$queuedJob->completed) { ?>
-			<li class="nav-item"><?= $this->Html->link(__d('queue', 'Edit Queued Job'), ['action' => 'edit', $queuedJob->id]) ?> </li>
+			<li class="nav-item"><?= $this->Html->link(__d('queue', 'Edit Queued Job'), ['action' => 'edit', $queuedJob->id], ['class' => 'nav-link']) ?> </li>
+		<?php } else { ?>
+			<li class="nav-item"><?= $this->Form->postLink(__d('queue', 'Clone and re-run'), ['action' => 'clone', $queuedJob->id], ['class' => 'nav-link', 'confirm' => __d('queue', 'Sure?')]) ?> </li>
 		<?php } ?>
-		<li class="nav-item"><?= $this->Form->postLink(__d('queue', 'Delete Queued Job'), ['action' => 'delete', $queuedJob->id], ['confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id)]) ?> </li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['action' => 'index']) ?> </li>
+		<li class="nav-item"><?= $this->Form->postLink(__d('queue', 'Delete Queued Job'), ['action' => 'delete', $queuedJob->id], ['class' => 'nav-link', 'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id)]) ?> </li>
+		<li class="nav-item"><?= $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['action' => 'index'], ['class' => 'nav-link']) ?> </li>
 	</ul>
 </nav>
 <div class="content action-view view large-9 medium-8 columns col-sm-8 col-12">
@@ -92,6 +94,14 @@ use Brick\VarExporter\VarExporter;
 					<?php } else { ?>
 						<i><?php echo $this->Queue->failureStatus($queuedJob); ?></i>
 					<?php } ?>
+				<?php } ?>
+
+				<?php if ($queuedJob->completed) { ?>
+					<?= __d('queue', 'Done') ?>
+				<?php } ?>
+
+				<?php if ($queuedJob->memory) { ?>
+					<div><small><?= __d('queue', 'Memory Usage') ?>: <?php echo $this->Number->format($queuedJob->memory); ?> MB</small></div>
 				<?php } ?>
 			</td>
 		</tr>

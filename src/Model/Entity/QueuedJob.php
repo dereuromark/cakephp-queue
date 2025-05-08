@@ -8,7 +8,7 @@ use Cake\ORM\Entity;
 /**
  * @property int $id
  * @property string $job_task
- * @property array<string, mixed>|null $data
+ * @property array|null $data
  * @property string|null $job_group
  * @property string|null $reference
  * @property \Cake\I18n\DateTime $created
@@ -22,6 +22,7 @@ use Cake\ORM\Entity;
  * @property string|null $status
  * @property int $priority
  * @property \Queue\Model\Entity\QueueProcess $worker_process
+ * @property int|null $memory
  */
 class QueuedJob extends Entity {
 

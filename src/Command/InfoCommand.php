@@ -11,6 +11,9 @@ use Cake\Core\Configure;
 use Cake\I18n\Number;
 use Queue\Queue\TaskFinder;
 
+/**
+ * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
+ */
 class InfoCommand extends Command {
 
 	/**

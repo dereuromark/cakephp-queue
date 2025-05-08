@@ -96,7 +96,7 @@ class EmailTaskTest extends TestCase {
 
 		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
 		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
-		$queuedJobsTable->createJob('Email', $data);
+		$queuedJobsTable->createJob('Queue.Email', $data);
 
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
 		$queuedJob = $queuedJobsTable->find()->orderByDesc('id')->firstOrFail();
@@ -137,7 +137,7 @@ class EmailTaskTest extends TestCase {
 
 		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
 		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
-		$queuedJobsTable->createJob('Email', $data);
+		$queuedJobsTable->createJob('Queue.Email', $data);
 
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
 		$queuedJob = $queuedJobsTable->find()->orderByDesc('id')->firstOrFail();

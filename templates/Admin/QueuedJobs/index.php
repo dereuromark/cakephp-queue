@@ -102,7 +102,9 @@ use Cake\Core\Plugin;
                     </div>
                     <?php } ?>
                 </td>
-				<td><?= $this->element('Queue.ok', ['value' => $this->Queue->attempts($queuedJob), 'ok' => $queuedJob->completed || $queuedJob->attempts < 1]); ?></td>
+				<td>
+					<?= $this->element('Queue.ok', ['value' => $this->Queue->attempts($queuedJob), 'ok' => $queuedJob->completed || $queuedJob->attempts < 1]); ?>
+				</td>
 				<td>
 					<?= h($queuedJob->status) ?>
 					<?php if (!$queuedJob->completed && $queuedJob->fetched) { ?>
@@ -118,6 +120,14 @@ use Cake\Core\Plugin;
 								<i><?php echo $this->Queue->failureStatus($queuedJob); ?></i>
 							<?php } ?>
 						</div>
+					<?php } ?>
+
+					<?php if ($queuedJob->completed) { ?>
+						<?= __d('queue', 'Done') ?>
+					<?php } ?>
+
+					<?php if ($queuedJob->memory) { ?>
+						<div><small><?php echo $this->Number->format($queuedJob->memory); ?> MB</small></div>
 					<?php } ?>
 				</td>
 				<td><?= $this->Number->format($queuedJob->priority) ?></td>

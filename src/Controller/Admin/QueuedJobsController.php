@@ -272,6 +272,23 @@ class QueuedJobsController extends AppController {
 	}
 
 	/**
+	 * @param int|null $id Queued Job id.
+	 *
+	 * @return \Cake\Http\Response|null|void Redirects to index.
+	 */
+	public function clone(?int $id = null) {
+		$this->request->allowMethod(['post', 'put']);
+		$queuedJob = $this->QueuedJobs->get($id);
+		if ($this->QueuedJobs->clone($queuedJob)) {
+			$this->Flash->success(__d('queue', 'The queued job has been cloned and will now run.'));
+		} else {
+			$this->Flash->error(__d('queue', 'The queued job could not be cloned. Please try again.'));
+		}
+
+		return $this->redirect(['controller' => 'Queue', 'action' => 'index']);
+	}
+
+	/**
 	 * @throws \Cake\Http\Exception\NotFoundException
 	 *
 	 * @return \Cake\Http\Response|null|void

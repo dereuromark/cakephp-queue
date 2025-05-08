@@ -2,9 +2,9 @@
 declare(strict_types=1);
 
 use Cake\Datasource\ConnectionManager;
-use Migrations\AbstractMigration;
+use Migrations\BaseMigration;
 
-class MigrationQueueInitV8 extends AbstractMigration {
+class MigrationQueueInitV8 extends BaseMigration {
 
 	/**
 	 * Up Method.

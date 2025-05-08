@@ -38,7 +38,7 @@ use Queue\Queue\Config;
 				<td>
 					<?= $this->Time->nice($queueProcess->created) ?>
 					<?php if (!$queueProcess->created->addSeconds(Config::workermaxruntime())->isFuture()) {
-						echo $this->Icon->render('exclamation-triangle', ['title' => 'Long running (!)']);
+						echo $this->Icon->render('exclamation-triangle', [], ['title' => 'Long running (!)']);
 					} ?>
 				</td>
 				<td>

@@ -23,7 +23,7 @@ use Queue\Queue\Config;
  * @method \Queue\Model\Entity\QueueProcess|false save(\Cake\Datasource\EntityInterface $entity, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
  * @method array<\Queue\Model\Entity\QueueProcess> patchEntities(iterable $entities, array $data, array $options = [])
- * @method \Queue\Model\Entity\QueueProcess findOrCreate($search, ?callable $callback = null, array $options = [])
+ * @method \Queue\Model\Entity\QueueProcess findOrCreate(\Cake\ORM\Query\SelectQuery|callable|array $search, ?callable $callback = null, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess saveOrFail(\Cake\Datasource\EntityInterface $entity, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess newEmptyEntity()
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess>|false saveMany(iterable $entities, array $options = [])
@@ -31,6 +31,7 @@ use Queue\Queue\Config;
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess>|false deleteMany(iterable $entities, array $options = [])
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> deleteManyOrFail(iterable $entities, array $options = [])
  * @property \Queue\Model\Table\QueuedJobsTable&\Cake\ORM\Association\HasOne $CurrentQueuedJobs
+ * @extends \Cake\ORM\Table<array{Timestamp: \Cake\ORM\Behavior\TimestampBehavior}>
  */
 class QueueProcessesTable extends Table {
 

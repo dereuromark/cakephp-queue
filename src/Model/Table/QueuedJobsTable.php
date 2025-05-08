@@ -18,6 +18,7 @@ use Queue\Config\JobConfig;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
+use Queue\Utility\Memory;
 use RuntimeException;
 use Search\Manager;
 
@@ -30,7 +31,7 @@ use Search\Manager;
  * @method \Queue\Model\Entity\QueuedJob|false save(\Cake\Datasource\EntityInterface $entity, array $options = [])
  * @method \Queue\Model\Entity\QueuedJob patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
  * @method array<\Queue\Model\Entity\QueuedJob> patchEntities(iterable $entities, array $data, array $options = [])
- * @method \Queue\Model\Entity\QueuedJob findOrCreate($search, ?callable $callback = null, array $options = [])
+ * @method \Queue\Model\Entity\QueuedJob findOrCreate(\Cake\ORM\Query\SelectQuery|callable|array $search, ?callable $callback = null, array $options = [])
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  * @method \Queue\Model\Entity\QueuedJob saveOrFail(\Cake\Datasource\EntityInterface $entity, array $options = [])
  * @mixin \Search\Model\Behavior\SearchBehavior
@@ -40,6 +41,7 @@ use Search\Manager;
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> saveManyOrFail(iterable $entities, array $options = [])
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob>|false deleteMany(iterable $entities, array $options = [])
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> deleteManyOrFail(iterable $entities, array $options = [])
+ * @extends \Cake\ORM\Table<array{Search: \Search\Model\Behavior\SearchBehavior, Timestamp: \Cake\ORM\Behavior\TimestampBehavior}>
  */
 class QueuedJobsTable extends Table {
 
@@ -720,6 +722,7 @@ class QueuedJobsTable extends Table {
 
 		$values = [
 			'progress' => round($progress, 2),
+			'memory' => Memory::usage(),
 		];
 		if ($status !== null) {
 			$values['status'] = $status;
@@ -739,6 +742,7 @@ class QueuedJobsTable extends Table {
 		$fields = [
 			'progress' => 1,
 			'completed' => $this->getDateTime(),
+			'memory' => Memory::usage(),
 		];
 		$job = $this->patchEntity($job, $fields);
 
@@ -756,6 +760,7 @@ class QueuedJobsTable extends Table {
 	public function markJobFailed(QueuedJob $job, ?string $failureMessage = null): bool {
 		$fields = [
 			'failure_message' => $failureMessage,
+			'memory' => Memory::usage(),
 		];
 		$job = $this->patchEntity($job, $fields);
 
@@ -796,6 +801,7 @@ class QueuedJobsTable extends Table {
 			'attempts' => 0,
 			'workerkey' => null,
 			'failure_message' => null,
+			'memory' => null,
 		];
 		$conditions = [
 			'completed IS' => null,
@@ -828,6 +834,7 @@ class QueuedJobsTable extends Table {
 			'attempts' => 0,
 			'workerkey' => null,
 			'failure_message' => null,
+			'memory' => null,
 		];
 		$conditions = [
 			'completed IS NOT' => null,
@@ -853,6 +860,7 @@ class QueuedJobsTable extends Table {
 			'attempts' => 0,
 			'workerkey' => null,
 			'failure_message' => null,
+			'memory' => null,
 		];
 		$conditions = [
 			'completed IS NOT' => null,
@@ -860,6 +868,28 @@ class QueuedJobsTable extends Table {
 		];
 
 		return $this->updateAll($fields, $conditions);
+	}
+
+	/**
+	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 * @return \Queue\Model\Entity\QueuedJob|null
+	 */
+	public function clone(QueuedJob $queuedJob): ?QueuedJob
+	{
+		$defaults = [
+			'completed' => null,
+			'fetched' => null,
+			'progress' => null,
+			'attempts' => 0,
+			'workerkey' => null,
+			'failure_message' => null,
+			'memory' => null,
+		];
+		$data = $defaults + $queuedJob->toArray();
+		$data['created'] = new DateTime();
+		$queuedJob = $this->newEntity($data);
+
+		return $this->save($queuedJob) ?: null;
 	}
 
 	/**
@@ -881,6 +911,7 @@ class QueuedJobsTable extends Table {
 				'notbefore',
 				'attempts',
 				'failure_message',
+				'memory',
 			],
 			'conditions' => [
 				'completed IS' => null,
@@ -911,6 +942,7 @@ class QueuedJobsTable extends Table {
 				'notbefore',
 				'attempts',
 				'failure_message',
+				'memory',
 			],
 			'conditions' => [
 				'completed IS' => null,

@@ -129,7 +129,7 @@ class TaskFinder {
 	 */
 	public function resolve(string $jobTask): string {
 		if (Configure::read('Queue.skipExistenceCheck')) {
-			if (strpos($jobTask, '\\') === false) {
+			if (!str_contains($jobTask, '\\')) {
 				return $jobTask;
 			}
 
@@ -143,10 +143,10 @@ class TaskFinder {
 			}
 		}
 
-		if (strpos($jobTask, '\\') === false) {
+		if (!str_contains($jobTask, '\\')) {
 			// Let's try matching without plugin prefix
 			foreach ($all as $name => $className) {
-				if (strpos($name, '.') === false) {
+				if (!str_contains($name, '.')) {
 					continue;
 				}
 				[$plugin, $name] = explode('.', $name, 2);
