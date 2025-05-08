@@ -7,7 +7,6 @@ use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Event\EventInterface;
 use Cake\Http\Exception\NotImplementedException;
-use Cake\I18n\DateTime;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
@@ -522,7 +521,7 @@ class QueuedJobsTable extends Table {
 			$constraintJobs = array_keys($costConstraints + $uniqueConstraints);
 			$runningJobs = $this->find('queued')
 				->contain(['WorkerProcesses'])
-				->where(['QueuedJobs.job_task IN' => $constraintJobs, 'QueuedJobs.workerkey IS NOT' => null, 'QueuedJobs.workerkey !=' => $this->_key, 'WorkerProcesses.modified >' => (new DateTime())->subSeconds(Config::defaultworkertimeout())])
+				->where(['QueuedJobs.job_task IN' => $constraintJobs, 'QueuedJobs.workerkey IS NOT' => null, 'QueuedJobs.workerkey !=' => $this->_key, 'WorkerProcesses.modified >' => (new FrozenTime())->subSeconds(Config::defaultworkertimeout())])
 				->all()
 				->toArray();
 		}
