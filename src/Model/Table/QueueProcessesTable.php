@@ -6,7 +6,6 @@ use Cake\Core\Configure;
 use Cake\Database\Expression\QueryExpression;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Table;
-use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use Queue\Model\ProcessEndingException;
