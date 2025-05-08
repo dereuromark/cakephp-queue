@@ -15,7 +15,12 @@ class Config {
 	 * @return int
 	 */
 	public static function defaultworkertimeout() {
-		return Configure::read('Queue.defaultworkertimeout', 600); // 10min
+		$timeout = Configure::read('Queue.defaultworkertimeout', 600); // 10min
+		if ($timeout <= 0) {
+			throw new InvalidArgumentException('Queue.defaultworkertimeout is less or eqaul than zero. Indefinite running of workers is not supported.');
+		}
+
+		return $timeout;
 	}
 
 	/**

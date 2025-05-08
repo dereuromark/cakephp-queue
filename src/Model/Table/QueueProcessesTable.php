@@ -3,6 +3,7 @@
 namespace Queue\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\Database\Expression\QueryExpression;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
@@ -189,10 +190,12 @@ class QueueProcessesTable extends Table {
 	 * @return int
 	 */
 	public function cleanEndedProcesses(): int {
-		$timeout = Config::defaultworkertimeout();
-		$thresholdTime = (new FrozenTime())->subSeconds($timeout);
+		$activeProcesses = $this->findActive()->select(['id']);
+		$ids = $activeProcesses->all()->extract('id')->toArray();
 
-		return $this->deleteAll(['modified <' => $thresholdTime]);
+		return $this->deleteAll(function (QueryExpression $exp) use ($ids): QueryExpression {
+			return $exp->notIn('id', count($ids) > 0 ? $ids : [-1]);
+		});
 	}
 
 	/**

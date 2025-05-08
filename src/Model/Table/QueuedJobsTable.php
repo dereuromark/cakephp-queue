@@ -521,7 +521,7 @@ class QueuedJobsTable extends Table {
 			$constraintJobs = array_keys($costConstraints + $uniqueConstraints);
 			$runningJobs = $this->find('queued')
 				->contain(['WorkerProcesses'])
-				->where(['QueuedJobs.job_task IN' => $constraintJobs, 'QueuedJobs.workerkey IS NOT' => null, 'QueuedJobs.workerkey !=' => $this->_key, 'WorkerProcesses.modified >' => Config::defaultworkertimeout()])
+				->where(['QueuedJobs.job_task IN' => $constraintJobs, 'QueuedJobs.workerkey IS NOT' => null, 'QueuedJobs.workerkey !=' => $this->_key, 'WorkerProcesses.modified >' => (new FrozenTime())->subSeconds(Config::defaultworkertimeout())])
 				->all()
 				->toArray();
 		}
