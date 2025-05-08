@@ -872,10 +872,10 @@ class QueuedJobsTable extends Table {
 
 	/**
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 *
 	 * @return \Queue\Model\Entity\QueuedJob|null
 	 */
-	public function clone(QueuedJob $queuedJob): ?QueuedJob
-	{
+	public function clone(QueuedJob $queuedJob): ?QueuedJob {
 		$defaults = [
 			'completed' => null,
 			'fetched' => null,
