@@ -18,3 +18,13 @@ Also don't forget to set Configure key `'Queue.maxworkers'` to a reasonable valu
 If, for any reason, some of the jobs should take way longer, you want to avoid additional x workers to be started.
 It will then just not start new ones beyond this count until the already running ones are finished.
 This is an important server protection to avoid overloading.
+
+## Specific PHP version
+
+If you have multiple PHP versions running on your server, using the above setup can yield to the default CLI one being used which can be different from the expected one.
+You want to select and run the same version as your non-CLI env (nginx/php-fpm).
+
+To ensure this, specify it by replacing `bin/cake` with `/usr/bin/php8.{n} bin/cake.php`, e.g.:
+```
+0 * * * * cd /full/path/to/app && /usr/bin/php8.4 bin/cake.php queue run -q
+```
