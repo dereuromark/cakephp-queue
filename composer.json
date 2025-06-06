@@ -47,6 +47,9 @@
 		"dereuromark/cakephp-tools": "For the QueueEmailTask (if you don't write your own task here). Also for admin backend.",
 		"friendsofcake/search": "For admin backend and filtering of current jobs."
 	},
+	"conflict": {
+		"cakephp/migrations": "<4.5"
+	},
 	"minimum-stability": "stable",
 	"prefer-stable": true,
 	"autoload": {
