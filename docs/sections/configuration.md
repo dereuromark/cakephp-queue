@@ -34,7 +34,7 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     $config['Queue']['workermaxruntime'] = 120;
     ```
 
-  *Warning:* Do not use 0 if you are using a cronjob to permanantly start a new worker once in a while and if you do not exit on idle.
+  *Warning:* Do not use 0 if you are using a cronjob to permanently start a new worker once in a while and if you do not exit on idle.
 
 - Seconds of running time after which the PHP process of the worker will terminate (0 = unlimited):
 

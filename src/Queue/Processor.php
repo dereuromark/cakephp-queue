@@ -134,7 +134,7 @@ class Processor {
 		$startTime = time();
 
 		while (!$this->exit) {
-			$this->setPhpTimeout();
+			$this->setPhpTimeout($config['maxruntime']);
 
 			try {
 				$this->updatePid($pid);
@@ -167,10 +167,11 @@ class Processor {
 				sleep(Config::sleeptime());
 			}
 
+			$maxRuntime = $config['maxruntime'] ?: Configure::readOrFail('Queue.workermaxruntime');
 			// check if we are over the maximum runtime and end processing if so.
-			if (Configure::readOrFail('Queue.workermaxruntime') && (time() - $startTime) >= Configure::readOrFail('Queue.workermaxruntime')) {
+			if ($maxRuntime && (time() - $startTime) >= $maxRuntime) {
 				$this->exit = true;
-				$this->io->out('Reached runtime of ' . (time() - $startTime) . ' Seconds (Max ' . Configure::readOrFail('Queue.workermaxruntime') . '), terminating.');
+				$this->io->out('Reached runtime of ' . (time() - $startTime) . ' Seconds (Max ' . $maxRuntime . '), terminating.');
 			}
 			if ($this->exit || mt_rand(0, 100) > 100 - (int)Config::gcprob()) {
 				$this->io->out('Performing Old job cleanup.');
@@ -426,13 +427,21 @@ class Processor {
 	}
 
 	/**
-	 * Makes sure accidental overriding isn't possible, uses workermaxruntime times 100 by default.
+	 * Makes sure accidental overriding isn't possible, uses workermaxruntime times 2 by default.
 	 * If available, uses workertimeout config directly.
+	 *
+	 * @param int|null $maxruntime Max runtime in seconds if set via CLI option.
 	 *
 	 * @return void
 	 */
-	protected function setPhpTimeout(): void {
-		$timeLimit = (int)Configure::readOrFail('Queue.workermaxruntime') * 100;
+	protected function setPhpTimeout(?int $maxruntime): void {
+		if ($maxruntime) {
+			set_time_limit($maxruntime * 2);
+
+			return;
+		}
+
+		$timeLimit = (int)Configure::readOrFail('Queue.workermaxruntime') * 2;
 		if (Configure::read('Queue.workertimeout') !== null) {
 			$timeLimit = (int)Configure::read('Queue.workertimeout');
 		}
@@ -450,6 +459,7 @@ class Processor {
 			'groups' => [],
 			'types' => [],
 			'verbose' => false,
+			'maxruntime' => null,
 		];
 		if (!empty($args['verbose'])) {
 			$config['verbose'] = true;
@@ -459,6 +469,9 @@ class Processor {
 		}
 		if (!empty($args['type'])) {
 			$config['types'] = $this->stringToArray($args['type']);
+		}
+		if (!empty($args['max-runtime'])) {
+			$config['maxruntime'] = (int)$args['max-runtime'];
 		}
 
 		return $config;
