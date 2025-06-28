@@ -130,16 +130,16 @@ You can set two main things on each task as property: timeout and retries.
     /**
      * Timeout for this task in seconds, after which the task is reassigned to a new worker.
      *
-     * @var int
+     * @var ?int
      */
-    public $timeout = 120;
+    public ?int $timeout = 120;
 
     /**
      * Number of times a failed instance of this task should be restarted before giving up.
      *
-     * @var int
+     * @var ?int
      */
-    public $retries = 1;
+    public ?int $retries = 1;
 ```
 Make sure you set the timeout high enough so that it could never run longer than this, otherwise you risk it being re-run while still being run.
 It is recommended setting it to at least 2x the maximum possible execution length. See [Concurrent workers](limitations.md)
