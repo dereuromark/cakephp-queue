@@ -100,7 +100,7 @@ class Processor {
 		try {
 			$pid = $this->initPid();
 		} catch (PersistenceFailedException $exception) {
-			$this->io->err($exception->getMessage());
+			$this->io->error($exception->getMessage());
 			$limit = (int)Configure::read('Queue.maxworkers');
 			if ($limit) {
 				$this->io->out('Cannot start worker: Too many workers already/still running on this server (' . $limit . '/' . $limit . ')');

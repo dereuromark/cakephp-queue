@@ -119,7 +119,7 @@ class ExecuteTask extends Task implements AddInterface {
 		$acceptedReturnCodes = $data['accepted'];
 		$success = !$acceptedReturnCodes || in_array($exitCode, $acceptedReturnCodes, true);
 		if (!$success) {
-			$this->io->err('Error (code ' . $exitCode . ')', ConsoleIo::VERBOSE);
+			$this->io->error('Error (code ' . $exitCode . ')', ConsoleIo::VERBOSE);
 		} else {
 			$this->io->success('Success (code ' . $exitCode . ')', ConsoleIo::VERBOSE);
 		}

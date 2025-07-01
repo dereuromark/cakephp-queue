@@ -81,13 +81,10 @@ class Io {
 	 *
 	 * @return int|null The number of bytes returned from writing to stderr.
 	 */
-	public function err(array|string $message = '', int $newlines = 1): ?int {
+	public function error(array|string $message = '', int $newlines = 1): ?int {
 		$messages = (array)$message;
-		foreach ($messages as $key => $message) {
-			$messages[$key] = '<error>' . $message . '</error>';
-		}
 
-		return $this->_io->err($messages, $newlines);
+		return $this->_io->error($messages, $newlines);
 	}
 
 	/**
@@ -210,7 +207,7 @@ class Io {
 	 * @return void
 	 */
 	public function abort(string $message, int $exitCode = CommandInterface::CODE_ERROR): void {
-		$this->_io->err('<error>' . $message . '</error>');
+		$this->_io->error($message);
 
 		throw new StopException($message, $exitCode);
 	}

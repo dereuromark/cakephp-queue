@@ -78,7 +78,7 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 			return;
 		}
 
-		$this->io->err('Queue Email Task cannot be added via Console without `Config.adminEmail` being set.');
+		$this->io->warn('Queue Email Task cannot be added via Console without `Config.adminEmail` being set.');
 		$this->io->out('Please set this config value in your app.php Configure config. It will use this for to+from then.');
 		$this->io->out('Or use createJob() on the QueuedTasks Table to create a proper QueueEmail job.');
 		$this->io->out('The payload $data array should look something like this:');
