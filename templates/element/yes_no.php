@@ -7,7 +7,9 @@
  */
 ?>
 <?php
-	if ($this->helpers()->has('IconSnippet')) {
+	if ($this->helpers()->has('Templating')) {
+		echo $this->Templating->yesNo($value);
+	} elseif ($this->helpers()->has('IconSnippet')) {
 		echo $this->IconSnippet->yesNo($value);
 	} elseif ($this->helpers()->has('Format')) {
 		echo $this->Format->yesNo($value);
