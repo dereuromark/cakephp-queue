@@ -977,10 +977,15 @@ class QueuedJobsTable extends Table {
 	public function getFailedStatus(QueuedJob $queuedTask, array $taskConfiguration): string {
 		$failureMessageRequeued = 'requeued';
 
-		$queuedTaskName = 'Queue' . $queuedTask->job_task;
+		$queuedTaskName = $queuedTask->job_task;
 		if (empty($taskConfiguration[$queuedTaskName])) {
-			return $failureMessageRequeued;
+			// Try with 'Queue' prefix for backward compatibility
+			$queuedTaskName = 'Queue' . $queuedTask->job_task;
+			if (empty($taskConfiguration[$queuedTaskName])) {
+				return $failureMessageRequeued;
+			}
 		}
+
 		$retries = $taskConfiguration[$queuedTaskName]['retries'];
 		if ($queuedTask->attempts <= $retries) {
 			return $failureMessageRequeued;

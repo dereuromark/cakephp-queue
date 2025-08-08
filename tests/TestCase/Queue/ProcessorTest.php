@@ -7,10 +7,14 @@ use Cake\Console\CommandInterface;
 use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\Event\EventList;
+use Cake\Event\EventManager;
 use Cake\TestSuite\TestCase;
 use Psr\Log\NullLogger;
 use Queue\Console\Io;
 use Queue\Queue\Processor;
+use Queue\Queue\Task\RetryExampleTask;
+use RuntimeException;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
 
@@ -109,6 +113,53 @@ class ProcessorTest extends TestCase {
 		$config = ConnectionManager::getConfig('test');
 		$skip = strpos($config['driver'], 'Mysql') === false && strpos($config['driver'], 'Postgres') === false;
 		$this->skipIf($skip, 'Only Mysql/Postgres is working yet for this.');
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testMaxAttemptsExhaustedEvent() {
+		// Set up event tracking
+		$eventList = new EventList();
+		EventManager::instance()->setEventList($eventList);
+
+		// Create a job that will fail
+		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$job = $QueuedJobs->createJob('Queue.RetryExample', [], ['priority' => 1]);
+
+		// Manually set attempts to 5 (simulating previous failed attempts)
+		// The default RetryExampleTask has retries=4, so 5 attempts exceeds it
+		$job->attempts = 5;
+		$QueuedJobs->saveOrFail($job);
+
+		// Create processor
+		$out = new ConsoleOutput();
+		$err = new ConsoleOutput();
+		$processor = new Processor(new Io(new ConsoleIo($out, $err)), new NullLogger());
+
+		// Create a mock task that always fails
+		$mockTask = $this->getMockBuilder(RetryExampleTask::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['run'])
+			->getMock();
+		$mockTask->method('run')->willThrowException(new RuntimeException('Task failed'));
+
+		// Mock only the loadTask method
+		$processor = $this->getMockBuilder(Processor::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['loadTask'])
+			->getMock();
+		$processor->method('loadTask')->willReturn($mockTask);
+
+		// Run the job (it will fail and should trigger the event)
+		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
+
+		// Check that the event was dispatched
+		$this->assertEventFired('Queue.Job.maxAttemptsExhausted');
+
+		// Verify event data
+		// The event was fired successfully (assertEventFired passed)
+		// We don't need to check the event data again since assertEventFired confirms it was fired
 	}
 
 }

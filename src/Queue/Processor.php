@@ -7,6 +7,8 @@ use Cake\Console\CommandInterface;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Event\Event;
+use Cake\Event\EventManager;
 use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\Utility\Text;
@@ -229,6 +231,15 @@ class Processor {
 			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->getTaskConf());
 			$this->log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
 			$this->io->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->attempts . '.');
+
+			// Dispatch event when job has exhausted all retries
+			if ($failedStatus === 'aborted') {
+				$event = new Event('Queue.Job.maxAttemptsExhausted', $this, [
+					'job' => $queuedJob,
+					'failureMessage' => $failureMessage,
+				]);
+				EventManager::instance()->dispatch($event);
+			}
 
 			return;
 		}
