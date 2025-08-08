@@ -152,7 +152,7 @@ class ProcessorTest extends TestCase {
 		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
 
 		// Check that the event was dispatched
-		$this->assertEventFired('Queue.Job.maxAttemptsExhausted', $eventList);
+		$this->assertEventFired('Queue.Job.maxAttemptsExhausted');
 
 		// Verify event data
 		$event = collection($eventList)->firstMatch(['name' => 'Queue.Job.maxAttemptsExhausted']);
