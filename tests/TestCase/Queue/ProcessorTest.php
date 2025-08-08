@@ -129,7 +129,7 @@ class ProcessorTest extends TestCase {
 
 		// Create a job that will fail
 		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
-		$job = $QueuedJobs->createJob('RetryExample', [], ['priority' => 1]);
+		$job = $QueuedJobs->createJob('Queue.RetryExample', [], ['priority' => 1]);
 
 		// Set up the job to have already failed max attempts
 		$taskConf = [
