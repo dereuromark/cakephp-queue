@@ -7,6 +7,8 @@ use Cake\Console\CommandInterface;
 use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\Event\EventList;
+use Cake\Event\EventManager;
 use Cake\TestSuite\TestCase;
 use Psr\Log\NullLogger;
 use Queue\Console\Io;
@@ -109,6 +111,55 @@ class ProcessorTest extends TestCase {
 		$config = ConnectionManager::getConfig('test');
 		$skip = strpos($config['driver'], 'Mysql') === false && strpos($config['driver'], 'Postgres') === false;
 		$this->skipIf($skip, 'Only Mysql/Postgres is working yet for this.');
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testMaxAttemptsExhaustedEvent() {
+		$this->_needsConnection();
+
+		// Set up event tracking
+		$eventList = new EventList();
+		EventManager::instance()->setEventList($eventList);
+
+		$out = new ConsoleOutput();
+		$err = new ConsoleOutput();
+		$this->Processor = new Processor(new Io(new ConsoleIo($out, $err)), new NullLogger());
+
+		// Create a job that will fail
+		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$job = $QueuedJobs->createJob('RetryExample', [], ['priority' => 1]);
+
+		// Set up the job to have already failed max attempts
+		$taskConf = [
+			'QueueRetryExample' => [
+				'class' => 'Queue\Queue\Task\RetryExampleTask',
+				'retries' => 2,
+			],
+		];
+		$job->attempts = 3; // More than retries
+		$QueuedJobs->save($job);
+
+		// Mock the processor to use our task config
+		$processor = $this->getMockBuilder(Processor::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['getTaskConf'])
+			->getMock();
+		$processor->method('getTaskConf')->willReturn($taskConf);
+
+		// Run the job (it will fail)
+		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
+
+		// Check that the event was dispatched
+		$this->assertEventFired('Queue.Job.maxAttemptsExhausted', $eventList);
+
+		// Verify event data
+		$event = collection($eventList)->firstMatch(['name' => 'Queue.Job.maxAttemptsExhausted']);
+		$this->assertNotNull($event);
+		$this->assertArrayHasKey('job', $event->getData());
+		$this->assertArrayHasKey('failureMessage', $event->getData());
+		$this->assertSame($job->id, $event->getData()['job']->id);
 	}
 
 }

@@ -49,6 +49,42 @@ $query = $queuedJobsTable->find('queued')->...;
 ```
 This includes also failed ones if not filtered further using `where()` conditions.
 
+## Events
+The Queue plugin dispatches events to allow you to hook into the queue processing lifecycle.
+
+### Queue.Job.maxAttemptsExhausted
+This event is triggered when a job has failed and exhausted all of its configured retry attempts.
+
+```php
+use Cake\Event\EventInterface;
+use Cake\Event\EventManager;
+use Cake\Log\Log;
+
+EventManager::instance()->on('Queue.Job.maxAttemptsExhausted', function (EventInterface $event) {
+    $job = $event->getData('job');
+    $failureMessage = $event->getData('failureMessage');
+
+    // Log the permanent failure
+    Log::error(sprintf(
+        'Job %d (%s) permanently failed after %d attempts: %s',
+        $job->id,
+        $job->job_task,
+        $job->attempts,
+        $failureMessage
+    ));
+
+    // Send notification email
+    //$mailer->send('jobFailed', [$job, $failureMessage]);
+
+    // Or push to external monitoring service
+    //$monitoring->notifyJobFailure($job);
+});
+```
+
+The event data contains:
+- `job`: The `QueuedJob` entity that failed
+- `failureMessage`: The error message from the last failure
+
 ## Notes
 
 `<TaskName>` is the complete class name without the Task suffix (e.g. Example or PluginName.Example).
