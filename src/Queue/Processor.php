@@ -77,6 +77,11 @@ class Processor {
 	protected QueueProcessesTable $QueueProcesses;
 
 	/**
+	 * @var \Queue\Model\Entity\QueuedJob|null
+	 */
+	protected ?QueuedJob $currentJob = null;
+
+	/**
 	 * @param \Queue\Console\Io $io
 	 * @param \Psr\Log\LoggerInterface $logger
 	 * @param \Cake\Core\ContainerInterface|null $container
@@ -199,6 +204,7 @@ class Processor {
 	 * @return void
 	 */
 	protected function runJob(QueuedJob $queuedJob, string $pid): void {
+		$this->currentJob = $queuedJob;
 		$this->io->out('Running Job of type "' . $queuedJob->job_task . '"');
 		$this->log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id, $pid, false);
 		$taskName = $queuedJob->job_task;
@@ -246,6 +252,7 @@ class Processor {
 
 		$this->QueuedJobs->markJobDone($queuedJob);
 		$this->io->out('Job Finished.');
+		$this->currentJob = null;
 	}
 
 	/**
@@ -318,6 +325,12 @@ class Processor {
 	 * @return void
 	 */
 	protected function exit(int $signal): void {
+		if ($this->currentJob) {
+			$failureMessage = 'Worker process terminated by signal (SIGTERM) - job execution interrupted due to timeout or manual termination';
+			$this->QueuedJobs->markJobFailed($this->currentJob, $failureMessage);
+			$this->logError('Job ' . $this->currentJob->job_task . ' (id ' . $this->currentJob->id . ') failed due to worker termination', $this->pid);
+			$this->io->out('Current job marked as failed due to worker termination.');
+		}
 		$this->exit = true;
 	}
 
