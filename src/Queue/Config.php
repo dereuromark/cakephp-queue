@@ -137,7 +137,7 @@ class Config {
 
 			$taskTimeout = $taskObject->timeout ?? $defaultTimeout;
 
-			// Validate that task timeout is larger than default timeout
+			// Warn if task timeout is greater than the requeue timeout, which can cause premature requeuing
 			if ($taskTimeout > $defaultTimeout) {
 				trigger_error(
 					sprintf(
