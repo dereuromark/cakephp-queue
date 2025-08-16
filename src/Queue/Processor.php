@@ -174,7 +174,11 @@ class Processor {
 				sleep(Config::sleeptime());
 			}
 
-			$maxRuntime = $config['maxruntime'] ?: Configure::readOrFail('Queue.workermaxruntime');
+			$workerLifetime = Configure::read('Queue.workerLifetime') ?? Configure::read('Queue.workermaxruntime');
+			if (!$workerLifetime) {
+				throw new RuntimeException('Queue.workerLifetime (or deprecated workermaxruntime) config is required');
+			}
+			$maxRuntime = $config['maxruntime'] ?: $workerLifetime;
 			// check if we are over the maximum runtime and end processing if so.
 			if ($maxRuntime && (time() - $startTime) >= $maxRuntime) {
 				$this->exit = true;
@@ -465,9 +469,24 @@ class Processor {
 			return;
 		}
 
-		$timeLimit = (int)Configure::readOrFail('Queue.workermaxruntime') * 2;
-		if (Configure::read('Queue.workertimeout') !== null) {
-			$timeLimit = (int)Configure::read('Queue.workertimeout');
+		// Check for new config name first, fall back to old name for backward compatibility
+		$phpTimeout = Configure::read('Queue.workerPhpTimeout');
+		if ($phpTimeout === null) {
+			$phpTimeout = Configure::read('Queue.workertimeout');
+			if ($phpTimeout !== null) {
+				trigger_error(
+					'Config key "Queue.workertimeout" is deprecated. Use "Queue.workerPhpTimeout" instead.',
+					E_USER_DEPRECATED
+				);
+			}
+		}
+
+		if ($phpTimeout !== null) {
+			$timeLimit = (int)$phpTimeout;
+		} else {
+			// Default to workermaxruntime * 2 (or workerLifetime * 2 with new naming)
+			$workerLifetime = Configure::read('Queue.workerLifetime') ?? Configure::read('Queue.workermaxruntime', 120);
+			$timeLimit = (int)$workerLifetime * 2;
 		}
 
 		set_time_limit($timeLimit);

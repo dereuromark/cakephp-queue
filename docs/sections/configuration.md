@@ -19,19 +19,24 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 - Default timeout after which a job is requeued if the worker doesn't report back:
 
     ```php
-    $config['Queue']['defaultworkertimeout'] = 1800;
+    $config['Queue']['defaultRequeueTimeout'] = 1800; // 30 minutes
+    // Legacy: 'defaultworkertimeout' is deprecated but still supported
     ```
+
+  **Important:** Individual task timeouts should NOT exceed this value. If a task has a longer timeout than `defaultRequeueTimeout`, the job will be requeued before the task completes, causing duplicate execution.
 
 - Default number of retries if a job fails or times out:
 
     ```php
-    $config['Queue']['defaultworkerretries'] = 3;
+    $config['Queue']['defaultJobRetries'] = 3;
+    // Legacy: 'defaultworkerretries' is deprecated but still supported
     ```
 
-- Seconds of running time after which the worker will terminate (0 = unlimited):
+- Seconds of running time after which the worker process will terminate (0 = unlimited):
 
     ```php
-    $config['Queue']['workermaxruntime'] = 120;
+    $config['Queue']['workerLifetime'] = 120; // 2 minutes
+    // Legacy: 'workermaxruntime' is deprecated but still supported
     ```
 
   *Warning:* Do not use 0 if you are using a cronjob to permanently start a new worker once in a while and if you do not exit on idle.
@@ -39,7 +44,8 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 - Seconds of running time after which the PHP process of the worker will terminate (0 = unlimited):
 
     ```php
-    $config['Queue']['workertimeout'] = 120 * 100;
+    $config['Queue']['workerPhpTimeout'] = 120 * 100; // 200 minutes
+    // Legacy: 'workertimeout' is deprecated but still supported
     ```
 
   *Warning:* Do not use 0 if you are using a cronjob to permanently start a new worker once in a while and if you do not exit on idle. This is the last defense of the tool to prevent flooding too many processes. So make sure this is long enough to never cut off jobs, but also not too long, so the process count stays in manageable range.
@@ -101,8 +107,10 @@ Example `app_queue.php`:
 ```php
 return [
     'Queue' => [
-        'workermaxruntime' => 60,
-        'sleeptime' => 15,
+        'workerLifetime' => 60,           // Worker process runs for 60 seconds
+        'defaultRequeueTimeout' => 300,   // Jobs requeued after 5 minutes if not completed
+        'defaultJobRetries' => 2,          // Retry failed jobs twice
+        'sleeptime' => 15,                 // Sleep 15 seconds when no jobs
     ],
 ];
 ```
