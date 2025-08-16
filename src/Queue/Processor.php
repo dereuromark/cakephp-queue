@@ -180,7 +180,7 @@ class Processor {
 			}
 			$maxRuntime = $config['maxruntime'] ?: $workerLifetime;
 			// check if we are over the maximum runtime and end processing if so.
-			if ($maxRuntime && (time() - $startTime) >= $maxRuntime) {
+			if ((time() - $startTime) >= $maxRuntime) {
 				$this->exit = true;
 				$this->io->out('Reached runtime of ' . (time() - $startTime) . ' Seconds (Max ' . $maxRuntime . '), terminating.');
 			}
@@ -476,7 +476,7 @@ class Processor {
 			if ($phpTimeout !== null) {
 				trigger_error(
 					'Config key "Queue.workertimeout" is deprecated. Use "Queue.workerPhpTimeout" instead.',
-					E_USER_DEPRECATED
+					E_USER_DEPRECATED,
 				);
 			}
 		}
