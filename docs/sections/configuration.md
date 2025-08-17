@@ -19,7 +19,7 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 - Default timeout after which a job is requeued if the worker doesn't report back:
 
     ```php
-    $config['Queue']['defaultRequeueTimeout'] = 1800; // 30 minutes
+    $config['Queue']['defaultRequeueTimeout'] = 180; // 3 minutes
     // Legacy: 'defaultworkertimeout' is deprecated but still supported
     ```
 
@@ -35,7 +35,7 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 - Seconds of running time after which the worker process will terminate (0 = unlimited):
 
     ```php
-    $config['Queue']['workerLifetime'] = 120; // 2 minutes
+    $config['Queue']['workerLifetime'] = 60; // 1 minutes (same as respawn time)
     // Legacy: 'workermaxruntime' is deprecated but still supported
     ```
 
@@ -44,7 +44,7 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 - Seconds of running time after which the PHP process of the worker will terminate (0 = unlimited):
 
     ```php
-    $config['Queue']['workerPhpTimeout'] = 120 * 100; // 200 minutes
+    $config['Queue']['workerPhpTimeout'] = 120; // 2 minutes
     // Legacy: 'workertimeout' is deprecated but still supported
     ```
 

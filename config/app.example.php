@@ -15,7 +15,7 @@ return [
 		// Legacy: 'defaultworkertimeout' is deprecated but still supported
 
 		// seconds of running time after which the worker process will terminate (0 = unlimited)
-		'workerLifetime' => 120, // 2 minutes
+		'workerLifetime' => 60, // 1 minutes
 		// Legacy: 'workermaxruntime' is deprecated but still supported
 
 		// seconds of running time after which the PHP process will terminate, null uses workerLifetime * 2
