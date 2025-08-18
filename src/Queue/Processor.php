@@ -485,7 +485,7 @@ class Processor {
 			$timeLimit = (int)$phpTimeout;
 		} else {
 			// Default to workermaxruntime * 2 (or workerLifetime * 2 with new naming)
-			$workerLifetime = Configure::read('Queue.workerLifetime') ?? Configure::read('Queue.workermaxruntime', 120);
+			$workerLifetime = Configure::read('Queue.workerLifetime') ?? Configure::read('Queue.workermaxruntime', 60);
 			$timeLimit = (int)$workerLifetime * 2;
 		}
 

@@ -9,11 +9,6 @@ use Templating\View\Icon\BootstrapIcon;
 
 return [
 	'Queue' => [
-		// time (in seconds) after which a job is requeued if the worker doesn't report back
-		// IMPORTANT: Task-specific timeouts should NOT exceed this value to prevent duplicate execution
-		'defaultRequeueTimeout' => 180, // 3 minutes
-		// Legacy: 'defaultworkertimeout' is deprecated but still supported
-
 		// seconds of running time after which the worker process will terminate (0 = unlimited)
 		'workerLifetime' => 60, // 1 minutes
 		// Legacy: 'workermaxruntime' is deprecated but still supported
@@ -21,6 +16,11 @@ return [
 		// seconds of running time after which the PHP process will terminate, null uses workerLifetime * 2
 		'workerPhpTimeout' => null,
 		// Legacy: 'workertimeout' is deprecated but still supported
+
+		// time (in seconds) after which a job is requeued if the worker doesn't report back
+		// IMPORTANT: Task-specific timeouts should NOT exceed this value to prevent duplicate execution
+		'defaultRequeueTimeout' => 180, // 3 minutes
+		// Legacy: 'defaultworkertimeout' is deprecated but still supported
 
 		// minimum time (in seconds) which a task remains in the database before being cleaned up.
 		'cleanuptimeout' => 2592000, // 30 days
