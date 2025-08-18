@@ -12,8 +12,11 @@ use Cake\Event\EventManager;
 use Cake\TestSuite\TestCase;
 use Psr\Log\NullLogger;
 use Queue\Console\Io;
+use Queue\Model\Entity\QueuedJob;
+use Queue\Model\Table\QueuedJobsTable;
 use Queue\Queue\Processor;
 use Queue\Queue\Task\RetryExampleTask;
+use ReflectionClass;
 use RuntimeException;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
@@ -160,6 +163,174 @@ class ProcessorTest extends TestCase {
 		// Verify event data
 		// The event was fired successfully (assertEventFired passed)
 		// We don't need to check the event data again since assertEventFired confirms it was fired
+	}
+
+	/**
+	 * Test that worker timeout handling marks the current job as failed
+	 *
+	 * @return void
+	 */
+	public function testWorkerTimeoutHandling() {
+		// Define SIGTERM if not available (for non-POSIX systems)
+		if (!defined('SIGTERM')) {
+			define('SIGTERM', 15);
+		}
+
+		// Create a mock job
+		$job = $this->getMockBuilder(QueuedJob::class)
+			->getMock();
+		$job->id = 123;
+		$job->job_task = 'TestTask';
+
+		// Create mock QueuedJobs table
+		$QueuedJobs = $this->getMockBuilder(QueuedJobsTable::class)
+			->disableOriginalConstructor()
+			->onlyMethods(['markJobFailed'])
+			->getMock();
+
+		// Expect markJobFailed to be called with the job and failure message
+		$QueuedJobs->expects($this->once())
+			->method('markJobFailed')
+			->with(
+				$this->identicalTo($job),
+				$this->stringContains('Worker process terminated by signal'),
+			);
+
+		// Create processor
+		$out = new ConsoleOutput();
+		$err = new ConsoleOutput();
+		$processor = new Processor(new Io(new ConsoleIo($out, $err)), new NullLogger());
+
+		// Set the QueuedJobs property through reflection
+		$reflection = new ReflectionClass($processor);
+		$queuedJobsProperty = $reflection->getProperty('QueuedJobs');
+		$queuedJobsProperty->setAccessible(true);
+		$queuedJobsProperty->setValue($processor, $QueuedJobs);
+
+		// Set the current job property through reflection
+		$currentJobProperty = $reflection->getProperty('currentJob');
+		$currentJobProperty->setAccessible(true);
+		$currentJobProperty->setValue($processor, $job);
+
+		// Set the pid property
+		$pidProperty = $reflection->getProperty('pid');
+		$pidProperty->setAccessible(true);
+		$pidProperty->setValue($processor, 'test-pid');
+
+		// Call the exit method which handles SIGTERM signal (timeout scenario)
+		$this->invokeMethod($processor, 'exit', [SIGTERM]);
+
+		// Check that exit flag was set
+		$exitProperty = $reflection->getProperty('exit');
+		$exitProperty->setAccessible(true);
+		$this->assertTrue($exitProperty->getValue($processor), 'Exit flag should be set to true');
+	}
+
+	/**
+	 * Integration test for worker timeout handling with real database
+	 *
+	 * @return void
+	 */
+	public function testWorkerTimeoutHandlingIntegration() {
+		$this->_needsConnection();
+
+		// Define SIGTERM if not available (for non-POSIX systems)
+		if (!defined('SIGTERM')) {
+			define('SIGTERM', 15);
+		}
+
+		// Create a real job in the database
+		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		$job = $QueuedJobs->createJob('Queue.RetryExample', ['test' => 'data'], ['priority' => 1]);
+		$this->assertNotNull($job->id, 'Job should be created with an ID');
+
+		// Create processor
+		$out = new ConsoleOutput();
+		$err = new ConsoleOutput();
+		$processor = new Processor(new Io(new ConsoleIo($out, $err)), new NullLogger());
+
+		// Set the current job property through reflection
+		$reflection = new ReflectionClass($processor);
+		$currentJobProperty = $reflection->getProperty('currentJob');
+		$currentJobProperty->setAccessible(true);
+		$currentJobProperty->setValue($processor, $job);
+
+		// Set the pid property
+		$pidProperty = $reflection->getProperty('pid');
+		$pidProperty->setAccessible(true);
+		$pidProperty->setValue($processor, 'test-pid');
+
+		// Call the exit method which handles SIGTERM signal (timeout scenario)
+		$this->invokeMethod($processor, 'exit', [SIGTERM]);
+
+		// Reload the job to check its status
+		$updatedJob = $QueuedJobs->get($job->id);
+
+		// Assert that the job was marked as failed (has failure message but not completed)
+		$this->assertNull($updatedJob->completed, 'Job should not be marked as completed');
+		$this->assertNotNull($updatedJob->failure_message, 'Job should have a failure message');
+		$this->assertStringContainsString('Worker process terminated by signal', $updatedJob->failure_message);
+		$this->assertStringContainsString('SIGTERM', $updatedJob->failure_message);
+		$this->assertStringContainsString('timeout', $updatedJob->failure_message);
+
+		// Check that exit flag was set
+		$exitProperty = $reflection->getProperty('exit');
+		$exitProperty->setAccessible(true);
+		$this->assertTrue($exitProperty->getValue($processor), 'Exit flag should be set to true');
+	}
+
+	/**
+	 * Test setPhpTimeout with new config names
+	 *
+	 * @return void
+	 */
+	public function testSetPhpTimeoutWithNewConfig() {
+		$processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
+
+		// Test with workerPhpTimeout config
+		Configure::write('Queue.workerPhpTimeout', 300);
+		$result = $this->invokeMethod($processor, 'setPhpTimeout', [null]);
+		$this->assertNull($result, 'setPhpTimeout should not return a value');
+
+		// Test with maxruntime parameter
+		Configure::delete('Queue.workerPhpTimeout');
+		$result = $this->invokeMethod($processor, 'setPhpTimeout', [60]);
+		$this->assertNull($result, 'setPhpTimeout should not return a value');
+
+		// Test fallback to workerLifetime * 2
+		Configure::delete('Queue.workerPhpTimeout');
+		Configure::write('Queue.workerLifetime', 100);
+		$result = $this->invokeMethod($processor, 'setPhpTimeout', [null]);
+		$this->assertNull($result, 'setPhpTimeout should not return a value');
+
+		// Clean up
+		Configure::delete('Queue.workerPhpTimeout');
+		Configure::delete('Queue.workerLifetime');
+	}
+
+	/**
+	 * Test setPhpTimeout with deprecated config name
+	 *
+	 * @return void
+	 */
+	public function testSetPhpTimeoutWithDeprecatedConfig() {
+		$processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
+
+		// Test with deprecated workertimeout config
+		Configure::write('Queue.workertimeout', 250);
+
+		// Suppress the deprecation warning for this test
+		$errorLevel = error_reporting();
+		error_reporting($errorLevel & ~E_USER_DEPRECATED);
+
+		$result = $this->invokeMethod($processor, 'setPhpTimeout', [null]);
+		$this->assertNull($result, 'setPhpTimeout should not return a value even with deprecated config');
+
+		// Restore error reporting
+		error_reporting($errorLevel);
+
+		// Clean up
+		Configure::delete('Queue.workertimeout');
 	}
 
 }
