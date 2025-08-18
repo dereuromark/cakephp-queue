@@ -33,8 +33,8 @@ class RunCommandTest extends TestCase {
 
 		Configure::write('Queue', [
 			'sleeptime' => 1,
-			'defaultworkertimeout' => 3,
-			'workermaxruntime' => 3,
+			'defaultRequeueTimeout' => 180, // 3 minutes - higher than any task timeout
+			'workerLifetime' => 3,
 			'cleanuptimeout' => 10,
 			'exitwhennothingtodo' => false,
 		]);

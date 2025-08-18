@@ -16,9 +16,21 @@ class Config {
 	 * @return int
 	 */
 	public static function defaultworkertimeout(): int {
-		$timeout = Configure::read('Queue.defaultworkertimeout', 600); // 10min
+		// Check for new config name first, fall back to old name for backward compatibility
+		$timeout = Configure::read('Queue.defaultRequeueTimeout');
+		if ($timeout === null) {
+			$timeout = Configure::read('Queue.defaultworkertimeout');
+			if ($timeout !== null) {
+				trigger_error(
+					'Config key "Queue.defaultworkertimeout" is deprecated. Use "Queue.defaultRequeueTimeout" instead.',
+					E_USER_DEPRECATED,
+				);
+			}
+		}
+		$timeout = $timeout ?? 600; // 10min default
+
 		if ($timeout <= 0) {
-			throw new InvalidArgumentException('Queue.defaultworkertimeout is less or equal than zero. Indefinite running of workers is not supported.');
+			throw new InvalidArgumentException('Queue.defaultRequeueTimeout (or deprecated defaultworkertimeout) is less or equal than zero. Indefinite running of jobs is not supported.');
 		}
 
 		return $timeout;
@@ -30,7 +42,19 @@ class Config {
 	 * @return int
 	 */
 	public static function workermaxruntime(): int {
-		return Configure::read('Queue.workermaxruntime', 120);
+		// Check for new config name first, fall back to old name for backward compatibility
+		$runtime = Configure::read('Queue.workerLifetime');
+		if ($runtime === null) {
+			$runtime = Configure::read('Queue.workermaxruntime');
+			if ($runtime !== null) {
+				trigger_error(
+					'Config key "Queue.workermaxruntime" is deprecated. Use "Queue.workerLifetime" instead.',
+					E_USER_DEPRECATED,
+				);
+			}
+		}
+
+		return $runtime ?? 120;
 	}
 
 	/**
@@ -60,7 +84,19 @@ class Config {
 	 * @return int
 	 */
 	public static function defaultworkerretries(): int {
-		return Configure::read('Queue.defaultworkerretries', 1);
+		// Check for new config name first, fall back to old name for backward compatibility
+		$retries = Configure::read('Queue.defaultJobRetries');
+		if ($retries === null) {
+			$retries = Configure::read('Queue.defaultworkerretries');
+			if ($retries !== null) {
+				trigger_error(
+					'Config key "Queue.defaultworkerretries" is deprecated. Use "Queue.defaultJobRetries" instead.',
+					E_USER_DEPRECATED,
+				);
+			}
+		}
+
+		return $retries ?? 1;
 	}
 
 	/**
@@ -91,6 +127,7 @@ class Config {
 	 */
 	public static function taskConfig(array $tasks): array {
 		$config = [];
+		$defaultTimeout = static::defaultworkertimeout();
 
 		foreach ($tasks as $task => $className) {
 			[$pluginName, $taskName] = pluginSplit($task);
@@ -98,10 +135,29 @@ class Config {
 			/** @var \Queue\Queue\Task $taskObject */
 			$taskObject = new $className();
 
+			$taskTimeout = $taskObject->timeout ?? $defaultTimeout;
+
+			// Warn if task timeout is greater than the requeue timeout, which can cause premature requeuing
+			if ($taskTimeout > $defaultTimeout) {
+				trigger_error(
+					sprintf(
+						'Task "%s" has timeout (%d seconds) larger than defaultRequeueTimeout (%d seconds). ' .
+						'The job will be requeued after %d seconds even though the task expects to run for %d seconds. ' .
+						'This can cause duplicate execution. Consider increasing defaultRequeueTimeout or decreasing the task timeout.',
+						$task,
+						$taskTimeout,
+						$defaultTimeout,
+						$defaultTimeout,
+						$taskTimeout,
+					),
+					E_USER_WARNING,
+				);
+			}
+
 			$config[$task]['class'] = $className;
 			$config[$task]['name'] = $taskName;
 			$config[$task]['plugin'] = $pluginName;
-			$config[$task]['timeout'] = $taskObject->timeout ?? static::defaultworkertimeout();
+			$config[$task]['timeout'] = $taskTimeout;
 			$config[$task]['retries'] = $taskObject->retries ?? static::defaultworkerretries();
 			$config[$task]['rate'] = $taskObject->rate;
 			$config[$task]['costs'] = $taskObject->costs;

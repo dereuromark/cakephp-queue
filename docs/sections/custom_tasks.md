@@ -26,11 +26,16 @@ use Queue\Queue\Task;
 class YourNameForItTask extends Task {
 
     /**
+     * Timeout in seconds for this specific task.
+     * Should NOT exceed defaultRequeueTimeout to prevent the job being requeued while still running.
+     * 
      * @var int
      */
     public $timeout = 20;
 
     /**
+     * Number of retries for this task if it fails.
+     * 
      * @var int
      */
     public $retries = 1;
