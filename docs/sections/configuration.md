@@ -100,7 +100,6 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     ```
 
 Don't forget to load that config file with `Configure::load('app_queue');` in your bootstrap.
-You can also use `$this->addPlugin('Queue', ['bootstrap' => true]);` which will load your `app_queue.php` config file automatically.
 
 Example `app_queue.php`:
 
