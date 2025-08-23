@@ -65,15 +65,15 @@ Configure::write('Icon', [
 Configure::write('debug', true);
 
 Configure::write('EmailTransport', [
-		'default' => [
-			'className' => 'Debug',
-		],
+	'default' => [
+		'className' => 'Debug',
+	],
 ]);
 Configure::write('Email', [
-		'default' => [
-			'transport' => 'default',
-			'from' => 'you@localhost',
-		],
+	'default' => [
+		'transport' => 'default',
+		'from' => 'you@localhost',
+	],
 ]);
 
 mb_internal_encoding('UTF-8');

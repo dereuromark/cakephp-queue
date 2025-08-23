@@ -72,7 +72,6 @@ return [
 
 		// ignores task classes
 		'ignoredTasks' => [],
-
 	],
 	'Icon' => [
 		'sets' => [

@@ -141,9 +141,9 @@ class Config {
 			if ($taskTimeout > $defaultTimeout) {
 				trigger_error(
 					sprintf(
-						'Task "%s" has timeout (%d seconds) larger than defaultRequeueTimeout (%d seconds). ' .
-						'The job will be requeued after %d seconds even though the task expects to run for %d seconds. ' .
-						'This can cause duplicate execution. Consider increasing defaultRequeueTimeout or decreasing the task timeout.',
+						'Task "%s" has timeout (%d seconds) larger than defaultRequeueTimeout (%d seconds). '
+						. 'The job will be requeued after %d seconds even though the task expects to run for %d seconds. '
+						. 'This can cause duplicate execution. Consider increasing defaultRequeueTimeout or decreasing the task timeout.',
 						$task,
 						$taskTimeout,
 						$defaultTimeout,

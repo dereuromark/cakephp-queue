@@ -161,11 +161,12 @@ class QueuedJobsTable extends Table {
 					}
 					if ($status === 'in_progress') {
 						$query->where([
-						'completed IS' => null,
-						'OR' => [
-							'notbefore <=' => new DateTime(),
-							'notbefore IS' => null,
-						]]);
+							'completed IS' => null,
+							'OR' => [
+								'notbefore <=' => new DateTime(),
+								'notbefore IS' => null,
+							],
+						]);
 
 						return true;
 					}
