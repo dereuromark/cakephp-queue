@@ -177,6 +177,13 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 				continue;
 			}
 
+			// Special handling for attachments - pass the array directly
+			if ($method === 'attachments') {
+				$this->mailer->setAttachments($setting);
+
+				continue;
+			}
+
 			call_user_func_array([$this->mailer, $setter], (array)$setting);
 		}
 

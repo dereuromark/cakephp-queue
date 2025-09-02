@@ -247,6 +247,45 @@ class EmailTaskTest extends TestCase {
 	}
 
 	/**
+	 * Test that attachments are properly handled when passed as an array
+	 *
+	 * @return void
+	 */
+	public function testRunWithAttachments() {
+		$attachments = [
+			'file1.txt' => [
+				'file' => '/tmp/file1.txt',
+				'mimetype' => 'text/plain',
+			],
+			'file2.pdf' => '/tmp/file2.pdf',
+		];
+
+		$settings = [
+			'from' => 'test@test.de',
+			'to' => 'recipient@test.de',
+			'subject' => 'Test with attachments',
+			'attachments' => $attachments,
+		];
+
+		$data = [
+			'settings' => $settings,
+			'content' => 'Email with attachments',
+		];
+
+		$this->Task->run($data, 0);
+
+		$this->assertInstanceOf(Mailer::class, $this->Task->mailer);
+
+		$mailerAttachments = $this->Task->mailer->getMessage()->getAttachments();
+		$this->assertCount(2, $mailerAttachments);
+		$this->assertArrayHasKey('file1.txt', $mailerAttachments);
+		$this->assertArrayHasKey('file2.pdf', $mailerAttachments);
+		$this->assertSame('/tmp/file1.txt', $mailerAttachments['file1.txt']['file']);
+		$this->assertSame('text/plain', $mailerAttachments['file1.txt']['mimetype']);
+		$this->assertSame('/tmp/file2.pdf', $mailerAttachments['file2.pdf']);
+	}
+
+	/**
 	 * Helper method for skipping tests that need a non Postgres connection.
 	 *
 	 * @return void
