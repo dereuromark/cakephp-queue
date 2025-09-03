@@ -252,12 +252,19 @@ class EmailTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRunWithAttachments() {
+		// Create temporary files for testing
+		$tmpFile1 = tempnam(sys_get_temp_dir(), 'test_file1_') . '.txt';
+		$tmpFile2 = tempnam(sys_get_temp_dir(), 'test_file2_') . '.pdf';
+
+		file_put_contents($tmpFile1, 'Test content for file 1');
+		file_put_contents($tmpFile2, 'Test content for file 2');
+
 		$attachments = [
 			'file1.txt' => [
-				'file' => '/tmp/file1.txt',
+				'file' => $tmpFile1,
 				'mimetype' => 'text/plain',
 			],
-			'file2.pdf' => '/tmp/file2.pdf',
+			'file2.pdf' => $tmpFile2,
 		];
 
 		$settings = [
@@ -280,9 +287,14 @@ class EmailTaskTest extends TestCase {
 		$this->assertCount(2, $mailerAttachments);
 		$this->assertArrayHasKey('file1.txt', $mailerAttachments);
 		$this->assertArrayHasKey('file2.pdf', $mailerAttachments);
-		$this->assertSame('/tmp/file1.txt', $mailerAttachments['file1.txt']['file']);
+		$this->assertSame($tmpFile1, $mailerAttachments['file1.txt']['file']);
 		$this->assertSame('text/plain', $mailerAttachments['file1.txt']['mimetype']);
-		$this->assertSame('/tmp/file2.pdf', $mailerAttachments['file2.pdf']);
+		$this->assertSame($tmpFile2, $mailerAttachments['file2.pdf']['file']);
+		$this->assertSame('application/pdf', $mailerAttachments['file2.pdf']['mimetype']);
+
+		// Clean up temporary files
+		unlink($tmpFile1);
+		unlink($tmpFile2);
 	}
 
 	/**
