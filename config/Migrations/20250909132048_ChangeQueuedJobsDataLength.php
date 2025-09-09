@@ -6,8 +6,7 @@ use Phinx\Db\Adapter\AdapterWrapper;
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Migration\AbstractMigration;
 
-class ChangeQueuedJobsDataLength extends AbstractMigration
-{
+class ChangeQueuedJobsDataLength extends AbstractMigration {
 
 	/**
 	 * Change Method.
@@ -19,8 +18,7 @@ class ChangeQueuedJobsDataLength extends AbstractMigration
 	 *
 	 * @return void
 	 */
-	public function change(): void
-	{
+	public function change(): void {
 		//TODO: check adapter and skip for postgres, instead of try/catch
 		if ($this->getUnwrappedAdapter() instanceof MysqlAdapter) {
 			try {
@@ -46,8 +44,12 @@ class ChangeQueuedJobsDataLength extends AbstractMigration
 		}
 	}
 
-	private function getUnwrappedAdapter(): ?AdapterInterface
-	{
+	/**
+	 * Gets the unwrapped adapter
+	 *
+	 * @return void
+	 */
+	private function getUnwrappedAdapter(): ?AdapterInterface {
 		$adapter = $this->adapter;
 
 		while ($adapter instanceof AdapterWrapper) {
