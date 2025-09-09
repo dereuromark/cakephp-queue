@@ -47,7 +47,7 @@ class ChangeQueuedJobsDataLength extends AbstractMigration {
 	/**
 	 * Gets the unwrapped adapter
 	 *
-	 * @return void
+	 * @return \Phinx\Db\Adapter\AdapterInterface|null
 	 */
 	private function getUnwrappedAdapter(): ?AdapterInterface {
 		$adapter = $this->adapter;
