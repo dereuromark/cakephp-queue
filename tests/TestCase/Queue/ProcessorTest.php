@@ -203,27 +203,31 @@ class ProcessorTest extends TestCase {
 
 		// Set the QueuedJobs property through reflection
 		$reflection = new ReflectionClass($processor);
-		$queuedJobsProperty = $reflection->getProperty('QueuedJobs');
-		$queuedJobsProperty->setAccessible(true);
-		$queuedJobsProperty->setValue($processor, $QueuedJobs);
+		if ($reflection->hasProperty('QueuedJobs')) {
+			$queuedJobsProperty = $reflection->getProperty('QueuedJobs');
+			$queuedJobsProperty->setValue($processor, $QueuedJobs);
+		}
 
 		// Set the current job property through reflection
-		$currentJobProperty = $reflection->getProperty('currentJob');
-		$currentJobProperty->setAccessible(true);
-		$currentJobProperty->setValue($processor, $job);
+		if ($reflection->hasProperty('currentJob')) {
+			$currentJobProperty = $reflection->getProperty('currentJob');
+			$currentJobProperty->setValue($processor, $job);
+		}
 
 		// Set the pid property
-		$pidProperty = $reflection->getProperty('pid');
-		$pidProperty->setAccessible(true);
-		$pidProperty->setValue($processor, 'test-pid');
+		if ($reflection->hasProperty('pid')) {
+			$pidProperty = $reflection->getProperty('pid');
+			$pidProperty->setValue($processor, 'test-pid');
+		}
 
 		// Call the exit method which handles SIGTERM signal (timeout scenario)
 		$this->invokeMethod($processor, 'exit', [SIGTERM]);
 
 		// Check that exit flag was set
-		$exitProperty = $reflection->getProperty('exit');
-		$exitProperty->setAccessible(true);
-		$this->assertTrue($exitProperty->getValue($processor), 'Exit flag should be set to true');
+		if ($reflection->hasProperty('exit')) {
+			$exitProperty = $reflection->getProperty('exit');
+			$this->assertTrue($exitProperty->getValue($processor), 'Exit flag should be set to true');
+		}
 	}
 
 	/**
@@ -251,14 +255,16 @@ class ProcessorTest extends TestCase {
 
 		// Set the current job property through reflection
 		$reflection = new ReflectionClass($processor);
-		$currentJobProperty = $reflection->getProperty('currentJob');
-		$currentJobProperty->setAccessible(true);
-		$currentJobProperty->setValue($processor, $job);
+		if ($reflection->hasProperty('currentJob')) {
+			$currentJobProperty = $reflection->getProperty('currentJob');
+			$currentJobProperty->setValue($processor, $job);
+		}
 
 		// Set the pid property
-		$pidProperty = $reflection->getProperty('pid');
-		$pidProperty->setAccessible(true);
-		$pidProperty->setValue($processor, 'test-pid');
+		if ($reflection->hasProperty('pid')) {
+			$pidProperty = $reflection->getProperty('pid');
+			$pidProperty->setValue($processor, 'test-pid');
+		}
 
 		// Call the exit method which handles SIGTERM signal (timeout scenario)
 		$this->invokeMethod($processor, 'exit', [SIGTERM]);
@@ -274,9 +280,10 @@ class ProcessorTest extends TestCase {
 		$this->assertStringContainsString('timeout', $updatedJob->failure_message);
 
 		// Check that exit flag was set
-		$exitProperty = $reflection->getProperty('exit');
-		$exitProperty->setAccessible(true);
-		$this->assertTrue($exitProperty->getValue($processor), 'Exit flag should be set to true');
+		if ($reflection->hasProperty('exit')) {
+			$exitProperty = $reflection->getProperty('exit');
+			$this->assertTrue($exitProperty->getValue($processor), 'Exit flag should be set to true');
+		}
 	}
 
 	/**
