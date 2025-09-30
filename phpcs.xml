@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <ruleset name="plugin">
-    <config name="installed_paths" value="../../fig-r/psr2r-sniffer"/>
     <arg value="nps"/>
 
     <file>config/</file>
