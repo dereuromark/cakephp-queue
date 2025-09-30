@@ -28,17 +28,17 @@ class YourNameForItTask extends Task {
     /**
      * Timeout in seconds for this specific task.
      * Should NOT exceed defaultRequeueTimeout to prevent the job being requeued while still running.
-     * 
-     * @var int
+     *
+     * @var ?int
      */
-    public $timeout = 20;
+    public ?int $timeout = 20;
 
     /**
      * Number of retries for this task if it fails.
-     * 
-     * @var int
+     *
+     * @var ?int
      */
-    public $retries = 1;
+    public ?int $retries = 1;
 
     /**
      * @param array $data The array passed to QueuedJobsTable::createJob()

@@ -36,14 +36,28 @@ For sending emails, for example:
 ```php
 // In your controller or where TableAwareTrait is used
 $queuedJobsTable = $this->fetchTable('Queue.QueuedJobs');
-$queuedJobsTable->createJob('Queue.Email', ['to' => 'user@example.org', ...]);
+$queuedJobsTable->createJob('Queue.Email', [
+    'settings' => [
+        'to' => 'user@example.org',
+        'subject' => 'Test Email',
+    ],
+    'content' => 'Email body',
+]);
 
 // Somewhere in the model or lib
+use Cake\ORM\Locator\LocatorAwareTrait;
+
 TableRegistry::getTableLocator()->get('Queue.QueuedJobs')
-    ->createJob('Queue.Email', ['to' => 'user@example.org', ...]);
+    ->createJob('Queue.Email', [
+        'settings' => [
+            'to' => 'user@example.org',
+            'subject' => 'Test Email',
+        ],
+        'content' => 'Email body',
+    ]);
 ```
 
-It will use the plugin's `EmailTask` to send out emails via CLI.
+It will use the plugin's `EmailTask` to send out emails via CLI. See the [Email task documentation](tasks/email.md) for more details.
 
 Important: Do not forget to set your [domain](https://book.cakephp.org/4/en/core-libraries/email.html#sending-emails-from-cli) when sending from CLI.
 

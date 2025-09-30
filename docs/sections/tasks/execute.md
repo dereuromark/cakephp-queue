@@ -1,20 +1,130 @@
 # Using built-in Execute task
 
-The built-in task directly runs on the same path as your app, so you can use relative paths or absolute ones:
+The Execute task allows you to run shell commands asynchronously through the queue system.
+
+## Basic usage
+
+The task runs commands in the same working directory as your application:
+
+```php
+use Cake\ORM\Locator\LocatorAwareTrait;
+
+// Simple command
+$data = [
+    'command' => 'bin/cake importer run',
+];
+$queuedJobsTable = $this->fetchTable('Queue.QueuedJobs');
+$queuedJobsTable->createJob('Queue.Execute', $data);
+```
+
+## Command with parameters
+
+You can pass parameters separately for better control:
+
+```php
+$data = [
+    'command' => 'bin/cake',
+    'params' => ['importer', 'run', '--verbose'],
+];
+$queuedJobsTable->createJob('Queue.Execute', $data);
+```
+
+The `params` array will be joined with spaces and appended to the command.
+
+## Configuration options
+
+### escape (default: true)
+
+By default, the command and parameters are escaped using `escapeshellcmd()` for security:
+
 ```php
 $data = [
     'command' => 'bin/cake importer run',
-    'content' => $content,
+    'escape' => true, // Default - commands are escaped
 ];
-$queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
-$queuedJobsTable->createJob('Execute', $data);
 ```
 
-The task automatically captures stderr output into stdout. If you don't want this, set "redirect" to false.
-It also escapes by default using "escape" true. Only disable this if you trust the source.
+**Only disable this if you completely trust the source!**
 
-By default, it only allows return code `0` (success) to pass. If you need different accepted return codes, pass them as "accepted" array.
-If you want to disable this check and allow any return code to be successful, pass `[]` (empty array).
+```php
+$data = [
+    'command' => 'some-trusted-command',
+    'escape' => false, // Use with extreme caution
+];
+```
 
-*Warning*: This can essentially execute anything on CLI. Make sure you never expose this directly as free-text input to anyone.
-Use only predefined and safe code-snippets here!
+### redirect (default: true)
+
+By default, stderr output is redirected to stdout (using `2>&1`). Disable if you need separate error handling:
+
+```php
+$data = [
+    'command' => 'bin/cake importer run',
+    'redirect' => false, // Keep stderr separate
+];
+```
+
+### accepted (default: [0])
+
+By default, only exit code `0` (success) is accepted. You can configure different accepted return codes:
+
+```php
+$data = [
+    'command' => 'some-command',
+    'accepted' => [0, 1, 2], // Accept these exit codes as success
+];
+```
+
+To accept any return code (disable checking):
+
+```php
+$data = [
+    'command' => 'some-command',
+    'accepted' => [], // Empty array = accept any exit code
+];
+```
+
+### log (default: false)
+
+Enable logging of command execution details:
+
+```php
+$data = [
+    'command' => 'bin/cake importer run',
+    'log' => true, // Log command, exit code, and output
+];
+```
+
+This logs the server, command, exit code, and output to the configured logger.
+
+## Complete example
+
+```php
+$data = [
+    'command' => 'bin/cake',
+    'params' => ['cleanup', 'cache', '--force'],
+    'escape' => true,
+    'redirect' => true,
+    'accepted' => [0],
+    'log' => true,
+];
+$queuedJobsTable->createJob('Queue.Execute', $data);
+```
+
+## Adding from CLI
+
+You can also add Execute jobs from the command line:
+
+```bash
+bin/cake queue add Execute "sleep 10s"
+```
+
+For commands with parameters, use quotes:
+
+```bash
+bin/cake queue add Execute "bin/cake importer run --verbose"
+```
+
+## Security warning
+
+**Important:** The Execute task can run any shell command. Never expose this to user input directly. Only use predefined, safe command snippets in your application code.

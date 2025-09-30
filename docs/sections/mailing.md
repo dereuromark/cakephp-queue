@@ -1,8 +1,10 @@
 # Mailing
 
+There are multiple ways to send emails asynchronously using the Queue plugin:
+
 ## Using built-in tasks
-* [Email](tasks/email.md) using Message class
-* [Mailer](tasks/mailer.md) using Mailer class
+* [Email Task](./tasks/email.md) - For basic emails using Message class (most flexible)
+* [Mailer Task](./tasks/mailer.md) - For reusable templated emails using Mailer classes (best for standard emails)
 
 ## Using QueueTransport
 
@@ -47,14 +49,15 @@ This way each time with `$mailer->deliver()` it will use `QueueTransport` as mai
   This can only be used for non-templated emails.
 
 
-## Manually assembling your emails
+## Creating custom email tasks
 
-This is the most customizable way to generate your asynchronous emails.
+For more complex email workflows, you can create custom task classes.
 
-Don't generate them directly in your code and pass them to the queue, instead just pass the minimum requirements, like non persistent data needed and the primary keys of the records that need to be included.
-So let's say someone posted a comment, and you want to get notified.
+This is the most customizable way to generate your asynchronous emails. Don't generate emails directly in your code and pass them to the queue. Instead, pass only the minimum requirements (non-persistent data and primary keys of records).
 
-Inside your CommentsTable class after saving the data you execute this hook:
+Example: Sending a notification when someone posts a comment.
+
+Inside your CommentsTable class after saving:
 
 ```php
 /**
@@ -77,27 +80,43 @@ protected function _notifyAdmin(Comment $comment)
 }
 ```
 
-And your `QueueAdminEmailTask::run()` method (using `MailerAwareTrait`):
+Create your custom task class `src/Queue/Task/CommentNotificationTask.php`:
 
 ```php
-$this->getMailer('User');
-$this->Mailer->viewBuilder()->setTemplate('comment_notification');
-// ...
-if (!empty($data['vars'])) {
-    $this->Mailer->setViewVars($data['vars']);
-}
+namespace App\Queue\Task;
 
-$this->Mailer->deliver();
+use Cake\Mailer\MailerAwareTrait;
+use Queue\Queue\Task;
+
+class CommentNotificationTask extends Task
+{
+    use MailerAwareTrait;
+
+    public function run(array $data, int $jobId): void
+    {
+        $mailer = $this->getMailer('User');
+        $mailer->viewBuilder()->setTemplate('comment_notification');
+
+        if (!empty($data['settings']['subject'])) {
+            $mailer->setSubject($data['settings']['subject']);
+        }
+        if (!empty($data['vars'])) {
+            $mailer->setViewVars($data['vars']);
+        }
+
+        $mailer->deliver();
+    }
+}
 ```
 
-Make sure you got the template for it then, e.g.:
+Create the email template `templates/email/html/comment_notification.php`:
 
 ```php
-<?= $comment->name ?> ( <?= $comment->email ?> ) wrote:
+<?= $comment->name ?> (<?= $comment->email ?>) wrote:
 
 <?= $comment->message ?>
 
 <?= $this->Url->build(['prefix' => 'Admin', 'controller' => 'Comments', 'action'=> 'view', $comment['id']], true) ?>
 ```
 
-This way all the generation is in the specific task and template and can be tested separately.
+This way all the email generation logic is in the specific task and template, making it easy to test separately.

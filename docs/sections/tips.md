@@ -99,9 +99,11 @@ Thus it is disabled by default for trivial use cases.
 
 ## Killing workers
 
-First of all: Make sure you don't run workers with `workermaxruntime` and `workertimeout` of `0`.
-Then they would at least not run forever, and might pile up only if you start them faster then they terminate.
+First of all: Make sure you don't run workers with `workerLifetime` and `workerPhpTimeout` of `0`.
+Then they would at least not run forever, and might pile up only if you start them faster than they terminate.
 That can overload the server.
+
+Note: The old config names `workermaxruntime` and `workertimeout` are deprecated but still supported.
 
 ### Via tool
 
