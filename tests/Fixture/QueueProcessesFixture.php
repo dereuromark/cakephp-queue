@@ -14,7 +14,6 @@ class QueueProcessesFixture extends TestFixture {
 	 *
 	 * @var array
 	 */
-	// @codingStandardsIgnoreStart
 	public array $fields = [
 		'id' => ['type' => 'integer', 'length' => 11, 'unsigned' => false, 'null' => false, 'default' => null, 'comment' => '', 'autoIncrement' => true, 'precision' => null],
 		'pid' => ['type' => 'string', 'length' => 40, 'null' => false, 'default' => null, 'comment' => '', 'precision' => null, 'fixed' => null],
@@ -32,7 +31,6 @@ class QueueProcessesFixture extends TestFixture {
 			'engine' => 'InnoDB',
 		],
 	];
-	// @codingStandardsIgnoreEnd
 
 	/**
 	 * Init method
