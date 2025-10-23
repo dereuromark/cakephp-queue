@@ -3,7 +3,7 @@
 use Cake\Core\Configure;
 use Cake\Error\Debugger;
 
-if (Configure::read('debug')):
+if (Configure::read('debug')) :
 	$this->layout = 'dev_error';
 
 	$this->assign('title', $message);
@@ -22,7 +22,7 @@ if (Configure::read('debug')):
 	<?php endif;
 	echo $this->element('auto_table_warning');
 
-	if (extension_loaded('xdebug')):
+	if (extension_loaded('xdebug')) :
 		xdebug_print_function_stack();
 	endif;
 
