@@ -43,6 +43,12 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 
   If you need workers to run for extended periods, use a very large value (e.g., 86400 for 24 hours). However, it's recommended to use shorter durations (e.g., 60-300 seconds) with cronjob respawning for better control and safety.
 
+  **Note:** You can override this config value using the `--max-runtime` CLI option:
+  ```bash
+  bin/cake queue run --max-runtime 0     # Run indefinitely (only for local dev/debug)
+  bin/cake queue run --max-runtime 300   # Run for 5 minutes
+  ```
+
 - Seconds of running time after which the PHP process of the worker will terminate:
 
     ```php

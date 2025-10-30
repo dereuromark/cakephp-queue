@@ -178,7 +178,7 @@ class Processor {
 			if ($workerLifetime === null && $config['maxruntime'] === null) {
 				throw new RuntimeException('Queue.workerLifetime (or deprecated workermaxruntime) config is required');
 			}
-			$maxRuntime = $config['maxruntime'] ?: (int)$workerLifetime;
+			$maxRuntime = $config['maxruntime'] ?? (int)$workerLifetime;
 			// check if we are over the maximum runtime and end processing if so.
 			if ($maxRuntime > 0 && (time() - $startTime) >= $maxRuntime) {
 				$this->exit = true;
@@ -513,7 +513,7 @@ class Processor {
 		if (!empty($args['type'])) {
 			$config['types'] = $this->stringToArray($args['type']);
 		}
-		if (!empty($args['max-runtime'])) {
+		if (isset($args['max-runtime']) && $args['max-runtime'] !== null && $args['max-runtime'] !== '') {
 			$config['maxruntime'] = (int)$args['max-runtime'];
 		}
 
