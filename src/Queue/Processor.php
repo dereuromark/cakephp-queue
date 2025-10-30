@@ -175,7 +175,7 @@ class Processor {
 			}
 
 			$workerLifetime = Configure::read('Queue.workerLifetime') ?? Configure::read('Queue.workermaxruntime');
-			if ($workerLifetime === null) {
+			if ($workerLifetime === null && $config['maxruntime'] === null) {
 				throw new RuntimeException('Queue.workerLifetime (or deprecated workermaxruntime) config is required');
 			}
 			$maxRuntime = $config['maxruntime'] ?: (int)$workerLifetime;
