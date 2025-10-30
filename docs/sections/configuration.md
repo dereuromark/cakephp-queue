@@ -32,23 +32,27 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     // Legacy: 'defaultworkerretries' is deprecated but still supported
     ```
 
-- Seconds of running time after which the worker process will terminate (0 = unlimited):
+- Seconds of running time after which the worker process will terminate:
 
     ```php
-    $config['Queue']['workerLifetime'] = 60; // 1 minutes (same as respawn time)
+    $config['Queue']['workerLifetime'] = 60; // 1 minute (same as respawn time)
     // Legacy: 'workermaxruntime' is deprecated but still supported
     ```
 
-  *Warning:* Do not use 0 if you are using a cronjob to permanently start a new worker once in a while and if you do not exit on idle.
+  **Important:** This value cannot be 0. A value of 0 would mean "unlimited" which is not supported and will throw a RuntimeException. This setting is required to prevent workers from running indefinitely and potentially piling up if spawned faster than they can terminate, which could overload your server.
 
-- Seconds of running time after which the PHP process of the worker will terminate (0 = unlimited):
+  If you need workers to run for extended periods, use a very large value (e.g., 86400 for 24 hours). However, it's recommended to use shorter durations (e.g., 60-300 seconds) with cronjob respawning for better control and safety.
+
+- Seconds of running time after which the PHP process of the worker will terminate:
 
     ```php
     $config['Queue']['workerPhpTimeout'] = 120; // 2 minutes
     // Legacy: 'workertimeout' is deprecated but still supported
     ```
 
-  *Warning:* Do not use 0 if you are using a cronjob to permanently start a new worker once in a while and if you do not exit on idle. This is the last defense of the tool to prevent flooding too many processes. So make sure this is long enough to never cut off jobs, but also not too long, so the process count stays in manageable range.
+  **Important:** While technically 0 (unlimited) is allowed for this setting, it is **strongly discouraged** if you are using a cronjob to permanently start new workers and if you do not exit on idle. This timeout serves as the last line of defense to prevent an excessive number of worker processes from accumulating, which could overload your server.
+
+  Set this value high enough to never cut off running jobs, but low enough to keep the process count manageable. A good practice is to set it to at least 2x your `workerLifetime` value.
 
 - Should a worker process quit when there are no more tasks for it to execute (true = exit, false = keep running):
 
