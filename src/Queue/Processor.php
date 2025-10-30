@@ -175,12 +175,12 @@ class Processor {
 			}
 
 			$workerLifetime = Configure::read('Queue.workerLifetime') ?? Configure::read('Queue.workermaxruntime');
-			if (!$workerLifetime) {
+			if ($workerLifetime === null) {
 				throw new RuntimeException('Queue.workerLifetime (or deprecated workermaxruntime) config is required');
 			}
-			$maxRuntime = $config['maxruntime'] ?: $workerLifetime;
+			$maxRuntime = $config['maxruntime'] ?: (int)$workerLifetime;
 			// check if we are over the maximum runtime and end processing if so.
-			if ((time() - $startTime) >= $maxRuntime) {
+			if ($maxRuntime > 0 && (time() - $startTime) >= $maxRuntime) {
 				$this->exit = true;
 				$this->io->out('Reached runtime of ' . (time() - $startTime) . ' Seconds (Max ' . $maxRuntime . '), terminating.');
 			}

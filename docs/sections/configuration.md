@@ -39,7 +39,7 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     // Legacy: 'workermaxruntime' is deprecated but still supported
     ```
 
-  **Important:** This value cannot be 0. A value of 0 would mean "unlimited" which is not supported and will throw a RuntimeException. This setting is required to prevent workers from running indefinitely and potentially piling up if spawned faster than they can terminate, which could overload your server.
+  **Important:** While 0 (unlimited) is technically allowed, it is **strongly discouraged**. Using 0 means workers will run indefinitely, which can lead to workers piling up if spawned faster than they can naturally terminate (e.g., when there are no jobs), potentially overloading your server.
 
   If you need workers to run for extended periods, use a very large value (e.g., 86400 for 24 hours). However, it's recommended to use shorter durations (e.g., 60-300 seconds) with cronjob respawning for better control and safety.
 

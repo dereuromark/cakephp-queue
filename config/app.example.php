@@ -9,7 +9,7 @@ use Templating\View\Icon\BootstrapIcon;
 
 return [
 	'Queue' => [
-		// seconds of running time after which the worker process will terminate (0 = unlimited)
+		// seconds of running time after which the worker process will terminate (0 = unlimited, but not recommended)
 		'workerLifetime' => 60, // 1 minutes
 		// Legacy: 'workermaxruntime' is deprecated but still supported
 

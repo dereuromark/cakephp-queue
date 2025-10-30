@@ -37,7 +37,8 @@ class Config {
 	}
 
 	/**
-	 * Seconds of running time after which the worker will terminate (0 = unlimited)
+	 * Seconds of running time after which the worker will terminate.
+	 * Note: 0 = unlimited is allowed but not recommended. Use a non-zero value for better control.
 	 *
 	 * @return int
 	 */
