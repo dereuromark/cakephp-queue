@@ -513,7 +513,7 @@ class Processor {
 		if (!empty($args['type'])) {
 			$config['types'] = $this->stringToArray($args['type']);
 		}
-		if (isset($args['max-runtime']) && $args['max-runtime'] !== null && $args['max-runtime'] !== '') {
+		if (isset($args['max-runtime']) && $args['max-runtime'] !== '') {
 			$config['maxruntime'] = (int)$args['max-runtime'];
 		}
 
