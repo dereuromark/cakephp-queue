@@ -88,6 +88,9 @@ class QueuedTask extends QueueAppModel {
 	}
 
   public function isCompanyForEcsQueue($bidId) {
+    if (Configure::read('Queue.enforceEcsForAll.connection')) {
+      return true;
+    }
     $companyBid = ClassRegistry::init('CompanyBid')->find('first', [
       'conditions' => [
         'CompanyBid.id' => $bidId,
