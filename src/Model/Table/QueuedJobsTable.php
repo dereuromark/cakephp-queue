@@ -424,18 +424,18 @@ class QueuedJobsTable extends Table {
 	public function getFullStats(?string $jobTask = null): array {
 		$driverName = $this->getDriverName();
 		$fields = function (SelectQuery $query) use ($driverName) {
-			$runtime = $query->newExpr('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)');
+			$runtime = $query->expr('UNIX_TIMESTAMP(completed) - UNIX_TIMESTAMP(fetched)');
 			switch ($driverName) {
 				case static::DRIVER_SQLSERVER:
-					$runtime = $query->newExpr("DATEDIFF(s, '1970-01-01 00:00:00', completed) - DATEDIFF(s, '1970-01-01 00:00:00', fetched)");
+					$runtime = $query->expr("DATEDIFF(s, '1970-01-01 00:00:00', completed) - DATEDIFF(s, '1970-01-01 00:00:00', fetched)");
 
 					break;
 				case static::DRIVER_POSTGRES:
-					$runtime = $query->newExpr('EXTRACT(EPOCH FROM completed) - EXTRACT(EPOCH FROM fetched)');
+					$runtime = $query->expr('EXTRACT(EPOCH FROM completed) - EXTRACT(EPOCH FROM fetched)');
 
 					break;
 				case static::DRIVER_SQLITE:
-					$runtime = $query->newExpr('julianday(completed) - julianday(fetched)');
+					$runtime = $query->expr('julianday(completed) - julianday(fetched)');
 
 					break;
 			}
