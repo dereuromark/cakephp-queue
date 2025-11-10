@@ -523,19 +523,19 @@ class QueuedJobsTable extends Table {
 		$driverName = $this->getDriverName();
 
 		$query = $this->find();
-		$age = $query->newExpr()->add('IFNULL(TIMESTAMPDIFF(SECOND, "' . $nowStr . '", notbefore), 0)');
+		$age = $query->expr()->add('IFNULL(TIMESTAMPDIFF(SECOND, "' . $nowStr . '", notbefore), 0)');
 		switch ($driverName) {
 			case static::DRIVER_SQLSERVER:
-				$age = $query->newExpr()->add('ISNULL(DATEDIFF(SECOND, GETDATE(), notbefore), 0)');
+				$age = $query->expr()->add('ISNULL(DATEDIFF(SECOND, GETDATE(), notbefore), 0)');
 
 				break;
 			case static::DRIVER_POSTGRES:
-				$age = $query->newExpr()
+				$age = $query->expr()
 					->add('COALESCE(EXTRACT(EPOCH FROM notbefore) - (EXTRACT(EPOCH FROM now())), 0)');
 
 				break;
 			case static::DRIVER_SQLITE:
-				$age = $query->newExpr()
+				$age = $query->expr()
 					->add('IFNULL(CAST(strftime("%s", CURRENT_TIMESTAMP) as integer) - CAST(strftime("%s", "' . $nowStr . '") as integer), 0)');
 
 				break;
