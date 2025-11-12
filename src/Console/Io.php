@@ -60,7 +60,7 @@ class Io {
 	 * present in most shells. Using ConsoleIo::QUIET for a message means it will always display.
 	 * While using ConsoleIo::VERBOSE means it will only display when verbose output is toggled.
 	 *
-	 * @link https://book.cakephp.org/4/en/console-commands/input-output.html#creating-output
+	 * @link https://book.cakephp.org/5/en/console-commands/input-output.html#creating-output
 	 *
 	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
@@ -90,7 +90,7 @@ class Io {
 	/**
 	 * Convenience method for out() that wraps message between <info /> tag
 	 *
-	 * @see https://book.cakephp.org/4/en/console-commands/input-output.html#creating-output
+	 * @see https://book.cakephp.org/5/en/console-commands/input-output.html#creating-output
 	 *
 	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
@@ -110,7 +110,7 @@ class Io {
 	/**
 	 * Convenience method for out() that wraps message between <comment /> tag
 	 *
-	 * @see https://book.cakephp.org/4/en/console-commands/input-output.html#creating-output
+	 * @see https://book.cakephp.org/5/en/console-commands/input-output.html#creating-output
 	 *
 	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
@@ -130,7 +130,7 @@ class Io {
 	/**
 	 * Convenience method for err() that wraps message between <warning /> tag
 	 *
-	 * @see https://book.cakephp.org/4/en/console-commands/input-output.html#creating-output
+	 * @see https://book.cakephp.org/5/en/console-commands/input-output.html#creating-output
 	 *
 	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
@@ -149,7 +149,7 @@ class Io {
 	/**
 	 * Convenience method for out() that wraps message between <success /> tag
 	 *
-	 * @see https://book.cakephp.org/4/en/console-commands/input-output.html#creating-output
+	 * @see https://book.cakephp.org/5/en/console-commands/input-output.html#creating-output
 	 *
 	 * @param array<string>|string $message A string or an array of strings to output
 	 * @param int $newlines Number of newlines to append
@@ -169,7 +169,7 @@ class Io {
 	/**
 	 * Returns a single or multiple linefeeds sequences.
 	 *
-	 * @link https://book.cakephp.org/4/en/console-commands/input-output.html#creating-output
+	 * @link https://book.cakephp.org/5/en/console-commands/input-output.html#creating-output
 	 *
 	 * @param int $multiplier Number of times the linefeed sequence should be repeated
 	 *
@@ -182,7 +182,7 @@ class Io {
 	/**
 	 * Outputs a series of minus characters to the standard output, acts as a visual separator.
 	 *
-	 * @link https://book.cakephp.org/4/en/console-commands/input-output.html#creating-output
+	 * @link https://book.cakephp.org/5/en/console-commands/input-output.html#creating-output
 	 *
 	 * @param int $newlines Number of newlines to pre- and append
 	 * @param int $width Width of the line, defaults to 63
@@ -197,7 +197,7 @@ class Io {
 	 * Displays a formatted error message
 	 * and exits the application with status code 1
 	 *
-	 * @link https://book.cakephp.org/4/en/console-commands/input-output.html#styling-output
+	 * @link https://book.cakephp.org/5/en/console-commands/input-output.html#styling-output
 	 *
 	 * @param string $message The error message
 	 * @param int $exitCode The exit code for the shell task.
