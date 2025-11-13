@@ -7,7 +7,6 @@ use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Event\EventInterface;
-use Cake\Http\Exception\NotImplementedException;
 use Cake\I18n\DateTime;
 use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\Table;
@@ -16,11 +15,11 @@ use CakeDto\Dto\FromArrayToArrayInterface;
 use InvalidArgumentException;
 use Queue\Config\JobConfig;
 use Queue\Model\Entity\QueuedJob;
+use Queue\Model\Filter\QueuedJobsCollection;
 use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
 use Queue\Utility\Memory;
 use RuntimeException;
-use Search\Manager;
 
 /**
  * @author MGriesbach@gmail.com
@@ -116,7 +115,9 @@ class QueuedJobsTable extends Table {
 
 		$this->addBehavior('Timestamp');
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
-			$this->addBehavior('Search.Search');
+			$this->addBehavior('Search.Search', [
+				'collectionClass' => QueuedJobsCollection::class,
+			]);
 		}
 
 		$this->belongsTo('WorkerProcesses', [
@@ -141,46 +142,6 @@ class QueuedJobsTable extends Table {
 		if (isset($data['data']) && $data['data'] === '') {
 			$data['data'] = null;
 		}
-	}
-
-	/**
-	 * @return \Search\Manager
-	 */
-	public function searchManager(): Manager {
-		$searchManager = $this->behaviors()->Search->searchManager();
-		$searchManager
-			->value('job_task')
-			->like('search', ['fields' => ['job_group', 'reference', 'status'], 'before' => true, 'after' => true])
-			->add('status', 'Search.Callback', [
-				'callback' => function (SelectQuery $query, array $args, $filter) {
-					$status = $args['status'];
-					if ($status === 'completed') {
-						$query->where(['completed IS NOT' => null]);
-
-						return true;
-					}
-					if ($status === 'in_progress') {
-						$query->where([
-							'completed IS' => null,
-							'OR' => [
-								'notbefore <=' => new DateTime(),
-								'notbefore IS' => null,
-							],
-						]);
-
-						return true;
-					}
-					if ($status === 'scheduled') {
-						$query->where(['completed IS' => null, 'notbefore >' => new DateTime()]);
-
-						return true;
-					}
-
-					throw new NotImplementedException('Invalid status type');
-				},
-			]);
-
-		return $searchManager;
 	}
 
 	/**
