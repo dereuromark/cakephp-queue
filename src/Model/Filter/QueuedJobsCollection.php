@@ -19,7 +19,7 @@ class QueuedJobsCollection extends FilterCollection {
 			->like('search', [
 				'before' => true,
 				'after' => true,
-				'field' => ['job_group', 'reference', 'status'],
+				'fields' => ['job_group', 'reference', 'status'],
 			])
 			->add('status', 'Search.Callback', [
 				'callback' => function (SelectQuery $query, array $args, $filter) {

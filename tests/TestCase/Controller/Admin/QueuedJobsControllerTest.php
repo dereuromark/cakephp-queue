@@ -5,6 +5,7 @@ namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\I18n\DateTime;
 use Cake\TestSuite\IntegrationTestTrait;
 use Laminas\Diactoros\UploadedFile;
 use Shim\TestSuite\TestCase;
@@ -22,7 +23,7 @@ class QueuedJobsControllerTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$this->loadPlugins(['Queue']);
+		$this->loadPlugins(['Queue', 'Search']);
 
 		$this->disableErrorHandlerMiddleware();
 	}
@@ -161,11 +162,24 @@ JSON,
 	 * @return void
 	 */
 	public function testIndexSearch() {
-		$this->createJob();
+		$incompleteJob = $this->createJob();
+
+		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$completedJob = $queuedJobs->get($incompleteJob->id);
+		$completedJob->fetched = new DateTime('-1 hour');
+		$completedJob->completed = new DateTime();
+		$queuedJobs->saveOrFail($completedJob);
+
+		$this->createJob(['job_task' => 'bar']);
 
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'completed']]);
 
 		$this->assertResponseCode(200);
+		$queuedJobs = $this->viewVariable('queuedJobs');
+		$this->assertCount(1, $queuedJobs, 'Should only show completed jobs');
+		$jobTasks = collection($queuedJobs)->extract('job_task')->toList();
+		$this->assertContains('foo', $jobTasks);
+		$this->assertNotContains('bar', $jobTasks);
 	}
 
 	/**
