@@ -14,6 +14,7 @@ use Cake\Datasource\ConnectionManager;
 use Cake\I18n\DateTime;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
+use Queue\Model\Enum\Priority;
 use Queue\Model\Table\QueuedJobsTable;
 use Queue\Queue\Task\ExampleTask;
 use TestApp\Dto\MyTaskDto;
@@ -694,7 +695,7 @@ class QueuedJobsTableTest extends TestCase {
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', $data));
 
 		$data = ['key' => 'k2'];
-		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', $data, ['priority' => 1]));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', $data, ['priority' => Priority::Critical]));
 
 		$data = ['key' => 'k3'];
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', $data, ['priority' => 6]));
