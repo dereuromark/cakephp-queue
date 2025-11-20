@@ -983,7 +983,7 @@ class QueuedJobsTable extends Table {
 		if ($this->_key !== null) {
 			return $this->_key;
 		}
-		$this->_key = sha1(microtime() . mt_rand(100, 999));
+		$this->_key = bin2hex(random_bytes(32));
 		if (!$this->_key) {
 			throw new RuntimeException('Invalid key generated');
 		}
