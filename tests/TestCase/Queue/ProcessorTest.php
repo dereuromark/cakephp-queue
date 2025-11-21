@@ -221,7 +221,7 @@ class ProcessorTest extends TestCase {
 		}
 
 		// Call the exit method which handles SIGTERM signal (timeout scenario)
-		$this->invokeMethod($processor, 'exit', [SIGTERM]);
+		$this->invokeMethod($processor, 'exit', [\SIGTERM]);
 
 		// Check that exit flag was set
 		if ($reflection->hasProperty('exit')) {
@@ -267,7 +267,7 @@ class ProcessorTest extends TestCase {
 		}
 
 		// Call the exit method which handles SIGTERM signal (timeout scenario)
-		$this->invokeMethod($processor, 'exit', [SIGTERM]);
+		$this->invokeMethod($processor, 'exit', [\SIGTERM]);
 
 		// Reload the job to check its status
 		$updatedJob = $QueuedJobs->get($job->id);
