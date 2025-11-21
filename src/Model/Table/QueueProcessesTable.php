@@ -327,7 +327,7 @@ class QueueProcessesTable extends Table {
 		foreach ($processes as $process) {
 			$pid = (int)$process->pid;
 			if ($pid > 0) {
-				posix_kill($pid, SIGUSR1);
+				posix_kill($pid, \SIGUSR1);
 			}
 		}
 	}
