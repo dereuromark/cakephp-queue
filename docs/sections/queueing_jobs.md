@@ -31,6 +31,27 @@ The `createJob()` function takes three arguments.
 
 > `priority` is sorted ascending, therefore a task with priority 1 will be executed before a task with priority 5
 
+You can use the `Priority` enum for better readability:
+```php
+use Queue\Model\Enum\Priority;
+
+$queuedJobsTable->createJob('MyTask', $data, ['priority' => Priority::High]);
+// or using JobConfig
+$config = $queuedJobsTable->newConfig()->setPriority(Priority::High);
+```
+
+Available priority levels (1 = highest, 10 = lowest):
+- `Priority::Critical` (1)
+- `Priority::Urgent` (2)
+- `Priority::High` (3)
+- `Priority::MediumHigh` (4)
+- `Priority::Medium` (5) - default
+- `Priority::MediumLow` (6)
+- `Priority::Low` (7)
+- `Priority::VeryLow` (8)
+- `Priority::Deferred` (9)
+- `Priority::Idle` (10)
+
 For sending emails, for example:
 
 ```php
@@ -96,13 +117,15 @@ This can be useful when more dynamically adding certain jobs of different types.
 
 It allows a more speaking API, which already has maximum IDE and Stan support:
 ```php
+use Queue\Model\Enum\Priority;
+
 $dataDto = OrderUpdateNotificationQueueDataDto::createFromArray([
     OrderUpdateNotificationQueueDataDto::FIELD_ORDER_ID => $order->id,
     OrderUpdateNotificationQueueDataDto::FIELD_MAILER => 'CustomerRequest',
     OrderUpdateNotificationQueueDataDto::FIELD_TYPE => 'request',
 ]);
 $config = $queuedJobsTable->newConfig()
-    ->setPriority(2)
+    ->setPriority(Priority::Urgent)
     ->setReference('foo')
     ->setNotBefore('+1 hour');
 $queuedJobsTable->createJob('OrderUpdateNotification', $dataDto, $config);
