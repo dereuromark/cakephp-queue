@@ -14,7 +14,6 @@ parameters:
 		- identifier: missingType.iterableValue
 		- identifier: missingType.generics
 		- identifier: trait.unused
-		- '#Negated boolean expression is always false.#'
 		- '#Parameter \#1 \$.+ of function call_user_func_array expects .+, array.+ given.#'
 
 includes:

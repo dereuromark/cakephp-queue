@@ -10,6 +10,7 @@ namespace Queue\Queue\Task;
 
 use Cake\Console\CommandInterface;
 use Cake\Console\ConsoleIo;
+use Cake\Core\Configure;
 use Cake\Log\LogTrait;
 use Queue\Model\QueueException;
 use Queue\Queue\AddInterface;
@@ -84,6 +85,10 @@ class ExecuteTask extends Task implements AddInterface {
 			'log' => false,
 			'accepted' => [CommandInterface::CODE_SUCCESS],
 		];
+
+		if (!$data['escape'] && !Configure::read('debug')) {
+			throw new QueueException('Command escaping must be enabled when debug mode is off for security reasons');
+		}
 
 		$command = $data['command'];
 		if ($data['escape']) {

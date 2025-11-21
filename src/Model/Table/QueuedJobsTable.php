@@ -613,7 +613,7 @@ class QueuedJobsTable extends Table {
 
 						break;
 					case static::DRIVER_SQLITE:
-						//TODO
+						$tmp['strftime("%s", "now") >='] = $this->rateHistory[$tmp['job_task']] + $task['rate'];
 
 						break;
 				}
@@ -632,8 +632,10 @@ class QueuedJobsTable extends Table {
 
 					break;
 				case static::DRIVER_SQLSERVER:
-					// the ORM does not support ROW locking at the moment
-					// TODO
+					// Row-level locking (ROWLOCK, UPDLOCK hints) not supported by CakePHP ORM.
+					// SQLServer uses default isolation level (READ COMMITTED) with automatic
+					// row locking on UPDATE. This may allow race conditions in high-concurrency
+					// scenarios. Consider using application-level locking or advisory locks if needed.
 
 					break;
 				case static::DRIVER_SQLITE:
@@ -925,8 +927,10 @@ class QueuedJobsTable extends Table {
 			return 0;
 		}
 
+		$threshold = (new DateTime())->subSeconds((int)Configure::read('Queue.cleanuptimeout'));
+
 		return $this->deleteAll([
-			'completed <' => time() - (int)Configure::read('Queue.cleanuptimeout'),
+			'completed <' => $threshold,
 		]);
 	}
 
@@ -979,7 +983,7 @@ class QueuedJobsTable extends Table {
 		if ($this->_key !== null) {
 			return $this->_key;
 		}
-		$this->_key = sha1(microtime() . mt_rand(100, 999));
+		$this->_key = bin2hex(random_bytes(20));
 		if (!$this->_key) {
 			throw new RuntimeException('Invalid key generated');
 		}

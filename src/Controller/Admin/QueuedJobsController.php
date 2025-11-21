@@ -142,13 +142,27 @@ class QueuedJobsController extends AppController {
 			/** @var \Laminas\Diactoros\UploadedFile|null $file */
 			$file = $this->request->getData('file');
 			if ($file && $file->getError() == UPLOAD_ERR_OK && $file->getSize() > 0) {
+				$clientMediaType = $file->getClientMediaType();
+				if ($clientMediaType !== 'application/json') {
+					throw new RuntimeException('Only JSON files are allowed');
+				}
+
 				$content = file_get_contents($file->getStream()->getMetadata('uri'));
 				if ($content === false) {
 					throw new RuntimeException('Cannot parse file');
 				}
+
 				$json = json_decode($content, true);
+				if (json_last_error() !== JSON_ERROR_NONE) {
+					throw new RuntimeException('Invalid JSON: ' . json_last_error_msg());
+				}
+
 				if (!$json || empty($json['queuedJob'])) {
-					throw new RuntimeException('Invalid JSON content');
+					throw new RuntimeException('Invalid JSON content: missing queuedJob data');
+				}
+
+				if (!is_array($json['queuedJob'])) {
+					throw new RuntimeException('Invalid JSON structure: queuedJob must be an array');
 				}
 
 				$data = $json['queuedJob'];
