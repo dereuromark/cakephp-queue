@@ -42,7 +42,7 @@ class MigrationQueueIndexOptimization extends BaseMigration {
 			->addIndex(
 				['workerkey'],
 				[
-					'name' => 'workerkey',
+					'name' => 'queued_jobs_workerkey',
 				],
 			)
 			->update();
