@@ -82,6 +82,9 @@
 		"stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^2.0.0 && mv composer.backup composer.json",
 		"stan-tests": "phpstan analyze -c tests/phpstan.neon",
 		"test": "phpunit",
-		"test-coverage": "phpunit --log-junit tmp/coverage/unitreport.xml --coverage-html tmp/coverage --coverage-clover tmp/coverage/coverage.xml"
+		"test-coverage": "phpunit --log-junit tmp/coverage/unitreport.xml --coverage-html tmp/coverage --coverage-clover tmp/coverage/coverage.xml",
+		"pot-setup": "cp composer.json composer.backup && composer require --dev dereuromark/cakephp-translate && mv composer.backup composer.json",
+		"pot-check": "php vendor/dereuromark/cakephp-translate/scripts/pot-updater.php --fail-on-diff",
+		"pot-update": "php vendor/dereuromark/cakephp-translate/scripts/pot-updater.php --update"
 	}
 }
