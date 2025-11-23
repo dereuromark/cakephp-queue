@@ -213,6 +213,12 @@ class Processor {
 		$this->log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id, $pid, false);
 		$taskName = $queuedJob->job_task;
 
+		$event = new Event('Queue.Job.started', $this, [
+			'job' => $queuedJob,
+		]);
+		EventManager::instance()->dispatch($event);
+		SentryIntegration::startConsumerTransaction($queuedJob);
+
 		$return = $failureMessage = null;
 		try {
 			$this->time = time();
@@ -242,6 +248,13 @@ class Processor {
 			$this->log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
 			$this->io->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->attempts . '.');
 
+			$event = new Event('Queue.Job.failed', $this, [
+				'job' => $queuedJob,
+				'failureMessage' => $failureMessage,
+			]);
+			EventManager::instance()->dispatch($event);
+			SentryIntegration::finishConsumerFailure($queuedJob, $failureMessage);
+
 			// Dispatch event when job has exhausted all retries
 			if ($failedStatus === 'aborted') {
 				$event = new Event('Queue.Job.maxAttemptsExhausted', $this, [
@@ -255,6 +268,13 @@ class Processor {
 		}
 
 		$this->QueuedJobs->markJobDone($queuedJob);
+
+		$event = new Event('Queue.Job.completed', $this, [
+			'job' => $queuedJob,
+		]);
+		EventManager::instance()->dispatch($event);
+		SentryIntegration::finishConsumerSuccess($queuedJob);
+
 		$this->io->out('Job Finished.');
 		$this->currentJob = null;
 	}

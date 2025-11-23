@@ -15,6 +15,7 @@ use Queue\Console\Io;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\Table\QueuedJobsTable;
 use Queue\Queue\Processor;
+use Queue\Queue\Task\ExampleTask;
 use Queue\Queue\Task\RetryExampleTask;
 use ReflectionClass;
 use RuntimeException;
@@ -284,6 +285,117 @@ class ProcessorTest extends TestCase {
 			$exitProperty = $reflection->getProperty('exit');
 			$this->assertTrue($exitProperty->getValue($processor), 'Exit flag should be set to true');
 		}
+	}
+
+	/**
+	 * Test that Queue.Job.started event is fired when job begins processing
+	 *
+	 * @return void
+	 */
+	public function testJobStartedEvent() {
+		// Set up event tracking
+		$eventList = new EventList();
+		EventManager::instance()->setEventList($eventList);
+
+		// Create a job
+		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$job = $QueuedJobs->createJob('Queue.Example', [], ['priority' => 1]);
+
+		// Create processor with mock task
+		$out = new ConsoleOutput();
+		$err = new ConsoleOutput();
+		$processor = $this->getMockBuilder(Processor::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['loadTask'])
+			->getMock();
+
+		// Create a mock task that succeeds (run method is void, so no return)
+		$mockTask = $this->getMockBuilder(ExampleTask::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['run'])
+			->getMock();
+
+		$processor->method('loadTask')->willReturn($mockTask);
+
+		// Run the job
+		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
+
+		// Check that the started event was dispatched
+		$this->assertEventFired('Queue.Job.started');
+	}
+
+	/**
+	 * Test that Queue.Job.completed event is fired when job finishes successfully
+	 *
+	 * @return void
+	 */
+	public function testJobCompletedEvent() {
+		// Set up event tracking
+		$eventList = new EventList();
+		EventManager::instance()->setEventList($eventList);
+
+		// Create a job
+		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$job = $QueuedJobs->createJob('Queue.Example', [], ['priority' => 1]);
+
+		// Create processor with mock task
+		$out = new ConsoleOutput();
+		$err = new ConsoleOutput();
+		$processor = $this->getMockBuilder(Processor::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['loadTask'])
+			->getMock();
+
+		// Create a mock task that succeeds (run method is void, so no return)
+		$mockTask = $this->getMockBuilder(ExampleTask::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['run'])
+			->getMock();
+
+		$processor->method('loadTask')->willReturn($mockTask);
+
+		// Run the job
+		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
+
+		// Check that the completed event was dispatched
+		$this->assertEventFired('Queue.Job.completed');
+	}
+
+	/**
+	 * Test that Queue.Job.failed event is fired when job fails
+	 *
+	 * @return void
+	 */
+	public function testJobFailedEvent() {
+		// Set up event tracking
+		$eventList = new EventList();
+		EventManager::instance()->setEventList($eventList);
+
+		// Create a job that will fail
+		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$job = $QueuedJobs->createJob('Queue.RetryExample', [], ['priority' => 1]);
+
+		// Create processor with mock task that fails
+		$out = new ConsoleOutput();
+		$err = new ConsoleOutput();
+		$processor = $this->getMockBuilder(Processor::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['loadTask'])
+			->getMock();
+
+		$mockTask = $this->getMockBuilder(RetryExampleTask::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['run'])
+			->getMock();
+		$mockTask->method('run')->willThrowException(new RuntimeException('Task failed'));
+
+		$processor->method('loadTask')->willReturn($mockTask);
+
+		// Run the job (it will fail)
+		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
+
+		// Check that the failed event was dispatched
+		$this->assertEventFired('Queue.Job.failed');
 	}
 
 	/**

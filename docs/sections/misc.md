@@ -51,6 +51,64 @@ This includes also failed ones if not filtered further using `where()` condition
 
 ## Events
 The Queue plugin dispatches events to allow you to hook into the queue processing lifecycle.
+These events are useful for monitoring, logging, and integrating with external services like Sentry.
+
+### Queue.Job.created
+This event is triggered when a new job is added to the queue (producer side).
+
+```php
+use Cake\Event\EventInterface;
+use Cake\Event\EventManager;
+
+EventManager::instance()->on('Queue.Job.created', function (EventInterface $event) {
+    $job = $event->getData('job');
+    // Track job creation for monitoring
+});
+```
+
+Event data:
+- `job`: The `QueuedJob` entity that was created
+
+### Queue.Job.started
+This event is triggered when a worker begins processing a job (consumer side).
+
+```php
+EventManager::instance()->on('Queue.Job.started', function (EventInterface $event) {
+    $job = $event->getData('job');
+    // Start tracing/monitoring span
+});
+```
+
+Event data:
+- `job`: The `QueuedJob` entity being processed
+
+### Queue.Job.completed
+This event is triggered when a job finishes successfully.
+
+```php
+EventManager::instance()->on('Queue.Job.completed', function (EventInterface $event) {
+    $job = $event->getData('job');
+    // Mark trace as successful
+});
+```
+
+Event data:
+- `job`: The `QueuedJob` entity that completed
+
+### Queue.Job.failed
+This event is triggered when a job fails (on every failure attempt).
+
+```php
+EventManager::instance()->on('Queue.Job.failed', function (EventInterface $event) {
+    $job = $event->getData('job');
+    $failureMessage = $event->getData('failureMessage');
+    // Mark trace as failed, log error
+});
+```
+
+Event data:
+- `job`: The `QueuedJob` entity that failed
+- `failureMessage`: The error message from the failure
 
 ### Queue.Job.maxAttemptsExhausted
 This event is triggered when a job has failed and exhausted all of its configured retry attempts.
@@ -81,9 +139,51 @@ EventManager::instance()->on('Queue.Job.maxAttemptsExhausted', function (EventIn
 });
 ```
 
-The event data contains:
+Event data:
 - `job`: The `QueuedJob` entity that failed
 - `failureMessage`: The error message from the last failure
+
+### Sentry Integration
+
+The plugin provides built-in support for [Sentry's queue monitoring](https://docs.sentry.io/platforms/php/tracing/instrumentation/queues-module/) feature.
+When enabled, it automatically creates producer and consumer spans for queue jobs.
+
+To enable Sentry integration, add to your configuration:
+
+```php
+// In config/app.php or config/app_local.php
+'Queue' => [
+    'sentry' => true,
+    // ... other queue config
+],
+```
+
+Requirements:
+- The `sentry/sentry` package must be installed
+- Sentry must be initialized in your application (e.g., via `lordsimal/cakephp-sentry`)
+
+The integration automatically:
+- Creates `queue.publish` spans when jobs are created
+- Creates `queue.process` transactions when jobs are processed
+- Propagates trace context between producer and consumer via job data
+- Sets appropriate status (success/error) based on job outcome
+- Includes all standard messaging attributes:
+  - `messaging.message.id` - Job ID
+  - `messaging.destination.name` - Task name
+  - `messaging.message.body.size` - Payload size in bytes
+  - `messaging.message.retry.count` - Attempt count
+  - `messaging.message.receive.latency` - Time from scheduled to fetched (ms)
+
+### Using Events for Custom Monitoring
+
+If you prefer to implement your own monitoring integration, you can use the events directly.
+The job entity provides all necessary data for tracing:
+
+- `$job->id` - Message identifier (`messaging.message.id`)
+- `$job->job_task` - Queue/topic name (`messaging.destination.name`)
+- `$job->data` - Payload for calculating message size (`messaging.message.body.size`)
+- `$job->attempts` - Retry count (`messaging.message.retry.count`)
+- `$job->created`, `$job->notbefore`, `$job->fetched` - For calculating receive latency (`messaging.message.receive.latency`)
 
 ## Notes
 
