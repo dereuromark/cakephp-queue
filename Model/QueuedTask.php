@@ -111,6 +111,19 @@ class QueuedTask extends QueueAppModel {
     return !empty($companySetting['CompanySetting']['value']);
   }
 
+  private function isCompanyForReInitEcsQueue($companyId) {
+    if (Configure::read('Queue.enforceEcsForAll.reinit')) {
+      return true;
+    }
+    $companySetting = ClassRegistry::init('Symphosize.CompanySetting')->find('first', [
+      'conditions' => [
+        'CompanySetting.company_id' => $companyId,
+        'CompanySetting.slug' => 'ecs_reinit_queue_enabled',
+      ],
+      'contain' => false,
+    ]);
+    return !empty($companySetting['CompanySetting']['value']);
+  }
 /**
  * Add a new Job to the Queue.
  *
@@ -133,6 +146,9 @@ class QueuedTask extends QueueAppModel {
                 break;
             case 'ReinitFollowUpInstance':
                 $dupeKey = $data['instance_id'];
+                if ($this->isCompanyForReInitEcsQueue($data['company_id'])) {
+                  $jobName = 'ReinitFollowUpInstance-ECS';
+                }
                 break;
             case 'ReleaseModule':
                 $dupeKey = $data['company_id'] . '.' . $data['sub_service_id'];
@@ -303,7 +319,7 @@ class QueuedTask extends QueueAppModel {
         $dbRecord = $this->find('first', [
             'conditions' => [
                 'id' => $data['id']
-            ],
+          ],
             'contain' => false,
         ]);
         if(!$data['retryCount']) {
