@@ -11,6 +11,8 @@ use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use Queue\Model\ProcessEndingException;
 use Queue\Queue\Config;
+use const SIGTERM;
+use const SIGUSR1;
 
 /**
  * QueueProcesses Model
@@ -298,7 +300,7 @@ class QueueProcessesTable extends Table {
 
 		// In the Windows operating system the SIGTERM constant is not defined
 		if (!$sig && defined('SIGTERM')) {
-			$sig = \SIGTERM;
+			$sig = SIGTERM;
 		}
 
 		$killed = false;
@@ -327,7 +329,7 @@ class QueueProcessesTable extends Table {
 		foreach ($processes as $process) {
 			$pid = (int)$process->pid;
 			if ($pid > 0) {
-				posix_kill($pid, \SIGUSR1);
+				posix_kill($pid, SIGUSR1);
 			}
 		}
 	}

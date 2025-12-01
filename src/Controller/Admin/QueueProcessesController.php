@@ -6,6 +6,7 @@ namespace Queue\Controller\Admin;
 use App\Controller\AppController;
 use Cake\Core\Configure;
 use Exception;
+use const SIGTERM;
 
 /**
  * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
@@ -112,7 +113,7 @@ class QueueProcessesController extends AppController {
 		$queueProcess = $this->QueueProcesses->get($id);
 
 		if (!Configure::read('Queue.multiserver')) {
-			$this->QueueProcesses->terminateProcess($queueProcess->pid, $sig ?: \SIGTERM);
+			$this->QueueProcesses->terminateProcess($queueProcess->pid, $sig ?: SIGTERM);
 		}
 
 		if ($this->QueueProcesses->delete($queueProcess)) {

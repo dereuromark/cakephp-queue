@@ -21,6 +21,11 @@ use Queue\Model\Table\QueuedJobsTable;
 use Queue\Model\Table\QueueProcessesTable;
 use RuntimeException;
 use Throwable;
+use const SIGINT;
+use const SIGQUIT;
+use const SIGTERM;
+use const SIGTSTP;
+use const SIGUSR1;
 
 declare(ticks=1);
 
@@ -123,16 +128,16 @@ class Processor {
 			gc_enable();
 		}
 		if (function_exists('pcntl_signal')) {
-			pcntl_signal(\SIGTERM, [&$this, 'exit']);
-			pcntl_signal(\SIGINT, [&$this, 'abort']);
-			pcntl_signal(\SIGTSTP, [&$this, 'abort']);
-			pcntl_signal(\SIGQUIT, [&$this, 'abort']);
+			pcntl_signal(SIGTERM, [&$this, 'exit']);
+			pcntl_signal(SIGINT, [&$this, 'abort']);
+			pcntl_signal(SIGTSTP, [&$this, 'abort']);
+			pcntl_signal(SIGQUIT, [&$this, 'abort']);
 			if (Configure::read('Queue.canInterruptSleep')) {
 				// Defining a signal handler here will make the worker wake up
 				// from its sleep() when SIGUSR1 is received. Since waking it
 				// up is all we need, there is no further code to execute,
 				// hence the empty function.
-				pcntl_signal(\SIGUSR1, function (): void {
+				pcntl_signal(SIGUSR1, function (): void {
 				});
 			}
 		}

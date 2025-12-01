@@ -8,6 +8,8 @@ use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Queue\Model\Table\QueueProcessesTable;
+use const SIG_DFL;
+use const SIGUSR1;
 
 /**
  * Queue\Model\Table\QueueProcessesTable Test Case
@@ -132,7 +134,7 @@ class QueueProcessesTableTest extends TestCase {
 		$queuedProcessesTable->saveOrFail($queuedProcess);
 
 		$gotSignal = false;
-		pcntl_signal(\SIGUSR1, function () use (&$gotSignal) {
+		pcntl_signal(SIGUSR1, function () use (&$gotSignal) {
 			$gotSignal = true;
 		});
 
@@ -140,7 +142,7 @@ class QueueProcessesTableTest extends TestCase {
 		pcntl_signal_dispatch();
 
 		$this->assertTrue($gotSignal);
-		pcntl_signal(\SIGUSR1, \SIG_DFL);
+		pcntl_signal(SIGUSR1, SIG_DFL);
 	}
 
 	/**
