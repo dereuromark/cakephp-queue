@@ -87,6 +87,30 @@ class QueuedTask extends QueueAppModel {
 		return $this;
 	}
 
+  public function isCompanyForEcsQueue($bidId) {
+    if (Configure::read('Queue.enforceEcsForAll.connection')) {
+      return true;
+    }
+    $companyBid = ClassRegistry::init('CompanyBid')->find('first', [
+      'conditions' => [
+        'CompanyBid.id' => $bidId,
+      ],
+      'contain' => false,
+      'fields' => ['company_id']
+    ]);
+    if (empty($companyBid)) {
+      return false;
+    }
+    $companySetting = ClassRegistry::init('Symphosize.CompanySetting')->find('first', [
+      'conditions' => [
+        'CompanySetting.company_id' => $companyBid['CompanyBid']['company_id'],
+        'CompanySetting.slug' => 'ecs_queue_enabled',
+      ],
+      'contain' => false,
+    ]);
+    return !empty($companySetting['CompanySetting']['value']);
+  }
+
 /**
  * Add a new Job to the Queue.
  *
@@ -114,12 +138,18 @@ class QueuedTask extends QueueAppModel {
                 $dupeKey = $data['company_id'] . '.' . $data['sub_service_id'];
                 break;
             case 'SaveConnection':
-				$additionalKey = isset($data['isStatusChanged']) ? (int) $data['isStatusChanged'] : 0;
+				        $additionalKey = isset($data['isStatusChanged']) ? (int) $data['isStatusChanged'] : 0;
                 $dupeKey = $data['bidId'] . '.' . $additionalKey;
+                if ($this->isCompanyForEcsQueue($data['bidId'])) {
+                  $jobName = 'SaveConnection-ECS';
+                }
                 break;
             case 'SaveSingleConnection':
-				$additionalKey = isset($data['isStatusChanged']) ? (int) $data['isStatusChanged'] : 0;
+				        $additionalKey = isset($data['isStatusChanged']) ? (int) $data['isStatusChanged'] : 0;
                 $dupeKey = $data['provider'] . '.' . $data['bidId'] . '.' . $additionalKey;
+                if ($this->isCompanyForEcsQueue($data['bidId'])) {
+                  $jobName = 'SaveSingleConnection-ECS';
+                }
                 break;
             case 'SyncIntercomCompany':
                 $dupeKey = $data['company_id'];

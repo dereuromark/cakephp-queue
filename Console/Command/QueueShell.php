@@ -297,6 +297,14 @@ class QueueShell extends AppShell {
             return;
         }
 
+        // Check if running in ECS mode
+        $enableEcs = !empty($this->params['enable-ecs']);
+        if ($enableEcs) {
+            $this->out('[ECS MODE] Only processing messages');
+        } else {
+            $this->out('[EC2 MODE] Only processing messages');
+        }
+
 
         if ($pidFilePath = Configure::read('Queue.pidfilepath')) {
             if (!file_exists($pidFilePath)) {
@@ -346,7 +354,7 @@ class QueueShell extends AppShell {
                 touch($pidFilePath . $pidFileName);
             }
             //$this->_log('runworker', isset($pid) ? $pid : null);
-            $this->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
+            $this->out('[' . date('Y-m-d H:i:s') . '] Looking for ' . ($enableEcs ? 'ECS' : 'EC2') . ' Job ...');
 
             $data = $this->QueuedTask->requestSqsJob($queueUrl);
             //$data = $this->QueuedTask->requestJob($this->_getTaskConf(), $group);
@@ -375,6 +383,11 @@ class QueueShell extends AppShell {
                 }
                 if ($data) {
                     $this->out('Running Job of type "' . $data['jobtype'] . '"');
+                    // For ECS consumers, allow tasks suffixed with "-ECS" to map to their base task
+                    // Remove the "-ECS" suffix to get the base task name
+                    if ($enableEcs) {
+                        $data['jobtype'] = preg_replace('/-ECS$/i', '', $data['jobtype']);
+                    }
                     $taskname = 'Queue' . $data['jobtype'];
 
                     if ($this->{$taskname}->autoUnserialize) {
@@ -527,6 +540,16 @@ class QueueShell extends AppShell {
 			'default' => ''
 		];
 
+    $subcommandParserSqs = [
+			'options' => [
+				'enable-ecs' => [
+					'help' => 'Enable ECS mode - only process messages',
+					'boolean' => true,
+					'default' => false
+				]
+			]
+		];
+
 		return parent::getOptionParser()
 			->description(__d('cake_console', "Simple and minimalistic job queue (or deferred-task) system."))
 			->addSubcommand('clean', [
@@ -548,7 +571,11 @@ class QueueShell extends AppShell {
 			->addSubcommand('runworker', [
 				'help' => 'Run Worker',
 				'parser' => $subcommandParserFull
-			]);
+			])
+      ->addSubcommand('runworkersqs', [
+        'help' => 'Run Worker SQS',
+        'parser' => $subcommandParserSqs
+      ]);
 	}
 
 /**
