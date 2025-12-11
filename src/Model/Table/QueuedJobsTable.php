@@ -17,6 +17,7 @@ use Queue\Config\JobConfig;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\Filter\QueuedJobsCollection;
 use Queue\Queue\Config;
+use Queue\Queue\SentryIntegration;
 use Queue\Queue\TaskFinder;
 use Queue\Utility\Memory;
 use RuntimeException;
@@ -205,6 +206,14 @@ class QueuedJobsTable extends Table {
 			throw new InvalidArgumentException('Data must be `array|null`, implement `' . FromArrayToArrayInterface::class . '` or provide a `toArray()` method');
 		}
 
+		// Add Sentry trace headers for trace propagation if available
+		$traceHeaders = SentryIntegration::getTraceHeaders();
+		if ($traceHeaders && is_array($data)) {
+			$data = $traceHeaders + $data;
+		} elseif ($traceHeaders) {
+			$data = $traceHeaders;
+		}
+
 		$queuedJob = [
 			'job_task' => $this->jobTask($jobTask),
 			'data' => $data,
@@ -216,8 +225,14 @@ class QueuedJobsTable extends Table {
 		}
 
 		$queuedJob = $this->newEntity($queuedJob);
+		$queuedJob = $this->saveOrFail($queuedJob);
 
-		return $this->saveOrFail($queuedJob);
+		$this->dispatchEvent('Queue.Job.created', [
+			'job' => $queuedJob,
+		]);
+		SentryIntegration::startProducerSpan($queuedJob);
+
+		return $queuedJob;
 	}
 
 	/**
