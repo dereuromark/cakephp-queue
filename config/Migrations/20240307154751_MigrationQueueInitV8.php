@@ -14,10 +14,22 @@ class MigrationQueueInitV8 extends BaseMigration {
 	public function up(): void {
 		// We expect all v7 migrations to be run before this migration (including 20231112807150_MigrationAddIndex)
 		$version = '20240307154751';
-		if (ConnectionManager::getConfig('default')['driver'] === 'Cake\Database\Driver\Sqlserver') {
-			$this->execute('DELETE FROM queue_phinxlog WHERE [version] < \'' . $version . '\'');
+		$useUnifiedTable = $this->hasTable('cake_migrations');
+
+		if ($useUnifiedTable) {
+			// Unified cake_migrations table (Migrations plugin 5.x) uses plugin column
+			if (ConnectionManager::getConfig('default')['driver'] === 'Cake\Database\Driver\Sqlserver') {
+				$this->execute('DELETE FROM cake_migrations WHERE [plugin] = \'Queue\' AND [version] < \'' . $version . '\'');
+			} else {
+				$this->execute('DELETE FROM cake_migrations WHERE plugin = \'Queue\' AND version < \'' . $version . '\'');
+			}
 		} else {
-			$this->execute('DELETE FROM queue_phinxlog WHERE version < \'' . $version . '\'');
+			// Legacy phinxlog table (Migrations plugin 4.x and earlier)
+			if (ConnectionManager::getConfig('default')['driver'] === 'Cake\Database\Driver\Sqlserver') {
+				$this->execute('DELETE FROM queue_phinxlog WHERE [version] < \'' . $version . '\'');
+			} else {
+				$this->execute('DELETE FROM queue_phinxlog WHERE version < \'' . $version . '\'');
+			}
 		}
 
 		if ($this->hasTable('queued_jobs')) {
