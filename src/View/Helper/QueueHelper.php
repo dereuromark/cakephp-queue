@@ -100,4 +100,36 @@ class QueueHelper extends Helper {
 		return $this->taskConfig[$jobTask] ?? [];
 	}
 
+	/**
+	 * Formats seconds into a human-readable string for large values.
+	 *
+	 * Returns the seconds with human-readable addition in brackets for values >= 3600 (1 hour).
+	 *
+	 * @param int $seconds
+	 *
+	 * @return string
+	 */
+	public function secondsToHumanReadable(int $seconds): string {
+		if ($seconds < 3600) {
+			return (string)$seconds;
+		}
+
+		$parts = [];
+		$days = (int)floor($seconds / 86400);
+		$hours = (int)floor(($seconds % 86400) / 3600);
+		$minutes = (int)floor(($seconds % 3600) / 60);
+
+		if ($days > 0) {
+			$parts[] = $days . 'd';
+		}
+		if ($hours > 0) {
+			$parts[] = $hours . 'h';
+		}
+		if ($minutes > 0) {
+			$parts[] = $minutes . 'm';
+		}
+
+		return $seconds . ' (' . implode(' ', $parts) . ')';
+	}
+
 }

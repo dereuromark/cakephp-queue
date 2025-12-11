@@ -206,6 +206,16 @@ use Cake\Core\Configure;
 				echo '<b>No configuration found</b>';
 			}
 
+			$timeConfigKeys = [
+				'workerLifetime',
+				'workerPhpTimeout',
+				'defaultRequeueTimeout',
+				'cleanuptimeout',
+				'sleeptime',
+				'workermaxruntime',
+				'workertimeout',
+				'defaultworkertimeout',
+			];
 			foreach ($configurations as $key => $configuration) {
 				echo '<li>';
 				if (is_string($configuration) && is_dir($configuration)) {
@@ -215,6 +225,8 @@ use Cake\Core\Configure;
 					$configuration = $configuration ? 'true' : 'false';
 				} elseif (is_array($configuration)) {
 					$configuration = implode(', ', $configuration);
+				} elseif (is_int($configuration) && in_array($key, $timeConfigKeys, true)) {
+					$configuration = $this->Queue->secondsToHumanReadable($configuration);
 				}
 				echo h($key) . ': ' . h($configuration);
 				echo '</li>';
