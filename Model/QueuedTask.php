@@ -146,9 +146,6 @@ class QueuedTask extends QueueAppModel {
                 break;
             case 'ReinitFollowUpInstance':
                 $dupeKey = $data['instance_id'];
-                if ($this->isCompanyForReInitEcsQueue($data['company_id'])) {
-                  $jobName = 'ReinitFollowUpInstance-ECS';
-                }
                 break;
             case 'ReleaseModule':
                 $dupeKey = $data['company_id'] . '.' . $data['sub_service_id'];
@@ -156,16 +153,10 @@ class QueuedTask extends QueueAppModel {
             case 'SaveConnection':
 				        $additionalKey = isset($data['isStatusChanged']) ? (int) $data['isStatusChanged'] : 0;
                 $dupeKey = $data['bidId'] . '.' . $additionalKey;
-                if ($this->isCompanyForEcsQueue($data['bidId'])) {
-                  $jobName = 'SaveConnection-ECS';
-                }
                 break;
             case 'SaveSingleConnection':
 				        $additionalKey = isset($data['isStatusChanged']) ? (int) $data['isStatusChanged'] : 0;
                 $dupeKey = $data['provider'] . '.' . $data['bidId'] . '.' . $additionalKey;
-                if ($this->isCompanyForEcsQueue($data['bidId'])) {
-                  $jobName = 'SaveSingleConnection-ECS';
-                }
                 break;
             case 'SyncIntercomCompany':
                 $dupeKey = $data['company_id'];
