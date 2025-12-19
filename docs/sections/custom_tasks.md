@@ -27,7 +27,7 @@ class YourNameForItTask extends Task {
 
     /**
      * Timeout in seconds for this specific task.
-     * Should NOT exceed defaultRequeueTimeout to prevent the job being requeued while still running.
+     * Automatically capped to defaultRequeueTimeout if higher.
      *
      * @var ?int
      */

@@ -142,21 +142,9 @@ class Config {
 
 			$taskTimeout = $taskConfig['timeout'] ?? $taskObject->timeout ?? $defaultTimeout;
 
-			// Warn if task timeout is greater than the requeue timeout, which can cause premature requeuing
+			// Auto-cap task timeout to defaultRequeueTimeout to prevent duplicate execution
 			if ($taskTimeout > $defaultTimeout) {
-				trigger_error(
-					sprintf(
-						'Task "%s" has timeout (%d seconds) larger than defaultRequeueTimeout (%d seconds). '
-						. 'The job will be requeued after %d seconds even though the task expects to run for %d seconds. '
-						. 'This can cause duplicate execution. Consider increasing defaultRequeueTimeout or decreasing the task timeout.',
-						$task,
-						$taskTimeout,
-						$defaultTimeout,
-						$defaultTimeout,
-						$taskTimeout,
-					),
-					E_USER_WARNING,
-				);
+				$taskTimeout = $defaultTimeout;
 			}
 
 			$config[$task]['class'] = $className;

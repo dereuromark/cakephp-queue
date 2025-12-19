@@ -23,7 +23,7 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     // Legacy: 'defaultworkertimeout' is deprecated but still supported
     ```
 
-  **Important:** Individual task `timeout` property values should NOT exceed this `defaultRequeueTimeout` value. If a task has a timeout longer than the global requeue timeout, the job will be requeued before the task completes, causing duplicate execution. Always ensure `defaultRequeueTimeout` is greater than your longest task timeout (recommended: at least 2x the longest task timeout).
+  **Note:** Individual task `timeout` values are automatically capped to this `defaultRequeueTimeout` value to prevent duplicate execution. If a task needs a longer timeout, increase `defaultRequeueTimeout` accordingly (recommended: at least 2x your longest task timeout).
 
 - Default number of retries if a job fails or times out:
 
