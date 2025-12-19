@@ -11,6 +11,8 @@ namespace Queue\Test\TestCase\Model\Table;
 
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\Event\EventList;
+use Cake\Event\EventManager;
 use Cake\I18n\DateTime;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
@@ -750,6 +752,23 @@ class QueuedJobsTableTest extends TestCase {
 
 		$this->assertWithinRange(3600, (int)$queuedJob->runtime, 1);
 		$this->assertWithinRange(7200, (int)$queuedJob->fetchdelay, 1);
+	}
+
+	/**
+	 * Test that Queue.Job.created event is fired when a job is created
+	 *
+	 * @return void
+	 */
+	public function testJobCreatedEvent() {
+		// Set up event tracking
+		$eventList = new EventList();
+		EventManager::instance()->setEventList($eventList);
+
+		// Create a job
+		$job = $this->QueuedJobs->createJob('Queue.Example', ['test' => 'data']);
+
+		// Check that the created event was dispatched
+		$this->assertEventFired('Queue.Job.created');
 	}
 
 	/**
