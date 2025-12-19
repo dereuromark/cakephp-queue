@@ -72,6 +72,13 @@ return [
 
 		// ignores task classes
 		'ignoredTasks' => [],
+
+		// per-task configuration overrides (timeout, retries, rate, costs, unique)
+		// 'tasks' => [
+		// 	'Queue.ProgressExample' => [
+		// 		'timeout' => 300,
+		// 	],
+		// ],
 	],
 	'Icon' => [
 		'sets' => [

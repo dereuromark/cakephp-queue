@@ -129,6 +129,7 @@ class Config {
 	public static function taskConfig(array $tasks): array {
 		$config = [];
 		$defaultTimeout = static::defaultworkertimeout();
+		$taskOverrides = Configure::read('Queue.tasks', []);
 
 		foreach ($tasks as $task => $className) {
 			[$pluginName, $taskName] = pluginSplit($task);
@@ -136,7 +137,10 @@ class Config {
 			/** @var \Queue\Queue\Task $taskObject */
 			$taskObject = new $className();
 
-			$taskTimeout = $taskObject->timeout ?? $defaultTimeout;
+			// Get task-specific config overrides from Configure
+			$taskConfig = $taskOverrides[$task] ?? [];
+
+			$taskTimeout = $taskConfig['timeout'] ?? $taskObject->timeout ?? $defaultTimeout;
 
 			// Warn if task timeout is greater than the requeue timeout, which can cause premature requeuing
 			if ($taskTimeout > $defaultTimeout) {
@@ -159,10 +163,10 @@ class Config {
 			$config[$task]['name'] = $taskName;
 			$config[$task]['plugin'] = $pluginName;
 			$config[$task]['timeout'] = $taskTimeout;
-			$config[$task]['retries'] = $taskObject->retries ?? static::defaultworkerretries();
-			$config[$task]['rate'] = $taskObject->rate;
-			$config[$task]['costs'] = $taskObject->costs;
-			$config[$task]['unique'] = $taskObject->unique;
+			$config[$task]['retries'] = $taskConfig['retries'] ?? $taskObject->retries ?? static::defaultworkerretries();
+			$config[$task]['rate'] = $taskConfig['rate'] ?? $taskObject->rate;
+			$config[$task]['costs'] = $taskConfig['costs'] ?? $taskObject->costs;
+			$config[$task]['unique'] = $taskConfig['unique'] ?? $taskObject->unique;
 
 			unset($taskObject);
 		}

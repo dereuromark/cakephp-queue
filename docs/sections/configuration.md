@@ -162,3 +162,27 @@ Make sure you set the timeout high enough so that it could never run longer than
 It is recommended setting it to at least 2x the maximum possible execution length. See [Concurrent workers](limitations.md)
 
 Set the retries to at least 1, otherwise it will never execute again after failure in the first run.
+
+### Configure-based task overrides
+
+You can also override task properties via Configure, which is useful for:
+- Third-party tasks you cannot modify
+- Environment-specific settings (dev vs production)
+- Centralized configuration management
+
+```php
+$config['Queue']['tasks'] = [
+    'Queue.ProgressExample' => [
+        'timeout' => 300,   // Override the task's timeout
+        'retries' => 5,     // Override the task's retries
+    ],
+    'MyPlugin.HeavyTask' => [
+        'timeout' => 600,
+        'rate' => 10,
+        'costs' => 50,
+        'unique' => true,
+    ],
+];
+```
+
+The priority order is: Configure override > Task class property > Global default.
