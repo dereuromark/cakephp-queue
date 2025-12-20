@@ -330,6 +330,55 @@ stderr_logfile=/var/log/myapp/queue-error.log
 stdout_logfile=/var/log/myapp/queue.log
 ```
 
+### Production (Docker / docker-compose)
+
+When running queue workers in Docker containers, there are specific considerations:
+
+**The PID 1 Problem**: In Docker, the main process always runs as PID 1. The queue plugin tracks workers by `PID + server hostname`. If a container crashes and restarts, it tries to register with the same PID but the old record still exists, causing a duplicate key error.
+
+**Solution**: Set a stable hostname and clean up stale processes on startup:
+
+```yaml
+services:
+  app:
+    image: your-app:latest
+    # ... your main app config
+
+  queue:
+    image: your-app:latest
+    hostname: queue-worker  # Stable hostname across restarts
+    restart: unless-stopped
+    depends_on:
+      - app
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: sh -c "php bin/cake.php queue worker end all 2>/dev/null || true; php bin/cake.php queue run"
+    environment:
+      - APP_ENV=production
+```
+
+Key points:
+- `hostname: queue-worker` ensures the server name stays consistent across container restarts (instead of using the random container ID)
+- The startup command first cleans up any stale process records, then starts the worker
+- `|| true` ensures the worker starts even if there are no stale processes to clean
+
+**Crontab-style with short-lived workers**: For behavior similar to traditional crontab (fresh workers, natural scaling), use `--max-runtime`:
+
+```yaml
+  queue:
+    image: your-app:latest
+    hostname: queue-worker
+    restart: always  # Always restart after clean exit
+    command: sh -c "php bin/cake.php queue worker end all 2>/dev/null || true; php bin/cake.php queue run --max-runtime=300"
+```
+
+This runs workers for 5 minutes, exits cleanly, and Docker restarts them. Scale with:
+
+```bash
+docker compose up -d --scale queue=3
+```
+
 ### Scaling Workers
 
 The `maxworkers` config limits concurrent workers across all servers:
