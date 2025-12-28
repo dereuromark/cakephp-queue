@@ -218,6 +218,16 @@ class Processor {
 		$this->log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id, $pid, false);
 		$taskName = $queuedJob->job_task;
 
+		// Dispatch CakeSentry beforeExecute event for queue tracing
+		$jobData = is_array($queuedJob->data) ? $queuedJob->data : [];
+		$event = new Event('CakeSentry.Queue.beforeExecute', $this, [
+			'class' => $queuedJob->job_task,
+			'sentry_trace' => $jobData['_sentry_trace'] ?? '',
+			'sentry_baggage' => $jobData['_sentry_baggage'] ?? '',
+		]);
+		EventManager::instance()->dispatch($event);
+
+		$startTime = microtime(true);
 		$return = $failureMessage = null;
 		try {
 			$this->time = time();
@@ -241,11 +251,24 @@ class Processor {
 			$this->logError($taskName . ' (job ' . $queuedJob->id . ')' . "\n" . $failureMessage, $pid);
 		}
 
+		$executionTime = (int)((microtime(true) - $startTime) * 1000);
+
 		if ($return === false) {
 			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
 			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->getTaskConf());
 			$this->log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
 			$this->io->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->attempts . '.');
+
+			// Dispatch CakeSentry afterExecute event for failure
+			$event = new Event('CakeSentry.Queue.afterExecute', $this, [
+				'id' => (string)$queuedJob->id,
+				'queue' => $queuedJob->job_task,
+				'data' => $jobData,
+				'execution_time' => $executionTime,
+				'retry_count' => $queuedJob->attempts,
+				'exception' => $e ?? null,
+			]);
+			EventManager::instance()->dispatch($event);
 
 			// Dispatch event when job has exhausted all retries
 			if ($failedStatus === 'aborted') {
@@ -260,6 +283,17 @@ class Processor {
 		}
 
 		$this->QueuedJobs->markJobDone($queuedJob);
+
+		// Dispatch CakeSentry afterExecute event for success
+		$event = new Event('CakeSentry.Queue.afterExecute', $this, [
+			'id' => (string)$queuedJob->id,
+			'queue' => $queuedJob->job_task,
+			'data' => $jobData,
+			'execution_time' => $executionTime,
+			'retry_count' => $queuedJob->attempts,
+		]);
+		EventManager::instance()->dispatch($event);
+
 		$this->io->out('Job Finished.');
 		$this->currentJob = null;
 	}

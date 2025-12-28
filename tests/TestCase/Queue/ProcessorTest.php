@@ -15,6 +15,7 @@ use Queue\Console\Io;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\Table\QueuedJobsTable;
 use Queue\Queue\Processor;
+use Queue\Queue\Task\ExampleTask;
 use Queue\Queue\Task\RetryExampleTask;
 use ReflectionClass;
 use RuntimeException;
@@ -285,6 +286,106 @@ class ProcessorTest extends TestCase {
 			$exitProperty = $reflection->getProperty('exit');
 			$this->assertTrue($exitProperty->getValue($processor), 'Exit flag should be set to true');
 		}
+	}
+
+	/**
+	 * Test that CakeSentry.Queue.beforeExecute event is fired when job starts.
+	 *
+	 * @return void
+	 */
+	public function testCakeSentryBeforeExecuteEvent(): void {
+		$eventList = new EventList();
+		EventManager::instance()->setEventList($eventList);
+
+		// Create a job
+		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$job = $QueuedJobs->createJob('Queue.Example', ['test' => 'data'], ['priority' => 1]);
+
+		// Create processor with mock task
+		$out = new ConsoleOutput();
+		$err = new ConsoleOutput();
+		$processor = $this->getMockBuilder(Processor::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['loadTask'])
+			->getMock();
+
+		$mockTask = $this->getMockBuilder(ExampleTask::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['run'])
+			->getMock();
+
+		$processor->method('loadTask')->willReturn($mockTask);
+
+		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
+
+		$this->assertEventFired('CakeSentry.Queue.beforeExecute');
+	}
+
+	/**
+	 * Test that CakeSentry.Queue.afterExecute event is fired when job completes successfully.
+	 *
+	 * @return void
+	 */
+	public function testCakeSentryAfterExecuteSuccessEvent(): void {
+		$eventList = new EventList();
+		EventManager::instance()->setEventList($eventList);
+
+		// Create a job
+		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$job = $QueuedJobs->createJob('Queue.Example', ['test' => 'data'], ['priority' => 1]);
+
+		// Create processor with mock task
+		$out = new ConsoleOutput();
+		$err = new ConsoleOutput();
+		$processor = $this->getMockBuilder(Processor::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['loadTask'])
+			->getMock();
+
+		$mockTask = $this->getMockBuilder(ExampleTask::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['run'])
+			->getMock();
+
+		$processor->method('loadTask')->willReturn($mockTask);
+
+		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
+
+		$this->assertEventFired('CakeSentry.Queue.afterExecute');
+	}
+
+	/**
+	 * Test that CakeSentry.Queue.afterExecute event is fired with exception on failure.
+	 *
+	 * @return void
+	 */
+	public function testCakeSentryAfterExecuteFailureEvent(): void {
+		$eventList = new EventList();
+		EventManager::instance()->setEventList($eventList);
+
+		// Create a job
+		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$job = $QueuedJobs->createJob('Queue.RetryExample', ['test' => 'data'], ['priority' => 1]);
+
+		// Create processor with mock task that fails
+		$out = new ConsoleOutput();
+		$err = new ConsoleOutput();
+		$processor = $this->getMockBuilder(Processor::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['loadTask'])
+			->getMock();
+
+		$mockTask = $this->getMockBuilder(RetryExampleTask::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['run'])
+			->getMock();
+		$mockTask->method('run')->willThrowException(new RuntimeException('Task failed'));
+
+		$processor->method('loadTask')->willReturn($mockTask);
+
+		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
+
+		$this->assertEventFired('CakeSentry.Queue.afterExecute');
 	}
 
 	/**

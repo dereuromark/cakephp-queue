@@ -6,7 +6,9 @@ namespace Queue\Model\Table;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
+use Cake\Event\Event;
 use Cake\Event\EventInterface;
+use Cake\Event\EventManager;
 use Cake\I18n\DateTime;
 use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\Table;
@@ -216,8 +218,18 @@ class QueuedJobsTable extends Table {
 		}
 
 		$queuedJob = $this->newEntity($queuedJob);
+		$queuedJob = $this->saveOrFail($queuedJob);
 
-		return $this->saveOrFail($queuedJob);
+		// Dispatch CakeSentry event for queue tracing integration
+		$event = new Event('CakeSentry.Queue.enqueue', $this, [
+			'class' => $queuedJob->job_task,
+			'id' => (string)$queuedJob->id,
+			'queue' => $queuedJob->job_task,
+			'data' => $queuedJob->data ?? [],
+		]);
+		EventManager::instance()->dispatch($event);
+
+		return $queuedJob;
 	}
 
 	/**

@@ -85,6 +85,62 @@ The event data contains:
 - `job`: The `QueuedJob` entity that failed
 - `failureMessage`: The error message from the last failure
 
+### Sentry Integration (CakeSentry Events)
+
+The Queue plugin dispatches events compatible with [lordsimal/cakephp-sentry](https://github.com/LordSimal/cakephp-sentry) for queue monitoring and tracing.
+These events allow automatic integration with [Sentry's queue monitoring](https://docs.sentry.io/platforms/php/tracing/instrumentation/queues-module/) feature.
+
+The following events are dispatched:
+
+#### CakeSentry.Queue.enqueue
+Fired when a job is added to the queue (producer side).
+
+Event data:
+- `class`: The job task name
+- `id`: The job ID
+- `queue`: The queue/task name
+- `data`: The job payload
+
+#### CakeSentry.Queue.beforeExecute
+Fired when a worker begins processing a job (consumer side).
+
+Event data:
+- `class`: The job task name
+- `sentry_trace`: Sentry trace header from job data (if present)
+- `sentry_baggage`: Sentry baggage header from job data (if present)
+
+#### CakeSentry.Queue.afterExecute
+Fired when a job finishes (success or failure).
+
+Event data:
+- `id`: The job ID
+- `queue`: The queue/task name
+- `data`: The job payload
+- `execution_time`: Execution time in milliseconds
+- `retry_count`: Number of attempts
+- `exception`: The exception object (only on failure)
+
+#### Trace Propagation
+
+For distributed tracing to work across producer and consumer, you can add Sentry trace headers to job data when creating jobs:
+
+```php
+// When creating a job with trace propagation
+$data = [
+    'your_data' => 'here',
+];
+
+// Add Sentry trace headers if Sentry SDK is available
+if (class_exists(\Sentry\SentrySdk::class)) {
+    $data['_sentry_trace'] = \Sentry\getTraceparent();
+    $data['_sentry_baggage'] = \Sentry\getBaggage();
+}
+
+$queuedJobsTable->createJob('MyTask', $data);
+```
+
+The Queue plugin will automatically pass these headers to the `CakeSentry.Queue.beforeExecute` event for trace continuation.
+
 ## Notes
 
 `<TaskName>` is the complete class name without the Task suffix (e.g. Example or PluginName.Example).
