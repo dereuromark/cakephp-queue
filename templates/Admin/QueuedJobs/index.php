@@ -64,7 +64,7 @@ use Cake\Core\Plugin;
 							$data = json_decode($queuedJob->data, true);
 						}
 						$data = VarExporter::export($data, VarExporter::TRAILING_COMMA_IN_ARRAY);
-						echo $this->Icon->render('cubes', [], ['title' => $this->Text->truncate($data, 1000)]);
+						echo $this->element('Queue.icon', ['name' => 'cubes', 'attributes' => ['title' => $this->Text->truncate($data, 1000)]]);
 					}
 					?>
 				</td>
@@ -132,12 +132,12 @@ use Cake\Core\Plugin;
 				</td>
 				<td><?= $this->Number->format($queuedJob->priority) ?></td>
 				<td class="actions">
-				<?= $this->Html->link($this->Icon->render('view'), ['action' => 'view', $queuedJob->id], ['escapeTitle' => false]); ?>
+				<?= $this->Html->link($this->element('Queue.icon', ['name' => 'view']), ['action' => 'view', $queuedJob->id], ['escapeTitle' => false]); ?>
 
 				<?php if (!$queuedJob->completed) { ?>
-					<?= $this->Html->link($this->Icon->render('edit'), ['action' => 'edit', $queuedJob->id], ['escapeTitle' => false]); ?>
+					<?= $this->Html->link($this->element('Queue.icon', ['name' => 'edit']), ['action' => 'edit', $queuedJob->id], ['escapeTitle' => false]); ?>
 				<?php } ?>
-				<?= $this->Form->postLink($this->Icon->render('delete'), ['action' => 'delete', $queuedJob->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id)]); ?>
+				<?= $this->Form->postLink($this->element('Queue.icon', ['name' => 'delete']), ['action' => 'delete', $queuedJob->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id)]); ?>
 				</td>
 			</tr>
 			<?php endforeach; ?>
