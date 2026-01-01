@@ -38,7 +38,7 @@ use Queue\Queue\Config;
 				<td>
 					<?= $this->Time->nice($queueProcess->created) ?>
 					<?php if (!$queueProcess->created->addSeconds(Config::workermaxruntime())->isFuture()) {
-						echo $this->Icon->render('exclamation-triangle', [], ['title' => 'Long running (!)']);
+						echo $this->element('Queue.icon', ['name' => 'exclamation-triangle', 'attributes' => ['title' => 'Long running (!)']]);
 					} ?>
 				</td>
 				<td>
@@ -53,9 +53,9 @@ use Queue\Queue\Config;
 				<td><?= $this->element('Queue.yes_no', ['value' => !$queueProcess->terminate]) ?></td>
 				<td><?= h($queueProcess->server) ?></td>
 				<td class="actions">
-					<?= $this->Html->link($this->Icon->render('view'), ['action' => 'view', $queueProcess->id], ['escapeTitle' => false]); ?>
+					<?= $this->Html->link($this->element('Queue.icon', ['name' => 'view']), ['action' => 'view', $queueProcess->id], ['escapeTitle' => false]); ?>
 				<?php if (!$queueProcess->terminate) { ?>
-					<?= $this->Form->postLink($this->Icon->render('times', [], ['title' => __d('queue', 'Terminate')]), ['action' => 'terminate', $queueProcess->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id)]); ?>
+					<?= $this->Form->postLink($this->element('Queue.icon', ['name' => 'times', 'attributes' => ['title' => __d('queue', 'Terminate')]]), ['action' => 'terminate', $queueProcess->id], ['escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id)]); ?>
 				<?php } ?>
 
 				</td>

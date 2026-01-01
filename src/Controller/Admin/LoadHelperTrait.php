@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
+use Cake\Core\Configure;
 use Templating\View\Helper\IconHelper;
 use Templating\View\Helper\IconSnippetHelper;
 use Templating\View\Helper\TemplatingHelper;
@@ -18,8 +19,10 @@ trait LoadHelperTrait {
 			'Tools.Format',
 			'Tools.Text',
 			'Tools.Time',
-			class_exists(IconHelper::class) ? 'Templating.Icon' : 'Tools.Icon',
 		];
+		if (Configure::read('Icon.sets')) {
+			$helpers[] = class_exists(IconHelper::class) ? 'Templating.Icon' : 'Tools.Icon';
+		}
 		if (class_exists(IconSnippetHelper::class)) {
 			$helpers[] = 'Templating.IconSnippet';
 		}
