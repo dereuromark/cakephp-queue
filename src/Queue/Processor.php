@@ -218,6 +218,12 @@ class Processor {
 		$this->log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id, $pid, false);
 		$taskName = $queuedJob->job_task;
 
+		// Dispatch started event
+		$event = new Event('Queue.Job.started', $this, [
+			'job' => $queuedJob,
+		]);
+		EventManager::instance()->dispatch($event);
+
 		$return = $failureMessage = null;
 		try {
 			$this->time = time();
@@ -247,6 +253,14 @@ class Processor {
 			$this->log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
 			$this->io->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->attempts . '.');
 
+			// Dispatch failed event
+			$event = new Event('Queue.Job.failed', $this, [
+				'job' => $queuedJob,
+				'failureMessage' => $failureMessage,
+				'exception' => $e ?? null,
+			]);
+			EventManager::instance()->dispatch($event);
+
 			// Dispatch event when job has exhausted all retries
 			if ($failedStatus === 'aborted') {
 				$event = new Event('Queue.Job.maxAttemptsExhausted', $this, [
@@ -260,6 +274,13 @@ class Processor {
 		}
 
 		$this->QueuedJobs->markJobDone($queuedJob);
+
+		// Dispatch completed event
+		$event = new Event('Queue.Job.completed', $this, [
+			'job' => $queuedJob,
+		]);
+		EventManager::instance()->dispatch($event);
+
 		$this->io->out('Job Finished.');
 		$this->currentJob = null;
 	}

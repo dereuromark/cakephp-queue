@@ -6,7 +6,9 @@ namespace Queue\Model\Table;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
+use Cake\Event\Event;
 use Cake\Event\EventInterface;
+use Cake\Event\EventManager;
 use Cake\I18n\DateTime;
 use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\Table;
@@ -216,8 +218,14 @@ class QueuedJobsTable extends Table {
 		}
 
 		$queuedJob = $this->newEntity($queuedJob);
+		$queuedJob = $this->saveOrFail($queuedJob);
 
-		return $this->saveOrFail($queuedJob);
+		$event = new Event('Queue.Job.created', $this, [
+			'job' => $queuedJob,
+		]);
+		EventManager::instance()->dispatch($event);
+
+		return $queuedJob;
 	}
 
 	/**

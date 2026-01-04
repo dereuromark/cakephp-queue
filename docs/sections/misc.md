@@ -51,9 +51,69 @@ This includes also failed ones if not filtered further using `where()` condition
 
 ## Events
 The Queue plugin dispatches events to allow you to hook into the queue processing lifecycle.
+These events are useful for monitoring, logging, and integrating with external services.
+
+### Queue.Job.created
+Fired when a new job is added to the queue (producer side).
+
+```php
+use Cake\Event\EventInterface;
+use Cake\Event\EventManager;
+
+EventManager::instance()->on('Queue.Job.created', function (EventInterface $event) {
+    $job = $event->getData('job');
+    // Track job creation for monitoring
+});
+```
+
+Event data:
+- `job`: The `QueuedJob` entity that was created
+
+### Queue.Job.started
+Fired when a worker begins processing a job (consumer side).
+
+```php
+EventManager::instance()->on('Queue.Job.started', function (EventInterface $event) {
+    $job = $event->getData('job');
+    // Start tracing/monitoring span
+});
+```
+
+Event data:
+- `job`: The `QueuedJob` entity being processed
+
+### Queue.Job.completed
+Fired when a job finishes successfully.
+
+```php
+EventManager::instance()->on('Queue.Job.completed', function (EventInterface $event) {
+    $job = $event->getData('job');
+    // Mark trace as successful
+});
+```
+
+Event data:
+- `job`: The `QueuedJob` entity that completed
+
+### Queue.Job.failed
+Fired when a job fails (on every failure attempt).
+
+```php
+EventManager::instance()->on('Queue.Job.failed', function (EventInterface $event) {
+    $job = $event->getData('job');
+    $failureMessage = $event->getData('failureMessage');
+    $exception = $event->getData('exception');
+    // Mark trace as failed, log error
+});
+```
+
+Event data:
+- `job`: The `QueuedJob` entity that failed
+- `failureMessage`: The error message from the failure
+- `exception`: The exception object (if available)
 
 ### Queue.Job.maxAttemptsExhausted
-This event is triggered when a job has failed and exhausted all of its configured retry attempts.
+Fired when a job has failed and exhausted all of its configured retry attempts.
 
 ```php
 use Cake\Event\EventInterface;
@@ -81,9 +141,50 @@ EventManager::instance()->on('Queue.Job.maxAttemptsExhausted', function (EventIn
 });
 ```
 
-The event data contains:
+Event data:
 - `job`: The `QueuedJob` entity that failed
 - `failureMessage`: The error message from the last failure
+
+### Sentry Integration
+
+The plugin includes a `CakeSentryEventBridge` listener that bridges Queue events to
+[lordsimal/cakephp-sentry](https://github.com/LordSimal/cakephp-sentry) for queue monitoring.
+
+To enable Sentry integration, register the bridge in your `Application::bootstrap()`:
+
+```php
+use Cake\Event\EventManager;
+use Queue\Event\CakeSentryEventBridge;
+
+// Enable Sentry queue monitoring
+EventManager::instance()->on(new CakeSentryEventBridge());
+```
+
+This automatically dispatches the `CakeSentry.Queue.*` events that the Sentry plugin listens to:
+- `CakeSentry.Queue.enqueue` - when a job is created
+- `CakeSentry.Queue.beforeExecute` - when a job starts processing
+- `CakeSentry.Queue.afterExecute` - when a job completes or fails
+
+#### Trace Propagation
+
+For distributed tracing to work across producer and consumer, add Sentry trace headers
+to job data when creating jobs:
+
+```php
+$data = [
+    'your_data' => 'here',
+];
+
+// Add Sentry trace headers if Sentry SDK is available
+if (class_exists(\Sentry\SentrySdk::class)) {
+    $data['_sentry_trace'] = \Sentry\getTraceparent();
+    $data['_sentry_baggage'] = \Sentry\getBaggage();
+}
+
+$queuedJobsTable->createJob('MyTask', $data);
+```
+
+The bridge will automatically extract these headers and pass them to the Sentry plugin.
 
 ## Notes
 
