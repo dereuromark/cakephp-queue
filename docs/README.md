@@ -8,6 +8,7 @@
 ## Detailed documentation
 * [Configuration](sections/configuration.md)
 * [Cron](sections/cron.md) for Cronjob management
+* [Real-Time Progress](sections/realtime_progress.md) with Mercure/FrankenPHP
 * [Mailing](sections/mailing.md)
 * [Miscellaneous](sections/misc.md)
 * [Tips](sections/tips.md) and maximum IDE support
