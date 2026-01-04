@@ -75,13 +75,13 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
 - Max workers (per server):
 
     ```php
-    $config['Queue']['maxworkers'] = 3 // Defaults to 1 (single worker can be run per server)
+    $config['Queue']['maxworkers'] = 3; // Defaults to 1 (single worker can be run per server)
     ```
 
 - Multi-server setup:
 
     ```php
-    $config['Queue']['multiserver'] = true // Defaults to false (single server)
+    $config['Queue']['multiserver'] = true; // Defaults to false (single server)
     ```
 
   For multiple servers running either CLI/web separately, or even multiple CLI workers on top, make sure to enable this.
