@@ -18,6 +18,13 @@ use Queue\Model\Table\QueuedJobsTable;
  */
 class JobCommand extends Command {
 
+	/**
+	 * @return string
+	 */
+	public static function getDescription(): string {
+		return 'Manage queued jobs.';
+	}
+
 	protected QueuedJobsTable $QueuedJobs;
 
 	/**

@@ -13,6 +13,13 @@ use Queue\Queue\TaskFinder;
 class AddCommand extends Command {
 
 	/**
+	 * @return string
+	 */
+	public static function getDescription(): string {
+		return 'Add a job to the queue.';
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public static function defaultName(): string {

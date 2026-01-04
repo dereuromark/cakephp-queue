@@ -20,6 +20,13 @@ use Queue\Queue\Processor;
 class RunCommand extends Command {
 
 	/**
+	 * @return string
+	 */
+	public static function getDescription(): string {
+		return 'Run queue worker to process jobs.';
+	}
+
+	/**
 	 * @var \Cake\Core\ContainerInterface
 	 */
 	protected ContainerInterface $container;
