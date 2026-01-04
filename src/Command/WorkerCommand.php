@@ -17,6 +17,13 @@ use Queue\Queue\Config;
  */
 class WorkerCommand extends Command {
 
+	/**
+	 * @return string
+	 */
+	public static function getDescription(): string {
+		return 'Manage queue workers.';
+	}
+
 	protected QueueProcessesTable $QueueProcesses;
 
 	/**

@@ -17,6 +17,13 @@ use Queue\Queue\TaskFinder;
 class InfoCommand extends Command {
 
 	/**
+	 * @return string
+	 */
+	public static function getDescription(): string {
+		return 'Show queue status and available tasks.';
+	}
+
+	/**
 	 * @var string|null
 	 */
 	protected ?string $defaultTable = 'Queue.QueuedJobs';
