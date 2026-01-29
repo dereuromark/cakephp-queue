@@ -27,7 +27,7 @@ use const SIGTERM;
 use const SIGTSTP;
 use const SIGUSR1;
 
-declare(ticks=1);
+// Enable async signal handling (replaces declare(ticks=1) for better performance)
 
 /**
  * Main shell to init and run queue workers.
@@ -123,9 +123,10 @@ class Processor {
 			return CommandInterface::CODE_ERROR;
 		}
 
-		// Enable Garbage Collector (PHP >= 5.3)
-		if (function_exists('gc_enable')) {
-			gc_enable();
+		gc_enable();
+
+		if (function_exists('pcntl_async_signals')) {
+			pcntl_async_signals(true);
 		}
 		if (function_exists('pcntl_signal')) {
 			pcntl_signal(SIGTERM, [&$this, 'exit']);
@@ -226,7 +227,8 @@ class Processor {
 
 		$captureOutput = (bool)Configure::read('Queue.captureOutput');
 		if ($captureOutput) {
-			$this->io->enableOutputCapture();
+			$maxOutputSize = (int)(Configure::read('Queue.maxOutputSize') ?: 65536);
+			$this->io->enableOutputCapture($maxOutputSize);
 		}
 
 		$return = $failureMessage = null;
@@ -373,10 +375,11 @@ class Processor {
 			if ((bool)Configure::read('Queue.captureOutput')) {
 				$maxOutputSize = (int)(Configure::read('Queue.maxOutputSize') ?: 65536);
 				$capturedOutput = $this->io->getOutputAsText($maxOutputSize);
+				$this->io->disableOutputCapture();
 			}
 			$this->QueuedJobs->markJobFailed($this->currentJob, $failureMessage, $capturedOutput);
 			$this->logError('Job ' . $this->currentJob->job_task . ' (id ' . $this->currentJob->id . ') failed due to worker termination', $this->pid);
-			$this->io->out('Current job marked as failed due to worker termination.');
+			$this->currentJob = null;
 		}
 		$this->exit = true;
 	}
@@ -389,6 +392,18 @@ class Processor {
 	 * @return void
 	 */
 	protected function abort(int $signal = 1): void {
+		if ($this->currentJob) {
+			$failureMessage = 'Worker process aborted by signal (' . $signal . ') - job execution interrupted';
+			$capturedOutput = null;
+			if ((bool)Configure::read('Queue.captureOutput')) {
+				$maxOutputSize = (int)(Configure::read('Queue.maxOutputSize') ?: 65536);
+				$capturedOutput = $this->io->getOutputAsText($maxOutputSize);
+				$this->io->disableOutputCapture();
+			}
+			$this->QueuedJobs->markJobFailed($this->currentJob, $failureMessage, $capturedOutput);
+			$this->currentJob = null;
+		}
+
 		$this->deletePid($this->pid);
 
 		exit($signal);

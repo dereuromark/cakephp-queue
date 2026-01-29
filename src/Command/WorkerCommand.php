@@ -42,7 +42,7 @@ class WorkerCommand extends Command {
 	 * @inheritDoc
 	 */
 	public static function defaultName(): string {
-		return 'queue job';
+		return 'queue worker';
 	}
 
 	/**

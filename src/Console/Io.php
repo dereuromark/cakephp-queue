@@ -29,6 +29,16 @@ class Io {
 	protected bool $captureOutput = false;
 
 	/**
+	 * @var int
+	 */
+	protected int $capturedBytes = 0;
+
+	/**
+	 * @var int
+	 */
+	protected int $maxCaptureBytes = 0;
+
+	/**
 	 * @param \Cake\Console\ConsoleIo $io
 	 */
 	public function __construct(ConsoleIo $io) {
@@ -38,11 +48,15 @@ class Io {
 	/**
 	 * Enable output capture.
 	 *
+	 * @param int $maxBytes Maximum bytes to capture (0 for unlimited).
+	 *
 	 * @return void
 	 */
-	public function enableOutputCapture(): void {
+	public function enableOutputCapture(int $maxBytes = 0): void {
 		$this->captureOutput = true;
 		$this->outputLog = [];
+		$this->capturedBytes = 0;
+		$this->maxCaptureBytes = $maxBytes;
 	}
 
 	/**
@@ -96,6 +110,7 @@ class Io {
 	 */
 	public function resetOutputLog(): void {
 		$this->outputLog = [];
+		$this->capturedBytes = 0;
 	}
 
 	/**
@@ -109,15 +124,24 @@ class Io {
 			return;
 		}
 
+		if ($this->maxCaptureBytes > 0 && $this->capturedBytes >= $this->maxCaptureBytes) {
+			return;
+		}
+
 		$messages = (array)$message;
 		foreach ($messages as $msg) {
 			// Strip console formatting tags
 			$clean = (string)preg_replace('/<\/?[a-z]+>/', '', $msg);
+			$this->capturedBytes += strlen($clean);
 			$this->outputLog[] = [
 				'level' => $level,
 				'message' => $clean,
 				'time' => time(),
 			];
+
+			if ($this->maxCaptureBytes > 0 && $this->capturedBytes >= $this->maxCaptureBytes) {
+				break;
+			}
 		}
 	}
 
@@ -296,6 +320,8 @@ class Io {
 	 * @return void
 	 */
 	public function hr(int $newlines = 0, int $width = 63): void {
+		$this->capture('info', str_repeat('-', $width));
+
 		$this->_io->hr($newlines, $width);
 	}
 
@@ -313,7 +339,7 @@ class Io {
 	 * @return void
 	 */
 	public function abort(string $message, int $exitCode = CommandInterface::CODE_ERROR): void {
-		$this->_io->error($message);
+		$this->error($message);
 
 		throw new StopException($message, $exitCode);
 	}
@@ -347,6 +373,8 @@ class Io {
 	 * @return void
 	 */
 	public function overwrite(array|string $message, int $newlines = 1, ?int $size = null): void {
+		$this->capture('info', $message);
+
 		$this->_io->overwrite($message, $newlines, $size);
 	}
 

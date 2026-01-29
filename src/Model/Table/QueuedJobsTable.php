@@ -21,7 +21,6 @@ use Queue\Model\Filter\QueuedJobsCollection;
 use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
 use Queue\Utility\Memory;
-use RuntimeException;
 
 /**
  * @author MGriesbach@gmail.com
@@ -296,18 +295,9 @@ class QueuedJobsTable extends Table {
 	 * @return \Cake\ORM\Query\SelectQuery
 	 */
 	public function getTypes(): SelectQuery {
-		$findCond = [
-			'fields' => [
-				'job_task',
-			],
-			'group' => [
-				'job_task',
-			],
-			'keyField' => 'job_task',
-			'valueField' => 'job_task',
-		];
-
-		return $this->find('list', ...$findCond);
+		return $this->find('list', keyField: 'job_task', valueField: 'job_task')
+			->select(['job_task'])
+			->groupBy(['job_task']);
 	}
 
 	/**
@@ -357,12 +347,10 @@ class QueuedJobsTable extends Table {
 			'conditions' => [
 				'completed IS NOT' => null,
 			],
-			'group' => [
-				'job_task',
-			],
 		];
 
-		$query = $this->find('all', ...$options);
+		$query = $this->find('all', ...$options)
+			->groupBy(['job_task']);
 		if ($disableHydration) {
 			$query = $query->disableHydration();
 		}
@@ -505,7 +493,7 @@ class QueuedJobsTable extends Table {
 				break;
 			case static::DRIVER_SQLITE:
 				$age = $query->expr()
-					->add('IFNULL(CAST(strftime("%s", CURRENT_TIMESTAMP) as integer) - CAST(strftime("%s", "' . $nowStr . '") as integer), 0)');
+					->add('IFNULL(CAST(strftime("%s", notbefore) as integer) - CAST(strftime("%s", "' . $nowStr . '") as integer), 0)');
 
 				break;
 		}
@@ -516,11 +504,6 @@ class QueuedJobsTable extends Table {
 			],
 			'fields' => [
 				'age' => $age,
-			],
-			'order' => [
-				'priority' => 'ASC',
-				'age' => 'ASC',
-				'id' => 'ASC',
 			],
 		];
 
@@ -631,7 +614,8 @@ class QueuedJobsTable extends Table {
 
 		/** @var \Queue\Model\Entity\QueuedJob|null $job */
 		$job = $this->getConnection()->transactional(function () use ($query, $options, $now, $driverName) {
-			$query->find('all', ...$options)->enableAutoFields(true);
+			$query->find('all', ...$options)->enableAutoFields(true)
+				->orderBy(['priority' => 'ASC', 'age' => 'ASC', 'id' => 'ASC']);
 
 			switch ($driverName) {
 				case static::DRIVER_MYSQL:
@@ -944,11 +928,12 @@ class QueuedJobsTable extends Table {
 	 * @return int
 	 */
 	public function cleanOldJobs(): int {
-		if (!Configure::read('Queue.cleanuptimeout')) {
+		$cleanupTimeout = Config::cleanuptimeout();
+		if (!$cleanupTimeout) {
 			return 0;
 		}
 
-		$threshold = (new DateTime())->subSeconds((int)Configure::read('Queue.cleanuptimeout'));
+		$threshold = (new DateTime())->subSeconds($cleanupTimeout);
 
 		return $this->deleteAll([
 			'completed <' => $threshold,
@@ -966,8 +951,8 @@ class QueuedJobsTable extends Table {
 
 		$queuedTaskName = $queuedTask->job_task;
 		if (empty($taskConfiguration[$queuedTaskName])) {
-			// Try with 'Queue' prefix for backward compatibility
-			$queuedTaskName = 'Queue' . $queuedTask->job_task;
+			// Try with plugin prefix for backward compatibility (e.g. "Example" => "Queue.Example")
+			$queuedTaskName = 'Queue.' . $queuedTask->job_task;
 			if (empty($taskConfiguration[$queuedTaskName])) {
 				return $failureMessageRequeued;
 			}
@@ -1005,9 +990,6 @@ class QueuedJobsTable extends Table {
 			return $this->_key;
 		}
 		$this->_key = bin2hex(random_bytes(20));
-		if (!$this->_key) {
-			throw new RuntimeException('Invalid key generated');
-		}
 
 		return $this->_key;
 	}
