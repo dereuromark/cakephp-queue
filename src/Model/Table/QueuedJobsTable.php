@@ -665,6 +665,7 @@ class QueuedJobsTable extends Table {
 				'fetched' => $now,
 				'progress' => null,
 				'failure_message' => null,
+				'output' => null,
 				'attempts' => $job->attempts + 1,
 			]);
 
@@ -710,12 +711,15 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return bool Success
 	 */
-	public function markJobDone(QueuedJob $job): bool {
+	public function markJobDone(QueuedJob $job, ?string $output = null): bool {
 		$fields = [
 			'progress' => 1,
 			'completed' => $this->getDateTime(),
 			'memory' => Memory::usage(),
 		];
+		if ($output !== null) {
+			$fields['output'] = $output;
+		}
 		$job = $this->patchEntity($job, $fields);
 
 		return (bool)$this->save($job);
@@ -729,11 +733,14 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return bool Success
 	 */
-	public function markJobFailed(QueuedJob $job, ?string $failureMessage = null): bool {
+	public function markJobFailed(QueuedJob $job, ?string $failureMessage = null, ?string $output = null): bool {
 		$fields = [
 			'failure_message' => $failureMessage,
 			'memory' => Memory::usage(),
 		];
+		if ($output !== null) {
+			$fields['output'] = $output;
+		}
 		$job = $this->patchEntity($job, $fields);
 
 		return (bool)$this->save($job);
@@ -773,6 +780,7 @@ class QueuedJobsTable extends Table {
 			'attempts' => 0,
 			'workerkey' => null,
 			'failure_message' => null,
+			'output' => null,
 			'memory' => null,
 		];
 		$conditions = [
@@ -806,6 +814,7 @@ class QueuedJobsTable extends Table {
 			'attempts' => 0,
 			'workerkey' => null,
 			'failure_message' => null,
+			'output' => null,
 			'memory' => null,
 		];
 		$conditions = [
@@ -832,6 +841,7 @@ class QueuedJobsTable extends Table {
 			'attempts' => 0,
 			'workerkey' => null,
 			'failure_message' => null,
+			'output' => null,
 			'memory' => null,
 		];
 		$conditions = [
@@ -855,6 +865,7 @@ class QueuedJobsTable extends Table {
 			'attempts' => 0,
 			'workerkey' => null,
 			'failure_message' => null,
+			'output' => null,
 			'memory' => null,
 		];
 		$data = $defaults + $queuedJob->toArray();

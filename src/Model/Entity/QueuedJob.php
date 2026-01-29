@@ -23,6 +23,7 @@ use Cake\ORM\Entity;
  * @property int $priority
  * @property \Queue\Model\Entity\QueueProcess $worker_process
  * @property int|null $memory
+ * @property string|null $output
  * @property string|null $headers !
  * @property string|null $message !
  */
