@@ -379,7 +379,11 @@ class Processor {
 			if ($configured !== null) {
 				$this->captureOutput = (bool)$configured;
 			} else {
-				$this->captureOutput = $this->QueuedJobs->getSchema()->hasColumn('output');
+				try {
+					$this->captureOutput = $this->QueuedJobs->getSchema()->hasColumn('output');
+				} catch (Throwable) {
+					$this->captureOutput = false;
+				}
 			}
 		}
 
