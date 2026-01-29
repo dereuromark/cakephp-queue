@@ -308,7 +308,11 @@ class QueueProcessesTable extends Table {
 			$killed = posix_kill((int)$pid, $sig);
 		}
 		if (!$killed) {
-			exec('kill -' . $sig . ' ' . $pid);
+			$safePid = (int)$pid;
+			$safeSig = (int)$sig;
+			if ($safePid > 0) {
+				exec('kill -' . $safeSig . ' ' . $safePid);
+			}
 		}
 		sleep(1);
 

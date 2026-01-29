@@ -141,18 +141,26 @@ class JobCommand extends Command {
 	 * @return int
 	 */
 	protected function rerunAll(ConsoleIo $io): int {
-		/** @var array<\Queue\Model\Entity\QueuedJob> $queuedJobs */
-		$queuedJobs = $this->QueuedJobs->find()
-			->where(['completed IS NOT' => null])
-			->all()
-			->toArray();
+		$fields = [
+			'completed' => null,
+			'fetched' => null,
+			'progress' => null,
+			'attempts' => 0,
+			'workerkey' => null,
+			'failure_message' => null,
+			'output' => null,
+			'memory' => null,
+		];
+		$count = $this->QueuedJobs->updateAll($fields, ['completed IS NOT' => null]);
+		if (!$count) {
+			$io->out('No completed jobs to rerun.');
 
-		$status = static::CODE_SUCCESS;
-		foreach ($queuedJobs as $queuedJob) {
-			$status |= $this->rerun($io, $queuedJob);
+			return static::CODE_SUCCESS;
 		}
 
-		return $status;
+		$io->success($count . ' job(s) queued for rerun');
+
+		return static::CODE_SUCCESS;
 	}
 
 	/**
@@ -161,18 +169,16 @@ class JobCommand extends Command {
 	 * @return int
 	 */
 	protected function resetAll(ConsoleIo $io): int {
-		/** @var array<\Queue\Model\Entity\QueuedJob> $queuedJobs */
-		$queuedJobs = $this->QueuedJobs->find()
-			->where(['completed IS' => null])
-			->all()
-			->toArray();
+		$count = $this->QueuedJobs->reset(null, true);
+		if (!$count) {
+			$io->out('No incomplete jobs to reset.');
 
-		$status = static::CODE_SUCCESS;
-		foreach ($queuedJobs as $queuedJob) {
-			$status |= $this->reset($io, $queuedJob);
+			return static::CODE_SUCCESS;
 		}
 
-		return $status;
+		$io->success($count . ' job(s) reset for rerun');
+
+		return static::CODE_SUCCESS;
 	}
 
 	/**
@@ -265,6 +271,10 @@ class JobCommand extends Command {
 		}
 		if ($queuedJob->attempts) {
 			$io->out('Failure message: ' . ($queuedJob->failure_message ?: '-'));
+		}
+		if ($queuedJob->output) {
+			$io->out('Output:');
+			$io->out($queuedJob->output);
 		}
 
 		$data = $queuedJob->data;

@@ -19,10 +19,130 @@ class Io {
 	protected ConsoleIo $_io;
 
 	/**
+	 * @var array<array{level: string, message: string, time: int}>
+	 */
+	protected array $outputLog = [];
+
+	/**
+	 * @var bool
+	 */
+	protected bool $captureOutput = false;
+
+	/**
+	 * @var int
+	 */
+	protected int $capturedBytes = 0;
+
+	/**
+	 * @var int
+	 */
+	protected int $maxCaptureBytes = 0;
+
+	/**
 	 * @param \Cake\Console\ConsoleIo $io
 	 */
 	public function __construct(ConsoleIo $io) {
 		$this->_io = $io;
+	}
+
+	/**
+	 * Enable output capture.
+	 *
+	 * @param int $maxBytes Maximum bytes to capture (0 for unlimited).
+	 *
+	 * @return void
+	 */
+	public function enableOutputCapture(int $maxBytes = 0): void {
+		$this->captureOutput = true;
+		$this->outputLog = [];
+		$this->capturedBytes = 0;
+		$this->maxCaptureBytes = $maxBytes;
+	}
+
+	/**
+	 * Disable output capture.
+	 *
+	 * @return void
+	 */
+	public function disableOutputCapture(): void {
+		$this->captureOutput = false;
+	}
+
+	/**
+	 * Get the captured output log.
+	 *
+	 * @return array<array{level: string, message: string, time: int}>
+	 */
+	public function getOutputLog(): array {
+		return $this->outputLog;
+	}
+
+	/**
+	 * Get the captured output as plain text string.
+	 *
+	 * @param int $maxLength Maximum length in bytes before truncation. 0 for unlimited.
+	 *
+	 * @return string|null
+	 */
+	public function getOutputAsText(int $maxLength = 0): ?string {
+		if (!$this->outputLog) {
+			return null;
+		}
+
+		$lines = [];
+		foreach ($this->outputLog as $entry) {
+			$prefix = strtoupper($entry['level']);
+			$lines[] = '[' . date('H:i:s', $entry['time']) . '] ' . $prefix . ': ' . $entry['message'];
+		}
+
+		$output = implode("\n", $lines);
+		if ($maxLength > 0 && strlen($output) > $maxLength) {
+			$output = substr($output, 0, $maxLength) . "\n... [output truncated]";
+		}
+
+		return $output;
+	}
+
+	/**
+	 * Reset the captured output log.
+	 *
+	 * @return void
+	 */
+	public function resetOutputLog(): void {
+		$this->outputLog = [];
+		$this->capturedBytes = 0;
+	}
+
+	/**
+	 * @param string $level
+	 * @param array<string>|string $message
+	 *
+	 * @return void
+	 */
+	protected function capture(string $level, array|string $message): void {
+		if (!$this->captureOutput) {
+			return;
+		}
+
+		if ($this->maxCaptureBytes > 0 && $this->capturedBytes >= $this->maxCaptureBytes) {
+			return;
+		}
+
+		$messages = (array)$message;
+		foreach ($messages as $msg) {
+			// Strip console formatting tags
+			$clean = (string)preg_replace('/<\/?[a-z]+>/', '', $msg);
+			$this->capturedBytes += strlen($clean);
+			$this->outputLog[] = [
+				'level' => $level,
+				'message' => $clean,
+				'time' => time(),
+			];
+
+			if ($this->maxCaptureBytes > 0 && $this->capturedBytes >= $this->maxCaptureBytes) {
+				break;
+			}
+		}
 	}
 
 	/**
@@ -34,6 +154,8 @@ class Io {
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
 	public function verbose(array|string $message, int $newlines = 1): ?int {
+		$this->capture('verbose', $message);
+
 		return $this->_io->verbose($message, $newlines);
 	}
 
@@ -46,6 +168,8 @@ class Io {
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
 	public function quiet(array|string $message, int $newlines = 1): ?int {
+		$this->capture('info', $message);
+
 		return $this->_io->quiet($message, $newlines);
 	}
 
@@ -69,6 +193,8 @@ class Io {
 	 * @return int|null The number of bytes returned from writing to stdout.
 	 */
 	public function out(array|string $message = '', int $newlines = 1, int $level = ConsoleIo::NORMAL): ?int {
+		$this->capture('info', $message);
+
 		return $this->_io->out($message, $newlines, $level);
 	}
 
@@ -82,6 +208,8 @@ class Io {
 	 * @return int|null The number of bytes returned from writing to stderr.
 	 */
 	public function error(array|string $message = '', int $newlines = 1): ?int {
+		$this->capture('error', $message);
+
 		$messages = (array)$message;
 
 		return $this->_io->error($messages, $newlines);
@@ -138,6 +266,8 @@ class Io {
 	 * @return int|null The number of bytes returned from writing to stderr.
 	 */
 	public function warn(array|string $message = '', int $newlines = 1): ?int {
+		$this->capture('warning', $message);
+
 		$messages = (array)$message;
 		foreach ($messages as $key => $message) {
 			$messages[$key] = '<warning>' . $message . '</warning>';
@@ -190,6 +320,8 @@ class Io {
 	 * @return void
 	 */
 	public function hr(int $newlines = 0, int $width = 63): void {
+		$this->capture('info', str_repeat('-', $width));
+
 		$this->_io->hr($newlines, $width);
 	}
 
@@ -207,7 +339,7 @@ class Io {
 	 * @return void
 	 */
 	public function abort(string $message, int $exitCode = CommandInterface::CODE_ERROR): void {
-		$this->_io->error($message);
+		$this->error($message);
 
 		throw new StopException($message, $exitCode);
 	}
@@ -241,6 +373,8 @@ class Io {
 	 * @return void
 	 */
 	public function overwrite(array|string $message, int $newlines = 1, ?int $size = null): void {
+		$this->capture('info', $message);
+
 		$this->_io->overwrite($message, $newlines, $size);
 	}
 

@@ -27,7 +27,7 @@ use const SIGTERM;
 use const SIGTSTP;
 use const SIGUSR1;
 
-declare(ticks=1);
+// Enable async signal handling (replaces declare(ticks=1) for better performance)
 
 /**
  * Main shell to init and run queue workers.
@@ -123,9 +123,10 @@ class Processor {
 			return CommandInterface::CODE_ERROR;
 		}
 
-		// Enable Garbage Collector (PHP >= 5.3)
-		if (function_exists('gc_enable')) {
-			gc_enable();
+		gc_enable();
+
+		if (function_exists('pcntl_async_signals')) {
+			pcntl_async_signals(true);
 		}
 		if (function_exists('pcntl_signal')) {
 			pcntl_signal(SIGTERM, [&$this, 'exit']);
@@ -224,6 +225,12 @@ class Processor {
 		]);
 		EventManager::instance()->dispatch($event);
 
+		$captureOutput = (bool)Configure::read('Queue.captureOutput');
+		if ($captureOutput) {
+			$maxOutputSize = (int)(Configure::read('Queue.maxOutputSize') ?: 65536);
+			$this->io->enableOutputCapture($maxOutputSize);
+		}
+
 		$return = $failureMessage = null;
 		try {
 			$this->time = time();
@@ -247,8 +254,15 @@ class Processor {
 			$this->logError($taskName . ' (job ' . $queuedJob->id . ')' . "\n" . $failureMessage, $pid);
 		}
 
+		$capturedOutput = null;
+		if ($captureOutput) {
+			$maxOutputSize = (int)(Configure::read('Queue.maxOutputSize') ?: 65536);
+			$capturedOutput = $this->io->getOutputAsText($maxOutputSize);
+			$this->io->disableOutputCapture();
+		}
+
 		if ($return === false) {
-			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
+			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage, $capturedOutput);
 			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->getTaskConf());
 			$this->log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
 			$this->io->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->attempts . '.');
@@ -273,7 +287,7 @@ class Processor {
 			return;
 		}
 
-		$this->QueuedJobs->markJobDone($queuedJob);
+		$this->QueuedJobs->markJobDone($queuedJob, $capturedOutput);
 
 		// Dispatch completed event
 		$event = new Event('Queue.Job.completed', $this, [
@@ -357,9 +371,15 @@ class Processor {
 	protected function exit(int $signal): void {
 		if ($this->currentJob) {
 			$failureMessage = 'Worker process terminated by signal (SIGTERM) - job execution interrupted due to timeout or manual termination';
-			$this->QueuedJobs->markJobFailed($this->currentJob, $failureMessage);
+			$capturedOutput = null;
+			if ((bool)Configure::read('Queue.captureOutput')) {
+				$maxOutputSize = (int)(Configure::read('Queue.maxOutputSize') ?: 65536);
+				$capturedOutput = $this->io->getOutputAsText($maxOutputSize);
+				$this->io->disableOutputCapture();
+			}
+			$this->QueuedJobs->markJobFailed($this->currentJob, $failureMessage, $capturedOutput);
 			$this->logError('Job ' . $this->currentJob->job_task . ' (id ' . $this->currentJob->id . ') failed due to worker termination', $this->pid);
-			$this->io->out('Current job marked as failed due to worker termination.');
+			$this->currentJob = null;
 		}
 		$this->exit = true;
 	}
@@ -372,6 +392,18 @@ class Processor {
 	 * @return void
 	 */
 	protected function abort(int $signal = 1): void {
+		if ($this->currentJob) {
+			$failureMessage = 'Worker process aborted by signal (' . $signal . ') - job execution interrupted';
+			$capturedOutput = null;
+			if ((bool)Configure::read('Queue.captureOutput')) {
+				$maxOutputSize = (int)(Configure::read('Queue.maxOutputSize') ?: 65536);
+				$capturedOutput = $this->io->getOutputAsText($maxOutputSize);
+				$this->io->disableOutputCapture();
+			}
+			$this->QueuedJobs->markJobFailed($this->currentJob, $failureMessage, $capturedOutput);
+			$this->currentJob = null;
+		}
+
 		$this->deletePid($this->pid);
 
 		exit($signal);

@@ -146,6 +146,14 @@ use Brick\VarExporter\VarExporter;
 		?>
 		</div>
 	</div>
+	<?php if ($queuedJob->output) { ?>
+	<div class="row">
+		<div class="col-md-12">
+		<h3><?= __d('queue', 'Output') ?></h3>
+		<pre><?= h($queuedJob->output) ?></pre>
+		</div>
+	</div>
+	<?php } ?>
 	<div class="row">
 		<div class="col-md-12">
 		<h3><?= __d('queue', 'Failure Message') ?></h3>

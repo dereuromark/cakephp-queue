@@ -33,6 +33,7 @@ class QueuedJobsFixture extends TestFixture {
 		'status' => ['type' => 'string', 'length' => 255, 'null' => true, 'default' => null, 'comment' => '', 'precision' => null, 'fixed' => null],
 		'priority' => ['type' => 'integer', 'length' => 3, 'unsigned' => true, 'null' => false, 'default' => 5, 'comment' => '', 'precision' => null, 'autoIncrement' => null],
 		'memory' => ['type' => 'integer', 'length' => 10, 'unsigned' => true, 'null' => true, 'default' => null, 'comment' => 'MB'],
+		'output' => ['type' => 'text', 'length' => 16777215, 'null' => true, 'default' => null, 'comment' => '', 'precision' => null],
 		'_constraints' => [
 			'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
 		],
