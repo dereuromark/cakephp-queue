@@ -369,7 +369,12 @@ class Processor {
 	protected function exit(int $signal): void {
 		if ($this->currentJob) {
 			$failureMessage = 'Worker process terminated by signal (SIGTERM) - job execution interrupted due to timeout or manual termination';
-			$this->QueuedJobs->markJobFailed($this->currentJob, $failureMessage);
+			$capturedOutput = null;
+			if ((bool)Configure::read('Queue.captureOutput')) {
+				$maxOutputSize = (int)(Configure::read('Queue.maxOutputSize') ?: 65536);
+				$capturedOutput = $this->io->getOutputAsText($maxOutputSize);
+			}
+			$this->QueuedJobs->markJobFailed($this->currentJob, $failureMessage, $capturedOutput);
 			$this->logError('Job ' . $this->currentJob->job_task . ' (id ' . $this->currentJob->id . ') failed due to worker termination', $this->pid);
 			$this->io->out('Current job marked as failed due to worker termination.');
 		}
