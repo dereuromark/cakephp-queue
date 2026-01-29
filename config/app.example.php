@@ -47,6 +47,12 @@ return [
 		// determine whether logging is enabled
 		'log' => true,
 
+		// capture task output (stdout/stderr) and store in database
+		'captureOutput' => false,
+
+		// maximum size in bytes for captured output (0 = unlimited)
+		'maxOutputSize' => 65536, // 64KB
+
 		// set default Mailer class
 		'mailerClass' => 'Cake\Mailer\Email',
 

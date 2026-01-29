@@ -224,6 +224,11 @@ class Processor {
 		]);
 		EventManager::instance()->dispatch($event);
 
+		$captureOutput = (bool)Configure::read('Queue.captureOutput');
+		if ($captureOutput) {
+			$this->io->enableOutputCapture();
+		}
+
 		$return = $failureMessage = null;
 		try {
 			$this->time = time();
@@ -247,8 +252,15 @@ class Processor {
 			$this->logError($taskName . ' (job ' . $queuedJob->id . ')' . "\n" . $failureMessage, $pid);
 		}
 
+		$capturedOutput = null;
+		if ($captureOutput) {
+			$maxOutputSize = (int)(Configure::read('Queue.maxOutputSize') ?: 65536);
+			$capturedOutput = $this->io->getOutputAsText($maxOutputSize);
+			$this->io->disableOutputCapture();
+		}
+
 		if ($return === false) {
-			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage);
+			$this->QueuedJobs->markJobFailed($queuedJob, $failureMessage, $capturedOutput);
 			$failedStatus = $this->QueuedJobs->getFailedStatus($queuedJob, $this->getTaskConf());
 			$this->log('job ' . $queuedJob->job_task . ', id ' . $queuedJob->id . ' failed and ' . $failedStatus, $pid);
 			$this->io->out('Job did not finish, ' . $failedStatus . ' after try ' . $queuedJob->attempts . '.');
@@ -273,7 +285,7 @@ class Processor {
 			return;
 		}
 
-		$this->QueuedJobs->markJobDone($queuedJob);
+		$this->QueuedJobs->markJobDone($queuedJob, $capturedOutput);
 
 		// Dispatch completed event
 		$event = new Event('Queue.Job.completed', $this, [
