@@ -54,7 +54,13 @@ class InfoCommandTest extends TestCase {
 		Configure::write('Queue.defaultworkerretries', 2);
 		Configure::write('Queue.workertimeout', 120);
 
+		// Suppress deprecation warnings triggered by Config methods reading old keys
+		$errorLevel = error_reporting();
+		error_reporting($errorLevel & ~E_USER_DEPRECATED);
+
 		$this->exec('queue info');
+
+		error_reporting($errorLevel);
 
 		$output = $this->_out->output();
 

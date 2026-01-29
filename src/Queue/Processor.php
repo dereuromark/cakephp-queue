@@ -87,6 +87,11 @@ class Processor {
 	protected ?QueuedJob $currentJob = null;
 
 	/**
+	 * @var bool|null
+	 */
+	protected ?bool $captureOutput = null;
+
+	/**
 	 * @param \Queue\Console\Io $io
 	 * @param \Psr\Log\LoggerInterface $logger
 	 * @param \Cake\Core\ContainerInterface|null $container
@@ -225,7 +230,7 @@ class Processor {
 		]);
 		EventManager::instance()->dispatch($event);
 
-		$captureOutput = (bool)Configure::read('Queue.captureOutput');
+		$captureOutput = $this->captureOutput();
 		if ($captureOutput) {
 			$maxOutputSize = (int)(Configure::read('Queue.maxOutputSize') ?: 65536);
 			$this->io->enableOutputCapture($maxOutputSize);
@@ -362,6 +367,30 @@ class Processor {
 	}
 
 	/**
+	 * Whether to capture task output into the DB.
+	 *
+	 * Auto-detects based on `output` column existence if not explicitly configured.
+	 *
+	 * @return bool
+	 */
+	protected function captureOutput(): bool {
+		if ($this->captureOutput === null) {
+			$configured = Configure::read('Queue.captureOutput');
+			if ($configured !== null) {
+				$this->captureOutput = (bool)$configured;
+			} else {
+				try {
+					$this->captureOutput = $this->QueuedJobs->getSchema()->hasColumn('output');
+				} catch (Throwable) {
+					$this->captureOutput = false;
+				}
+			}
+		}
+
+		return $this->captureOutput;
+	}
+
+	/**
 	 * Signal handling to queue worker for clean shutdown
 	 *
 	 * @param int $signal
@@ -372,7 +401,7 @@ class Processor {
 		if ($this->currentJob) {
 			$failureMessage = 'Worker process terminated by signal (SIGTERM) - job execution interrupted due to timeout or manual termination';
 			$capturedOutput = null;
-			if ((bool)Configure::read('Queue.captureOutput')) {
+			if ($this->captureOutput()) {
 				$maxOutputSize = (int)(Configure::read('Queue.maxOutputSize') ?: 65536);
 				$capturedOutput = $this->io->getOutputAsText($maxOutputSize);
 				$this->io->disableOutputCapture();
@@ -395,7 +424,7 @@ class Processor {
 		if ($this->currentJob) {
 			$failureMessage = 'Worker process aborted by signal (' . $signal . ') - job execution interrupted';
 			$capturedOutput = null;
-			if ((bool)Configure::read('Queue.captureOutput')) {
+			if ($this->captureOutput()) {
 				$maxOutputSize = (int)(Configure::read('Queue.maxOutputSize') ?: 65536);
 				$capturedOutput = $this->io->getOutputAsText($maxOutputSize);
 				$this->io->disableOutputCapture();
