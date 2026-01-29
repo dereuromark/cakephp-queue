@@ -708,6 +708,7 @@ class QueuedJobsTable extends Table {
 	 * Mark a job as Completed, removing it from the queue.
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $job Job
+	 * @param string|null $output Optional captured output.
 	 *
 	 * @return bool Success
 	 */
@@ -730,6 +731,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $job Job
 	 * @param string|null $failureMessage Optional message to append to the failure_message field.
+	 * @param string|null $output Optional captured output.
 	 *
 	 * @return bool Success
 	 */
