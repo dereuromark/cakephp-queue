@@ -33,6 +33,8 @@ class QueueShell extends AppShell {
 
 	protected $_exit;
 
+	protected $_messagesProcessed = 0;
+
 /**
  * Overwrite shell initialize to dynamically load all Queue Related Tasks.
  *
@@ -256,6 +258,7 @@ class QueueShell extends AppShell {
 						$this->QueuedTask->markJobFailed($data['id'], $failureMessage);
 						$this->out('Job did not finish, requeued.');
 					}
+					$this->_messagesProcessed++;
 				} elseif (Configure::read('Queue.exitwhennothingtodo')) {
 					$this->out('nothing to do, exiting.');
 					$this->_exit = true;
@@ -268,6 +271,11 @@ class QueueShell extends AppShell {
 				if (Configure::read('Queue.workermaxruntime') && (time() - $starttime) >= Configure::read('Queue.workermaxruntime')) {
 					$this->_exit = true;
 					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('Queue.workermaxruntime') . '), terminating.');
+				}
+				// check if we have processed the maximum number of messages
+				if (Configure::read('Queue.workermaxmessages') && $this->_messagesProcessed >= Configure::read('Queue.workermaxmessages')) {
+					$this->_exit = true;
+					$this->out('Processed ' . $this->_messagesProcessed . ' messages (Max ' . Configure::read('Queue.workermaxmessages') . '), exiting gracefully.');
 				}
 				if ($this->_exit || rand(0, 100) > (100 - Configure::read('Queue.gcprob'))) {
 					$this->out('Performing Old job cleanup.');
@@ -417,6 +425,7 @@ class QueueShell extends AppShell {
                         $this->QueuedTask->markJobFailedSqs($data, $queueUrl, $failureMessage);
                         $this->out('Job did not finish, requeued.');
                     }
+                    $this->_messagesProcessed++;
                 } elseif (Configure::read('Queue.exitwhennothingtodo')) {
                     $this->out('nothing to do, exiting.');
                     $this->_exit = true;
@@ -429,6 +438,11 @@ class QueueShell extends AppShell {
                 if (Configure::read('Queue.workermaxruntime') && (time() - $starttime) >= Configure::read('Queue.workermaxruntime')) {
                     $this->_exit = true;
                     $this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('Queue.workermaxruntime') . '), terminating.');
+                }
+                // check if we have processed the maximum number of messages
+                if (Configure::read('Queue.workermaxmessages') && $this->_messagesProcessed >= Configure::read('Queue.workermaxmessages')) {
+                    $this->_exit = true;
+                    $this->out('Processed ' . $this->_messagesProcessed . ' messages (Max ' . Configure::read('Queue.workermaxmessages') . '), exiting gracefully.');
                 }
                 if ($this->_exit || rand(0, 100) > (100 - Configure::read('Queue.gcprob'))) {
                     $this->out('Performing Old job cleanup.');
