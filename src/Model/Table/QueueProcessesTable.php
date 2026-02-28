@@ -259,6 +259,7 @@ class QueueProcessesTable extends Table {
 			$query = $query->where(['server' => $QueueProcesses->buildServerString()]);
 		}
 
+		/** @var array<\Queue\Model\Entity\QueueProcess> $processes */
 		$processes = $query
 			->all()
 			->toArray();

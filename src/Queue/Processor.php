@@ -276,7 +276,7 @@ class Processor {
 			$event = new Event('Queue.Job.failed', $this, [
 				'job' => $queuedJob,
 				'failureMessage' => $failureMessage,
-				'exception' => $e ?? null,
+				'exception' => $e,
 			]);
 			EventManager::instance()->dispatch($event);
 
