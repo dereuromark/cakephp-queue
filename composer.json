@@ -8,7 +8,10 @@
 		"queue",
 		"deferred tasks",
 		"background",
-		"admin-panel"
+		"admin-panel",
+		"jobs",
+		"workers",
+		"async"
 	],
 	"authors": [
 		{
