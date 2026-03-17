@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
-use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Http\Exception\NotFoundException;
@@ -17,9 +16,7 @@ use RuntimeException;
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> paginate($object = null, array $settings = [])
  * @property \Search\Controller\Component\SearchComponent $Search
  */
-class QueuedJobsController extends AppController {
-
-	use LoadHelperTrait;
+class QueuedJobsController extends QueueAppController {
 
 	/**
 	 * @var array<string, mixed>
@@ -37,7 +34,6 @@ class QueuedJobsController extends AppController {
 		parent::initialize();
 
 		$this->enableSearch();
-		$this->loadHelpers();
 	}
 
 	/**

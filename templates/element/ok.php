@@ -13,6 +13,10 @@
 	} elseif ($this->helpers()->has('Format')) {
 		echo $this->Format->ok($value, $ok);
 	} else {
-		echo $ok ? '<span class="yes-no yes-no-yes">' . h($value) . '</span>' : '<span class="yes-no yes-no-no">' . h($value) . '</span>';
+		if ($ok) {
+			echo '<span class="yes-no yes-no-yes"><i class="fas fa-check me-1"></i>' . h($value) . '</span>';
+		} else {
+			echo '<span class="yes-no yes-no-no"><i class="fas fa-exclamation-triangle me-1"></i>' . h($value) . '</span>';
+		}
 	}
 ?>

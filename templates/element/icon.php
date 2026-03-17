@@ -1,6 +1,6 @@
 <?php
 /**
- * Icon element with text fallback when Icon helper is not available.
+ * Icon element with Font Awesome 6 fallback when Icon helper is not available.
  *
  * @var \App\View\AppView $this
  * @var string $name Icon name
@@ -12,17 +12,22 @@ $options ??= [];
 $attributes ??= [];
 
 $fallbackMap = [
-	'view' => 'View',
-	'edit' => 'Edit',
-	'delete' => 'Del',
-	'times' => 'X',
-	'exclamation-triangle' => '(!)',
-	'cubes' => 'Data',
+	'view' => ['icon' => 'eye', 'text' => 'View'],
+	'edit' => ['icon' => 'edit', 'text' => 'Edit'],
+	'delete' => ['icon' => 'trash', 'text' => 'Del'],
+	'times' => ['icon' => 'times', 'text' => 'X'],
+	'exclamation-triangle' => ['icon' => 'exclamation-triangle', 'text' => '(!)'],
+	'cubes' => ['icon' => 'database', 'text' => 'Data'],
 ];
 
 if ($this->helpers()->has('Icon')) {
 	echo $this->Icon->render($name, $options, $attributes);
 } else {
-	$title = $attributes['title'] ?? $fallbackMap[$name] ?? ucfirst($name);
-	echo '<span title="' . h($title) . '">[' . h($fallbackMap[$name] ?? ucfirst($name)) . ']</span>';
+	$mapping = $fallbackMap[$name] ?? ['icon' => $name, 'text' => ucfirst($name)];
+	$title = $attributes['title'] ?? $mapping['text'];
+	$class = 'fas fa-' . $mapping['icon'];
+	if (isset($attributes['class'])) {
+		$class .= ' ' . $attributes['class'];
+	}
+	echo '<i class="' . h($class) . '" title="' . h($title) . '"></i>';
 }
