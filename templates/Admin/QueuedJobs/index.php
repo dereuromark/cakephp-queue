@@ -75,7 +75,9 @@ use Cake\Core\Plugin;
 					<?php echo $this->QueueProgress->timeoutProgressBar($queuedJob, 8); ?>
 					<?php if ($queuedJob->notbefore && $queuedJob->notbefore->isFuture()) {
 						echo '<div><small>';
-						echo $this->Time->relLengthOfTime($queuedJob->notbefore);
+						echo method_exists($this->Time, 'relLengthOfTime')
+							? $this->Time->relLengthOfTime($queuedJob->notbefore)
+							: $this->Time->timeAgoInWords($queuedJob->notbefore);
 						echo '</small></div>';
 					} ?>
 				</td>
@@ -84,7 +86,9 @@ use Cake\Core\Plugin;
 
 					<?php if ($queuedJob->fetched) {
 						echo '<div><small>';
-						echo $this->Time->relLengthOfTime($queuedJob->fetched);
+						echo method_exists($this->Time, 'relLengthOfTime')
+							? $this->Time->relLengthOfTime($queuedJob->fetched)
+							: $this->Time->timeAgoInWords($queuedJob->fetched);
 						echo '</small></div>';
 					} ?>
 
@@ -93,7 +97,7 @@ use Cake\Core\Plugin;
 					<?php } ?>
 				</td>
 				<td>
-                    <?= $this->Format->ok($this->Time->nice($queuedJob->completed), (bool)$queuedJob->completed) ?>
+                    <?= $this->element('Queue.ok', ['value' => $this->Time->nice($queuedJob->completed), 'ok' => (bool)$queuedJob->completed]) ?>
                     <?php if ($queuedJob->completed) { ?>
                     <div>
                         <small><?php

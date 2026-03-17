@@ -40,7 +40,12 @@ use Cake\Core\Configure;
 			$time = $status['time'];
 			$running = $time->addMinutes(1)->isFuture();
 			?>
-			<?php echo $this->element('Queue.yes_no', ['value' => $running]); ?> <?php echo $running ? __d('queue', 'Running') : __d('queue', 'Not running'); ?> (<?php echo __d('queue', 'last {0}', $this->Time->relLengthOfTime($status['time']))?>)
+			<?php
+			$relTime = method_exists($this->Time, 'relLengthOfTime')
+				? $this->Time->relLengthOfTime($status['time'])
+				: $this->Time->timeAgoInWords($status['time']);
+			?>
+			<?php echo $this->element('Queue.yes_no', ['value' => $running]); ?> <?php echo $running ? __d('queue', 'Running') : __d('queue', 'Not running'); ?> (<?php echo __d('queue', 'last {0}', $relTime)?>)
 
 			<?php
 			echo '<div><small>Currently ' . $this->Html->link($status['workers'] . ' worker(s)', ['action' => 'processes']) . ' total.</small></div>';

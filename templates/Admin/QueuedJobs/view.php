@@ -49,7 +49,9 @@ use Brick\VarExporter\VarExporter;
 				<?php echo $this->QueueProgress->timeoutProgressBar($queuedJob, 18); ?>
 				<?php if ($queuedJob->notbefore && $queuedJob->notbefore->isFuture()) {
 					echo '<div><small>';
-					echo $this->Time->relLengthOfTime($queuedJob->notbefore);
+					echo method_exists($this->Time, 'relLengthOfTime')
+						? $this->Time->relLengthOfTime($queuedJob->notbefore)
+						: $this->Time->timeAgoInWords($queuedJob->notbefore);
 					echo '</small></div>';
 				} ?>
 			</td>
@@ -68,7 +70,7 @@ use Brick\VarExporter\VarExporter;
 		<tr>
 			<th><?= __d('queue', 'Completed') ?></th>
 			<td>
-				<?= $this->Format->ok($this->Time->nice($queuedJob->completed), (bool)$queuedJob->completed) ?>
+				<?= $this->element('Queue.ok', ['value' => $this->Time->nice($queuedJob->completed), 'ok' => (bool)$queuedJob->completed]) ?>
 				<?php if ($queuedJob->completed) {
 					echo '<div><small>';
 					echo __d('queue', 'Duration') . ': ' . $this->Time->duration($queuedJob->completed->diff($queuedJob->fetched));
