@@ -42,8 +42,8 @@ class QueueAppController extends Controller {
 		parent::beforeFilter($event);
 
 		if (Configure::read('Queue.ignoreAuthorization') && $this->components()->has('Authorization')) {
-			/** @var \Authorization\Controller\Component\AuthorizationComponent $authorization */
 			$authorization = $this->components()->get('Authorization');
+			/** @phpstan-ignore method.notFound */
 			$authorization->skipAuthorization();
 		}
 	}
