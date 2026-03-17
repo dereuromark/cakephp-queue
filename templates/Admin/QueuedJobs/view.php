@@ -326,23 +326,5 @@ use Brick\VarExporter\VarExporter;
 			</div>
 		</div>
 
-		<!-- Navigation Card -->
-		<div class="card mb-4">
-			<div class="card-header">
-				<i class="fas fa-arrow-circle-left me-2"></i><?= __d('queue', 'Navigation') ?>
-			</div>
-			<div class="list-group list-group-flush">
-				<?= $this->Html->link(
-					'<i class="fas fa-list me-2"></i>' . __d('queue', 'Back to Jobs List'),
-					['action' => 'index'],
-					['class' => 'list-group-item list-group-item-action', 'escapeTitle' => false]
-				) ?>
-				<?= $this->Html->link(
-					'<i class="fas fa-tachometer-alt me-2"></i>' . __d('queue', 'Dashboard'),
-					['controller' => 'Queue', 'action' => 'index'],
-					['class' => 'list-group-item list-group-item-action', 'escapeTitle' => false]
-				) ?>
-			</div>
-		</div>
 	</div>
 </div>

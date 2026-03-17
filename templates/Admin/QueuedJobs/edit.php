@@ -7,15 +7,9 @@
 <nav class="actions large-3 medium-4 columns col-sm-4 col-12" id="actions-sidebar">
 	<ul class="side-nav nav nav-pills flex-column">
 		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Back'), ['action' => 'view', $queuedJob->id]) ?></li>
-		<li class="nav-item"><?= $this->Form->postLink(
-				__d('queue', 'Delete'),
-				['action' => 'delete', $queuedJob->id],
-				['confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id)]
-			)
-		?></li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Edit Payload'), ['action' => 'data', $queuedJob->id]) ?></li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['action' => 'index']) ?></li>
+		<li class="nav-item"><?= $this->Html->link('<i class="fas fa-arrow-left me-1"></i>' . __d('queue', 'Back'), ['action' => 'view', $queuedJob->id], ['class' => 'nav-link', 'escapeTitle' => false]) ?></li>
+		<li class="nav-item"><?= $this->Html->link('<i class="fas fa-database me-1"></i>' . __d('queue', 'Edit Payload'), ['action' => 'data', $queuedJob->id], ['class' => 'nav-link', 'escapeTitle' => false]) ?></li>
+		<li class="nav-item"><?= $this->Form->postLink('<i class="fas fa-trash me-1"></i>' . __d('queue', 'Delete'), ['action' => 'delete', $queuedJob->id], ['class' => 'nav-link text-danger', 'escapeTitle' => false, 'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id), 'block' => true]) ?></li>
 	</ul>
 </nav>
 <div class="content action-form form large-9 medium-8 columns col-sm-8 col-12">

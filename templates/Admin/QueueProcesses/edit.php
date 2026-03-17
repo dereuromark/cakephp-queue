@@ -7,8 +7,7 @@
 <nav class="actions large-3 medium-4 columns col-sm-4 col-12" id="actions-sidebar">
 	<ul class="side-nav nav nav-pills flex-column">
 		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Back'), ['action' => 'view', $queueProcess->id]) ?></li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queue Processes')), ['action' => 'index']) ?></li>
+		<li class="nav-item"><?= $this->Html->link('<i class="fas fa-arrow-left me-1"></i>' . __d('queue', 'Back'), ['action' => 'view', $queueProcess->id], ['class' => 'nav-link', 'escapeTitle' => false]) ?></li>
 	</ul>
 </nav>
 <div class="content action-form form large-9 medium-8 columns col-sm-8 col-12">

@@ -5,12 +5,6 @@
  * @var string[] $tasks
  */
 ?>
-<nav class="actions large-3 medium-4 columns col-sm-4 col-12" id="actions-sidebar">
-	<ul class="side-nav nav nav-pills flex-column">
-		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['action' => 'index']) ?></li>
-	</ul>
-</nav>
 <div class="content action-form form large-9 medium-8 columns col-sm-8 col-12">
 	<h1><?= __d('queue', 'Create test jobs') ?></h1>
 

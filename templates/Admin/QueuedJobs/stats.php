@@ -9,32 +9,23 @@
  */
 ?>
 
-<nav class="col-md-3 col-12 large-3 medium-4 columns" id="actions-sidebar">
-	<ul class="side-nav nav nav-pills flex-column">
-		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?></li>
-		<li class="nav-item"><?php echo $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['controller' => 'QueuedJobs', 'action' => 'index'], ['class' => 'btn margin btn-primary']); ?></li>
-	</ul>
-</nav>
-
-<div class="col-md-9 col-12 large-9 medium-8 columns">
-<h1><?php echo __d('queue', 'Queue');?></h1>
+<div class="col-12">
+<h1><?= __d('queue', 'Queue') ?></h1>
 
 <div class="row">
-	<div class="col-md-6 col-12 medium-6 columns">
+	<div class="col-md-8 col-12">
 
-		<h2><?php echo __d('queue', 'Job Statistics'); ?></h2>
+		<h2><?= __d('queue', 'Job Statistics') ?></h2>
 
-		<p>For already processed jobs - in average seconds per timeframe.</p>
+		<p><?= __d('queue', 'For already processed jobs - in average seconds per timeframe.') ?></p>
 
 		<canvas id="job-chart" style="height:400px"></canvas>
 
-
-		<h3>Select a specific job type</h3>
-		<ul>
-			<?php foreach ($jobTypes as $jobType) { ?>
-				<li><?php echo $this->Html->link($jobType, ['action' => 'stats', $jobType]); ?></li>
-			<?php } ?>
+		<h3 class="mt-4"><?= __d('queue', 'Select a specific job type') ?></h3>
+		<ul class="list-group">
+			<?php foreach ($jobTypes as $jobType): ?>
+				<li class="list-group-item"><?= $this->Html->link('<i class="fas fa-chart-line me-2"></i>' . h($jobType), ['action' => 'stats', $jobType], ['escapeTitle' => false]) ?></li>
+			<?php endforeach; ?>
 		</ul>
 	</div>
 </div>
@@ -49,44 +40,66 @@ foreach ($stats as $type => $days) {
 }
 
 $dataSets = [];
+$colors = [
+	'rgb(255, 99, 132)',
+	'rgb(54, 162, 235)',
+	'rgb(255, 206, 86)',
+	'rgb(75, 192, 192)',
+	'rgb(153, 102, 255)',
+];
+$colorIndex = 0;
 foreach ($stats as $type => $days) {
 	$data = implode(', ', $days);
+	$color = $colors[$colorIndex % count($colors)];
+	$colorIndex++;
 
 	$dataSets[] = <<<TXT
 {
 	"label": "$type",
-	"data": [
-		$data
-	],
-	"borderColor": [
-		"rgb(255, 99, 132)"
-	],
-	"fill": false
+	"data": [$data],
+	"borderColor": "$color",
+	"backgroundColor": "$color",
+	"fill": false,
+	"tension": 0.1
 }
 TXT;
-
 }
 
 ?>
 
-<?php $this->append('script');?>
-<?php
-// see http://www.chartjs.org/docs/latest/charts/line.html
-?>
+<?php $this->append('script'); ?>
 <script>
-	var chartCanvas = $('#job-chart');
+document.addEventListener('DOMContentLoaded', function() {
+	var chartCanvas = document.getElementById('job-chart');
+	if (!chartCanvas) return;
 
-	var data  = {
-		"labels": ["<?php echo implode('", "', $labels) ?>"],
-		"datasets": [<?php echo implode(', ', $dataSets) ?>]
+	var data = {
+		"labels": ["<?= implode('", "', $labels) ?>"],
+		"datasets": [<?= implode(', ', $dataSets) ?>]
 	};
 	var options = {
+		responsive: true,
+		maintainAspectRatio: false,
+		plugins: {
+			legend: {
+				position: 'top',
+			},
+			title: {
+				display: true,
+				text: '<?= __d('queue', 'Job Processing Time (seconds)') ?>'
+			}
+		},
+		scales: {
+			y: {
+				beginAtZero: true
+			}
+		}
 	};
-	var chart = new Chart(chartCanvas, {
+	new Chart(chartCanvas, {
 		type: 'line',
 		data: data,
 		options: options
 	});
-
+});
 </script>
-<?php $this->end();?>
+<?php $this->end(); ?>

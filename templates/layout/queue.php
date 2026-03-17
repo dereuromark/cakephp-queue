@@ -28,6 +28,8 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 
 	<!-- Font Awesome 6.7.2 -->
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous">
+	<!-- Chart.js for stats page -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
 	<style>
 		:root {
@@ -343,6 +345,13 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 			</button>
 			<div class="collapse navbar-collapse" id="navbarNav">
 				<ul class="navbar-nav ms-auto">
+					<?php if (\Cake\Core\Plugin::isLoaded('QueueScheduler')): ?>
+					<li class="nav-item">
+						<a class="nav-link" href="<?= $this->Url->build(['plugin' => 'QueueScheduler', 'prefix' => 'Admin', 'controller' => 'QueueScheduler', 'action' => 'index']) ?>">
+							<i class="fas fa-calendar-alt me-1"></i>Scheduler
+						</a>
+					</li>
+					<?php endif; ?>
 					<li class="nav-item">
 						<span class="nav-link text-light">
 							<i class="far fa-clock me-1"></i>
