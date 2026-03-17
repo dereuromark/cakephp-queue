@@ -101,7 +101,11 @@ use Cake\Core\Plugin;
                     <?php if ($queuedJob->completed) { ?>
                     <div>
                         <small><?php
-                            echo '<span title="Duration">' . $this->Time->duration($queuedJob->completed->diff($queuedJob->fetched)) . '</span>';
+                            $interval = $queuedJob->completed->diff($queuedJob->fetched);
+                            $duration = method_exists($this->Time, 'duration')
+                                ? $this->Time->duration($interval)
+                                : ltrim($interval->format('%H:%I:%S'), '0:');
+                            echo '<span title="Duration">' . $duration . '</span>';
                         ?></small>
                     </div>
                     <?php } ?>

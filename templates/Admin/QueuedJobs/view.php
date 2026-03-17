@@ -61,8 +61,12 @@ use Brick\VarExporter\VarExporter;
 			<td>
 				<?= $this->Time->nice($queuedJob->fetched) ?>
 				<?php if ($queuedJob->fetched) {
+					$interval = $queuedJob->fetched->diff($queuedJob->created);
+					$duration = method_exists($this->Time, 'duration')
+						? $this->Time->duration($interval)
+						: ltrim($interval->format('%H:%I:%S'), '0:');
 					echo '<div><small>';
-					echo __d('queue', 'Delay') . ': ' . $this->Time->duration($queuedJob->fetched->diff($queuedJob->created));
+					echo __d('queue', 'Delay') . ': ' . $duration;
 					echo '</small></div>';
 				} ?>
 			</td>
@@ -72,8 +76,12 @@ use Brick\VarExporter\VarExporter;
 			<td>
 				<?= $this->element('Queue.ok', ['value' => $this->Time->nice($queuedJob->completed), 'ok' => (bool)$queuedJob->completed]) ?>
 				<?php if ($queuedJob->completed) {
+					$interval = $queuedJob->completed->diff($queuedJob->fetched);
+					$duration = method_exists($this->Time, 'duration')
+						? $this->Time->duration($interval)
+						: ltrim($interval->format('%H:%I:%S'), '0:');
 					echo '<div><small>';
-					echo __d('queue', 'Duration') . ': ' . $this->Time->duration($queuedJob->completed->diff($queuedJob->fetched));
+					echo __d('queue', 'Duration') . ': ' . $duration;
 					echo '</small></div>';
 				} ?>
 			</td>
