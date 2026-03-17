@@ -93,7 +93,12 @@ use Queue\Queue\Config;
 								<?= $this->Html->link(
 									'<i class="fas fa-eye"></i>',
 									['action' => 'view', $queueProcess->id],
-									['escapeTitle' => false, 'class' => 'btn btn-outline-primary', 'title' => __d('queue', 'View')]
+									[
+										'escapeTitle' => false,
+										'class' => 'btn btn-outline-primary',
+										'title' => __d('queue', 'View'),
+										'aria-label' => __d('queue', 'View'),
+									]
 								) ?>
 								<?php if (!$queueProcess->terminate): ?>
 									<?= $this->Form->postLink(
@@ -104,6 +109,7 @@ use Queue\Queue\Config;
 											'class' => 'btn btn-outline-warning',
 											'confirm' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id),
 											'title' => __d('queue', 'Terminate'),
+											'aria-label' => __d('queue', 'Terminate'),
 											'block' => true,
 										]
 									) ?>
