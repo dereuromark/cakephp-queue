@@ -363,6 +363,15 @@ use Cake\Core\Configure;
 				<?php else: ?>
 					<p class="text-muted mb-0"><?= __d('queue', 'No addable tasks available') ?></p>
 				<?php endif; ?>
+				<?php if (Configure::read('debug')): ?>
+				<hr>
+				<?= $this->Html->link(
+					'<i class="fas fa-terminal me-1"></i>' . __d('queue', 'Execute Job'),
+					['controller' => 'QueuedJobs', 'action' => 'execute'],
+					['class' => 'btn btn-outline-warning btn-sm w-100', 'escapeTitle' => false]
+				) ?>
+			<?php endif; ?>
+
 				<hr>
 				<a class="small text-muted text-decoration-none d-flex align-items-center" data-bs-toggle="collapse" href="#demoJobsCollapse" role="button" aria-expanded="false" aria-controls="demoJobsCollapse">
 					<i class="fas fa-chevron-right me-1 collapse-icon"></i>
@@ -385,21 +394,11 @@ use Cake\Core\Configure;
 								]
 							) ?>
 						<?php endforeach; ?>
-					</div>
-					<hr>
-					<div class="d-grid gap-2">
 						<?= $this->Html->link(
 							'<i class="fas fa-clock me-1"></i>' . __d('queue', 'Trigger Delayed Test Job'),
 							['controller' => 'QueuedJobs', 'action' => 'test'],
 							['class' => 'btn btn-outline-info btn-sm', 'escapeTitle' => false]
 						) ?>
-						<?php if (Configure::read('debug')): ?>
-							<?= $this->Html->link(
-								'<i class="fas fa-terminal me-1"></i>' . __d('queue', 'Execute Job'),
-								['controller' => 'QueuedJobs', 'action' => 'execute'],
-								['class' => 'btn btn-outline-warning btn-sm', 'escapeTitle' => false]
-							) ?>
-						<?php endif; ?>
 					</div>
 				</div>
 			</div>

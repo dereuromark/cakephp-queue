@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var bool $_isSearch
+ * @var array<string, string> $jobTypes
  */
 ?>
 <div class="card mb-4">
@@ -19,6 +20,7 @@
 		</div>
 		<div class="col-md-3">
 			<?= $this->Form->control('job_task', [
+				'options' => $jobTypes ?? [],
 				'empty' => __d('queue', '-- All Tasks --'),
 				'class' => 'form-select',
 				'label' => __d('queue', 'Task'),
