@@ -328,6 +328,15 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 			border: 1px solid #dee2e6;
 			overflow-x: auto;
 		}
+
+		/* Collapsible sections */
+		.collapse-icon {
+			transition: transform 0.2s ease;
+		}
+
+		[aria-expanded="true"] .collapse-icon {
+			transform: rotate(90deg);
+		}
 	</style>
 
 	<?= $this->fetch('meta') ?>

@@ -364,38 +364,43 @@ use Cake\Core\Configure;
 					<p class="text-muted mb-0"><?= __d('queue', 'No addable tasks available') ?></p>
 				<?php endif; ?>
 				<hr>
-				<p class="small text-muted mb-2"><?= __d('queue', 'Test/Demo Jobs') ?></p>
-				<div class="d-grid gap-2">
-					<?php foreach ($tasks as $task => $className): ?>
-						<?php if (!str_ends_with($task, 'Example')) {
-							continue;
-						} ?>
-						<?= $this->Form->postLink(
-							'<i class="fas fa-flask me-1"></i>' . h($task),
-							['action' => 'addJob', '?' => ['task' => $task]],
-							[
-								'escapeTitle' => false,
-								'class' => 'btn btn-outline-secondary btn-sm text-start',
-								'confirm' => __d('queue', 'Sure?'),
-								'block' => true,
-							]
-						) ?>
-					<?php endforeach; ?>
-				</div>
-				<hr>
-				<div class="d-grid gap-2">
-					<?= $this->Html->link(
-						'<i class="fas fa-clock me-1"></i>' . __d('queue', 'Trigger Delayed Test Job'),
-						['controller' => 'QueuedJobs', 'action' => 'test'],
-						['class' => 'btn btn-outline-info btn-sm', 'escapeTitle' => false]
-					) ?>
-					<?php if (Configure::read('debug')): ?>
+				<a class="small text-muted text-decoration-none d-flex align-items-center" data-bs-toggle="collapse" href="#demoJobsCollapse" role="button" aria-expanded="false" aria-controls="demoJobsCollapse">
+					<i class="fas fa-chevron-right me-1 collapse-icon"></i>
+					<?= __d('queue', 'Test/Demo Jobs') ?>
+				</a>
+				<div class="collapse mt-2" id="demoJobsCollapse">
+					<div class="d-grid gap-2">
+						<?php foreach ($tasks as $task => $className): ?>
+							<?php if (!str_ends_with($task, 'Example')) {
+								continue;
+							} ?>
+							<?= $this->Form->postLink(
+								'<i class="fas fa-flask me-1"></i>' . h($task),
+								['action' => 'addJob', '?' => ['task' => $task]],
+								[
+									'escapeTitle' => false,
+									'class' => 'btn btn-outline-secondary btn-sm text-start',
+									'confirm' => __d('queue', 'Sure?'),
+									'block' => true,
+								]
+							) ?>
+						<?php endforeach; ?>
+					</div>
+					<hr>
+					<div class="d-grid gap-2">
 						<?= $this->Html->link(
-							'<i class="fas fa-terminal me-1"></i>' . __d('queue', 'Execute Job'),
-							['controller' => 'QueuedJobs', 'action' => 'execute'],
-							['class' => 'btn btn-outline-warning btn-sm', 'escapeTitle' => false]
+							'<i class="fas fa-clock me-1"></i>' . __d('queue', 'Trigger Delayed Test Job'),
+							['controller' => 'QueuedJobs', 'action' => 'test'],
+							['class' => 'btn btn-outline-info btn-sm', 'escapeTitle' => false]
 						) ?>
-					<?php endif; ?>
+						<?php if (Configure::read('debug')): ?>
+							<?= $this->Html->link(
+								'<i class="fas fa-terminal me-1"></i>' . __d('queue', 'Execute Job'),
+								['controller' => 'QueuedJobs', 'action' => 'execute'],
+								['class' => 'btn btn-outline-warning btn-sm', 'escapeTitle' => false]
+							) ?>
+						<?php endif; ?>
+					</div>
 				</div>
 			</div>
 		</div>
