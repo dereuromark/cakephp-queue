@@ -11,8 +11,8 @@ use Cake\ORM\Behavior;
 use Cake\ORM\Entity;
 use Cake\ORM\Query\SelectQuery;
 use InvalidArgumentException;
-use RuntimeException;
 use Queue\Database\Type\ArrayType;
+use RuntimeException;
 
 /**
  * A behavior that will json_encode (and json_decode) fields if they contain an array or specific pattern.
