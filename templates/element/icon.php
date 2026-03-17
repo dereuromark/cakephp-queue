@@ -29,5 +29,6 @@ if ($this->helpers()->has('Icon')) {
 	if (isset($attributes['class'])) {
 		$class .= ' ' . $attributes['class'];
 	}
-	echo '<i class="' . h($class) . '" title="' . h($title) . '"></i>';
+	$text = $mapping['text'];
+	echo '<i class="' . h($class) . '" title="' . h($title) . '"></i><span class="sr-only visually-hidden">' . h($text) . '</span>';
 }

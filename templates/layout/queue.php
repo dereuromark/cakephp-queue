@@ -10,7 +10,11 @@
 
 use Cake\Core\Configure;
 
-$autoRefresh = (int)Configure::read('Queue.dashboardAutoRefresh') ?: 0;
+$autoRefresh = 0;
+$request = $this->getRequest();
+if ($request && $request->getParam('controller') === 'Queue' && $request->getParam('action') === 'index') {
+	$autoRefresh = (int)Configure::read('Queue.dashboardAutoRefresh') ?: 0;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -329,12 +333,12 @@ $autoRefresh = (int)Configure::read('Queue.dashboardAutoRefresh') ?: 0;
 </head>
 <body>
 	<!-- Navbar -->
-	<nav class="navbar navbar-expand-lg queue-navbar">
+	<nav class="navbar navbar-expand-lg navbar-dark queue-navbar">
 		<div class="container-fluid">
 			<a class="navbar-brand" href="<?= $this->Url->build(['plugin' => 'Queue', 'prefix' => 'Admin', 'controller' => 'Queue', 'action' => 'index']) ?>">
 				<i class="fas fa-layer-group me-2"></i>Queue Admin
 			</a>
-			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="navbarNav">
@@ -375,6 +379,8 @@ $autoRefresh = (int)Configure::read('Queue.dashboardAutoRefresh') ?: 0;
 			</span>
 		</div>
 	</footer>
+
+	<?= $this->fetch('postLink') ?>
 
 	<!-- Bootstrap 5.3.3 JS Bundle -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
