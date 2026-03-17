@@ -189,13 +189,23 @@ if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Sear
 								<?= $this->Html->link(
 									'<i class="fas fa-eye"></i>',
 									['action' => 'view', $queuedJob->id],
-									['escapeTitle' => false, 'class' => 'btn btn-outline-primary', 'title' => __d('queue', 'View')]
+									[
+										'escapeTitle' => false,
+										'class' => 'btn btn-outline-primary',
+										'title' => __d('queue', 'View'),
+										'aria-label' => __d('queue', 'View'),
+									]
 								) ?>
 								<?php if (!$queuedJob->completed): ?>
 									<?= $this->Html->link(
 										'<i class="fas fa-edit"></i>',
 										['action' => 'edit', $queuedJob->id],
-										['escapeTitle' => false, 'class' => 'btn btn-outline-secondary', 'title' => __d('queue', 'Edit')]
+										[
+											'escapeTitle' => false,
+											'class' => 'btn btn-outline-secondary',
+											'title' => __d('queue', 'Edit'),
+											'aria-label' => __d('queue', 'Edit'),
+										]
 									) ?>
 								<?php endif; ?>
 								<?= $this->Form->postLink(
@@ -206,6 +216,7 @@ if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Sear
 										'class' => 'btn btn-outline-danger',
 										'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id),
 										'title' => __d('queue', 'Delete'),
+										'aria-label' => __d('queue', 'Delete'),
 										'block' => true,
 									]
 								) ?>
