@@ -12,7 +12,7 @@ use Cake\ORM\Entity;
 use Cake\ORM\Query\SelectQuery;
 use InvalidArgumentException;
 use RuntimeException;
-use Shim\Database\Type\ArrayType;
+use Queue\Database\Type\ArrayType;
 
 /**
  * A behavior that will json_encode (and json_decode) fields if they contain an array or specific pattern.
