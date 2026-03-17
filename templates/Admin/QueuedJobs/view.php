@@ -143,7 +143,13 @@ use Brick\VarExporter\VarExporter;
 							<?php if ($queuedJob->fetched): ?>
 								<?= $this->Time->nice($queuedJob->fetched) ?>
 								<div class="small text-muted">
-									<?= __d('queue', 'Delay') ?>: <?= $this->Time->duration($queuedJob->fetched->diff($queuedJob->created)) ?>
+									<?php
+									$interval = $queuedJob->fetched->diff($queuedJob->created);
+									$duration = method_exists($this->Time, 'duration')
+										? $this->Time->duration($interval)
+										: ltrim($interval->format('%H:%I:%S'), '0:');
+									?>
+									<?= __d('queue', 'Delay') ?>: <?= $duration ?>
 								</div>
 							<?php else: ?>
 								<span class="text-muted">---</span>
@@ -159,7 +165,13 @@ use Brick\VarExporter\VarExporter;
 									<?= $this->Time->nice($queuedJob->completed) ?>
 								</span>
 								<div class="small text-muted">
-									<?= __d('queue', 'Duration') ?>: <?= $this->Time->duration($queuedJob->completed->diff($queuedJob->fetched)) ?>
+									<?php
+									$interval = $queuedJob->completed->diff($queuedJob->fetched);
+									$duration = method_exists($this->Time, 'duration')
+										? $this->Time->duration($interval)
+										: ltrim($interval->format('%H:%I:%S'), '0:');
+									?>
+									<?= __d('queue', 'Duration') ?>: <?= $duration ?>
 								</div>
 							<?php else: ?>
 								<span class="text-muted">---</span>

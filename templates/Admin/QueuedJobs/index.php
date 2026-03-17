@@ -128,7 +128,12 @@ if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Sear
 								</span>
 								<div class="small text-muted">
 									<i class="fas fa-stopwatch me-1"></i>
-									<?= $this->Time->duration($queuedJob->completed->diff($queuedJob->fetched)) ?>
+									<?php
+									$interval = $queuedJob->completed->diff($queuedJob->fetched);
+									echo method_exists($this->Time, 'duration')
+										? $this->Time->duration($interval)
+										: ltrim($interval->format('%H:%I:%S'), '0:');
+									?>
 								</div>
 							<?php else: ?>
 								<span class="text-muted">---</span>
