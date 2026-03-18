@@ -5,6 +5,7 @@ namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\DateTime;
 use Cake\TestSuite\IntegrationTestTrait;
 use Laminas\Diactoros\UploadedFile;
@@ -207,6 +208,119 @@ JSON,
 		$content = (string)$this->_response->getBody();
 		$json = json_decode($content, true);
 		$this->assertNotEmpty($json);
+	}
+
+	/**
+	 * Test clone method
+	 *
+	 * @return void
+	 */
+	public function testClone() {
+		$job = $this->createJob();
+
+		// Mark as completed so it can be cloned
+		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$job->fetched = new DateTime('-1 hour');
+		$job->completed = new DateTime();
+		$queuedJobs->saveOrFail($job);
+
+		$countBefore = $queuedJobs->find()->count();
+
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'clone', $job->id]);
+
+		$this->assertResponseCode(302);
+		$this->assertRedirect(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+
+		$countAfter = $queuedJobs->find()->count();
+		$this->assertSame($countBefore + 1, $countAfter, 'A new job should be created');
+	}
+
+	/**
+	 * Test execute method (GET)
+	 *
+	 * @return void
+	 */
+	public function testExecute() {
+		Configure::write('debug', true);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'execute']);
+
+		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * Test execute method (POST)
+	 *
+	 * @return void
+	 */
+	public function testExecutePost() {
+		Configure::write('debug', true);
+
+		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$countBefore = $queuedJobs->find()->count();
+
+		$data = [
+			'command' => 'echo "test"',
+			'amount' => 1,
+			'escape' => '1',
+			'log' => '0',
+			'exit_code' => '',
+		];
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'execute'], $data);
+
+		$this->assertResponseCode(302);
+
+		$countAfter = $queuedJobs->find()->count();
+		$this->assertSame($countBefore + 1, $countAfter, 'A new job should be created');
+	}
+
+	/**
+	 * Test execute method throws 404 when not in debug mode
+	 *
+	 * @return void
+	 */
+	public function testExecuteNotDebug() {
+		Configure::write('debug', false);
+
+		$this->disableErrorHandlerMiddleware();
+		$this->expectException(NotFoundException::class);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'execute']);
+	}
+
+	/**
+	 * Test migrate method (GET)
+	 *
+	 * @return void
+	 */
+	public function testMigrate() {
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'migrate']);
+
+		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * Test migrate method (POST)
+	 *
+	 * @return void
+	 */
+	public function testMigratePost() {
+		// Create a job with old-style task name (without plugin prefix)
+		$this->createJob(['job_task' => 'ProgressExample']);
+
+		$data = [
+			'tasks' => [
+				'ProgressExample' => '1',
+			],
+		];
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'migrate'], $data);
+
+		$this->assertResponseCode(302);
+
+		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
+		$queuedJob = $queuedJobs->find()->where(['job_task' => 'Queue.ProgressExample'])->first();
+		$this->assertNotNull($queuedJob, 'Job should be migrated to use Queue. prefix');
 	}
 
 	/**

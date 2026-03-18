@@ -1,44 +1,58 @@
 <?php
 /**
  * This requires chart.js library to be installed and available via layout.
- * You can otherwise just overwrite this template on project level and format/output as you need it using your own frontend assets.
+ * You can otherwise just overwrite this template on project level and format/output as your own frontend assets.
  *
  * @var \App\View\AppView $this
- * @var array $stats
+ * @var array<string, array<string, float>> $stats
  * @var string[] $jobTypes
+ * @var string|null $jobType
  */
 ?>
-
-<nav class="col-md-3 col-12 large-3 medium-4 columns" id="actions-sidebar">
-	<ul class="side-nav nav nav-pills flex-column">
-		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Dashboard'), ['controller' => 'Queue', 'action' => 'index']) ?></li>
-		<li class="nav-item"><?php echo $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['controller' => 'QueuedJobs', 'action' => 'index'], ['class' => 'btn margin btn-primary']); ?></li>
-	</ul>
-</nav>
-
-<div class="col-md-9 col-12 large-9 medium-8 columns">
-<h1><?php echo __d('queue', 'Queue');?></h1>
-
 <div class="row">
-	<div class="col-md-6 col-12 medium-6 columns">
+	<div class="col-lg-8">
+		<div class="card mb-4">
+			<div class="card-header d-flex justify-content-between align-items-center">
+				<span>
+					<i class="fas fa-chart-line me-2"></i><?= __d('queue', 'Job Statistics') ?>
+					<?php if ($jobType): ?>
+						<span class="badge bg-secondary ms-2"><?= h($jobType) ?></span>
+					<?php endif; ?>
+				</span>
+				<?php if ($jobType): ?>
+					<?= $this->Html->link(
+						'<i class="fas fa-arrow-left me-1"></i>' . __d('queue', 'All Jobs'),
+						['action' => 'stats', '?' => []],
+						['class' => 'btn btn-sm btn-outline-secondary', 'escapeTitle' => false]
+					) ?>
+				<?php endif; ?>
+			</div>
+			<div class="card-body">
+				<p class="text-muted"><?= __d('queue', 'For already processed jobs - in average seconds per timeframe.') ?></p>
 
-		<h2><?php echo __d('queue', 'Job Statistics'); ?></h2>
-
-		<p>For already processed jobs - in average seconds per timeframe.</p>
-
-		<canvas id="job-chart" style="height:400px"></canvas>
-
-
-		<h3>Select a specific job type</h3>
-		<ul>
-			<?php foreach ($jobTypes as $jobType) { ?>
-				<li><?php echo $this->Html->link($jobType, ['action' => 'stats', $jobType]); ?></li>
-			<?php } ?>
-		</ul>
+				<div style="position: relative; height: 400px;">
+					<canvas id="job-chart"></canvas>
+				</div>
+			</div>
+		</div>
 	</div>
-</div>
 
+	<div class="col-lg-4">
+		<div class="card">
+			<div class="card-header">
+				<i class="fas fa-filter me-2"></i><?= __d('queue', 'Filter by Job Type') ?>
+			</div>
+			<div class="list-group list-group-flush">
+				<?php foreach ($jobTypes as $type): ?>
+					<?= $this->Html->link(
+						'<i class="fas fa-chart-line me-2"></i>' . h($type),
+						['action' => 'stats', '?' => ['job_type' => $type]],
+						['class' => 'list-group-item list-group-item-action', 'escapeTitle' => false]
+					) ?>
+				<?php endforeach; ?>
+			</div>
+		</div>
+	</div>
 </div>
 
 <?php
@@ -49,44 +63,60 @@ foreach ($stats as $type => $days) {
 }
 
 $dataSets = [];
+$colors = [
+	'rgb(255, 99, 132)',
+	'rgb(54, 162, 235)',
+	'rgb(255, 206, 86)',
+	'rgb(75, 192, 192)',
+	'rgb(153, 102, 255)',
+];
+$colorIndex = 0;
 foreach ($stats as $type => $days) {
-	$data = implode(', ', $days);
-
-	$dataSets[] = <<<TXT
-{
-	"label": "$type",
-	"data": [
-		$data
-	],
-	"borderColor": [
-		"rgb(255, 99, 132)"
-	],
-	"fill": false
+	$dataSets[] = [
+		'label' => $type,
+		'data' => array_values($days),
+		'borderColor' => $colors[$colorIndex % count($colors)],
+		'backgroundColor' => $colors[$colorIndex % count($colors)],
+		'fill' => false,
+		'tension' => 0.1,
+	];
+	$colorIndex++;
 }
-TXT;
-
-}
-
 ?>
 
-<?php $this->append('script');?>
-<?php
-// see http://www.chartjs.org/docs/latest/charts/line.html
-?>
+<?php $this->append('script'); ?>
 <script>
-	var chartCanvas = $('#job-chart');
+document.addEventListener('DOMContentLoaded', function() {
+	var chartCanvas = document.getElementById('job-chart');
+	if (!chartCanvas) return;
 
-	var data  = {
-		"labels": ["<?php echo implode('", "', $labels) ?>"],
-		"datasets": [<?php echo implode(', ', $dataSets) ?>]
+	var data = {
+		labels: <?= json_encode($labels, JSON_THROW_ON_ERROR) ?>,
+		datasets: <?= json_encode($dataSets, JSON_THROW_ON_ERROR) ?>
 	};
 	var options = {
+		responsive: true,
+		maintainAspectRatio: false,
+		plugins: {
+			legend: {
+				position: 'top'
+			},
+			title: {
+				display: true,
+				text: <?= json_encode(__d('queue', 'Job Processing Time (seconds)'), JSON_THROW_ON_ERROR) ?>
+			}
+		},
+		scales: {
+			y: {
+				beginAtZero: true
+			}
+		}
 	};
-	var chart = new Chart(chartCanvas, {
+	new Chart(chartCanvas, {
 		type: 'line',
 		data: data,
 		options: options
 	});
-
+});
 </script>
-<?php $this->end();?>
+<?php $this->end(); ?>

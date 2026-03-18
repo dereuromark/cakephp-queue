@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
-use App\Controller\AppController;
 use Cake\Core\App;
+use Cake\Core\Configure;
 use Cake\Http\Exception\NotFoundException;
 use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
@@ -14,23 +14,12 @@ use Queue\Queue\TaskFinder;
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
  */
-class QueueController extends AppController {
-
-	use LoadHelperTrait;
+class QueueController extends QueueAppController {
 
 	/**
 	 * @var string|null
 	 */
 	protected ?string $defaultTable = 'Queue.QueuedJobs';
-
-	/**
-	 * @return void
-	 */
-	public function initialize(): void {
-		parent::initialize();
-
-		$this->loadHelpers();
-	}
 
 	/**
 	 * Admin center.
@@ -61,7 +50,44 @@ class QueueController extends AppController {
 		$addableTasks = $taskFinder->allAddable(AddFromBackendInterface::class);
 
 		$servers = $QueueProcesses->serverList();
-		$this->set(compact('new', 'current', 'data', 'pendingDetails', 'scheduledDetails', 'status', 'tasks', 'addableTasks', 'servers'));
+		$workers = $status ? $status['workers'] : 0;
+
+		$scheduledJobs = count($scheduledDetails);
+		$runningJobs = $this->QueuedJobs->find()
+			->where([
+				'completed IS' => null,
+				'fetched IS NOT' => null,
+				'failure_message IS' => null,
+			])
+			->count();
+		$failedJobs = $this->QueuedJobs->find()
+			->where([
+				'completed IS' => null,
+				'failure_message IS NOT' => null,
+			])
+			->count();
+		// Pending = total pending minus running and failed (to avoid double counting)
+		$pendingJobs = max(0, count($pendingDetails) - $runningJobs - $failedJobs);
+
+		$configurations = (array)Configure::read('Queue');
+
+		$this->set(compact(
+			'new',
+			'current',
+			'data',
+			'pendingDetails',
+			'scheduledDetails',
+			'status',
+			'tasks',
+			'addableTasks',
+			'servers',
+			'workers',
+			'pendingJobs',
+			'scheduledJobs',
+			'runningJobs',
+			'failedJobs',
+			'configurations',
+		));
 	}
 
 	/**

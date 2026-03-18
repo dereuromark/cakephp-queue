@@ -5,28 +5,41 @@
  * @var string[] $tasks
  */
 ?>
-<nav class="actions large-3 medium-4 columns col-sm-4 col-12" id="actions-sidebar">
-	<ul class="side-nav nav nav-pills flex-column">
-		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['action' => 'index']) ?></li>
-	</ul>
-</nav>
-<div class="content action-form form large-9 medium-8 columns col-sm-8 col-12">
-	<h1><?= __d('queue', 'Create test jobs') ?></h1>
+<div class="row">
+	<div class="col-lg-8">
+		<div class="card">
+			<div class="card-header">
+				<i class="fas fa-flask me-2"></i><?= __d('queue', 'Create Test Job') ?>
+			</div>
+			<div class="card-body">
+				<?= $this->Form->create($queuedJob) ?>
+				<?= $this->Form->control('job_task', [
+					'options' => $tasks,
+					'empty' => __d('queue', '-- Select Task --'),
+					'class' => 'form-select',
+				]) ?>
 
-	<?= $this->Form->create($queuedJob) ?>
-	<fieldset>
-		<legend><?= __d('queue', 'Trigger Delayed Job') ?></legend>
-		<?php
-			echo $this->Form->control('job_task', ['options' => $tasks, 'empty' => true]);
+				<div class="alert alert-info mt-3 mb-3">
+					<i class="fas fa-clock me-2"></i>
+					<?= __d('queue', 'Current server time') ?>: <strong><?= (new \Cake\I18n\DateTime()) ?></strong>
+				</div>
 
-			echo '<p>Current (server) time: ' . (new \Cake\I18n\DateTime()) . '</>';
+				<?= $this->Form->control('notbefore', [
+					'default' => (new \Cake\I18n\DateTime())->addMinutes(5),
+					'class' => 'form-control',
+					'label' => __d('queue', 'Schedule For (Not Before)'),
+				]) ?>
 
-			echo $this->Form->control('notbefore', ['default' => (new \Cake\I18n\DateTime())->addMinutes(5)]);
+				<p class="text-muted small mt-2">
+					<i class="fas fa-info-circle me-1"></i>
+					<?= __d('queue', 'The target time must also be in server timezone.') ?>
+				</p>
 
-			echo '<p>The target time must also be in that (server) time(zone).</p>';
-		?>
-	</fieldset>
-	<?= $this->Form->button(__d('queue', 'Submit')) ?>
-	<?= $this->Form->end() ?>
+				<div class="mt-3">
+					<?= $this->Form->button('<i class="fas fa-play me-1"></i>' . __d('queue', 'Create Job'), ['class' => 'btn btn-primary', 'escapeTitle' => false]) ?>
+				</div>
+				<?= $this->Form->end() ?>
+			</div>
+		</div>
+	</div>
 </div>

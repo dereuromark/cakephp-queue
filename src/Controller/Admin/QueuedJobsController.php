@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
-use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Http\Exception\NotFoundException;
@@ -17,9 +16,7 @@ use RuntimeException;
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> paginate($object = null, array $settings = [])
  * @property \Search\Controller\Component\SearchComponent $Search
  */
-class QueuedJobsController extends AppController {
-
-	use LoadHelperTrait;
+class QueuedJobsController extends QueueAppController {
 
 	/**
 	 * @var array<string, mixed>
@@ -37,7 +34,6 @@ class QueuedJobsController extends AppController {
 		parent::initialize();
 
 		$this->enableSearch();
-		$this->loadHelpers();
 	}
 
 	/**
@@ -81,19 +77,23 @@ class QueuedJobsController extends AppController {
 	}
 
 	/**
-	 * Index method
+	 * Stats method
 	 *
-	 * @param string|null $jobType
+	 * Uses query parameter `job_type` to filter by specific job type.
+	 * Query parameter is used instead of route parameter to support job types
+	 * containing slashes (e.g., Vendor/Plugin.Task).
 	 *
 	 * @throws \Cake\Http\Exception\NotFoundException
 	 *
 	 * @return void
 	 */
-	public function stats(?string $jobType = null): void {
+	public function stats(): void {
 		if (!Configure::read('Queue.isStatisticEnabled')) {
 			throw new NotFoundException('Not enabled');
 		}
 
+		// Use query parameter to avoid routing issues with job types containing slashes (e.g., Vendor/Plugin.Task)
+		$jobType = $this->request->getQuery('job_type');
 		$stats = $this->QueuedJobs->getFullStats($jobType);
 
 		$jobTypes = $this->QueuedJobs->find()->where()->find(
@@ -101,7 +101,7 @@ class QueuedJobsController extends AppController {
 			keyField: 'job_task',
 			valueField: 'job_task',
 		)->distinct('job_task')->toArray();
-		$this->set(compact('stats', 'jobTypes'));
+		$this->set(compact('stats', 'jobTypes', 'jobType'));
 	}
 
 	/**

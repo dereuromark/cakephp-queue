@@ -14,6 +14,10 @@
 	} elseif ($this->helpers()->has('Format')) {
 		echo $this->Format->yesNo($value);
 	} else {
-		echo $value ? '<span class="yes-no yes-no-yes">Yes</span>' : '<span class="yes-no yes-no-no">No</span>';
+		if ($value) {
+			echo '<span class="yes-no yes-no-yes"><i class="fas fa-check me-1"></i>Yes</span>';
+		} else {
+			echo '<span class="yes-no yes-no-no"><i class="fas fa-times me-1"></i>No</span>';
+		}
 	}
 ?>

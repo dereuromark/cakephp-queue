@@ -6,6 +6,7 @@
 * [Custom Tasks](sections/custom_tasks.md)
 
 ## Detailed documentation
+* [Admin Dashboard](sections/admin_dashboard.md) [**NEW**]
 * [Configuration](sections/configuration.md)
 * [Cron](sections/cron.md) for Cronjob management
 * [Real-Time Progress](sections/realtime_progress.md) with Mercure/FrankenPHP

@@ -4,31 +4,51 @@
  * @var \Queue\Model\Entity\QueuedJob $queuedJob
  */
 ?>
-<nav class="actions large-3 medium-4 columns col-sm-4 col-12" id="actions-sidebar">
-	<ul class="side-nav nav nav-pills flex-column">
-		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Back'), ['action' => 'view', $queuedJob->id]) ?></li>
-		<li class="nav-item"><?= $this->Form->postLink(
-				__d('queue', 'Delete'),
-				['action' => 'delete', $queuedJob->id],
-				['confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id)]
-			)
-		?></li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'Edit Payload'), ['action' => 'data', $queuedJob->id]) ?></li>
-		<li class="nav-item"><?= $this->Html->link(__d('queue', 'List {0}', __d('queue', 'Queued Jobs')), ['action' => 'index']) ?></li>
-	</ul>
-</nav>
-<div class="content action-form form large-9 medium-8 columns col-sm-8 col-12">
-	<h1><?= __d('queue', 'Edit') ?></h1>
+<div class="row">
+	<div class="col-lg-8">
+		<div class="card">
+			<div class="card-header d-flex justify-content-between align-items-center">
+				<span><i class="fas fa-edit me-2"></i><?= __d('queue', 'Edit Queued Job') ?></span>
+				<?= $this->Html->link(
+					'<i class="fas fa-arrow-left me-1"></i>' . __d('queue', 'Back'),
+					['action' => 'view', $queuedJob->id],
+					['class' => 'btn btn-sm btn-outline-secondary', 'escapeTitle' => false]
+				) ?>
+			</div>
+			<div class="card-body">
+				<?= $this->Form->create($queuedJob) ?>
+				<?= $this->Form->control('notbefore', ['empty' => true, 'class' => 'form-control']) ?>
+				<?= $this->Form->control('priority', ['class' => 'form-control']) ?>
+				<div class="mt-3">
+					<?= $this->Form->button('<i class="fas fa-save me-1"></i>' . __d('queue', 'Save'), ['class' => 'btn btn-primary', 'escapeTitle' => false]) ?>
+				</div>
+				<?= $this->Form->end() ?>
+			</div>
+		</div>
+	</div>
 
-	<?= $this->Form->create($queuedJob) ?>
-	<fieldset>
-		<legend><?= __d('queue', 'Edit Queued Job') ?></legend>
-		<?php
-			echo $this->Form->control('notbefore', ['empty' => true]);
-			echo $this->Form->control('priority');
-		?>
-	</fieldset>
-	<?= $this->Form->button(__d('queue', 'Submit')) ?>
-	<?= $this->Form->end() ?>
+	<div class="col-lg-4">
+		<div class="card">
+			<div class="card-header">
+				<i class="fas fa-cogs me-2"></i><?= __d('queue', 'Actions') ?>
+			</div>
+			<div class="list-group list-group-flush">
+				<?= $this->Html->link(
+					'<i class="fas fa-database me-2"></i>' . __d('queue', 'Edit Payload'),
+					['action' => 'data', $queuedJob->id],
+					['class' => 'list-group-item list-group-item-action', 'escapeTitle' => false]
+				) ?>
+				<?= $this->Form->postLink(
+					'<i class="fas fa-trash me-2"></i>' . __d('queue', 'Delete Job'),
+					['action' => 'delete', $queuedJob->id],
+					[
+						'class' => 'list-group-item list-group-item-action text-danger',
+						'escapeTitle' => false,
+						'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id),
+						'block' => true,
+					]
+				) ?>
+			</div>
+		</div>
+	</div>
 </div>

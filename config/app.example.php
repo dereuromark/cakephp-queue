@@ -80,11 +80,22 @@ return [
 		'ignoredTasks' => [],
 
 		// per-task configuration overrides (timeout, retries, rate, costs, unique)
-		// 'tasks' => [
-		// 	'Queue.ProgressExample' => [
-		// 		'timeout' => 300,
-		// 	],
-		// ],
+		'tasks' => [
+			//'Queue.ProgressExample' => [
+			//	'timeout' => 300,
+			//],
+		],
+
+		// Admin dashboard settings
+
+		// Layout for admin pages:
+		// - null (default): Uses 'Queue.queue' isolated Bootstrap 5 layout
+		// - false: Disables plugin layout, uses app's default layout
+		// - string: Uses specified layout
+		'adminLayout' => null,
+
+		// auto-refresh dashboard in seconds (0 = disabled)
+		'dashboardAutoRefresh' => 0,
 	],
 	'Icon' => [
 		'sets' => [

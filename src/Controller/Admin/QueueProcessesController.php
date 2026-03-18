@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
-use App\Controller\AppController;
 use Cake\Core\Configure;
 use Exception;
 use const SIGTERM;
@@ -13,9 +12,7 @@ use const SIGTERM;
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> paginate(\Cake\Datasource\RepositoryInterface|\Cake\Datasource\QueryInterface|string|null $object = null, array $settings = [])
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
  */
-class QueueProcessesController extends AppController {
-
-	use LoadHelperTrait;
+class QueueProcessesController extends QueueAppController {
 
 	/**
 	 * @var array<string, mixed>
@@ -25,15 +22,6 @@ class QueueProcessesController extends AppController {
 			'created' => 'DESC',
 		],
 	];
-
-	/**
-	 * @return void
-	 */
-	public function initialize(): void {
-		parent::initialize();
-
-		$this->loadHelpers();
-	}
 
 	/**
 	 * Index method
