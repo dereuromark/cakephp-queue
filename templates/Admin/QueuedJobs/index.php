@@ -16,7 +16,7 @@ use Cake\Core\Plugin;
 		<?= __d('queue', 'Queued Jobs') ?>
 	</h1>
 	<div>
-		<span class="text-muted me-3">
+		<span class="text-muted me-3" title="<?= __d('queue', 'Server Time') ?>">
 			<i class="far fa-clock me-1"></i>
 			<?= $this->Time->nice(new \Cake\I18n\DateTime()) ?>
 		</span>

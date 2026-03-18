@@ -363,7 +363,7 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 					</li>
 					<?php endif; ?>
 					<li class="nav-item">
-						<span class="nav-link text-light">
+						<span class="nav-link text-light" title="<?= __d('queue', 'Server Time') ?>">
 							<i class="far fa-clock me-1"></i>
 							<?= date('Y-m-d H:i:s') ?>
 						</span>
