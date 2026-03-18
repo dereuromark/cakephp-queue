@@ -9,6 +9,7 @@
 		"deferred tasks",
 		"background",
 		"admin-panel",
+		"standalone-ui",
 		"jobs",
 		"workers",
 		"async"
