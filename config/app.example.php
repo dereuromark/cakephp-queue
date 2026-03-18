@@ -80,11 +80,11 @@ return [
 		'ignoredTasks' => [],
 
 		// per-task configuration overrides (timeout, retries, rate, costs, unique)
-		// 'tasks' => [
-		// 	'Queue.ProgressExample' => [
-		// 		'timeout' => 300,
-		// 	],
-		// ],
+		'tasks' => [
+			//'Queue.ProgressExample' => [
+			//	'timeout' => 300,
+			//],
+		],
 
 		// Admin dashboard settings
 
