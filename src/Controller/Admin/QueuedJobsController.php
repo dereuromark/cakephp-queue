@@ -77,19 +77,23 @@ class QueuedJobsController extends QueueAppController {
 	}
 
 	/**
-	 * Index method
+	 * Stats method
 	 *
-	 * @param string|null $jobType
+	 * Uses query parameter `job_type` to filter by specific job type.
+	 * Query parameter is used instead of route parameter to support job types
+	 * containing slashes (e.g., Vendor/Plugin.Task).
 	 *
 	 * @throws \Cake\Http\Exception\NotFoundException
 	 *
 	 * @return void
 	 */
-	public function stats(?string $jobType = null): void {
+	public function stats(): void {
 		if (!Configure::read('Queue.isStatisticEnabled')) {
 			throw new NotFoundException('Not enabled');
 		}
 
+		// Use query parameter to avoid routing issues with job types containing slashes (e.g., Vendor/Plugin.Task)
+		$jobType = $this->request->getQuery('job_type');
 		$stats = $this->QueuedJobs->getFullStats($jobType);
 
 		$jobTypes = $this->QueuedJobs->find()->where()->find(
@@ -97,7 +101,7 @@ class QueuedJobsController extends QueueAppController {
 			keyField: 'job_task',
 			valueField: 'job_task',
 		)->distinct('job_task')->toArray();
-		$this->set(compact('stats', 'jobTypes'));
+		$this->set(compact('stats', 'jobTypes', 'jobType'));
 	}
 
 	/**

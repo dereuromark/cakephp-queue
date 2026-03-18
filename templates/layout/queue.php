@@ -349,7 +349,8 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 			<a class="navbar-brand" href="<?= $this->Url->build(['plugin' => 'Queue', 'prefix' => 'Admin', 'controller' => 'Queue', 'action' => 'index']) ?>">
 				<i class="fas fa-layer-group me-2"></i>Queue Admin
 			</a>
-			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+			<!-- Mobile menu button -->
+			<button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="navbarNav">
@@ -371,6 +372,19 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 			</div>
 		</div>
 	</nav>
+
+	<!-- Mobile Offcanvas Navigation -->
+	<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel" style="background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);">
+		<div class="offcanvas-header border-bottom border-secondary">
+			<h5 class="offcanvas-title text-white" id="mobileNavLabel">
+				<i class="fas fa-layer-group me-2"></i>Queue Admin
+			</h5>
+			<button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+		</div>
+		<div class="offcanvas-body p-0">
+			<?= $this->element('Queue.Queue/mobile_nav') ?>
+		</div>
+	</div>
 
 	<div class="d-flex">
 		<!-- Sidebar -->

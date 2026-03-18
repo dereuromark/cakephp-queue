@@ -85,6 +85,14 @@ return [
 		// 		'timeout' => 300,
 		// 	],
 		// ],
+
+		// Admin dashboard settings
+
+		// custom layout for admin pages (null = use app's default layout)
+		'adminLayout' => 'Queue.queue',
+
+		// auto-refresh dashboard in seconds (0 = disabled)
+		'dashboardAutoRefresh' => 0,
 	],
 	'Icon' => [
 		'sets' => [

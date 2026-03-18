@@ -5,7 +5,6 @@ namespace Queue\Controller\Admin;
 
 use Cake\Controller\Controller;
 use Cake\Core\Configure;
-use Cake\Event\EventInterface;
 
 /**
  * QueueAppController
@@ -30,21 +29,6 @@ class QueueAppController extends Controller {
 		$layout = Configure::read('Queue.adminLayout');
 		if ($layout) {
 			$this->viewBuilder()->setLayout($layout);
-		}
-	}
-
-	/**
-	 * @param \Cake\Event\EventInterface $event
-	 *
-	 * @return \Cake\Http\Response|null|void
-	 */
-	public function beforeFilter(EventInterface $event) {
-		parent::beforeFilter($event);
-
-		if (Configure::read('Queue.ignoreAuthorization') && $this->components()->has('Authorization')) {
-			$authorization = $this->components()->get('Authorization');
-			/** @phpstan-ignore method.notFound */
-			$authorization->skipAuthorization();
 		}
 	}
 

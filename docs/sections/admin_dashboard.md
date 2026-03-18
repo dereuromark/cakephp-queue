@@ -35,23 +35,8 @@ By default, the admin controllers use your application's layout. To enable the i
 
     // Auto-refresh dashboard every N seconds (0 = disabled)
     'dashboardAutoRefresh' => 30,
-
-    // Skip authorization checks in admin controllers (useful for development)
-    'ignoreAuthorization' => true,
 ],
 ```
-
-### Authorization
-
-If you're using the CakePHP Authorization plugin and want to skip authorization checks for the Queue admin controllers, you can set:
-
-```php
-'Queue' => [
-    'ignoreAuthorization' => true,
-],
-```
-
-This is useful during development or when the admin section is already protected by other means (e.g., IP restriction, basic auth).
 
 ## Accessing the Dashboard
 

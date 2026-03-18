@@ -1,35 +1,58 @@
 <?php
 /**
  * This requires chart.js library to be installed and available via layout.
- * You can otherwise just overwrite this template on project level and format/output as you need it using your own frontend assets.
+ * You can otherwise just overwrite this template on project level and format/output as your own frontend assets.
  *
  * @var \App\View\AppView $this
- * @var array $stats
+ * @var array<string, array<string, float>> $stats
  * @var string[] $jobTypes
+ * @var string|null $jobType
  */
 ?>
-
-<div class="col-12">
-<h1><?= __d('queue', 'Queue') ?></h1>
-
 <div class="row">
-	<div class="col-md-8 col-12">
+	<div class="col-lg-8">
+		<div class="card mb-4">
+			<div class="card-header d-flex justify-content-between align-items-center">
+				<span>
+					<i class="fas fa-chart-line me-2"></i><?= __d('queue', 'Job Statistics') ?>
+					<?php if ($jobType): ?>
+						<span class="badge bg-secondary ms-2"><?= h($jobType) ?></span>
+					<?php endif; ?>
+				</span>
+				<?php if ($jobType): ?>
+					<?= $this->Html->link(
+						'<i class="fas fa-arrow-left me-1"></i>' . __d('queue', 'All Jobs'),
+						['action' => 'stats', '?' => []],
+						['class' => 'btn btn-sm btn-outline-secondary', 'escapeTitle' => false]
+					) ?>
+				<?php endif; ?>
+			</div>
+			<div class="card-body">
+				<p class="text-muted"><?= __d('queue', 'For already processed jobs - in average seconds per timeframe.') ?></p>
 
-		<h2><?= __d('queue', 'Job Statistics') ?></h2>
-
-		<p><?= __d('queue', 'For already processed jobs - in average seconds per timeframe.') ?></p>
-
-		<canvas id="job-chart" style="height:400px"></canvas>
-
-		<h3 class="mt-4"><?= __d('queue', 'Select a specific job type') ?></h3>
-		<ul class="list-group">
-			<?php foreach ($jobTypes as $jobType): ?>
-				<li class="list-group-item"><?= $this->Html->link('<i class="fas fa-chart-line me-2"></i>' . h($jobType), ['action' => 'stats', $jobType], ['escapeTitle' => false]) ?></li>
-			<?php endforeach; ?>
-		</ul>
+				<div style="position: relative; height: 400px;">
+					<canvas id="job-chart"></canvas>
+				</div>
+			</div>
+		</div>
 	</div>
-</div>
 
+	<div class="col-lg-4">
+		<div class="card">
+			<div class="card-header">
+				<i class="fas fa-filter me-2"></i><?= __d('queue', 'Filter by Job Type') ?>
+			</div>
+			<div class="list-group list-group-flush">
+				<?php foreach ($jobTypes as $type): ?>
+					<?= $this->Html->link(
+						'<i class="fas fa-chart-line me-2"></i>' . h($type),
+						['action' => 'stats', '?' => ['job_type' => $type]],
+						['class' => 'list-group-item list-group-item-action', 'escapeTitle' => false]
+					) ?>
+				<?php endforeach; ?>
+			</div>
+		</div>
+	</div>
 </div>
 
 <?php
@@ -49,22 +72,16 @@ $colors = [
 ];
 $colorIndex = 0;
 foreach ($stats as $type => $days) {
-	$data = implode(', ', $days);
-	$color = $colors[$colorIndex % count($colors)];
+	$dataSets[] = [
+		'label' => $type,
+		'data' => array_values($days),
+		'borderColor' => $colors[$colorIndex % count($colors)],
+		'backgroundColor' => $colors[$colorIndex % count($colors)],
+		'fill' => false,
+		'tension' => 0.1,
+	];
 	$colorIndex++;
-
-	$dataSets[] = <<<TXT
-{
-	"label": "$type",
-	"data": [$data],
-	"borderColor": "$color",
-	"backgroundColor": "$color",
-	"fill": false,
-	"tension": 0.1
 }
-TXT;
-}
-
 ?>
 
 <?php $this->append('script'); ?>
@@ -74,19 +91,19 @@ document.addEventListener('DOMContentLoaded', function() {
 	if (!chartCanvas) return;
 
 	var data = {
-		"labels": ["<?= implode('", "', $labels) ?>"],
-		"datasets": [<?= implode(', ', $dataSets) ?>]
+		labels: <?= json_encode($labels, JSON_THROW_ON_ERROR) ?>,
+		datasets: <?= json_encode($dataSets, JSON_THROW_ON_ERROR) ?>
 	};
 	var options = {
 		responsive: true,
 		maintainAspectRatio: false,
 		plugins: {
 			legend: {
-				position: 'top',
+				position: 'top'
 			},
 			title: {
 				display: true,
-				text: '<?= __d('queue', 'Job Processing Time (seconds)') ?>'
+				text: <?= json_encode(__d('queue', 'Job Processing Time (seconds)'), JSON_THROW_ON_ERROR) ?>
 			}
 		},
 		scales: {
