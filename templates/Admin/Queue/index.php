@@ -19,6 +19,18 @@
  */
 
 use Cake\Core\Configure;
+use Cake\Core\Plugin;
+
+// Determine logs URL based on Log.engine config
+$logsUrl = null;
+$logsExternal = false;
+$logEngine = Configure::read('Log.engine');
+if ($logEngine === 'db' && Plugin::isLoaded('DatabaseLog')) {
+	$logsUrl = $this->Url->build(['plugin' => 'DatabaseLog', 'prefix' => 'Admin', 'controller' => 'Logs', 'action' => 'index']);
+} elseif ($logEngine && is_string($logEngine) && str_starts_with($logEngine, 'http')) {
+	$logsUrl = $logEngine;
+	$logsExternal = true;
+}
 
 ?>
 
@@ -57,12 +69,20 @@ use Cake\Core\Configure;
 					</div>
 				</div>
 			</div>
-			<div>
+			<div class="d-flex gap-2">
 				<?= $this->Html->link(
 					'<i class="fas fa-cogs me-1"></i>' . __d('queue', 'Manage Workers'),
 					['action' => 'processes'],
 					['class' => 'btn btn-sm btn-outline-dark', 'escapeTitle' => false]
 				) ?>
+				<?php if ($logsUrl): ?>
+					<a href="<?= $logsUrl ?>" class="btn btn-sm btn-outline-dark"<?= $logsExternal ? ' target="_blank" rel="noopener"' : '' ?>>
+						<i class="fas fa-file-alt me-1"></i><?= __d('queue', 'Logs') ?>
+						<?php if ($logsExternal): ?>
+							<i class="fas fa-external-link-alt ms-1 small"></i>
+						<?php endif; ?>
+					</a>
+				<?php endif; ?>
 			</div>
 		</div>
 	</div>
