@@ -52,7 +52,6 @@ class QueueController extends QueueAppController {
 		$servers = $QueueProcesses->serverList();
 		$workers = $status ? $status['workers'] : 0;
 
-		$pendingJobs = count($pendingDetails);
 		$scheduledJobs = count($scheduledDetails);
 		$runningJobs = $this->QueuedJobs->find()
 			->where([
@@ -67,6 +66,8 @@ class QueueController extends QueueAppController {
 				'failure_message IS NOT' => null,
 			])
 			->count();
+		// Pending = total pending minus running and failed (to avoid double counting)
+		$pendingJobs = count($pendingDetails) - $runningJobs - $failedJobs;
 
 		$configurations = (array)Configure::read('Queue');
 
