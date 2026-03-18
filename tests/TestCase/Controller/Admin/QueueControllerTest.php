@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Controller\Admin;
 
+use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\Http\ServerRequest;
 use Cake\I18n\DateTime;
@@ -274,6 +275,17 @@ class QueueControllerTest extends TestCase {
 
 		$count = $jobsTable->find()->count();
 		$this->assertSame(0, $count);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testIndexStandalone(): void {
+		Configure::write('Queue.standalone', true);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+
+		$this->assertResponseCode(200);
 	}
 
 	/**

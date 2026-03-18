@@ -3,16 +3,19 @@ declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
+use App\Controller\AppController;
 use Cake\Controller\Controller;
 use Cake\Core\Configure;
 
 /**
  * QueueAppController
  *
- * Isolated base controller for Queue admin that doesn't depend on host app's AppController.
- * This ensures the admin dashboard can function independently with its own layout and styling.
+ * Base controller for Queue admin.
+ *
+ * By default, extends AppController to inherit app authentication, components, and configuration.
+ * Set `Queue.standalone` to `true` for an isolated admin that doesn't depend on the host app.
  */
-class QueueAppController extends Controller {
+class QueueAppController extends AppController {
 
 	use LoadHelperTrait;
 
@@ -20,9 +23,14 @@ class QueueAppController extends Controller {
 	 * @return void
 	 */
 	public function initialize(): void {
-		parent::initialize();
-
-		$this->loadComponent('Flash');
+		if (Configure::read('Queue.standalone')) {
+			// Standalone mode: skip app's AppController, initialize independently
+			Controller::initialize();
+			$this->loadComponent('Flash');
+		} else {
+			// Default: inherit app's full controller setup
+			parent::initialize();
+		}
 
 		$this->loadHelpers();
 
