@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Core\Configure;
+use Cake\Core\Plugin;
 use Cake\Datasource\ConnectionManager;
 use Cake\Http\ServerRequest;
 use Cake\I18n\DateTime;
@@ -48,8 +49,15 @@ class QueueControllerTest extends TestCase {
 		$this->invokeMethod($controller, 'loadHelpers');
 
 		$view = $controller->createView();
-		$engine = $view->Time->getConfig('engine');
-		$this->assertTrue(in_array($engine, [DateTime::class, ToolsDateTime::class], true));
+
+		// Time helper should be loaded (either Tools.Time or core Time)
+		$this->assertTrue($view->helpers()->has('Time'));
+
+		// If Tools plugin is loaded, it should use the Tools Time helper with engine config
+		if (Plugin::isLoaded('Tools')) {
+			$engine = $view->Time->getConfig('engine');
+			$this->assertTrue(in_array($engine, [DateTime::class, ToolsDateTime::class], true));
+		}
 	}
 
 	/**
