@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Queue\View\Helper;
 
 use Cake\View\Helper;
+use DateInterval;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
@@ -60,6 +61,35 @@ class QueueHelper extends Helper {
 		}
 
 		return $queuedJob->attempts . 'x';
+	}
+
+	/**
+	 * Returns true if job has been requeued (has failure message but within retry limit).
+	 *
+	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 *
+	 * @return bool
+	 */
+	public function isRequeued(QueuedJob $queuedJob): bool {
+		if ($queuedJob->completed || !$queuedJob->fetched) {
+			return false;
+		}
+
+		// Must have a failure message to be considered "requeued"
+		if (!$queuedJob->failure_message) {
+			return false;
+		}
+
+		if ($queuedJob->attempts < 1) {
+			return false;
+		}
+
+		$taskConfig = $this->taskConfig($queuedJob->job_task);
+		if ($taskConfig && $queuedJob->attempts <= $taskConfig['retries']) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -130,6 +160,58 @@ class QueueHelper extends Helper {
 		}
 
 		return $seconds . ' (' . implode(' ', $parts) . ')';
+	}
+
+	/**
+	 * Returns the duration of a completed job.
+	 *
+	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 *
+	 * @return string|null Duration string or null if not calculable
+	 */
+	public function duration(QueuedJob $queuedJob): ?string {
+		if (!$queuedJob->completed) {
+			return null;
+		}
+
+		if (!$queuedJob->fetched) {
+			return null;
+		}
+
+		$interval = $queuedJob->completed->diff($queuedJob->fetched);
+
+		return $this->formatInterval($interval);
+	}
+
+	/**
+	 * Formats a DateInterval into a human-readable duration string.
+	 *
+	 * @param \DateInterval $interval
+	 *
+	 * @return string
+	 */
+	public function formatInterval(DateInterval $interval): string {
+		$parts = [];
+
+		if ($interval->d > 0) {
+			$parts[] = $interval->d . 'd';
+		}
+		if ($interval->h > 0) {
+			$parts[] = $interval->h . 'h';
+		}
+		if ($interval->i > 0) {
+			$parts[] = $interval->i . 'm';
+		}
+		if ($interval->s > 0 || empty($parts)) {
+			$parts[] = $interval->s . 's';
+		}
+
+		// Minimum display is "< 1s" when no time parts
+		if (implode('', $parts) === '0s') {
+			return '< 1s';
+		}
+
+		return implode(' ', $parts);
 	}
 
 }

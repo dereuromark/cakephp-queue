@@ -164,15 +164,12 @@ use Brick\VarExporter\VarExporter;
 									<i class="fas fa-check me-1"></i>
 									<?= $this->Time->nice($queuedJob->completed) ?>
 								</span>
-								<div class="small text-muted">
-									<?php
-									$interval = $queuedJob->completed->diff($queuedJob->fetched);
-									$duration = method_exists($this->Time, 'duration')
-										? $this->Time->duration($interval)
-										: ltrim($interval->format('%H:%I:%S'), '0:');
-									?>
-									<?= __d('queue', 'Duration') ?>: <?= $duration ?>
-								</div>
+								<?php $duration = $this->Queue->duration($queuedJob); ?>
+								<?php if ($duration): ?>
+									<div class="small text-muted">
+										<?= __d('queue', 'Duration') ?>: <?= $duration ?>
+									</div>
+								<?php endif; ?>
 							<?php else: ?>
 								<span class="text-muted">---</span>
 							<?php endif; ?>
@@ -245,9 +242,13 @@ use Brick\VarExporter\VarExporter;
 						<span class="badge badge-completed fs-6">
 							<i class="fas fa-check me-1"></i><?= __d('queue', 'Completed') ?>
 						</span>
-					<?php elseif ($queuedJob->failure_message): ?>
+					<?php elseif ($this->Queue->hasFailed($queuedJob)): ?>
 						<span class="badge badge-failed fs-6">
 							<i class="fas fa-times me-1"></i><?= __d('queue', 'Failed') ?>
+						</span>
+					<?php elseif ($this->Queue->isRequeued($queuedJob)): ?>
+						<span class="badge bg-warning text-dark fs-6">
+							<i class="fas fa-redo me-1"></i><?= __d('queue', 'Requeued') ?>
 						</span>
 					<?php elseif ($queuedJob->fetched): ?>
 						<span class="badge badge-running fs-6">
@@ -293,7 +294,8 @@ use Brick\VarExporter\VarExporter;
 					<strong><?= __d('queue', 'Attempts') ?>:</strong>
 					<?= $this->element('Queue.ok', [
 						'value' => $this->Queue->attempts($queuedJob),
-						'ok' => $queuedJob->completed || $queuedJob->attempts < 1,
+						'ok' => !$this->Queue->hasFailed($queuedJob),
+						'warning' => $this->Queue->isRequeued($queuedJob),
 					]) ?>
 				</div>
 

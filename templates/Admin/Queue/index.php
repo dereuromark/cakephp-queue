@@ -160,6 +160,11 @@ use Cake\Core\Configure;
 													<i class="fas fa-times me-1"></i><?= __d('queue', 'Failed') ?>
 												</span>
 												<div class="small text-muted"><?= __d('queue', 'Attempts') ?>: <?= $this->Queue->attempts($pendingJob) ?></div>
+											<?php elseif ($this->Queue->isRequeued($pendingJob)): ?>
+												<span class="badge bg-warning text-dark">
+													<i class="fas fa-redo me-1"></i><?= __d('queue', 'Requeued') ?>
+												</span>
+												<div class="small text-muted"><?= __d('queue', 'Attempts') ?>: <?= $this->Queue->attempts($pendingJob) ?></div>
 											<?php elseif ($pendingJob->fetched): ?>
 												<span class="badge badge-running">
 													<i class="fas fa-spinner fa-spin me-1"></i><?= __d('queue', 'Running') ?>

@@ -122,15 +122,13 @@ if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Sear
 									<i class="fas fa-check me-1"></i>
 									<?= $this->Time->nice($queuedJob->completed) ?>
 								</span>
-								<div class="small text-muted" title="<?= __d('queue', 'Duration') ?>">
-									<i class="fas fa-stopwatch me-1"></i>
-									<?php
-									$interval = $queuedJob->completed->diff($queuedJob->fetched);
-									echo method_exists($this->Time, 'duration')
-										? $this->Time->duration($interval)
-										: ltrim($interval->format('%H:%I:%S'), '0:');
-									?>
-								</div>
+								<?php $duration = $this->Queue->duration($queuedJob); ?>
+								<?php if ($duration): ?>
+									<div class="small text-muted" title="<?= __d('queue', 'Duration') ?>">
+										<i class="fas fa-stopwatch me-1"></i>
+										<?= $duration ?>
+									</div>
+								<?php endif; ?>
 							<?php else: ?>
 								<span class="text-muted">---</span>
 							<?php endif; ?>
@@ -138,7 +136,8 @@ if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Sear
 						<td>
 							<?= $this->element('Queue.ok', [
 								'value' => $this->Queue->attempts($queuedJob),
-								'ok' => $queuedJob->completed || $queuedJob->attempts < 1,
+								'ok' => !$this->Queue->hasFailed($queuedJob),
+								'warning' => $this->Queue->isRequeued($queuedJob),
 							]) ?>
 						</td>
 						<td>
@@ -146,9 +145,13 @@ if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Sear
 								<span class="badge badge-completed">
 									<i class="fas fa-check me-1"></i><?= __d('queue', 'Done') ?>
 								</span>
-							<?php elseif ($queuedJob->failure_message): ?>
+							<?php elseif ($this->Queue->hasFailed($queuedJob)): ?>
 								<span class="badge badge-failed">
 									<i class="fas fa-times me-1"></i><?= __d('queue', 'Failed') ?>
+								</span>
+							<?php elseif ($this->Queue->isRequeued($queuedJob)): ?>
+								<span class="badge bg-warning text-dark">
+									<i class="fas fa-redo me-1"></i><?= __d('queue', 'Requeued') ?>
 								</span>
 							<?php elseif ($queuedJob->fetched): ?>
 								<span class="badge badge-running">
