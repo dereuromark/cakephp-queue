@@ -34,8 +34,8 @@ trait LoadHelperTrait {
 			$helpers[] = 'Queue.Configure';
 		}
 
-		if (Configure::read('Icon.sets')) {
-			$helpers[] = class_exists(IconHelper::class) ? 'Templating.Icon' : 'Tools.Icon';
+		if (Configure::read('Icon.sets') && class_exists(IconHelper::class)) {
+			$helpers[] = 'Templating.Icon';
 		}
 		if (class_exists(IconSnippetHelper::class)) {
 			$helpers[] = 'Templating.IconSnippet';
