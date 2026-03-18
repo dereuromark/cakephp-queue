@@ -12,29 +12,32 @@ The Queue plugin includes a modern, self-contained admin dashboard for managing 
 - **Trigger Jobs**: Manually add jobs that implement `AddFromBackendInterface`
 - **Configuration View**: See current runtime configuration at a glance
 
-## Enabling the Isolated Layout
+## Layout Configuration
 
-By default, the admin controllers use your application's layout. To enable the isolated Bootstrap 5 layout, add this to your configuration:
+By default, the admin dashboard uses the isolated Bootstrap 5 layout (`Queue.queue`). This ensures the dashboard works independently of your application's styles.
 
-```php
-// In config/app.php or config/app_local.php
-'Queue' => [
-    'adminLayout' => 'Queue.queue',
-    // other Queue config...
-],
-```
-
-## Configuration Options
-
-### Layout Configuration
+### Configuration Options
 
 ```php
 'Queue' => [
-    // Enable the isolated Bootstrap 5 layout
-    'adminLayout' => 'Queue.queue',
+    // Layout for admin pages:
+    // - null (default): Uses 'Queue.queue' isolated Bootstrap 5 layout
+    // - false: Disables plugin layout, uses app's default layout
+    // - string: Uses specified layout
+    'adminLayout' => null,
 
     // Auto-refresh dashboard every N seconds (0 = disabled)
     'dashboardAutoRefresh' => 30,
+],
+```
+
+### Using Your Application's Layout
+
+To use your application's default layout instead of the isolated Bootstrap 5 layout:
+
+```php
+'Queue' => [
+    'adminLayout' => false,
 ],
 ```
 

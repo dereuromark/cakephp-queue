@@ -88,8 +88,11 @@ return [
 
 		// Admin dashboard settings
 
-		// custom layout for admin pages (null = use app's default layout)
-		'adminLayout' => 'Queue.queue',
+		// Layout for admin pages:
+		// - null (default): Uses 'Queue.queue' isolated Bootstrap 5 layout
+		// - false: Disables plugin layout, uses app's default layout
+		// - string: Uses specified layout
+		// 'adminLayout' => null,
 
 		// auto-refresh dashboard in seconds (0 = disabled)
 		'dashboardAutoRefresh' => 0,

@@ -26,9 +26,13 @@ class QueueAppController extends Controller {
 
 		$this->loadHelpers();
 
+		// Layout configuration:
+		// - null (default): Uses 'Queue.queue' isolated Bootstrap 5 layout
+		// - false: Disables plugin layout, uses app's default layout
+		// - string: Uses specified layout (e.g., 'Queue.queue' or custom)
 		$layout = Configure::read('Queue.adminLayout');
-		if ($layout) {
-			$this->viewBuilder()->setLayout($layout);
+		if ($layout !== false) {
+			$this->viewBuilder()->setLayout($layout ?: 'Queue.queue');
 		}
 	}
 
