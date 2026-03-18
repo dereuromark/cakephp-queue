@@ -28,8 +28,30 @@ By default, the admin dashboard uses the isolated Bootstrap 5 layout (`Queue.que
 
     // Auto-refresh dashboard every N seconds (0 = disabled)
     'dashboardAutoRefresh' => 30,
+
+    // Standalone mode (opt-in):
+    // - false (default): Extends App\Controller\AppController, inherits app auth/components
+    // - true: Isolated admin, skips app's AppController setup
+    'standalone' => false,
 ],
 ```
+
+### Controller Inheritance
+
+By default, the Queue admin controllers extend your application's `AppController`. This means they inherit your authentication, authorization, components, and other controller configuration.
+
+If you want the Queue admin to be completely isolated and not depend on your app's controller setup:
+
+```php
+'Queue' => [
+    'standalone' => true,
+],
+```
+
+This is useful when:
+- Your app's `AppController` has complex authentication that you want to bypass for the Queue admin
+- You want to use the Queue admin without configuring your app's authentication first
+- You're using the plugin in a minimal setup without a full application
 
 ### Using Your Application's Layout
 
