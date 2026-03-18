@@ -93,16 +93,23 @@ foreach ($grid as $hours) {
 								$intensity = $maxValue > 0 ? $count / $maxValue : 0;
 								$bgColor = $this->Queue->heatmapColor($intensity);
 								$textColor = $intensity > 0.5 ? '#fff' : '#333';
+								$tooltipTitle = sprintf(
+									'<strong>%s %s</strong><br>%s %s',
+									h($dayNamesFull[$day]),
+									sprintf('%02d:00', $hour),
+									number_format($count),
+									h(__d('queue', 'jobs')),
+								);
 								?>
 								<div class="heatmap-cell"
 									 style="background-color: <?= $bgColor ?>; color: <?= $textColor ?>;"
-									 data-day="<?= $dayNamesFull[$day] ?>"
+									 data-day="<?= h($dayNamesFull[$day]) ?>"
 									 data-hour="<?= sprintf('%02d:00-%02d:59', $hour, $hour) ?>"
 									 data-count="<?= $count ?>"
 									 data-bs-toggle="tooltip"
 									 data-bs-placement="top"
 									 data-bs-html="true"
-									 title="<strong><?= $dayNamesFull[$day] ?> <?= sprintf('%02d:00', $hour) ?></strong><br><?= number_format($count) ?> <?= __d('queue', 'jobs') ?>">
+									 title="<?= h($tooltipTitle) ?>">
 									<?php if ($count > 0) { ?>
 										<span class="heatmap-value"><?= $count > 999 ? round($count / 1000, 1) . 'k' : $count ?></span>
 									<?php } ?>
@@ -289,15 +296,3 @@ foreach ($grid as $hours) {
 	}
 }
 </style>
-
-<?php $this->append('script'); ?>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-	// Initialize Bootstrap tooltips
-	var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-	tooltipTriggerList.forEach(function(tooltipTriggerEl) {
-		new bootstrap.Tooltip(tooltipTriggerEl);
-	});
-});
-</script>
-<?php $this->end();

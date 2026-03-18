@@ -872,6 +872,12 @@ class QueuedJobsTable extends Table {
 	 * @return array{grid: array<int, array<int, int>>, summary: array<string, mixed>}
 	 */
 	public function getHeatmapData(string $field = 'created', int $days = 30, ?string $jobTask = null): array {
+		// Whitelist allowed fields to prevent SQL injection
+		$allowedFields = ['created', 'completed'];
+		if (!in_array($field, $allowedFields, true)) {
+			$field = 'created';
+		}
+
 		$driverName = $this->getDriverName();
 		$since = (new DateTime())->subDays($days);
 
@@ -880,23 +886,24 @@ class QueuedJobsTable extends Table {
 		// Build day of week and hour expressions based on driver
 		switch ($driverName) {
 			case static::DRIVER_POSTGRES:
-				$dayOfWeek = $query->newExpr("EXTRACT(DOW FROM {$field})");
-				$hourOfDay = $query->newExpr("EXTRACT(HOUR FROM {$field})");
+				$dayOfWeek = $query->expr("EXTRACT(DOW FROM {$field})");
+				$hourOfDay = $query->expr("EXTRACT(HOUR FROM {$field})");
 
 				break;
 			case static::DRIVER_SQLSERVER:
-				$dayOfWeek = $query->newExpr("DATEPART(WEEKDAY, {$field}) - 1");
-				$hourOfDay = $query->newExpr("DATEPART(HOUR, {$field})");
+				// Use DATEDIFF against known Sunday (1900-01-07) for consistent day-of-week regardless of DATEFIRST setting
+				$dayOfWeek = $query->expr("DATEDIFF(DAY, '1900-01-07', CAST({$field} AS DATE)) % 7");
+				$hourOfDay = $query->expr("DATEPART(HOUR, {$field})");
 
 				break;
 			case static::DRIVER_SQLITE:
-				$dayOfWeek = $query->newExpr("CAST(strftime('%w', {$field}) AS INTEGER)");
-				$hourOfDay = $query->newExpr("CAST(strftime('%H', {$field}) AS INTEGER)");
+				$dayOfWeek = $query->expr("CAST(strftime('%w', {$field}) AS INTEGER)");
+				$hourOfDay = $query->expr("CAST(strftime('%H', {$field}) AS INTEGER)");
 
 				break;
 			default: // MySQL
-				$dayOfWeek = $query->newExpr("DAYOFWEEK({$field})");
-				$hourOfDay = $query->newExpr("HOUR({$field})");
+				$dayOfWeek = $query->expr("DAYOFWEEK({$field})");
+				$hourOfDay = $query->expr("HOUR({$field})");
 
 				break;
 		}

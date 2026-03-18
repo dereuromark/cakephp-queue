@@ -250,4 +250,32 @@ class QueueHelperTest extends TestCase {
 		$this->assertSame('1d 2h 30m 15s', $this->QueueHelper->formatInterval($interval));
 	}
 
+	/**
+	 * @return void
+	 */
+	public function testHeatmapColor(): void {
+		// Zero or negative intensity returns empty/no-activity color
+		$this->assertSame('#ebedf0', $this->QueueHelper->heatmapColor(0));
+		$this->assertSame('#ebedf0', $this->QueueHelper->heatmapColor(-0.5));
+
+		// Low intensity returns lightest green
+		$this->assertSame('#9be9a8', $this->QueueHelper->heatmapColor(0.1));
+		$this->assertSame('#9be9a8', $this->QueueHelper->heatmapColor(0.24));
+
+		// Medium-low intensity
+		$this->assertSame('#40c463', $this->QueueHelper->heatmapColor(0.25));
+		$this->assertSame('#40c463', $this->QueueHelper->heatmapColor(0.49));
+
+		// Medium-high intensity
+		$this->assertSame('#30a14e', $this->QueueHelper->heatmapColor(0.5));
+		$this->assertSame('#30a14e', $this->QueueHelper->heatmapColor(0.74));
+
+		// High intensity returns darkest green
+		$this->assertSame('#216e39', $this->QueueHelper->heatmapColor(0.75));
+		$this->assertSame('#216e39', $this->QueueHelper->heatmapColor(1.0));
+
+		// Values > 1 should clamp to darkest
+		$this->assertSame('#216e39', $this->QueueHelper->heatmapColor(1.5));
+	}
+
 }
