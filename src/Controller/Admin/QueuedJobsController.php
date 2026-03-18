@@ -19,6 +19,11 @@ use RuntimeException;
 class QueuedJobsController extends QueueAppController {
 
 	/**
+	 * @var string|null
+	 */
+	protected ?string $defaultTable = 'Queue.QueuedJobs';
+
+	/**
 	 * @var array<string, mixed>
 	 */
 	protected array $paginate = [
@@ -32,6 +37,11 @@ class QueuedJobsController extends QueueAppController {
 	 */
 	public function initialize(): void {
 		parent::initialize();
+
+		// Set connection for multi-connection support
+		if ($this->activeConnection !== 'default') {
+			$this->QueuedJobs->setConnection($this->getActiveConnectionObject());
+		}
 
 		$this->enableSearch();
 	}

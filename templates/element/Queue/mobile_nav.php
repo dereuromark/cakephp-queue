@@ -3,6 +3,8 @@
  * Queue Admin Mobile Navigation
  *
  * @var \Cake\View\View $this
+ * @var array<string>|null $queueConnections Available connections (null if single connection mode)
+ * @var string $queueActiveConnection Currently active connection
  */
 
 $controller = $this->getRequest()->getParam('controller');
@@ -20,6 +22,32 @@ $isActive = function (string $c, ?array $actions = null) use ($controller, $acti
 };
 ?>
 <div class="p-3">
+	<?php if (!empty($queueConnections)): ?>
+	<!-- Connection Switcher -->
+	<div class="mb-4">
+		<div class="text-uppercase text-white-50 small mb-2 px-2"><?= __d('queue', 'Connection') ?></div>
+		<nav class="nav flex-column">
+			<?php foreach ($queueConnections as $connection): ?>
+				<?php
+				$isActiveConn = $connection === $queueActiveConnection;
+				$url = $this->Url->build([
+					'?' => array_merge(
+						$this->getRequest()->getQueryParams(),
+						['connection' => $connection]
+					),
+				]);
+				?>
+				<a class="nav-link text-white py-2 <?= $isActiveConn ? 'bg-primary rounded' : '' ?>" href="<?= $url ?>">
+					<i class="fas fa-database me-2"></i><?= h($connection) ?>
+					<?php if ($isActiveConn): ?>
+						<i class="fas fa-check ms-2"></i>
+					<?php endif; ?>
+				</a>
+			<?php endforeach; ?>
+		</nav>
+	</div>
+	<?php endif; ?>
+
 	<!-- Navigation -->
 	<div class="mb-4">
 		<div class="text-uppercase text-white-50 small mb-2 px-2"><?= __d('queue', 'Navigation') ?></div>

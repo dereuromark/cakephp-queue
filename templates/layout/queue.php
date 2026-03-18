@@ -362,6 +362,7 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 						</a>
 					</li>
 					<?php endif; ?>
+					<?= $this->element('Queue.Queue/connection_switcher') ?>
 					<li class="nav-item">
 						<span class="nav-link text-light" title="<?= __d('queue', 'Server Time') ?>">
 							<i class="far fa-clock me-1"></i>
