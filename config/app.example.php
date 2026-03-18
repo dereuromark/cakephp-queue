@@ -92,7 +92,7 @@ return [
 		// - null (default): Uses 'Queue.queue' isolated Bootstrap 5 layout
 		// - false: Disables plugin layout, uses app's default layout
 		// - string: Uses specified layout
-		// 'adminLayout' => null,
+		'adminLayout' => null,
 
 		// auto-refresh dashboard in seconds (0 = disabled)
 		'dashboardAutoRefresh' => 0,

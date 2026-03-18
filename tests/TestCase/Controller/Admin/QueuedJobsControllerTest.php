@@ -5,6 +5,7 @@ namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\DateTime;
 use Cake\TestSuite\IntegrationTestTrait;
 use Laminas\Diactoros\UploadedFile;
@@ -282,7 +283,7 @@ JSON,
 		Configure::write('debug', false);
 
 		$this->disableErrorHandlerMiddleware();
-		$this->expectException(\Cake\Http\Exception\NotFoundException::class);
+		$this->expectException(NotFoundException::class);
 
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'execute']);
 	}
