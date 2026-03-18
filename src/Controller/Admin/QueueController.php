@@ -64,6 +64,13 @@ class QueueController extends QueueAppController {
 		$tasks = $taskFinder->all();
 		$addableTasks = $taskFinder->allAddable(AddFromBackendInterface::class);
 
+		$taskDescriptions = [];
+		foreach ($tasks as $task => $className) {
+			/** @var \Queue\Queue\Task $taskObject */
+			$taskObject = new $className();
+			$taskDescriptions[$task] = $taskObject->description();
+		}
+
 		$servers = $QueueProcesses->serverList();
 		$workers = $status ? $status['workers'] : 0;
 
@@ -95,6 +102,7 @@ class QueueController extends QueueAppController {
 			'status',
 			'tasks',
 			'addableTasks',
+			'taskDescriptions',
 			'servers',
 			'workers',
 			'pendingJobs',

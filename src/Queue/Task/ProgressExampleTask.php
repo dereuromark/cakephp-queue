@@ -36,9 +36,8 @@ class ProgressExampleTask extends Task implements AddInterface, AddFromBackendIn
 	public function add(?string $data): void {
 		$this->io->out('CakePHP Queue ProgressExample task.');
 		$this->io->hr();
-		$this->io->out('This is a very simple but long running example of a QueueTask.');
+		$this->io->out($this->description());
 		$this->io->out('I will now add the Job into the Queue.');
-		$this->io->out('This job will need at least 2 minutes to complete.');
 		$this->io->out(' ');
 		$this->io->out('To run a Worker use:');
 		$this->io->out('    bin/cake queue run');
@@ -52,6 +51,13 @@ class ProgressExampleTask extends Task implements AddInterface, AddFromBackendIn
 		];
 		$this->QueuedJobs->createJob('Queue.ProgressExample', $data);
 		$this->io->success('OK, job created, now run the worker');
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function description(): ?string {
+		return __d('queue', 'Long-running task (~2 min) with progress bar updates');
 	}
 
 	/**

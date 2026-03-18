@@ -36,10 +36,8 @@ class SuperExampleTask extends Task implements AddInterface, AddFromBackendInter
 	public function add(?string $data): void {
 		$this->io->out('CakePHP Queue SuperExample task.');
 		$this->io->hr();
-		$this->io->out('This is a very superb example of a QueueTask.');
+		$this->io->out($this->description());
 		$this->io->out('I will now add an example Job into the Queue.');
-		$this->io->out('It will also create another Example job upon successful execution.');
-		$this->io->out('This job will only produce some console output on the worker that it runs on.');
 		$this->io->out(' ');
 		$this->io->out('To run a Worker use:');
 		$this->io->out('    bin/cake queue run');
@@ -50,6 +48,13 @@ class SuperExampleTask extends Task implements AddInterface, AddFromBackendInter
 
 		$this->QueuedJobs->createJob('Queue.SuperExample');
 		$this->io->success('OK, job created, now run the worker');
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function description(): ?string {
+		return __d('queue', 'Creates another Example job upon completion (chaining)');
 	}
 
 	/**

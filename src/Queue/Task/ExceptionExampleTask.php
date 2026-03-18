@@ -32,9 +32,8 @@ class ExceptionExampleTask extends Task implements AddInterface, AddFromBackendI
 	public function add(?string $data): void {
 		$this->io->out('CakePHP Queue ExceptionExample task.');
 		$this->io->hr();
-		$this->io->out('This is a very simple example of a QueueTask and how exceptions are handled.');
+		$this->io->out($this->description());
 		$this->io->out('I will now add an example Job into the Queue.');
-		$this->io->out('This job will only produce some console output on the worker that it runs on.');
 		$this->io->out(' ');
 		$this->io->out('To run a Worker use:');
 		$this->io->out('    bin/cake queue run');
@@ -45,6 +44,13 @@ class ExceptionExampleTask extends Task implements AddInterface, AddFromBackendI
 
 		$this->QueuedJobs->createJob('Queue.ExceptionExample');
 		$this->io->success('OK, job created, now run the worker');
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function description(): ?string {
+		return __d('queue', 'Demonstrates exception handling (always fails)');
 	}
 
 	/**

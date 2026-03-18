@@ -114,4 +114,16 @@ abstract class Task implements TaskInterface {
 		return Config::taskName($class);
 	}
 
+	/**
+	 * Returns a human-readable description of what this task does.
+	 *
+	 * Override this in your task to provide a description that will be shown
+	 * as a tooltip in the admin backend.
+	 *
+	 * @return string|null
+	 */
+	public function description(): ?string {
+		return null;
+	}
+
 }

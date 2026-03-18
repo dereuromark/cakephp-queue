@@ -5,6 +5,7 @@
  * @var \Queue\Model\Entity\QueuedJob[] $scheduledDetails
  * @var string[] $tasks
  * @var string[] $addableTasks
+ * @var array<string, string|null> $taskDescriptions
  * @var string[] $servers
  * @var array $status
  * @var int $new
@@ -363,6 +364,7 @@ use Cake\Core\Configure;
 								continue;
 							}
 							?>
+							<?php $description = $taskDescriptions[$task] ?? null; ?>
 							<?= $this->Form->postLink(
 								'<i class="fas fa-plus me-1"></i>' . h($task),
 								['action' => 'addJob', '?' => ['task' => $task]],
@@ -370,6 +372,7 @@ use Cake\Core\Configure;
 									'escapeTitle' => false,
 									'class' => 'btn btn-outline-primary btn-sm text-start',
 									'confirm' => __d('queue', 'Sure?'),
+									'title' => $description,
 									'block' => true,
 								]
 							) ?>
@@ -398,6 +401,7 @@ use Cake\Core\Configure;
 							<?php if (!str_ends_with($task, 'Example')) {
 								continue;
 							} ?>
+							<?php $description = $taskDescriptions[$task] ?? null; ?>
 							<?= $this->Form->postLink(
 								'<i class="fas fa-flask me-1"></i>' . h($task),
 								['action' => 'addJob', '?' => ['task' => $task]],
@@ -405,6 +409,7 @@ use Cake\Core\Configure;
 									'escapeTitle' => false,
 									'class' => 'btn btn-outline-secondary btn-sm text-start',
 									'confirm' => __d('queue', 'Sure?'),
+									'title' => $description,
 									'block' => true,
 								]
 							) ?>

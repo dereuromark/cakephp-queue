@@ -38,8 +38,8 @@ class MonitorExampleTask extends Task implements AddInterface, AddFromBackendInt
 	public function add(?string $data): void {
 		$this->io->out('CakePHP Queue MonitorExample task.');
 		$this->io->hr();
-		$this->io->out('This is an example of doing some server monitor tasks and logging.');
-		$this->io->out('This job will only produce some console output on the worker that it runs on.');
+		$this->io->out($this->description());
+		$this->io->out('I will now add an example Job into the Queue.');
 		$this->io->out(' ');
 		$this->io->out('To run a Worker use:');
 		$this->io->out('    bin/cake queue run');
@@ -50,6 +50,13 @@ class MonitorExampleTask extends Task implements AddInterface, AddFromBackendInt
 
 		$this->QueuedJobs->createJob('Queue.MonitorExample');
 		$this->io->success('OK, job created, now run the worker');
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function description(): ?string {
+		return __d('queue', 'Logs server memory and PHP info');
 	}
 
 	/**

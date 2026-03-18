@@ -33,9 +33,8 @@ class UniqueExampleTask extends Task implements AddInterface, AddFromBackendInte
 	public function add(?string $data): void {
 		$this->io->out('CakePHP Queue UniqueExample task.');
 		$this->io->hr();
+		$this->io->out($this->description());
 		$this->io->out('I will now add an example Job into the Queue.');
-		$this->io->out('This job cannot run more than once across all workers.');
-		$this->io->out('This job will only produce some console output on the worker that it runs on.');
 		$this->io->out(' ');
 		$this->io->out('To run a Worker use:');
 		$this->io->out('    bin/cake queue run');
@@ -46,6 +45,13 @@ class UniqueExampleTask extends Task implements AddInterface, AddFromBackendInte
 
 		$this->QueuedJobs->createJob('Queue.UniqueExample');
 		$this->io->success('OK, job created, now run the worker');
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function description(): ?string {
+		return __d('queue', 'Only one instance can run at a time across all workers');
 	}
 
 	/**
