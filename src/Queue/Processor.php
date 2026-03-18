@@ -6,6 +6,7 @@ namespace Queue\Queue;
 use Cake\Console\CommandInterface;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
+use Cake\Datasource\ConnectionManager;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
@@ -92,18 +93,64 @@ class Processor {
 	protected ?bool $captureOutput = null;
 
 	/**
+	 * @var string
+	 */
+	protected string $connection = 'default';
+
+	/**
 	 * @param \Queue\Console\Io $io
 	 * @param \Psr\Log\LoggerInterface $logger
 	 * @param \Cake\Core\ContainerInterface|null $container
+	 * @param string|null $connection Database connection to use
 	 */
-	public function __construct(Io $io, LoggerInterface $logger, ?ContainerInterface $container = null) {
+	public function __construct(Io $io, LoggerInterface $logger, ?ContainerInterface $container = null, ?string $connection = null) {
 		$this->io = $io;
 		$this->logger = $logger;
 		$this->container = $container;
+		$this->connection = $this->resolveConnection($connection);
 
 		$tableLocator = $this->getTableLocator();
 		$this->QueuedJobs = $tableLocator->get('Queue.QueuedJobs');
 		$this->QueueProcesses = $tableLocator->get('Queue.QueueProcesses');
+
+		// Set connection for multi-connection support
+		if ($this->connection !== 'default') {
+			/** @var \Cake\Database\Connection $connectionObject */
+			$connectionObject = ConnectionManager::get($this->connection);
+			$this->QueuedJobs->setConnection($connectionObject);
+			$this->QueueProcesses->setConnection($connectionObject);
+		}
+	}
+
+	/**
+	 * Resolve and validate the connection name.
+	 *
+	 * @param string|null $connection Requested connection
+	 *
+	 * @throws \RuntimeException If connection is not in whitelist
+	 *
+	 * @return string
+	 */
+	protected function resolveConnection(?string $connection): string {
+		$connections = Configure::read('Queue.connections');
+
+		// Single connection mode (backwards compatible)
+		if (!$connections || !is_array($connections) || count($connections) < 2) {
+			return $connection ?: 'default';
+		}
+
+		// Multi-connection mode
+		if ($connection === null) {
+			// Use first connection as default
+			return $connections[0];
+		}
+
+		// Validate against whitelist
+		if (!in_array($connection, $connections, true)) {
+			throw new RuntimeException(__d('queue', 'Invalid connection: {0}. Must be one of: {1}', $connection, implode(', ', $connections)));
+		}
+
+		return $connection;
 	}
 
 	/**

@@ -22,6 +22,18 @@ class QueueController extends QueueAppController {
 	protected ?string $defaultTable = 'Queue.QueuedJobs';
 
 	/**
+	 * @return void
+	 */
+	public function initialize(): void {
+		parent::initialize();
+
+		// Set connection for multi-connection support
+		if ($this->activeConnection !== 'default') {
+			$this->QueuedJobs->setConnection($this->getActiveConnectionObject());
+		}
+	}
+
+	/**
 	 * Admin center.
 	 * Manage queues from admin backend (without the need to open ssh console window).
 	 *
@@ -29,6 +41,9 @@ class QueueController extends QueueAppController {
 	 */
 	public function index() {
 		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
+		if ($this->activeConnection !== 'default') {
+			$QueueProcesses->setConnection($this->getActiveConnectionObject());
+		}
 		$status = $QueueProcesses->status();
 
 		$current = $this->QueuedJobs->getLength();
@@ -162,6 +177,9 @@ class QueueController extends QueueAppController {
 	 */
 	public function processes() {
 		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
+		if ($this->activeConnection !== 'default') {
+			$QueueProcesses->setConnection($this->getActiveConnectionObject());
+		}
 
 		if ($this->request->is('post') && $this->request->getQuery('end')) {
 			$pid = (string)$this->request->getQuery('end');

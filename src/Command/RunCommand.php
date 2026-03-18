@@ -56,6 +56,10 @@ class RunCommand extends Command {
 			'help' => 'Name of a queue config to use',
 			'short' => 'c',
 		]);
+		$parser->addOption('connection', [
+			'help' => 'Database connection to use (must be in Queue.connections whitelist if multi-connection mode is enabled)',
+			'default' => null,
+		]);
 		$parser->addOption('logger', [
 			'help' => 'Name of a configured logger',
 			'default' => 'stdout',
@@ -114,7 +118,12 @@ class RunCommand extends Command {
 	public function execute(Arguments $args, ConsoleIo $io): int {
 		$logger = $this->getLogger($args);
 		$io = new Io($io);
-		$processor = new Processor($io, $logger, $this->container);
+
+		$connection = $args->getOption('connection');
+		if (!is_string($connection)) {
+			$connection = null;
+		}
+		$processor = new Processor($io, $logger, $this->container, $connection);
 
 		return $processor->run($args->getOptions());
 	}

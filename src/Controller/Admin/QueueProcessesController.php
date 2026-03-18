@@ -15,6 +15,11 @@ use const SIGTERM;
 class QueueProcessesController extends QueueAppController {
 
 	/**
+	 * @var string|null
+	 */
+	protected ?string $defaultTable = 'Queue.QueueProcesses';
+
+	/**
 	 * @var array<string, mixed>
 	 */
 	protected array $paginate = [
@@ -22,6 +27,18 @@ class QueueProcessesController extends QueueAppController {
 			'created' => 'DESC',
 		],
 	];
+
+	/**
+	 * @return void
+	 */
+	public function initialize(): void {
+		parent::initialize();
+
+		// Set connection for multi-connection support
+		if ($this->activeConnection !== 'default') {
+			$this->QueueProcesses->setConnection($this->getActiveConnectionObject());
+		}
+	}
 
 	/**
 	 * Index method

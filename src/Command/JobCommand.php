@@ -8,10 +8,12 @@ use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;
+use Cake\Datasource\ConnectionManager;
 use Cake\Error\Debugger;
 use Cake\I18n\DateTime;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\Table\QueuedJobsTable;
+use RuntimeException;
 
 /**
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
@@ -33,11 +35,9 @@ class JobCommand extends Command {
 	protected ?string $defaultTable = 'Queue.QueuedJobs';
 
 	/**
-	 * @return void
+	 * @var string
 	 */
-	public function initialize(): void {
-		$this->QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
-	}
+	protected string $connection = 'default';
 
 	/**
 	 * @inheritDoc
@@ -60,6 +60,10 @@ class JobCommand extends Command {
 			'help' => 'ID of job record, or "all" for all',
 			'required' => false,
 		]);
+		$parser->addOption('connection', [
+			'help' => 'Database connection to use (must be in Queue.connections whitelist if multi-connection mode is enabled)',
+			'default' => null,
+		]);
 
 		$parser->setDescription(
 			'Display, rerun, reset or remove pending jobs.',
@@ -75,6 +79,20 @@ class JobCommand extends Command {
 	 * @return int|null|void
 	 */
 	public function execute(Arguments $args, ConsoleIo $io) {
+		$connection = $args->getOption('connection');
+		if (!is_string($connection)) {
+			$connection = null;
+		}
+		$this->connection = $this->resolveConnection($connection);
+		$this->QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+
+		// Set connection for multi-connection support
+		if ($this->connection !== 'default') {
+			/** @var \Cake\Database\Connection $connectionObject */
+			$connectionObject = ConnectionManager::get($this->connection);
+			$this->QueuedJobs->setConnection($connectionObject);
+		}
+
 		$action = $args->getArgument('action');
 		if (!$action) {
 			$io->out('Please use with [action] [ID] added.');
@@ -312,6 +330,35 @@ class JobCommand extends Command {
 		$io->success('Deleted: ' . $result);
 
 		return static::CODE_SUCCESS;
+	}
+
+	/**
+	 * Resolve and validate the connection name.
+	 *
+	 * @param string|null $connection Requested connection
+	 *
+	 * @return string
+	 */
+	protected function resolveConnection(?string $connection): string {
+		$connections = Configure::read('Queue.connections');
+
+		// Single connection mode (backwards compatible)
+		if (!$connections || !is_array($connections) || count($connections) < 2) {
+			return $connection ?: 'default';
+		}
+
+		// Multi-connection mode
+		if ($connection === null) {
+			// Use first connection as default
+			return $connections[0];
+		}
+
+		// Validate against whitelist
+		if (!in_array($connection, $connections, true)) {
+			throw new RuntimeException(__d('queue', 'Invalid connection: {0}. Must be one of: {1}', $connection, implode(', ', $connections)));
+		}
+
+		return $connection;
 	}
 
 }
