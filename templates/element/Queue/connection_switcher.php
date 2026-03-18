@@ -25,11 +25,13 @@ if (empty($queueConnections)) {
 		<?php foreach ($queueConnections as $connection): ?>
 			<?php
 			$isActive = $connection === $queueActiveConnection;
+			// Always redirect to dashboard when switching connections to avoid 404s
 			$url = $this->Url->build([
-				'?' => array_merge(
-					$this->getRequest()->getQueryParams(),
-					['connection' => $connection]
-				),
+				'plugin' => 'Queue',
+				'prefix' => 'Admin',
+				'controller' => 'Queue',
+				'action' => 'index',
+				'?' => ['connection' => $connection],
 			]);
 			?>
 			<li>

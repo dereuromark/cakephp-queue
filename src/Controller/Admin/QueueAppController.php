@@ -78,7 +78,11 @@ class QueueAppController extends AppController {
 	/**
 	 * Resolve the active connection from request or config.
 	 *
+	 * Uses session to persist connection choice. Query parameter can override
+	 * and update the session value.
+	 *
 	 * @throws \Cake\Http\Exception\NotFoundException If connection is not in whitelist
+	 *
 	 * @return string
 	 */
 	protected function resolveConnection(): string {
@@ -89,20 +93,30 @@ class QueueAppController extends AppController {
 			return 'default';
 		}
 
-		// Multi-connection mode
+		$session = $this->request->getSession();
+
+		// Check query string - allows switching via URL
 		$requested = $this->request->getQuery('connection');
 
-		if ($requested === null) {
-			// Use first connection as default
-			return $connections[0];
+		if ($requested !== null) {
+			// Validate against whitelist
+			if (!in_array($requested, $connections, true)) {
+				throw new NotFoundException(__d('queue', 'Invalid connection: {0}', $requested));
+			}
+			// Store in session for subsequent requests
+			$session->write('Queue.connection', $requested);
+
+			return $requested;
 		}
 
-		// Validate against whitelist
-		if (!in_array($requested, $connections, true)) {
-			throw new NotFoundException(__d('queue', 'Invalid connection: {0}', $requested));
+		// Read from session
+		$sessionConnection = $session->read('Queue.connection');
+		if ($sessionConnection && in_array($sessionConnection, $connections, true)) {
+			return $sessionConnection;
 		}
 
-		return $requested;
+		// Default to first connection
+		return $connections[0];
 	}
 
 	/**

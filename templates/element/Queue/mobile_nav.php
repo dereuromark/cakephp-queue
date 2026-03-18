@@ -30,11 +30,13 @@ $isActive = function (string $c, ?array $actions = null) use ($controller, $acti
 			<?php foreach ($queueConnections as $connection): ?>
 				<?php
 				$isActiveConn = $connection === $queueActiveConnection;
+				// Always redirect to dashboard when switching connections to avoid 404s
 				$url = $this->Url->build([
-					'?' => array_merge(
-						$this->getRequest()->getQueryParams(),
-						['connection' => $connection]
-					),
+					'plugin' => 'Queue',
+					'prefix' => 'Admin',
+					'controller' => 'Queue',
+					'action' => 'index',
+					'?' => ['connection' => $connection],
 				]);
 				?>
 				<a class="nav-link text-white py-2 <?= $isActiveConn ? 'bg-primary rounded' : '' ?>" href="<?= $url ?>">
