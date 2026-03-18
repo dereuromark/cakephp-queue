@@ -224,6 +224,66 @@ class QueueHelperTest extends TestCase {
 	/**
 	 * @return void
 	 */
+	public function testIsRestarted(): void {
+		// Not fetched - not restarted
+		$queuedJob = new QueuedJob([
+			'job_task' => 'Queue.Example',
+			'fetched' => null,
+			'attempts' => 2,
+			'failure_message' => null,
+		]);
+		$this->assertFalse($this->QueueHelper->isRestarted($queuedJob));
+
+		// Completed - not restarted
+		$queuedJob = new QueuedJob([
+			'job_task' => 'Queue.Example',
+			'fetched' => new DateTime('-1 hour'),
+			'completed' => new DateTime(),
+			'attempts' => 2,
+			'failure_message' => null,
+		]);
+		$this->assertFalse($this->QueueHelper->isRestarted($queuedJob));
+
+		// No attempts - not restarted (first run)
+		$queuedJob = new QueuedJob([
+			'job_task' => 'Queue.Example',
+			'fetched' => new DateTime('-1 hour'),
+			'attempts' => 0,
+			'failure_message' => null,
+		]);
+		$this->assertFalse($this->QueueHelper->isRestarted($queuedJob));
+
+		// Has failure_message - not restarted (is requeued or failed)
+		$queuedJob = new QueuedJob([
+			'job_task' => 'Queue.Example',
+			'fetched' => new DateTime('-1 hour'),
+			'attempts' => 2,
+			'failure_message' => 'Error',
+		]);
+		$this->assertFalse($this->QueueHelper->isRestarted($queuedJob));
+
+		// Fetched, has attempts, NO failure_message - IS restarted
+		$queuedJob = new QueuedJob([
+			'job_task' => 'Queue.Example',
+			'fetched' => new DateTime('-1 hour'),
+			'attempts' => 2,
+			'failure_message' => null,
+		]);
+		$this->assertTrue($this->QueueHelper->isRestarted($queuedJob));
+
+		// Also restarted with just 1 attempt
+		$queuedJob = new QueuedJob([
+			'job_task' => 'Queue.Example',
+			'fetched' => new DateTime('-1 hour'),
+			'attempts' => 1,
+			'failure_message' => null,
+		]);
+		$this->assertTrue($this->QueueHelper->isRestarted($queuedJob));
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testFormatInterval(): void {
 		// Less than 1 second
 		$interval = new DateInterval('PT0S');

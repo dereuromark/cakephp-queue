@@ -250,6 +250,10 @@ use Brick\VarExporter\VarExporter;
 						<span class="badge bg-warning text-dark fs-6">
 							<i class="fas fa-redo me-1"></i><?= __d('queue', 'Requeued') ?>
 						</span>
+					<?php elseif ($this->Queue->isRestarted($queuedJob)): ?>
+						<span class="badge bg-info text-dark fs-6">
+							<i class="fas fa-sync me-1"></i><?= __d('queue', 'Restarted') ?>
+						</span>
 					<?php elseif ($queuedJob->fetched): ?>
 						<span class="badge badge-running fs-6">
 							<i class="fas fa-spinner fa-spin me-1"></i><?= __d('queue', 'Running') ?>
