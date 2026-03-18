@@ -105,6 +105,47 @@ class QueuedJobsController extends QueueAppController {
 	}
 
 	/**
+	 * Heatmap method
+	 *
+	 * Shows a heatmap visualization of job activity by day of week and hour.
+	 *
+	 * @throws \Cake\Http\Exception\NotFoundException
+	 *
+	 * @return void
+	 */
+	public function heatmap(): void {
+		if (!Configure::read('Queue.isStatisticEnabled')) {
+			throw new NotFoundException('Not enabled');
+		}
+
+		$jobType = $this->request->getQuery('job_type');
+		$metric = $this->request->getQuery('metric', 'created');
+		$days = (int)$this->request->getQuery('days', 30);
+
+		// Validate metric
+		if (!in_array($metric, ['created', 'completed'], true)) {
+			$metric = 'created';
+		}
+
+		// Validate days range
+		if ($days < 7) {
+			$days = 7;
+		} elseif ($days > 365) {
+			$days = 365;
+		}
+
+		$heatmapData = $this->QueuedJobs->getHeatmapData($metric, $days, $jobType);
+
+		$jobTypes = $this->QueuedJobs->find()->where()->find(
+			'list',
+			keyField: 'job_task',
+			valueField: 'job_task',
+		)->distinct('job_task')->toArray();
+
+		$this->set(compact('heatmapData', 'jobTypes', 'jobType', 'metric', 'days'));
+	}
+
+	/**
 	 * View method
 	 *
 	 * @param int|null $id Queued Job id.

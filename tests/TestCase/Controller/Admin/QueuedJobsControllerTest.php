@@ -147,6 +147,64 @@ JSON,
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testHeatmap(): void {
+		Configure::write('Queue.isStatisticEnabled', true);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'heatmap']);
+
+		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testHeatmapNotEnabled(): void {
+		Configure::write('Queue.isStatisticEnabled', false);
+
+		$this->expectException(NotFoundException::class);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'heatmap']);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testHeatmapWithFilters(): void {
+		Configure::write('Queue.isStatisticEnabled', true);
+		$this->createJob(['job_task' => 'Queue.Example']);
+
+		$this->get([
+			'prefix' => 'Admin',
+			'plugin' => 'Queue',
+			'controller' => 'QueuedJobs',
+			'action' => 'heatmap',
+			'?' => [
+				'metric' => 'completed',
+				'days' => 7,
+				'job_type' => 'Queue.Example',
+			],
+		]);
+
+		$this->assertResponseCode(200);
+
+		$heatmapData = $this->viewVariable('heatmapData');
+		$this->assertArrayHasKey('grid', $heatmapData);
+		$this->assertArrayHasKey('summary', $heatmapData);
+		$this->assertCount(7, $heatmapData['grid']); // 7 days of week
+
+		$metric = $this->viewVariable('metric');
+		$this->assertSame('completed', $metric);
+
+		$days = $this->viewVariable('days');
+		$this->assertSame(7, $days);
+
+		$jobType = $this->viewVariable('jobType');
+		$this->assertSame('Queue.Example', $jobType);
+	}
+
+	/**
 	 * Test index method
 	 *
 	 * @return void

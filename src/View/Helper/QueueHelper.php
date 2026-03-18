@@ -242,4 +242,31 @@ class QueueHelper extends Helper {
 		return implode(' ', $parts);
 	}
 
+	/**
+	 * Returns a color for heatmap visualization based on intensity.
+	 *
+	 * Uses a green gradient from light (low activity) to dark (high activity).
+	 *
+	 * @param float $intensity Value between 0 and 1
+	 *
+	 * @return string CSS color value
+	 */
+	public function heatmapColor(float $intensity): string {
+		if ($intensity <= 0) {
+			return '#ebedf0'; // Empty/no activity
+		}
+
+		// Green gradient similar to GitHub contribution graph
+		$colors = [
+			'#9be9a8', // Light green (low)
+			'#40c463', // Medium green
+			'#30a14e', // Darker green
+			'#216e39', // Dark green (high)
+		];
+
+		$index = min((int)floor($intensity * count($colors)), count($colors) - 1);
+
+		return $colors[$index];
+	}
+
 }

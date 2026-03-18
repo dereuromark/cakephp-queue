@@ -755,6 +755,73 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testGetHeatmapData(): void {
+		// Create jobs with different timestamps
+		$now = new DateTime();
+
+		$queuedJob = $this->QueuedJobs->newEntity([
+			'job_task' => 'Foo',
+			'created' => $now->subHours(2),
+			'completed' => $now->subHours(1),
+		]);
+		$this->QueuedJobs->saveOrFail($queuedJob);
+
+		$queuedJob2 = $this->QueuedJobs->newEntity([
+			'job_task' => 'Foo',
+			'created' => $now->subHours(3),
+			'completed' => $now->subHours(2),
+		]);
+		$this->QueuedJobs->saveOrFail($queuedJob2);
+
+		$result = $this->QueuedJobs->getHeatmapData('created', 30);
+
+		// Check grid structure is 7x24
+		$this->assertArrayHasKey('grid', $result);
+		$this->assertArrayHasKey('summary', $result);
+		$this->assertCount(7, $result['grid']);
+		foreach ($result['grid'] as $hours) {
+			$this->assertCount(24, $hours);
+		}
+
+		// Check summary fields
+		$this->assertArrayHasKey('total', $result['summary']);
+		$this->assertArrayHasKey('avgPerHour', $result['summary']);
+		$this->assertArrayHasKey('peakHour', $result['summary']);
+		$this->assertArrayHasKey('peakCount', $result['summary']);
+		$this->assertArrayHasKey('quietestHour', $result['summary']);
+		$this->assertArrayHasKey('quietestCount', $result['summary']);
+		$this->assertArrayHasKey('busiestDay', $result['summary']);
+		$this->assertArrayHasKey('days', $result['summary']);
+
+		$this->assertSame(2, $result['summary']['total']);
+		$this->assertSame(30, $result['summary']['days']);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testGetHeatmapDataFieldWhitelist(): void {
+		// Create a job
+		$now = new DateTime();
+		$queuedJob = $this->QueuedJobs->newEntity([
+			'job_task' => 'Foo',
+			'created' => $now,
+			'completed' => $now,
+		]);
+		$this->QueuedJobs->saveOrFail($queuedJob);
+
+		// Test with valid field
+		$result = $this->QueuedJobs->getHeatmapData('completed', 30);
+		$this->assertSame(1, $result['summary']['total']);
+
+		// Test with invalid field (should fall back to 'created')
+		$result = $this->QueuedJobs->getHeatmapData('invalid_field', 30);
+		$this->assertSame(1, $result['summary']['total']);
+	}
+
+	/**
 	 * Test that Queue.Job.created event is fired when a job is created.
 	 *
 	 * @return void

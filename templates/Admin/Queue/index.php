@@ -329,11 +329,16 @@ use Cake\Core\Configure;
 					</div>
 				</div>
 				<?php if (Configure::read('Queue.isStatisticEnabled')): ?>
-					<div class="card-footer">
+					<div class="card-footer d-flex gap-3">
 						<?= $this->Html->link(
-							__d('queue', 'Detailed Statistics'),
+							'<i class="fas fa-chart-line me-1"></i>' . __d('queue', 'Time Series'),
 							['controller' => 'QueuedJobs', 'action' => 'stats'],
-							['class' => 'text-decoration-none']
+							['class' => 'text-decoration-none', 'escapeTitle' => false]
+						) ?>
+						<?= $this->Html->link(
+							'<i class="fas fa-th me-1"></i>' . __d('queue', 'Heatmap'),
+							['controller' => 'QueuedJobs', 'action' => 'heatmap'],
+							['class' => 'text-decoration-none', 'escapeTitle' => false]
 						) ?>
 					</div>
 				<?php endif; ?>

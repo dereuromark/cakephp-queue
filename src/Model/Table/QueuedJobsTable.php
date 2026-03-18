@@ -863,6 +863,151 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * Returns heatmap data aggregated by day of week and hour.
+	 *
+	 * @param string $field Field to aggregate on ('created' or 'completed')
+	 * @param int $days Number of days to look back
+	 * @param string|null $jobTask Filter by specific job task
+	 *
+	 * @return array{grid: array<int, array<int, int>>, summary: array<string, mixed>}
+	 */
+	public function getHeatmapData(string $field = 'created', int $days = 30, ?string $jobTask = null): array {
+		// Whitelist allowed fields to prevent SQL injection
+		$allowedFields = ['created', 'completed'];
+		if (!in_array($field, $allowedFields, true)) {
+			$field = 'created';
+		}
+
+		$driverName = $this->getDriverName();
+		$since = (new DateTime())->subDays($days);
+
+		$query = $this->find();
+
+		// Build day of week and hour expressions based on driver
+		switch ($driverName) {
+			case static::DRIVER_POSTGRES:
+				$dayOfWeek = $query->expr("EXTRACT(DOW FROM {$field})");
+				$hourOfDay = $query->expr("EXTRACT(HOUR FROM {$field})");
+
+				break;
+			case static::DRIVER_SQLSERVER:
+				// Use DATEDIFF against known Sunday (1900-01-07) for consistent day-of-week regardless of DATEFIRST setting
+				$dayOfWeek = $query->expr("DATEDIFF(DAY, '1900-01-07', CAST({$field} AS DATE)) % 7");
+				$hourOfDay = $query->expr("DATEPART(HOUR, {$field})");
+
+				break;
+			case static::DRIVER_SQLITE:
+				$dayOfWeek = $query->expr("CAST(strftime('%w', {$field}) AS INTEGER)");
+				$hourOfDay = $query->expr("CAST(strftime('%H', {$field}) AS INTEGER)");
+
+				break;
+			default: // MySQL
+				$dayOfWeek = $query->expr("DAYOFWEEK({$field})");
+				$hourOfDay = $query->expr("HOUR({$field})");
+
+				break;
+		}
+
+		$conditions = [
+			$field . ' IS NOT' => null,
+			$field . ' >=' => $since,
+		];
+		if ($jobTask) {
+			$conditions['job_task'] = $jobTask;
+		}
+
+		/** @var array<array{day_of_week: int, hour_of_day: int, job_count: int}> $results */
+		$results = $query
+			->select([
+				'day_of_week' => $dayOfWeek,
+				'hour_of_day' => $hourOfDay,
+				'job_count' => $query->func()->count('*'),
+			])
+			->where($conditions)
+			->groupBy(['day_of_week', 'hour_of_day'])
+			->disableHydration()
+			->toArray();
+
+		// Initialize 7x24 grid (days x hours) with zeros
+		$grid = [];
+		for ($day = 0; $day < 7; $day++) {
+			$grid[$day] = array_fill(0, 24, 0);
+		}
+
+		// Populate grid with results
+		$totalJobs = 0;
+		$peakCount = 0;
+		$peakDay = 0;
+		$peakHour = 0;
+
+		foreach ($results as $row) {
+			$day = (int)$row['day_of_week'];
+			$hour = (int)$row['hour_of_day'];
+			$count = (int)$row['job_count'];
+
+			// MySQL DAYOFWEEK returns 1=Sunday, 2=Monday, etc. Adjust to 0=Sunday
+			if ($driverName === static::DRIVER_MYSQL) {
+				$day = $day - 1;
+			}
+
+			// Ensure day is in valid range (0-6)
+			$day = max(0, min(6, $day));
+
+			$grid[$day][$hour] = $count;
+			$totalJobs += $count;
+
+			if ($count > $peakCount) {
+				$peakCount = $count;
+				$peakDay = $day;
+				$peakHour = $hour;
+			}
+		}
+
+		// Calculate summary statistics
+		$dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+		$busiestDay = $dayNames[0];
+		$dayCounts = [];
+		foreach ($grid as $day => $hours) {
+			$dayCounts[$day] = array_sum($hours);
+		}
+		$maxDayCount = 0;
+		foreach ($dayCounts as $day => $count) {
+			if ($count > $maxDayCount) {
+				$maxDayCount = $count;
+				$busiestDay = $dayNames[$day];
+			}
+		}
+
+		// Find quietest hour
+		$quietestCount = PHP_INT_MAX;
+		$quietestDay = 0;
+		$quietestHour = 0;
+		foreach ($grid as $day => $hours) {
+			foreach ($hours as $hour => $count) {
+				if ($count < $quietestCount) {
+					$quietestCount = $count;
+					$quietestDay = $day;
+					$quietestHour = $hour;
+				}
+			}
+		}
+
+		return [
+			'grid' => $grid,
+			'summary' => [
+				'total' => $totalJobs,
+				'avgPerHour' => $totalJobs > 0 ? round($totalJobs / ($days * 24), 1) : 0,
+				'peakHour' => sprintf('%s %02d:00', $dayNames[$peakDay], $peakHour),
+				'peakCount' => $peakCount,
+				'quietestHour' => sprintf('%s %02d:00', $dayNames[$quietestDay], $quietestHour),
+				'quietestCount' => $quietestCount === PHP_INT_MAX ? 0 : $quietestCount,
+				'busiestDay' => $busiestDay,
+				'days' => $days,
+			],
+		];
+	}
+
+	/**
 	 * Return some statistics about unfinished jobs still in the Database.
 	 *
 	 * @return \Cake\ORM\Query\SelectQuery

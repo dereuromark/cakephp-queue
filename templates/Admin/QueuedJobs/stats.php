@@ -38,6 +38,31 @@
 	</div>
 
 	<div class="col-lg-4">
+		<!-- Statistics Navigation -->
+		<div class="card mb-4">
+			<div class="card-header">
+				<i class="fas fa-chart-bar me-2"></i><?= __d('queue', 'Statistics') ?>
+			</div>
+			<div class="list-group list-group-flush">
+				<?= $this->Html->link(
+					'<i class="fas fa-chart-line me-2"></i>' . __d('queue', 'Time Series'),
+					['action' => 'stats'],
+					['class' => 'list-group-item list-group-item-action active', 'escapeTitle' => false]
+				) ?>
+				<?= $this->Html->link(
+					'<i class="fas fa-th me-2"></i>' . __d('queue', 'Heatmap'),
+					['action' => 'heatmap'],
+					['class' => 'list-group-item list-group-item-action', 'escapeTitle' => false]
+				) ?>
+				<?= $this->Html->link(
+					'<i class="fas fa-arrow-left me-2"></i>' . __d('queue', 'Back to Dashboard'),
+					['controller' => 'Queue', 'action' => 'index'],
+					['class' => 'list-group-item list-group-item-action', 'escapeTitle' => false]
+				) ?>
+			</div>
+		</div>
+
+		<!-- Filter by Job Type -->
 		<div class="card">
 			<div class="card-header">
 				<i class="fas fa-filter me-2"></i><?= __d('queue', 'Filter by Job Type') ?>
