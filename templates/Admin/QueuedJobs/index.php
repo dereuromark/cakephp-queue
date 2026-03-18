@@ -126,7 +126,7 @@ if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Sear
 									<i class="fas fa-check me-1"></i>
 									<?= $this->Time->nice($queuedJob->completed) ?>
 								</span>
-								<div class="small text-muted">
+								<div class="small text-muted" title="<?= __d('queue', 'Duration') ?>">
 									<i class="fas fa-stopwatch me-1"></i>
 									<?php
 									$interval = $queuedJob->completed->diff($queuedJob->fetched);
@@ -180,7 +180,7 @@ if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Sear
 							<?php endif; ?>
 
 							<?php if ($queuedJob->memory): ?>
-								<div class="small text-muted">
+								<div class="small text-muted" title="<?= __d('queue', 'Memory Usage') ?>">
 									<i class="fas fa-memory me-1"></i>
 									<?= $this->Number->format($queuedJob->memory) ?> MB
 								</div>
