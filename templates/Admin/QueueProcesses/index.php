@@ -4,6 +4,7 @@
  * @var iterable<\Queue\Model\Entity\QueueProcess> $queueProcesses
  */
 
+use Cake\Core\Plugin;
 use Queue\Queue\Config;
 
 ?>
@@ -17,7 +18,7 @@ use Queue\Queue\Config;
 		<?= $this->Html->link(
 			'<i class="fas fa-cogs me-1"></i>' . __d('queue', 'Active Workers'),
 			['controller' => 'Queue', 'action' => 'processes'],
-			['class' => 'btn btn-outline-primary btn-sm', 'escapeTitle' => false]
+			['class' => 'btn btn-outline-primary btn-sm', 'escapeTitle' => false],
 		) ?>
 		<?= $this->Form->postLink(
 			'<i class="fas fa-broom me-1"></i>' . __d('queue', 'Cleanup'),
@@ -27,7 +28,7 @@ use Queue\Queue\Config;
 				'escapeTitle' => false,
 				'confirm' => __d('queue', 'Sure to remove all outdated ones (>{0}s)?', Config::defaultworkertimeout() * 2),
 				'block' => true,
-			]
+			],
 		) ?>
 	</div>
 </div>
@@ -47,11 +48,11 @@ use Queue\Queue\Config;
 					</tr>
 				</thead>
 				<tbody>
-					<?php foreach ($queueProcesses as $queueProcess): ?>
+					<?php foreach ($queueProcesses as $queueProcess) : ?>
 					<tr>
 						<td>
 							<code class="fw-bold"><?= h($queueProcess->pid) ?></code>
-							<?php if ($queueProcess->workerkey && $queueProcess->workerkey !== $queueProcess->pid): ?>
+							<?php if ($queueProcess->workerkey && $queueProcess->workerkey !== $queueProcess->pid) : ?>
 								<div class="small text-muted">
 									<code><?= h($queueProcess->workerkey) ?></code>
 								</div>
@@ -59,7 +60,7 @@ use Queue\Queue\Config;
 						</td>
 						<td>
 							<?= $this->Time->nice($queueProcess->created) ?>
-							<?php if (!$queueProcess->created->addSeconds(Config::workermaxruntime())->isFuture()): ?>
+							<?php if (!$queueProcess->created->addSeconds(Config::workermaxruntime())->isFuture()) : ?>
 								<span class="badge bg-warning text-dark ms-1" data-bs-toggle="tooltip" title="<?= __d('queue', 'Long running process') ?>">
 									<i class="fas fa-exclamation-triangle"></i>
 								</span>
@@ -70,11 +71,11 @@ use Queue\Queue\Config;
 							$modified = $this->Time->nice($queueProcess->modified);
 							$isStale = !$queueProcess->modified->addSeconds(Config::defaultworkertimeout())->isFuture();
 							?>
-							<?php if ($isStale): ?>
+							<?php if ($isStale) : ?>
 								<span class="text-danger" data-bs-toggle="tooltip" title="<?= __d('queue', 'Beyond default worker timeout!') ?>">
 									<?= $modified ?>
 								</span>
-							<?php else: ?>
+							<?php else : ?>
 								<?= $modified ?>
 							<?php endif; ?>
 						</td>
@@ -82,9 +83,9 @@ use Queue\Queue\Config;
 							<?= $this->element('Queue.yes_no', ['value' => !$queueProcess->terminate]) ?>
 						</td>
 						<td>
-							<?php if ($queueProcess->server): ?>
+							<?php if ($queueProcess->server) : ?>
 								<code><?= h($queueProcess->server) ?></code>
-							<?php else: ?>
+							<?php else : ?>
 								<span class="text-muted">---</span>
 							<?php endif; ?>
 						</td>
@@ -98,9 +99,9 @@ use Queue\Queue\Config;
 										'class' => 'btn btn-outline-primary',
 										'title' => __d('queue', 'View'),
 										'aria-label' => __d('queue', 'View'),
-									]
+									],
 								) ?>
-								<?php if (!$queueProcess->terminate): ?>
+								<?php if (!$queueProcess->terminate) : ?>
 									<?= $this->Form->postLink(
 										'<i class="fas fa-times"></i>',
 										['action' => 'terminate', $queueProcess->id],
@@ -111,7 +112,7 @@ use Queue\Queue\Config;
 											'title' => __d('queue', 'Terminate'),
 											'aria-label' => __d('queue', 'Terminate'),
 											'block' => true,
-										]
+										],
 									) ?>
 								<?php endif; ?>
 							</div>
@@ -123,6 +124,12 @@ use Queue\Queue\Config;
 		</div>
 	</div>
 	<div class="card-footer">
-		<?= $this->element('Tools.pagination') ?>
+		<?php
+		if (Plugin::isLoaded('Tools')) {
+			echo $this->element('Tools.pagination');
+		} else {
+			echo $this->element('Queue.pagination');
+		}
+		?>
 	</div>
 </div>
