@@ -96,6 +96,11 @@ return [
 
 		// auto-refresh dashboard in seconds (0 = disabled)
 		'dashboardAutoRefresh' => 0,
+
+		// Standalone mode for admin controllers:
+		// - false (default): Extends App\Controller\AppController, inherits app auth/components
+		// - true: Isolated admin, skips app's AppController setup
+		'standalone' => false,
 	],
 	'Icon' => [
 		'sets' => [
