@@ -77,18 +77,18 @@ use Cake\Core\Configure;
 <div class="row g-3 mb-4">
 	<div class="col-md-3 col-sm-6">
 		<?= $this->element('Queue.Queue/stats_card', [
-			'title' => __d('queue', 'Pending'),
-			'count' => $pendingJobs,
-			'icon' => 'clock',
-			'color' => 'warning',
-		]) ?>
-	</div>
-	<div class="col-md-3 col-sm-6">
-		<?= $this->element('Queue.Queue/stats_card', [
 			'title' => __d('queue', 'Scheduled'),
 			'count' => $scheduledJobs,
 			'icon' => 'calendar',
 			'color' => 'info',
+		]) ?>
+	</div>
+	<div class="col-md-3 col-sm-6">
+		<?= $this->element('Queue.Queue/stats_card', [
+			'title' => __d('queue', 'Pending'),
+			'count' => $pendingJobs,
+			'icon' => 'clock',
+			'color' => 'warning',
 		]) ?>
 	</div>
 	<div class="col-md-3 col-sm-6">

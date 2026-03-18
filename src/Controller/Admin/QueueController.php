@@ -67,7 +67,7 @@ class QueueController extends QueueAppController {
 			])
 			->count();
 		// Pending = total pending minus running and failed (to avoid double counting)
-		$pendingJobs = count($pendingDetails) - $runningJobs - $failedJobs;
+		$pendingJobs = max(0, count($pendingDetails) - $runningJobs - $failedJobs);
 
 		$configurations = (array)Configure::read('Queue');
 
