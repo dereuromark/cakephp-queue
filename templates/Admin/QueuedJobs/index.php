@@ -16,10 +16,6 @@ use Cake\Core\Plugin;
 		<?= __d('queue', 'Queued Jobs') ?>
 	</h1>
 	<div>
-		<span class="text-muted me-3" title="<?= __d('queue', 'Server Time') ?>">
-			<i class="far fa-clock me-1"></i>
-			<?= $this->Time->nice(new \Cake\I18n\DateTime()) ?>
-		</span>
 		<?php if ($this->Configure->read('debug')): ?>
 			<?= $this->Html->link(
 				'<i class="fas fa-file-import me-1"></i>' . __d('queue', 'Import'),
