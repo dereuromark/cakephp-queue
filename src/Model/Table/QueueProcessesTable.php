@@ -365,7 +365,8 @@ class QueueProcessesTable extends Table {
 	 * @return array<string, string>
 	 */
 	public function serverList(): array {
-		return $this->find()
+		/** @var array<string, string> $list */
+		$list = $this->find()
 			->distinct(['server'])
 			->where(['server IS NOT' => null])
 			->find(
@@ -373,6 +374,8 @@ class QueueProcessesTable extends Table {
 				keyField: 'server',
 				valueField: 'server',
 			)->toArray();
+
+		return $list;
 	}
 
 }
