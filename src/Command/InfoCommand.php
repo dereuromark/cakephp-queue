@@ -117,6 +117,7 @@ class InfoCommand extends Command {
 		$io->out();
 
 		$io->out('Jobs currently in the queue:');
+		/** @var array<string, string> $types */
 		$types = $QueuedJobs->getTypes()->toArray();
 		//TODO: refactor using $io->helper table?
 		foreach ($types as $type) {
