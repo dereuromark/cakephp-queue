@@ -8,6 +8,7 @@ use Cake\Core\Plugin;
 use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\DateTime;
 use Cake\View\JsonView;
+use InvalidArgumentException;
 use Queue\Queue\TaskFinder;
 use RuntimeException;
 
@@ -304,14 +305,21 @@ class QueuedJobsController extends QueueAppController {
 		}
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$queuedJob = $this->QueuedJobs->patchEntity($queuedJob, $this->request->getData());
-			if ($this->QueuedJobs->save($queuedJob)) {
-				$this->Flash->success(__d('queue', 'The queued job has been saved.'));
+			try {
+				$queuedJob = $this->QueuedJobs->patchEntity($queuedJob, $this->request->getData());
+				if ($this->QueuedJobs->save($queuedJob)) {
+					$this->Flash->success(__d('queue', 'The queued job has been saved.'));
 
-				return $this->redirect(['action' => 'view', $id]);
+					return $this->redirect(['action' => 'view', $id]);
+				}
+
+				$this->Flash->error(__d('queue', 'The queued job could not be saved. Please try again.'));
+			} catch (InvalidArgumentException $e) {
+				$this->Flash->error($e->getMessage());
+
+				// Preserve the user's invalid input so they can fix it
+				$queuedJob->data_string = $this->request->getData('data_string');
 			}
-
-			$this->Flash->error(__d('queue', 'The queued job could not be saved. Please try again.'));
 		}
 
 		$this->set(compact('queuedJob'));

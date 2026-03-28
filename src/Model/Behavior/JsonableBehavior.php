@@ -216,10 +216,15 @@ class JsonableBehavior extends Behavior {
 	/**
 	 * @param string $val
 	 *
+	 * @throws \InvalidArgumentException
+	 *
 	 * @return array
 	 */
 	protected function _fromJson(string $val): array {
-		$json = json_decode($val, true, JSON_THROW_ON_ERROR);
+		$json = json_decode($val, true);
+		if (!is_array($json)) {
+			throw new InvalidArgumentException('Invalid JSON: ' . json_last_error_msg());
+		}
 
 		return $json;
 	}

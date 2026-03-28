@@ -9,6 +9,7 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property string $job_task
  * @property array|null $data
+ * @property string|null $data_string Virtual property from JsonableBehavior
  * @property string|null $job_group
  * @property string|null $reference
  * @property \Cake\I18n\DateTime $created
