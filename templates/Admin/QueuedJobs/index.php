@@ -237,12 +237,6 @@ if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Sear
 		</div>
 	</div>
 	<div class="card-footer">
-		<?php
-		if (Plugin::isLoaded('Tools')) {
-			echo $this->element('Tools.pagination');
-		} else {
-			echo $this->element('Queue.pagination');
-		}
-		?>
+		<?= $this->element('Queue.pagination') ?>
 	</div>
 </div>

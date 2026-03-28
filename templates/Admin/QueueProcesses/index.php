@@ -4,7 +4,6 @@
  * @var iterable<\Queue\Model\Entity\QueueProcess> $queueProcesses
  */
 
-use Cake\Core\Plugin;
 use Queue\Queue\Config;
 
 ?>
@@ -124,12 +123,6 @@ use Queue\Queue\Config;
 		</div>
 	</div>
 	<div class="card-footer">
-		<?php
-		if (Plugin::isLoaded('Tools')) {
-			echo $this->element('Tools.pagination');
-		} else {
-			echo $this->element('Queue.pagination');
-		}
-		?>
+		<?= $this->element('Queue.pagination') ?>
 	</div>
 </div>
