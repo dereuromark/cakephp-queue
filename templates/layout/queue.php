@@ -398,35 +398,9 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 		<!-- Main Content -->
 		<main class="queue-main flex-grow-1">
 			<!-- Flash Messages -->
-			<?php
-			$flashMessages = $this->getRequest()->getSession()->consume('Flash.flash');
-			if ($flashMessages) {
-				echo '<div class="queue-flash">';
-				foreach ($flashMessages as $flash) {
-					$element = $flash['element'] ?? 'flash/default';
-					$alertClass = match ($element) {
-						'flash/success' => 'alert-success',
-						'flash/error' => 'alert-danger',
-						'flash/warning' => 'alert-warning',
-						default => 'alert-info',
-					};
-					$icon = match ($element) {
-						'flash/success' => 'fa-check-circle',
-						'flash/error' => 'fa-exclamation-circle',
-						'flash/warning' => 'fa-exclamation-triangle',
-						default => 'fa-info-circle',
-					};
-					?>
-					<div class="alert <?= $alertClass ?> alert-dismissible fade show" role="alert">
-						<i class="fas <?= $icon ?> me-2"></i>
-						<?= h($flash['message']) ?>
-						<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-					</div>
-					<?php
-				}
-				echo '</div>';
-			}
-			?>
+			<div class="queue-flash">
+				<?= $this->element('Queue.flash/flash') ?>
+			</div>
 
 			<?= $this->fetch('content') ?>
 		</main>
