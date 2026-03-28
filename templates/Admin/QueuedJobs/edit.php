@@ -17,7 +17,11 @@
 			</div>
 			<div class="card-body">
 				<?= $this->Form->create($queuedJob) ?>
-				<?= $this->Form->control('notbefore', ['empty' => true, 'class' => 'form-control']) ?>
+				<?= $this->Form->control('notbefore', [
+					'type' => 'datetime-local',
+					'value' => $queuedJob->notbefore?->format('Y-m-d\TH:i'),
+					'class' => 'form-control',
+				]) ?>
 				<?= $this->Form->control('priority', ['class' => 'form-control']) ?>
 				<div class="mt-3">
 					<?= $this->Form->button('<i class="fas fa-save me-1"></i>' . __d('queue', 'Save'), ['class' => 'btn btn-primary', 'escapeTitle' => false]) ?>

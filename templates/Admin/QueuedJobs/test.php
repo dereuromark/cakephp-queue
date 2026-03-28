@@ -25,7 +25,8 @@
 				</div>
 
 				<?= $this->Form->control('notbefore', [
-					'default' => (new \Cake\I18n\DateTime())->addMinutes(5),
+					'type' => 'datetime-local',
+					'value' => (new \Cake\I18n\DateTime())->addMinutes(5)->format('Y-m-d\TH:i'),
 					'class' => 'form-control',
 					'label' => __d('queue', 'Schedule For (Not Before)'),
 				]) ?>
