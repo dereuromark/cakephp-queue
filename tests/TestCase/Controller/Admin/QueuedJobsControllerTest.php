@@ -134,6 +134,27 @@ JSON,
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testDataPostInvalidJson(): void {
+		$job = $this->createJob(['data' => '{"valid":"json"}']);
+
+		$this->enableRetainFlashMessages();
+		$data = [
+			'data_string' => 'not valid json {',
+		];
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'data', $job->id], $data);
+
+		$this->assertResponseCode(200);
+		$this->assertFlashMessage('Invalid JSON: Syntax error');
+
+		// Verify original data was not modified
+		/** @var \Queue\Model\Entity\QueuedJob $job */
+		$job = $this->fetchTable('Queue.QueuedJobs')->get($job->id);
+		$this->assertSame('{"valid":"json"}', $job->data);
+	}
+
+	/**
 	 * Test index method
 	 *
 	 * @return void

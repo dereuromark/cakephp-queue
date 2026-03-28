@@ -36,7 +36,7 @@ class ProgressExampleTask extends Task implements AddInterface, AddFromBackendIn
 	public function add(?string $data): void {
 		$this->io->out('CakePHP Queue ProgressExample task.');
 		$this->io->hr();
-		$this->io->out($this->description());
+		$this->io->out($this->description() ?? '');
 		$this->io->out('I will now add the Job into the Queue.');
 		$this->io->out(' ');
 		$this->io->out('To run a Worker use:');
