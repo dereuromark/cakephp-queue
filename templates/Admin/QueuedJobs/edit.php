@@ -18,9 +18,9 @@
 			<div class="card-body">
 				<?= $this->Form->create($queuedJob) ?>
 				<?= $this->Form->control('notbefore', [
-					'type' => 'datetime-local',
-					'value' => $queuedJob->notbefore?->format('Y-m-d\TH:i'),
-					'class' => 'form-control',
+					'type' => 'text',
+					'value' => $queuedJob->notbefore?->format('Y-m-d H:i'),
+					'class' => 'form-control flatpickr-datetime',
 				]) ?>
 				<?= $this->Form->control('priority', ['class' => 'form-control']) ?>
 				<div class="mt-3">

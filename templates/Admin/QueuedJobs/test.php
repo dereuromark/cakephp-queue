@@ -25,9 +25,9 @@
 				</div>
 
 				<?= $this->Form->control('notbefore', [
-					'type' => 'datetime-local',
-					'value' => (new \Cake\I18n\DateTime())->addMinutes(5)->format('Y-m-d\TH:i'),
-					'class' => 'form-control',
+					'type' => 'text',
+					'value' => (new \Cake\I18n\DateTime())->addMinutes(5)->format('Y-m-d H:i'),
+					'class' => 'form-control flatpickr-datetime',
 					'label' => __d('queue', 'Schedule For (Not Before)'),
 				]) ?>
 

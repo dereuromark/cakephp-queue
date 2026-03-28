@@ -31,6 +31,10 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 	<!-- Chart.js for stats page -->
 	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 
+	<!-- Flatpickr for datetime inputs -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+
 	<style>
 		:root {
 			--queue-primary: #0d6efd;
@@ -394,9 +398,35 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 		<!-- Main Content -->
 		<main class="queue-main flex-grow-1">
 			<!-- Flash Messages -->
-			<div class="queue-flash">
-				<?= $this->Flash->render() ?>
-			</div>
+			<?php
+			$flashMessages = $this->getRequest()->getSession()->consume('Flash.flash');
+			if ($flashMessages) {
+				echo '<div class="queue-flash">';
+				foreach ($flashMessages as $flash) {
+					$element = $flash['element'] ?? 'flash/default';
+					$alertClass = match ($element) {
+						'flash/success' => 'alert-success',
+						'flash/error' => 'alert-danger',
+						'flash/warning' => 'alert-warning',
+						default => 'alert-info',
+					};
+					$icon = match ($element) {
+						'flash/success' => 'fa-check-circle',
+						'flash/error' => 'fa-exclamation-circle',
+						'flash/warning' => 'fa-exclamation-triangle',
+						default => 'fa-info-circle',
+					};
+					?>
+					<div class="alert <?= $alertClass ?> alert-dismissible fade show" role="alert">
+						<i class="fas <?= $icon ?> me-2"></i>
+						<?= h($flash['message']) ?>
+						<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+					</div>
+					<?php
+				}
+				echo '</div>';
+			}
+			?>
 
 			<?= $this->fetch('content') ?>
 		</main>
@@ -424,6 +454,18 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 			var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
 			var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
 				return new bootstrap.Tooltip(tooltipTriggerEl);
+			});
+
+			// Initialize flatpickr datetime inputs with D M Y display format
+			document.querySelectorAll('.flatpickr-datetime').forEach(function(el) {
+				flatpickr(el, {
+					enableTime: true,
+					dateFormat: 'Y-m-d H:i',
+					altInput: true,
+					altFormat: 'd M Y H:i',
+					time_24hr: true,
+					allowInput: true,
+				});
 			});
 
 			// Confirmation dialogs for postLink forms
