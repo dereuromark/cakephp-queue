@@ -59,10 +59,58 @@ Make sure it throws an exception with a clear error message in case of failure.
 Note: You can use the provided `Queue\Model\QueueException` if you do not need to include a stack trace.
 This is usually the default inside custom tasks.
 
-## DI Container Example
+## DI Container
 
 If you use the [Dependency Injection Container](https://book.cakephp.org/5/en/development/dependency-injection.html) provided by CakePHP you can also use
 it inside your tasks.
+
+### Constructor Injection
+
+Tasks registered in the DI container can receive dependencies through their constructor, the same way CakePHP Components and Commands do.
+
+First, register the task and its dependencies in your `Application::services()`:
+
+```php
+use App\Queue\Task\MyCustomTask;
+use App\Service\MyService;
+
+public function services(ContainerInterface $container): void {
+    $container->add(MyService::class);
+    $container->add(MyCustomTask::class)
+        ->addArgument(MyService::class);
+}
+```
+
+Then declare the dependency in your task's constructor:
+
+```php
+namespace App\Queue\Task;
+
+use App\Service\MyService;
+use Queue\Queue\Task;
+
+class MyCustomTask extends Task {
+
+    public function __construct(
+        protected readonly MyService $myService,
+    ) {
+        parent::__construct();
+    }
+
+    public function run(array $data, int $jobId): void {
+        $this->myService->doWork($data);
+    }
+
+}
+```
+
+The Processor injects its own runtime `Io` and `LoggerInterface` via `setIo()` / `setLogger()` after resolving the task, so your constructor only needs to declare your own dependencies. Call `parent::__construct()` with no arguments.
+
+Tasks not registered in the container continue to work exactly as before.
+
+### ServicesTrait
+
+Alternatively, you can use the [ServicesTrait](https://github.com/dereuromark/cakephp-queue/blob/master/src/Queue/ServicesTrait.php) to pull services from the container at runtime inside `run()`:
 
 ```php
 use Queue\Queue\ServicesTrait;
@@ -77,7 +125,7 @@ class MyCustomTask extends Task {
 }
 ```
 
-As you see here you have to add the [ServicesTrait](https://github.com/dereuromark/cakephp-queue/blob/master/src/Queue/ServicesTrait.php) to your task which then allows you to use the `$this->getService()` method.
+Note that `getService()` cannot be called in the constructor, only inside `run()` or other methods invoked after the container has been set.
 
 ## Organize tasks in sub folders
 

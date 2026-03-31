@@ -524,8 +524,6 @@ class ProcessorTest extends TestCase {
 
 		$container = new Container();
 		$container->add(InjectedTask::class)
-			->addArgument(null) // Io — will be set by Processor via setIo()
-			->addArgument(null) // Logger — will be set by Processor via setLogger()
 			->addArgument($testService);
 
 		$out = new ConsoleOutput();

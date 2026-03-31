@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace TestApp\Queue\Task;
 
-use Psr\Log\LoggerInterface;
-use Queue\Console\Io;
 use Queue\Queue\Task;
 use TestApp\Services\TestService;
 
@@ -15,15 +13,10 @@ class InjectedTask extends Task {
 
 	public ?int $timeout = 10;
 
-	protected readonly TestService $testService;
-
 	public function __construct(
-		?Io $io = null,
-		?LoggerInterface $logger = null,
-		?TestService $testService = null,
+		protected readonly TestService $testService,
 	) {
-		parent::__construct($io, $logger);
-		$this->testService = $testService ?? new TestService();
+		parent::__construct();
 	}
 
 	public function run(array $data, int $jobId): void {
