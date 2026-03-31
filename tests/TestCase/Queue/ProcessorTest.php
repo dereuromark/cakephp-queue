@@ -6,6 +6,7 @@ namespace Queue\Test\TestCase\Queue;
 use Cake\Console\CommandInterface;
 use Cake\Console\ConsoleIo;
 use Cake\Core\Configure;
+use Cake\Core\Container;
 use Cake\Datasource\ConnectionManager;
 use Cake\Event\EventList;
 use Cake\Event\EventManager;
@@ -21,6 +22,8 @@ use ReflectionClass;
 use RuntimeException;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
+use TestApp\Queue\Task\InjectedTask;
+use TestApp\Services\TestService;
 use const SIGTERM;
 
 class ProcessorTest extends TestCase {
@@ -440,6 +443,115 @@ class ProcessorTest extends TestCase {
 
 		// Clean up
 		Configure::delete('Queue.workertimeout');
+	}
+
+	/**
+	 * Test that loadTask() resolves a task from the DI container when registered.
+	 *
+	 * @return void
+	 */
+	public function testLoadTaskResolvesFromContainer(): void {
+		$container = new Container();
+		$container->add(ExampleTask::class);
+
+		$out = new ConsoleOutput();
+		$processorIo = new Io(new ConsoleIo($out));
+		$processorLogger = new NullLogger();
+		$processor = new Processor($processorIo, $processorLogger, $container);
+
+		// Set taskConf so getTaskClass() can resolve the name
+		$reflection = new ReflectionClass($processor);
+		$taskConfProp = $reflection->getProperty('taskConf');
+		$taskConfProp->setValue($processor, [
+			'Queue.Example' => ['class' => ExampleTask::class],
+		]);
+
+		$task = $this->invokeMethod($processor, 'loadTask', ['Queue.Example']);
+
+		$this->assertInstanceOf(ExampleTask::class, $task);
+
+		// Verify the task received the Processor's Io and Logger, not defaults
+		$taskReflection = new ReflectionClass($task);
+		$ioProp = $taskReflection->getProperty('io');
+		$this->assertSame($processorIo, $ioProp->getValue($task), 'Task should have the Processor Io');
+
+		$loggerProp = $taskReflection->getProperty('logger');
+		$this->assertSame($processorLogger, $loggerProp->getValue($task), 'Task should have the Processor Logger');
+	}
+
+	/**
+	 * Test that loadTask() falls back to direct instantiation when the task
+	 * is not registered in the container.
+	 *
+	 * @return void
+	 */
+	public function testLoadTaskFallsBackWithoutContainerRegistration(): void {
+		$container = new Container();
+		// Intentionally do NOT register ExampleTask in the container
+
+		$out = new ConsoleOutput();
+		$processorIo = new Io(new ConsoleIo($out));
+		$processorLogger = new NullLogger();
+		$processor = new Processor($processorIo, $processorLogger, $container);
+
+		$reflection = new ReflectionClass($processor);
+		$taskConfProp = $reflection->getProperty('taskConf');
+		$taskConfProp->setValue($processor, [
+			'Queue.Example' => ['class' => ExampleTask::class],
+		]);
+
+		$task = $this->invokeMethod($processor, 'loadTask', ['Queue.Example']);
+
+		$this->assertInstanceOf(ExampleTask::class, $task);
+
+		// Verify the task still received the Processor's Io and Logger
+		$taskReflection = new ReflectionClass($task);
+		$ioProp = $taskReflection->getProperty('io');
+		$this->assertSame($processorIo, $ioProp->getValue($task), 'Fallback task should have the Processor Io');
+
+		$loggerProp = $taskReflection->getProperty('logger');
+		$this->assertSame($processorLogger, $loggerProp->getValue($task), 'Fallback task should have the Processor Logger');
+	}
+
+	/**
+	 * Test that loadTask() resolves a task with constructor-injected dependencies
+	 * from the DI container.
+	 *
+	 * @return void
+	 */
+	public function testLoadTaskWithConstructorDependencyInjection(): void {
+		$testService = new TestService();
+
+		$container = new Container();
+		$container->add(InjectedTask::class)
+			->addArgument(null) // Io — will be set by Processor via setIo()
+			->addArgument(null) // Logger — will be set by Processor via setLogger()
+			->addArgument($testService);
+
+		$out = new ConsoleOutput();
+		$processorIo = new Io(new ConsoleIo($out));
+		$processorLogger = new NullLogger();
+		$processor = new Processor($processorIo, $processorLogger, $container);
+
+		$reflection = new ReflectionClass($processor);
+		$taskConfProp = $reflection->getProperty('taskConf');
+		$taskConfProp->setValue($processor, [
+			'Injected' => ['class' => InjectedTask::class],
+		]);
+
+		/** @var \TestApp\Queue\Task\InjectedTask $task */
+		$task = $this->invokeMethod($processor, 'loadTask', ['Injected']);
+
+		$this->assertInstanceOf(InjectedTask::class, $task);
+		$this->assertSame($testService, $task->getTestService(), 'Task should have the injected TestService');
+
+		// Verify Io and Logger were set by the Processor
+		$taskReflection = new ReflectionClass($task);
+		$ioProp = $taskReflection->getProperty('io');
+		$this->assertSame($processorIo, $ioProp->getValue($task), 'DI task should have the Processor Io');
+
+		$loggerProp = $taskReflection->getProperty('logger');
+		$this->assertSame($processorLogger, $loggerProp->getValue($task), 'DI task should have the Processor Logger');
 	}
 
 }

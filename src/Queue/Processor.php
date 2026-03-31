@@ -661,11 +661,20 @@ class Processor {
 	 */
 	protected function loadTask(string $taskName): TaskInterface {
 		$className = $this->getTaskClass($taskName);
-		/** @var \Queue\Queue\Task $task */
-		$task = new $className($this->io, $this->logger);
+
+		if ($this->container && $this->container->has($className)) {
+			$task = $this->container->get($className);
+		} else {
+			$task = new $className();
+		}
+
 		if (!$task instanceof TaskInterface) {
 			throw new RuntimeException('Task must implement ' . TaskInterface::class);
 		}
+
+		/** @var \Queue\Queue\Task $task */
+		$task->setIo($this->io);
+		$task->setLogger($this->logger);
 
 		return $task;
 	}

@@ -104,6 +104,24 @@ abstract class Task implements TaskInterface {
 	}
 
 	/**
+	 * @param \Queue\Console\Io $io IO
+	 *
+	 * @return void
+	 */
+	public function setIo(Io $io): void {
+		$this->io = $io;
+	}
+
+	/**
+	 * @param \Psr\Log\LoggerInterface $logger
+	 *
+	 * @return void
+	 */
+	public function setLogger(LoggerInterface $logger): void {
+		$this->logger = $logger;
+	}
+
+	/**
 	 * @throws \InvalidArgumentException
 	 *
 	 * @return string
