@@ -254,6 +254,43 @@ class EmailTaskTest extends TestCase {
 	}
 
 	/**
+	 * Settings keys coming from a JSON-round-tripped `Message::__serialize()` payload
+	 * (e.g. `htmlMessage`, `textMessage`, `appCharset`) must not be routed to
+	 * nonexistent `set<Prop>()` methods on the Mailer.
+	 *
+	 * @return void
+	 */
+	public function testRunArrayMessageSerializableProperties() {
+		$settings = [
+			'from' => 'sender@test.de',
+			'to' => 'recipient@test.de',
+			'subject' => 'Message Subject',
+			'domain' => 'example.com',
+			'charset' => 'utf-8',
+			'headerCharset' => 'utf-8',
+			'appCharset' => 'UTF-8',
+			'emailFormat' => 'html',
+			'messageId' => true,
+			'htmlMessage' => '<p>Hello</p>',
+			'textMessage' => 'Hello',
+		];
+
+		$data = [
+			'settings' => $settings,
+		];
+		$this->Task->run($data, 0);
+
+		$this->assertInstanceOf(Mailer::class, $this->Task->mailer);
+
+		$message = $this->Task->mailer->getMessage();
+		$this->assertSame('Message Subject', $message->getSubject());
+		$this->assertSame('example.com', $message->getDomain());
+		$this->assertSame('html', $message->getEmailFormat());
+		$this->assertSame('utf-8', $message->getCharset());
+		$this->assertSame('utf-8', $message->getHeaderCharset());
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testRunToolsEmailMessageClassString() {
