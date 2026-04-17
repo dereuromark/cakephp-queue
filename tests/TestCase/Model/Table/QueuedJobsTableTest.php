@@ -250,7 +250,7 @@ class QueuedJobsTableTest extends TestCase {
 			'some' => 'random',
 			'test' => 'data',
 		];
-		$dto = new class() {
+		$dto = new class () {
 			/**
 			 * @return string[]
 			 */
