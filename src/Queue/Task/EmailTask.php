@@ -163,6 +163,17 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 		$this->mailer = $this->getMailer();
 
 		$settings = $data['settings'] + $this->defaults;
+
+		foreach (['to', 'from', 'cc', 'bcc', 'replyTo', 'sender', 'returnPath'] as $addressMethod) {
+			if (!array_key_exists($addressMethod, $settings)) {
+				continue;
+			}
+
+			$setter = 'set' . ucfirst($addressMethod);
+			$this->mailer->{$setter}(...$this->addressArguments($settings[$addressMethod]));
+			unset($settings[$addressMethod]);
+		}
+
 		foreach ($settings as $method => $setting) {
 			$setter = 'set' . ucfirst($method);
 			if (in_array($method, ['theme', 'template', 'layout'], true)) {
@@ -204,6 +215,26 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 		}
 
 		$this->mailer->deliver((string)$message);
+	}
+
+	/**
+	 * Normalizes an address setting into positional arguments for setTo/setFrom/etc.
+	 *
+	 * List-shaped arrays are unpacked into positional arguments (matching the
+	 * historical `call_user_func_array` behavior), while associative `email => name`
+	 * maps are passed as a single positional argument so PHP 8 does not interpret
+	 * their string keys as named parameters.
+	 *
+	 * @param mixed $setting
+     *
+	 * @return array
+	 */
+	protected function addressArguments(mixed $setting): array {
+		if (is_array($setting) && $setting !== [] && array_is_list($setting)) {
+			return $setting;
+		}
+
+		return [$setting];
 	}
 
 	/**
