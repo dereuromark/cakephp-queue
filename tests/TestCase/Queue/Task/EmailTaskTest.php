@@ -209,6 +209,51 @@ class EmailTaskTest extends TestCase {
 	}
 
 	/**
+	 * Address settings stored as associative `email => name` maps must be
+	 * accepted without triggering PHP 8 "Unknown named parameter" errors.
+	 *
+	 * @return void
+	 */
+	public function testRunArrayAssociativeAddressMap() {
+		$settings = [
+			'from' => [
+				'sender@test.de' => 'Sender Name',
+			],
+			'to' => [
+				'recipient@test.de' => 'Recipient Name',
+			],
+			'cc' => [
+				'copy@test.de' => 'Copy Name',
+				'copy-other@test.de' => 'Other Copy Name',
+			],
+			'bcc' => [
+				'bcc@test.de' => 'BCC Name',
+			],
+			'replyTo' => [
+				'reply@test.de' => 'Reply Name',
+			],
+		];
+
+		$data = [
+			'settings' => $settings,
+			'content' => 'Foo Bar',
+		];
+		$this->Task->run($data, 0);
+
+		$this->assertInstanceOf(Mailer::class, $this->Task->mailer);
+
+		$mailer = $this->Task->mailer;
+		$this->assertSame(['sender@test.de' => 'Sender Name'], $mailer->getFrom());
+		$this->assertSame(['recipient@test.de' => 'Recipient Name'], $mailer->getTo());
+		$this->assertSame([
+			'copy@test.de' => 'Copy Name',
+			'copy-other@test.de' => 'Other Copy Name',
+		], $mailer->getCc());
+		$this->assertSame(['bcc@test.de' => 'BCC Name'], $mailer->getBcc());
+		$this->assertSame(['reply@test.de' => 'Reply Name'], $mailer->getReplyTo());
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testRunToolsEmailMessageClassString() {
