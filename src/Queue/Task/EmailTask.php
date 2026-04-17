@@ -164,7 +164,7 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 
 		$settings = $data['settings'] + $this->defaults;
 
-		foreach (['to', 'from', 'cc', 'bcc', 'replyTo', 'sender', 'returnPath'] as $addressMethod) {
+		foreach (['to', 'from', 'cc', 'bcc', 'replyTo', 'sender', 'returnPath', 'readReceipt'] as $addressMethod) {
 			if (!array_key_exists($addressMethod, $settings)) {
 				continue;
 			}
@@ -172,6 +172,35 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 			$setter = 'set' . ucfirst($addressMethod);
 			$this->mailer->{$setter}(...$this->addressArguments($settings[$addressMethod]));
 			unset($settings[$addressMethod]);
+		}
+
+		// Message body keys from a serialized Message payload use different names than
+		// their setter methods. Route them explicitly so the generic loop does not try
+		// to call nonexistent `setHtmlMessage`/`setTextMessage` on the Mailer.
+		if (array_key_exists('htmlMessage', $settings)) {
+			$this->mailer->getMessage()->setBodyHtml((string)$settings['htmlMessage']);
+			unset($settings['htmlMessage']);
+		}
+		if (array_key_exists('textMessage', $settings)) {
+			$this->mailer->getMessage()->setBodyText((string)$settings['textMessage']);
+			unset($settings['textMessage']);
+		}
+
+		// `headers` must be passed as a single positional argument — the map's string
+		// keys would otherwise be interpreted as named parameters under PHP 8.
+		if (array_key_exists('headers', $settings)) {
+			$this->mailer->getMessage()->setHeaders((array)$settings['headers']);
+			unset($settings['headers']);
+		}
+
+		// `appCharset` has no setter on Mailer or Message. Fall back to the Message
+		// charset when a dedicated `charset` value was not also provided.
+		if (array_key_exists('appCharset', $settings)) {
+			$appCharset = (string)$settings['appCharset'];
+			unset($settings['appCharset']);
+			if (!array_key_exists('charset', $settings)) {
+				$this->mailer->getMessage()->setCharset($appCharset);
+			}
 		}
 
 		foreach ($settings as $method => $setting) {
