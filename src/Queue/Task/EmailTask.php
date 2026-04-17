@@ -186,6 +186,13 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 			unset($settings['textMessage']);
 		}
 
+		// `headers` must be passed as a single positional argument — the map's string
+		// keys would otherwise be interpreted as named parameters under PHP 8.
+		if (array_key_exists('headers', $settings)) {
+			$this->mailer->getMessage()->setHeaders((array)$settings['headers']);
+			unset($settings['headers']);
+		}
+
 		// `appCharset` has no setter on Mailer or Message. Fall back to the Message
 		// charset when a dedicated `charset` value was not also provided.
 		if (array_key_exists('appCharset', $settings)) {

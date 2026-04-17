@@ -291,6 +291,35 @@ class EmailTaskTest extends TestCase {
 	}
 
 	/**
+	 * An associative `headers` map inside `settings` must not be expanded into named
+	 * parameters when calling `Message::setHeaders()`.
+	 *
+	 * @return void
+	 */
+	public function testRunArrayHeadersInSettings() {
+		$settings = [
+			'from' => 'sender@test.de',
+			'to' => 'recipient@test.de',
+			'headers' => [
+				'X-Custom' => 'queued',
+				'X-Other' => 'value',
+			],
+		];
+
+		$data = [
+			'settings' => $settings,
+			'content' => 'Foo Bar',
+		];
+		$this->Task->run($data, 0);
+
+		$this->assertInstanceOf(Mailer::class, $this->Task->mailer);
+
+		$headers = $this->Task->mailer->getMessage()->getHeaders(['_headers']);
+		$this->assertSame('queued', $headers['X-Custom']);
+		$this->assertSame('value', $headers['X-Other']);
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testRunToolsEmailMessageClassString() {
