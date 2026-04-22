@@ -216,16 +216,18 @@ if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Sear
 										]
 									) ?>
 								<?php endif; ?>
-								<?= $this->Form->postLink(
+								<?= $this->Form->postButton(
 									'<i class="fas fa-trash"></i>',
 									['action' => 'delete', $queuedJob->id],
 									[
 										'escapeTitle' => false,
 										'class' => 'btn btn-outline-danger',
-										'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id),
 										'title' => __d('queue', 'Delete'),
 										'aria-label' => __d('queue', 'Delete'),
-										'block' => true,
+										'form' => [
+											'class' => 'd-inline',
+											'data-confirm-message' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id),
+										],
 									]
 								) ?>
 							</div>

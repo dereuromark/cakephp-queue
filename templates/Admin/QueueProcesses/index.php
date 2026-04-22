@@ -19,14 +19,16 @@ use Queue\Queue\Config;
 			['controller' => 'Queue', 'action' => 'processes'],
 			['class' => 'btn btn-outline-primary btn-sm', 'escapeTitle' => false],
 		) ?>
-		<?= $this->Form->postLink(
+		<?= $this->Form->postButton(
 			'<i class="fas fa-broom me-1"></i>' . __d('queue', 'Cleanup'),
 			['action' => 'cleanup'],
 			[
 				'class' => 'btn btn-outline-warning btn-sm',
 				'escapeTitle' => false,
-				'confirm' => __d('queue', 'Sure to remove all outdated ones (>{0}s)?', Config::defaultworkertimeout() * 2),
-				'block' => true,
+				'form' => [
+					'class' => 'd-inline',
+					'data-confirm-message' => __d('queue', 'Sure to remove all outdated ones (>{0}s)?', Config::defaultworkertimeout() * 2),
+				],
 			],
 		) ?>
 	</div>
@@ -101,16 +103,18 @@ use Queue\Queue\Config;
 									],
 								) ?>
 								<?php if (!$queueProcess->terminate) : ?>
-									<?= $this->Form->postLink(
+									<?= $this->Form->postButton(
 										'<i class="fas fa-times"></i>',
 										['action' => 'terminate', $queueProcess->id],
 										[
 											'escapeTitle' => false,
 											'class' => 'btn btn-outline-warning',
-											'confirm' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id),
 											'title' => __d('queue', 'Terminate'),
 											'aria-label' => __d('queue', 'Terminate'),
-											'block' => true,
+											'form' => [
+												'class' => 'd-inline',
+												'data-confirm-message' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id),
+											],
 										],
 									) ?>
 								<?php endif; ?>

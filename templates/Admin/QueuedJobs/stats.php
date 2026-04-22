@@ -110,7 +110,8 @@ foreach ($stats as $type => $days) {
 ?>
 
 <?php $this->append('script'); ?>
-<script>
+<?php $cspNonce = (string)$this->getRequest()->getAttribute('cspNonce', ''); ?>
+<script<?= $cspNonce !== '' ? ' nonce="' . h($cspNonce) . '"' : '' ?>>
 document.addEventListener('DOMContentLoaded', function() {
 	var chartCanvas = document.getElementById('job-chart');
 	if (!chartCanvas) return;

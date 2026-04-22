@@ -188,38 +188,44 @@ use Cake\Core\Configure;
 										</td>
 										<td>
 											<?php if ($this->Queue->hasFailed($pendingJob)): ?>
-												<?= $this->Form->postLink(
+												<?= $this->Form->postButton(
 													'<i class="fas fa-redo"></i>',
 													['action' => 'resetJob', $pendingJob->id],
 													[
 														'escapeTitle' => false,
 														'class' => 'btn btn-sm btn-outline-primary',
-														'confirm' => __d('queue', 'Sure?'),
 														'title' => __d('queue', 'Reset'),
-														'block' => true,
+														'form' => [
+															'class' => 'd-inline',
+															'data-confirm-message' => __d('queue', 'Sure?'),
+														],
 													]
 												) ?>
-												<?= $this->Form->postLink(
+												<?= $this->Form->postButton(
 													'<i class="fas fa-trash"></i>',
 													['action' => 'removeJob', $pendingJob->id],
 													[
 														'escapeTitle' => false,
 														'class' => 'btn btn-sm btn-outline-danger',
-														'confirm' => __d('queue', 'Sure?'),
 														'title' => __d('queue', 'Remove'),
-														'block' => true,
+														'form' => [
+															'class' => 'd-inline',
+															'data-confirm-message' => __d('queue', 'Sure?'),
+														],
 													]
 												) ?>
 											<?php elseif ($pendingJob->fetched): ?>
-												<?= $this->Form->postLink(
+												<?= $this->Form->postButton(
 													'<i class="fas fa-trash"></i>',
 													['action' => 'removeJob', $pendingJob->id],
 													[
 														'escapeTitle' => false,
 														'class' => 'btn btn-sm btn-outline-danger',
-														'confirm' => __d('queue', 'Sure?'),
 														'title' => __d('queue', 'Remove'),
-														'block' => true,
+														'form' => [
+															'class' => 'd-inline',
+															'data-confirm-message' => __d('queue', 'Sure?'),
+														],
 													]
 												) ?>
 											<?php endif; ?>
@@ -276,15 +282,17 @@ use Cake\Core\Configure;
 											<?php endif; ?>
 										</td>
 										<td>
-											<?= $this->Form->postLink(
+											<?= $this->Form->postButton(
 												'<i class="fas fa-trash"></i>',
 												['action' => 'removeJob', $scheduledJob->id],
 												[
 													'escapeTitle' => false,
 													'class' => 'btn btn-sm btn-outline-danger',
-													'confirm' => __d('queue', 'Sure?'),
 													'title' => __d('queue', 'Remove'),
-													'block' => true,
+													'form' => [
+														'class' => 'd-inline',
+														'data-confirm-message' => __d('queue', 'Sure?'),
+													],
 												]
 											) ?>
 										</td>
@@ -365,15 +373,17 @@ use Cake\Core\Configure;
 							}
 							?>
 							<?php $description = $taskDescriptions[$task] ?? null; ?>
-							<?= $this->Form->postLink(
+							<?= $this->Form->postButton(
 								'<i class="fas fa-plus me-1"></i>' . h($task),
 								['action' => 'addJob', '?' => ['task' => $task]],
 								[
 									'escapeTitle' => false,
-									'class' => 'btn btn-outline-primary btn-sm text-start',
-									'confirm' => __d('queue', 'Sure?'),
+									'class' => 'btn btn-outline-primary btn-sm text-start w-100',
 									'title' => $description,
-									'block' => true,
+									'form' => [
+										'class' => 'd-inline',
+										'data-confirm-message' => __d('queue', 'Sure?'),
+									],
 								]
 							) ?>
 						<?php endforeach; ?>
@@ -402,15 +412,17 @@ use Cake\Core\Configure;
 								continue;
 							} ?>
 							<?php $description = $taskDescriptions[$task] ?? null; ?>
-							<?= $this->Form->postLink(
+							<?= $this->Form->postButton(
 								'<i class="fas fa-flask me-1"></i>' . h($task),
 								['action' => 'addJob', '?' => ['task' => $task]],
 								[
 									'escapeTitle' => false,
-									'class' => 'btn btn-outline-secondary btn-sm text-start',
-									'confirm' => __d('queue', 'Sure?'),
+									'class' => 'btn btn-outline-secondary btn-sm text-start w-100',
 									'title' => $description,
-									'block' => true,
+									'form' => [
+										'class' => 'd-inline',
+										'data-confirm-message' => __d('queue', 'Sure?'),
+									],
 								]
 							) ?>
 						<?php endforeach; ?>

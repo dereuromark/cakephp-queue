@@ -425,7 +425,8 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 	<!-- Bootstrap 5.3.3 JS Bundle -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-	<script>
+	<?php $cspNonce = (string)$this->getRequest()->getAttribute('cspNonce', ''); ?>
+	<script<?= $cspNonce !== '' ? ' nonce="' . h($cspNonce) . '"' : '' ?>>
 		document.addEventListener('DOMContentLoaded', function() {
 			// Initialize tooltips
 			var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -445,7 +446,7 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 				});
 			});
 
-			// Confirmation dialogs for postLink forms
+			// Confirmation dialogs for postButton forms (CSP-safe replacement for postLink + confirm)
 			document.querySelectorAll('form[data-confirm-message]').forEach(function(form) {
 				form.addEventListener('submit', function(e) {
 					if (!confirm(this.dataset.confirmMessage)) {

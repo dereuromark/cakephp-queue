@@ -21,14 +21,16 @@ use Brick\VarExporter\VarExporter;
 				['class' => 'btn btn-outline-primary', 'escapeTitle' => false]
 			) ?>
 		<?php else: ?>
-			<?= $this->Form->postLink(
+			<?= $this->Form->postButton(
 				'<i class="fas fa-copy me-1"></i>' . __d('queue', 'Clone & Re-run'),
 				['action' => 'clone', $queuedJob->id],
 				[
 					'class' => 'btn btn-outline-success',
 					'escapeTitle' => false,
-					'confirm' => __d('queue', 'Sure?'),
-					'block' => true,
+					'form' => [
+						'class' => 'd-inline',
+						'data-confirm-message' => __d('queue', 'Sure?'),
+					],
 				]
 			) ?>
 		<?php endif; ?>
@@ -37,14 +39,16 @@ use Brick\VarExporter\VarExporter;
 			['action' => 'view', $queuedJob->id, '_ext' => 'json', '?' => ['download' => true]],
 			['class' => 'btn btn-outline-secondary', 'escapeTitle' => false]
 		) ?>
-		<?= $this->Form->postLink(
+		<?= $this->Form->postButton(
 			'<i class="fas fa-trash me-1"></i>' . __d('queue', 'Delete'),
 			['action' => 'delete', $queuedJob->id],
 			[
 				'class' => 'btn btn-outline-danger',
 				'escapeTitle' => false,
-				'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id),
-				'block' => true,
+				'form' => [
+					'class' => 'd-inline',
+					'data-confirm-message' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id),
+				],
 			]
 		) ?>
 	</div>
@@ -306,26 +310,30 @@ use Brick\VarExporter\VarExporter;
 				<!-- Actions -->
 				<?php if ($this->Queue->hasFailed($queuedJob)): ?>
 					<hr>
-					<?= $this->Form->postLink(
+					<?= $this->Form->postButton(
 						'<i class="fas fa-redo me-1"></i>' . __d('queue', 'Soft Reset'),
 						['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id],
 						[
 							'class' => 'btn btn-primary w-100',
 							'escapeTitle' => false,
-							'confirm' => __d('queue', 'Sure?'),
-							'block' => true,
+							'form' => [
+								'class' => 'd-inline',
+								'data-confirm-message' => __d('queue', 'Sure?'),
+							],
 						]
 					) ?>
 				<?php elseif (!$queuedJob->completed && $queuedJob->fetched && $queuedJob->attempts && $queuedJob->failure_message): ?>
 					<hr>
-					<?= $this->Form->postLink(
+					<?= $this->Form->postButton(
 						'<i class="fas fa-redo me-1"></i>' . __d('queue', 'Force Reset'),
 						['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id],
 						[
 							'class' => 'btn btn-warning w-100',
 							'escapeTitle' => false,
-							'confirm' => __d('queue', 'Sure? This job is currently waiting to be re-queued.'),
-							'block' => true,
+							'form' => [
+								'class' => 'd-inline',
+								'data-confirm-message' => __d('queue', 'Sure? This job is currently waiting to be re-queued.'),
+							],
 						]
 					) ?>
 				<?php endif; ?>

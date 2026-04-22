@@ -73,44 +73,52 @@ $isActive = function (string $c, ?array $actions = null) use ($controller, $acti
 	<div>
 		<div class="text-uppercase text-white-50 small mb-2 px-2"><?= __d('queue', 'Quick Actions') ?></div>
 		<nav class="nav flex-column">
-			<?= $this->Form->postLink(
+			<?= $this->Form->postButton(
 				'<i class="fas fa-redo me-2"></i>' . __d('queue', 'Reset Failed'),
 				['plugin' => 'Queue', 'prefix' => 'Admin', 'controller' => 'Queue', 'action' => 'reset'],
 				[
-					'class' => 'nav-link text-white py-2',
+					'class' => 'nav-link text-white py-2 btn btn-link text-start w-100',
 					'escapeTitle' => false,
-					'confirm' => __d('queue', 'Sure? This will make all failed jobs ready for re-run.'),
-					'block' => true,
+					'form' => [
+						'class' => 'd-inline',
+						'data-confirm-message' => __d('queue', 'Sure? This will make all failed jobs ready for re-run.'),
+					],
 				]
 			) ?>
-			<?= $this->Form->postLink(
+			<?= $this->Form->postButton(
 				'<i class="fas fa-trash me-2"></i>' . __d('queue', 'Flush Failed'),
 				['plugin' => 'Queue', 'prefix' => 'Admin', 'controller' => 'Queue', 'action' => 'flush'],
 				[
-					'class' => 'nav-link text-white py-2',
+					'class' => 'nav-link text-white py-2 btn btn-link text-start w-100',
 					'escapeTitle' => false,
-					'confirm' => __d('queue', 'Sure? This will remove all failed jobs.'),
-					'block' => true,
+					'form' => [
+						'class' => 'd-inline',
+						'data-confirm-message' => __d('queue', 'Sure? This will remove all failed jobs.'),
+					],
 				]
 			) ?>
-			<?= $this->Form->postLink(
+			<?= $this->Form->postButton(
 				'<i class="fas fa-sync me-2"></i>' . __d('queue', 'Reset All'),
 				['plugin' => 'Queue', 'prefix' => 'Admin', 'controller' => 'Queue', 'action' => 'reset', '?' => ['full' => true]],
 				[
-					'class' => 'nav-link text-white py-2',
+					'class' => 'nav-link text-white py-2 btn btn-link text-start w-100',
 					'escapeTitle' => false,
-					'confirm' => __d('queue', 'Sure? This will make all failed as well as still running jobs ready for re-run.'),
-					'block' => true,
+					'form' => [
+						'class' => 'd-inline',
+						'data-confirm-message' => __d('queue', 'Sure? This will make all failed as well as still running jobs ready for re-run.'),
+					],
 				]
 			) ?>
-			<?= $this->Form->postLink(
+			<?= $this->Form->postButton(
 				'<i class="fas fa-bomb me-2"></i>' . __d('queue', 'Hard Reset'),
 				['plugin' => 'Queue', 'prefix' => 'Admin', 'controller' => 'Queue', 'action' => 'hardReset'],
 				[
-					'class' => 'nav-link text-warning py-2',
+					'class' => 'nav-link text-warning py-2 btn btn-link text-start w-100',
 					'escapeTitle' => false,
-					'confirm' => __d('queue', 'Sure? This will delete all jobs and completely reset the queue.'),
-					'block' => true,
+					'form' => [
+						'class' => 'd-inline',
+						'data-confirm-message' => __d('queue', 'Sure? This will delete all jobs and completely reset the queue.'),
+					],
 				]
 			) ?>
 		</nav>
