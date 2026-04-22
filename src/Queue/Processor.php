@@ -197,6 +197,10 @@ class Processor {
 		$this->exit = false;
 
 		$startTime = time();
+		$jitterOffset = $this->computeLifetimeJitterOffset();
+		if ($jitterOffset > 0) {
+			$this->io->out('Applying worker lifetime jitter: +' . $jitterOffset . ' seconds');
+		}
 
 		while (!$this->exit) {
 			$this->setPhpTimeout($config['maxruntime']);
@@ -237,6 +241,9 @@ class Processor {
 				throw new RuntimeException('Queue.workerLifetime (or deprecated workermaxruntime) config is required');
 			}
 			$maxRuntime = $config['maxruntime'] ?? (int)$workerLifetime;
+			if ($maxRuntime > 0 && $jitterOffset > 0) {
+				$maxRuntime += $jitterOffset;
+			}
 			// check if we are over the maximum runtime and end processing if so.
 			if ($maxRuntime > 0 && (time() - $startTime) >= $maxRuntime) {
 				$this->exit = true;
@@ -624,6 +631,24 @@ class Processor {
 		}
 
 		set_time_limit($timeLimit);
+	}
+
+	/**
+	 * Compute the per-worker lifetime jitter offset in seconds.
+	 *
+	 * Returns a random integer in [0, Queue.workerLifetimeJitter]. Used to stagger
+	 * worker shutdowns so a fleet spawned at the same moment does not all exit
+	 * on the same tick (thundering herd).
+	 *
+	 * @return int
+	 */
+	protected function computeLifetimeJitterOffset(): int {
+		$jitter = (int)Configure::read('Queue.workerLifetimeJitter', 0);
+		if ($jitter <= 0) {
+			return 0;
+		}
+
+		return mt_rand(0, $jitter);
 	}
 
 	/**

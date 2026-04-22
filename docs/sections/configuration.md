@@ -49,6 +49,14 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
   bin/cake queue run --max-runtime 300   # Run for 5 minutes
   ```
 
+- Optional per-worker jitter (in seconds) added to the worker lifetime:
+
+    ```php
+    $config['Queue']['workerLifetimeJitter'] = 30; // up to +30s random offset per worker
+    ```
+
+  Each worker picks a random offset in `[0, workerLifetimeJitter]` at startup and adds it to its effective lifetime. Useful when many workers are spawned simultaneously (e.g. ECS/Kubernetes) to stagger shutdowns and avoid a thundering herd of concurrent restarts. Defaults to `0` (no jitter).
+
 - Seconds of running time after which the PHP process of the worker will terminate:
 
     ```php
