@@ -133,13 +133,27 @@ class QueueController extends QueueAppController {
 		}
 
 		$object = new $className();
+		// Measure the QueuedJobs count before invoking the task so we can
+		// tell whether the task actually queued a job. AddInterface::add()
+		// returns void and may silently no-op when required config is
+		// missing (e.g. EmailTask without Config.adminEmail). Without this
+		// check the controller would falsely report success.
+		$before = $this->QueuedJobs->find()->count();
 		if ($object instanceof AddInterface) {
 			$object->add(null);
 		} else {
 			$this->QueuedJobs->createJob($job);
 		}
+		$after = $this->QueuedJobs->find()->count();
 
-		$this->Flash->success('Job ' . $job . ' added');
+		if ($after > $before) {
+			$this->Flash->success('Job ' . $job . ' added');
+		} else {
+			$this->Flash->error(
+				'Job ' . $job . ' could not be added — the task did not create a job. '
+				. 'Check configuration (e.g. Config.adminEmail for Queue.Email) and server logs.',
+			);
+		}
 
 		return $this->refererRedirect(['action' => 'index']);
 	}
