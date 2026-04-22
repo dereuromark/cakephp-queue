@@ -80,25 +80,29 @@ use Queue\Queue\Config;
 					['class' => 'list-group-item list-group-item-action', 'escapeTitle' => false]
 				) ?>
 				<?php if (!$queueProcess->terminate): ?>
-					<?= $this->Form->postLink(
+					<?= $this->Form->postButton(
 						'<i class="fas fa-times me-2"></i>' . __d('queue', 'Terminate (Graceful)'),
 						['action' => 'terminate', $queueProcess->id],
 						[
-							'class' => 'list-group-item list-group-item-action text-warning',
+							'class' => 'list-group-item list-group-item-action text-warning btn btn-link text-start w-100',
 							'escapeTitle' => false,
-							'confirm' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id),
-							'block' => true,
+							'form' => [
+								'class' => 'd-inline',
+								'data-confirm-message' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id),
+							],
 						]
 					) ?>
 				<?php else: ?>
-					<?= $this->Form->postLink(
+					<?= $this->Form->postButton(
 						'<i class="fas fa-trash me-2"></i>' . __d('queue', 'Delete (Force)'),
 						['action' => 'delete', $queueProcess->id],
 						[
-							'class' => 'list-group-item list-group-item-action text-danger',
+							'class' => 'list-group-item list-group-item-action text-danger btn btn-link text-start w-100',
 							'escapeTitle' => false,
-							'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queueProcess->id),
-							'block' => true,
+							'form' => [
+								'class' => 'd-inline',
+								'data-confirm-message' => __d('queue', 'Are you sure you want to delete # {0}?', $queueProcess->id),
+							],
 						]
 					) ?>
 				<?php endif; ?>

@@ -42,14 +42,16 @@
 					['action' => 'data', $queuedJob->id],
 					['class' => 'list-group-item list-group-item-action', 'escapeTitle' => false]
 				) ?>
-				<?= $this->Form->postLink(
+				<?= $this->Form->postButton(
 					'<i class="fas fa-trash me-2"></i>' . __d('queue', 'Delete Job'),
 					['action' => 'delete', $queuedJob->id],
 					[
-						'class' => 'list-group-item list-group-item-action text-danger',
+						'class' => 'list-group-item list-group-item-action text-danger btn btn-link text-start w-100',
 						'escapeTitle' => false,
-						'confirm' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id),
-						'block' => true,
+						'form' => [
+							'class' => 'd-inline',
+							'data-confirm-message' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id),
+						],
 					]
 				) ?>
 			</div>

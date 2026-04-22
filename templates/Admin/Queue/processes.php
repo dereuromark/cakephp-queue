@@ -55,28 +55,32 @@ use Cake\I18n\DateTime;
 							</div>
 
 							<div class="d-flex gap-2">
-								<?= $this->Form->postLink(
+								<?= $this->Form->postButton(
 									'<i class="fas fa-stop me-1"></i>' . __d('queue', 'Finish & End'),
 									['action' => 'processes', '?' => ['end' => $process->pid]],
 									[
 										'escapeTitle' => false,
 										'class' => 'btn btn-sm btn-outline-warning',
-										'confirm' => __d('queue', 'Sure?'),
 										'title' => __d('queue', 'Finish current job and end worker'),
-										'block' => true,
+										'form' => [
+											'class' => 'd-inline',
+											'data-confirm-message' => __d('queue', 'Sure?'),
+										],
 									]
 								) ?>
 
 								<?php if ($process->workerkey === $key || !$this->Configure->read('Queue.multiserver')): ?>
-									<?= $this->Form->postLink(
+									<?= $this->Form->postButton(
 										'<i class="fas fa-skull me-1"></i>' . __d('queue', 'Kill'),
 										['action' => 'processes', '?' => ['kill' => $process->pid]],
 										[
 											'escapeTitle' => false,
 											'class' => 'btn btn-sm btn-outline-danger',
-											'confirm' => __d('queue', 'Sure? This sends SIGTERM to the process.'),
 											'title' => __d('queue', 'Send SIGTERM to terminate immediately'),
-											'block' => true,
+											'form' => [
+												'class' => 'd-inline',
+												'data-confirm-message' => __d('queue', 'Sure? This sends SIGTERM to the process.'),
+											],
 										]
 									) ?>
 								<?php endif; ?>
