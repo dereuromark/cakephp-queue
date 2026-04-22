@@ -188,6 +188,9 @@ class QueueShell extends AppShell {
 		$this->_exit = false;
 
 		$starttime = time();
+		$baseRuntime = Configure::read('Queue.workermaxruntime');
+		$jitter = (int) Configure::read('Queue.workermaxruntimejitter');
+		$maxRuntime = $baseRuntime ? $baseRuntime + rand(0, $jitter) : 0;
 		$group = null;
 		if (!empty($this->params['group'])) {
 			$group = $this->params['group'];
@@ -268,9 +271,9 @@ class QueueShell extends AppShell {
 				}
 
 				// check if we are over the maximum runtime and end processing if so.
-				if (Configure::read('Queue.workermaxruntime') && (time() - $starttime) >= Configure::read('Queue.workermaxruntime')) {
+				if ($maxRuntime && (time() - $starttime) >= $maxRuntime) {
 					$this->_exit = true;
-					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('Queue.workermaxruntime') . '), terminating.');
+					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . $maxRuntime . '), terminating.');
 				}
 				// check if we have processed the maximum number of messages
 				if (Configure::read('Queue.workermaxmessages') && $this->_messagesProcessed >= Configure::read('Queue.workermaxmessages')) {
@@ -348,6 +351,9 @@ class QueueShell extends AppShell {
         $this->_exit = false;
 
         $starttime = time();
+        $baseRuntime = Configure::read('Queue.workermaxruntime');
+        $jitter = (int) Configure::read('Queue.workermaxruntimejitter');
+        $maxRuntime = $baseRuntime ? $baseRuntime + rand(0, $jitter) : 0;
         $group = null;
         if (!empty($this->params['group'])) {
             $group = $this->params['group'];
@@ -435,9 +441,9 @@ class QueueShell extends AppShell {
                 }
 
                 // check if we are over the maximum runtime and end processing if so.
-                if (Configure::read('Queue.workermaxruntime') && (time() - $starttime) >= Configure::read('Queue.workermaxruntime')) {
+                if ($maxRuntime && (time() - $starttime) >= $maxRuntime) {
                     $this->_exit = true;
-                    $this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('Queue.workermaxruntime') . '), terminating.');
+                    $this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . $maxRuntime . '), terminating.');
                 }
                 // check if we have processed the maximum number of messages
                 if (Configure::read('Queue.workermaxmessages') && $this->_messagesProcessed >= Configure::read('Queue.workermaxmessages')) {
