@@ -102,7 +102,8 @@ foreach ($grid as $hours) {
 								);
 								?>
 								<div class="heatmap-cell"
-									 style="background-color: <?= $bgColor ?>; color: <?= $textColor ?>;"
+									 data-bg-color="<?= h($bgColor) ?>"
+									 data-text-color="<?= h($textColor) ?>"
 									 data-day="<?= h($dayNamesFull[$day]) ?>"
 									 data-hour="<?= sprintf('%02d:00-%02d:59', $hour, $hour) ?>"
 									 data-count="<?= $count ?>"
@@ -123,7 +124,7 @@ foreach ($grid as $hours) {
 				<div class="heatmap-legend mt-3">
 					<small class="text-muted me-2"><?= __d('queue', 'Less') ?></small>
 					<?php for ($i = 0; $i <= 4; $i++) { ?>
-						<div class="heatmap-legend-cell" style="background-color: <?= $this->Queue->heatmapColor($i / 4) ?>;"></div>
+						<div class="heatmap-legend-cell" data-bg-color="<?= h($this->Queue->heatmapColor($i / 4)) ?>"></div>
 					<?php } ?>
 					<small class="text-muted ms-2"><?= __d('queue', 'More') ?></small>
 				</div>

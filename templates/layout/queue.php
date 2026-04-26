@@ -82,6 +82,21 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 			overflow-y: auto;
 		}
 
+		/* Mobile nav offcanvas — same background as sidebar */
+		.queue-mobile-nav-bg {
+			background: var(--queue-sidebar-bg);
+		}
+
+		/* Column-width utilities (replaces inline `<th style="width:Npx">`). */
+		.queue-col-w-50 { width: 50px; }
+		.queue-col-w-200 { width: 200px; }
+
+		/* Stats chart wrapper (replaces inline `style="position:relative;height:400px"`). */
+		.queue-chart-wrapper {
+			position: relative;
+			height: 400px;
+		}
+
 		.queue-sidebar .nav-section {
 			padding: 0 1rem;
 			margin-bottom: 1.5rem;
@@ -382,7 +397,7 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 	</nav>
 
 	<!-- Mobile Offcanvas Navigation -->
-	<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel" style="background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);">
+	<div class="offcanvas offcanvas-start queue-mobile-nav-bg" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
 		<div class="offcanvas-header border-bottom border-secondary">
 			<h5 class="offcanvas-title text-white" id="mobileNavLabel">
 				<i class="fas fa-layer-group me-2"></i>Queue Admin
@@ -453,6 +468,14 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 						e.preventDefault();
 					}
 				});
+			});
+
+			// Heatmap cell colors (CSP-safe replacement for inline style="background-color:…; color:…;")
+			document.querySelectorAll('[data-bg-color]').forEach(function(el) {
+				el.style.backgroundColor = el.dataset.bgColor;
+			});
+			document.querySelectorAll('[data-text-color]').forEach(function(el) {
+				el.style.color = el.dataset.textColor;
 			});
 
 			<?php if ($autoRefresh > 0): ?>

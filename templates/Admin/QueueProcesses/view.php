@@ -15,7 +15,7 @@ use Queue\Queue\Config;
 			<div class="card-body p-0">
 				<table class="table table-striped mb-0">
 					<tr>
-						<th style="width: 200px;"><?= __d('queue', 'Created') ?></th>
+						<th class="queue-col-w-200"><?= __d('queue', 'Created') ?></th>
 						<td>
 							<?= $this->Time->nice($queueProcess->created) ?>
 							<?php if (!$queueProcess->created->addSeconds(Config::defaultworkertimeout())->isFuture()): ?>
