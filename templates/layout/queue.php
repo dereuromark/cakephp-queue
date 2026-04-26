@@ -87,6 +87,16 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 			background: var(--queue-sidebar-bg);
 		}
 
+		/* Column-width utilities (replaces inline `<th style="width:Npx">`). */
+		.queue-col-w-50 { width: 50px; }
+		.queue-col-w-200 { width: 200px; }
+
+		/* Stats chart wrapper (replaces inline `style="position:relative;height:400px"`). */
+		.queue-chart-wrapper {
+			position: relative;
+			height: 400px;
+		}
+
 		.queue-sidebar .nav-section {
 			padding: 0 1rem;
 			margin-bottom: 1.5rem;
@@ -458,6 +468,14 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 						e.preventDefault();
 					}
 				});
+			});
+
+			// Heatmap cell colors (CSP-safe replacement for inline style="background-color:…; color:…;")
+			document.querySelectorAll('[data-bg-color]').forEach(function(el) {
+				el.style.backgroundColor = el.dataset.bgColor;
+			});
+			document.querySelectorAll('[data-text-color]').forEach(function(el) {
+				el.style.color = el.dataset.textColor;
 			});
 
 			<?php if ($autoRefresh > 0): ?>

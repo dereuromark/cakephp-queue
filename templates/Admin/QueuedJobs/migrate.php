@@ -21,7 +21,7 @@
 					<table class="table table-hover">
 						<thead>
 							<tr>
-								<th style="width: 50px;"><?= __d('queue', 'Migrate') ?></th>
+								<th class="queue-col-w-50"><?= __d('queue', 'Migrate') ?></th>
 								<th><?= __d('queue', 'Old Name') ?></th>
 								<th><?= __d('queue', 'New Name') ?></th>
 							</tr>

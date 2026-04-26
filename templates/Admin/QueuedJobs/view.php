@@ -64,7 +64,7 @@ use Brick\VarExporter\VarExporter;
 			<div class="card-body p-0">
 				<table class="table table-striped mb-0">
 					<tr>
-						<th style="width: 200px;"><?= __d('queue', 'Job Type') ?></th>
+						<th class="queue-col-w-200"><?= __d('queue', 'Job Type') ?></th>
 						<td><span class="fw-medium"><?= h($queuedJob->job_task) ?></span></td>
 					</tr>
 					<tr>
@@ -120,7 +120,7 @@ use Brick\VarExporter\VarExporter;
 			<div class="card-body p-0">
 				<table class="table table-striped mb-0">
 					<tr>
-						<th style="width: 200px;"><?= __d('queue', 'Created') ?></th>
+						<th class="queue-col-w-200"><?= __d('queue', 'Created') ?></th>
 						<td><?= $this->Time->nice($queuedJob->created) ?></td>
 					</tr>
 					<tr>

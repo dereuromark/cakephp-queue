@@ -30,7 +30,7 @@
 			<div class="card-body">
 				<p class="text-muted"><?= __d('queue', 'For already processed jobs - in average seconds per timeframe.') ?></p>
 
-				<div style="position: relative; height: 400px;">
+				<div class="queue-chart-wrapper">
 					<canvas id="job-chart"></canvas>
 				</div>
 			</div>
