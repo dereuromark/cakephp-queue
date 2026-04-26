@@ -82,6 +82,11 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 			overflow-y: auto;
 		}
 
+		/* Mobile nav offcanvas — same background as sidebar */
+		.queue-mobile-nav-bg {
+			background: var(--queue-sidebar-bg);
+		}
+
 		.queue-sidebar .nav-section {
 			padding: 0 1rem;
 			margin-bottom: 1.5rem;
@@ -382,7 +387,7 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 	</nav>
 
 	<!-- Mobile Offcanvas Navigation -->
-	<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel" style="background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);">
+	<div class="offcanvas offcanvas-start queue-mobile-nav-bg" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
 		<div class="offcanvas-header border-bottom border-secondary">
 			<h5 class="offcanvas-title text-white" id="mobileNavLabel">
 				<i class="fas fa-layer-group me-2"></i>Queue Admin
