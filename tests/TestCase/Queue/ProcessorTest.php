@@ -94,6 +94,28 @@ class ProcessorTest extends TestCase {
 	/**
 	 * @return void
 	 */
+	public function testResolveMaxRuntimeAppliesJitterToBoundedWorkers() {
+		$this->Processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
+
+		$result = $this->invokeMethod($this->Processor, 'resolveMaxRuntime', [30, 7]);
+
+		$this->assertSame(37, $result);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testResolveMaxRuntimeDoesNotApplyJitterToUnlimitedWorkers() {
+		$this->Processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
+
+		$result = $this->invokeMethod($this->Processor, 'resolveMaxRuntime', [0, 7]);
+
+		$this->assertSame(0, $result);
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testRun() {
 		$this->_needsConnection();
 

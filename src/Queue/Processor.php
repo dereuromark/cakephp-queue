@@ -198,12 +198,10 @@ class Processor {
 
 		$startTime = time();
 		$jitterOffset = $this->computeLifetimeJitterOffset();
-		if ($jitterOffset > 0) {
-			$this->io->out('Applying worker lifetime jitter: +' . $jitterOffset . ' seconds');
-		}
+		$maxRuntime = $this->resolveMaxRuntime($config['maxruntime'], $jitterOffset);
 
 		while (!$this->exit) {
-			$this->setPhpTimeout($config['maxruntime']);
+			$this->setPhpTimeout($maxRuntime);
 
 			try {
 				$this->updatePid($pid);
@@ -236,14 +234,6 @@ class Processor {
 				sleep(Config::sleeptime());
 			}
 
-			$workerLifetime = Configure::read('Queue.workerLifetime') ?? Configure::read('Queue.workermaxruntime');
-			if ($workerLifetime === null && $config['maxruntime'] === null) {
-				throw new RuntimeException('Queue.workerLifetime (or deprecated workermaxruntime) config is required');
-			}
-			$maxRuntime = $config['maxruntime'] ?? (int)$workerLifetime;
-			if ($maxRuntime > 0 && $jitterOffset > 0) {
-				$maxRuntime += $jitterOffset;
-			}
 			// check if we are over the maximum runtime and end processing if so.
 			if ($maxRuntime > 0 && (time() - $startTime) >= $maxRuntime) {
 				$this->exit = true;
@@ -649,6 +639,32 @@ class Processor {
 		}
 
 		return mt_rand(0, $jitter);
+	}
+
+	/**
+	 * Resolve the effective worker runtime, applying jitter only to bounded workers.
+	 *
+	 * @param int|null $maxruntime Max runtime in seconds if set via CLI option.
+	 * @param int $jitterOffset Per-worker random offset in seconds.
+	 *
+	 * @throws \RuntimeException
+	 *
+	 * @return int
+	 */
+	protected function resolveMaxRuntime(?int $maxruntime, int $jitterOffset): int {
+		$workerLifetime = Configure::read('Queue.workerLifetime') ?? Configure::read('Queue.workermaxruntime');
+		if ($workerLifetime === null && $maxruntime === null) {
+			throw new RuntimeException('Queue.workerLifetime (or deprecated workermaxruntime) config is required');
+		}
+
+		$resolvedMaxRuntime = $maxruntime ?? (int)$workerLifetime;
+		if ($resolvedMaxRuntime <= 0 || $jitterOffset <= 0) {
+			return (int)$resolvedMaxRuntime;
+		}
+
+		$this->io->out('Applying worker lifetime jitter: +' . $jitterOffset . ' seconds');
+
+		return (int)$resolvedMaxRuntime + $jitterOffset;
 	}
 
 	/**
