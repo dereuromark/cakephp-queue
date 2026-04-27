@@ -94,6 +94,28 @@ class ProcessorTest extends TestCase {
 	/**
 	 * @return void
 	 */
+	public function testResolveMaxRuntimeAppliesJitterToBoundedWorkers() {
+		$this->Processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
+
+		$result = $this->invokeMethod($this->Processor, 'resolveMaxRuntime', [30, 7]);
+
+		$this->assertSame(37, $result);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testResolveMaxRuntimeDoesNotApplyJitterToUnlimitedWorkers() {
+		$this->Processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
+
+		$result = $this->invokeMethod($this->Processor, 'resolveMaxRuntime', [0, 7]);
+
+		$this->assertSame(0, $result);
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testRun() {
 		$this->_needsConnection();
 
@@ -440,6 +462,53 @@ class ProcessorTest extends TestCase {
 
 		// Clean up
 		Configure::delete('Queue.workertimeout');
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testComputeLifetimeJitterOffsetDefaultsToZero() {
+		$processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
+
+		Configure::delete('Queue.workerLifetimeJitter');
+		$result = $this->invokeMethod($processor, 'computeLifetimeJitterOffset');
+		$this->assertSame(0, $result);
+
+		Configure::write('Queue.workerLifetimeJitter', 0);
+		$result = $this->invokeMethod($processor, 'computeLifetimeJitterOffset');
+		$this->assertSame(0, $result);
+
+		Configure::delete('Queue.workerLifetimeJitter');
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testComputeLifetimeJitterOffsetWithinBounds() {
+		$processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
+
+		Configure::write('Queue.workerLifetimeJitter', 15);
+		for ($i = 0; $i < 50; $i++) {
+			$result = $this->invokeMethod($processor, 'computeLifetimeJitterOffset');
+			$this->assertIsInt($result);
+			$this->assertGreaterThanOrEqual(0, $result);
+			$this->assertLessThanOrEqual(15, $result);
+		}
+
+		Configure::delete('Queue.workerLifetimeJitter');
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testComputeLifetimeJitterOffsetIgnoresNegative() {
+		$processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
+
+		Configure::write('Queue.workerLifetimeJitter', -10);
+		$result = $this->invokeMethod($processor, 'computeLifetimeJitterOffset');
+		$this->assertSame(0, $result);
+
+		Configure::delete('Queue.workerLifetimeJitter');
 	}
 
 }

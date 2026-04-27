@@ -13,6 +13,9 @@ return [
 		'workerLifetime' => 60, // 1 minutes
 		// Legacy: 'workermaxruntime' is deprecated but still supported
 
+		// optional random offset (0-N seconds) added per worker to stagger shutdowns in a fleet (0 = disabled)
+		'workerLifetimeJitter' => 0,
+
 		// seconds of running time after which the PHP process will terminate, null uses workerLifetime * 2
 		'workerPhpTimeout' => null,
 		// Legacy: 'workertimeout' is deprecated but still supported
