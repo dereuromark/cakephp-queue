@@ -136,7 +136,8 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 			$serialized = $data['serialized'] ?? false;
 
 			if ($serialized) {
-				$this->message = is_array($settings) ? static::unserialize($object, $settings) : unserialize($settings);
+				$allowedClass = is_object($class) ? $class::class : $class;
+				$this->message = is_array($settings) ? static::unserialize($object, $settings) : unserialize($settings, ['allowed_classes' => [$allowedClass]]);
 			} else {
 				/** @var class-string<\Cake\Mailer\Message> $class */
 				$this->message = new $class($settings);
