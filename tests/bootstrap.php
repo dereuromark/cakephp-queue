@@ -138,3 +138,8 @@ if (env('FIXTURE_SCHEMA_METADATA')) {
 	$loader = new SchemaLoader();
 	$loader->loadInternalFile(env('FIXTURE_SCHEMA_METADATA'));
 }
+
+// Permissive default for test runs. Production installs MUST configure their
+// own Closure (default-deny). Individual tests may override or delete this to
+// exercise the deny path.
+Configure::write('Queue.adminAccess', fn () => true);

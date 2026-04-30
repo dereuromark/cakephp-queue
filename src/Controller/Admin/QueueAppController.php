@@ -8,15 +8,36 @@ use Cake\Controller\Controller;
 use Cake\Core\Configure;
 use Cake\Database\Connection;
 use Cake\Datasource\ConnectionManager;
+use Cake\Event\EventInterface;
+use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Exception\NotFoundException;
+use Cake\Log\Log;
+use Closure;
+use Throwable;
 
 /**
  * QueueAppController
  *
  * Base controller for Queue admin.
  *
- * By default, extends AppController to inherit app authentication, components, and configuration.
- * Set `Queue.standalone` to `true` for an isolated admin that doesn't depend on the host app.
+ * Authentication: by default this extends AppController to inherit the host
+ * app's auth and components. Set `Queue.standalone` to `true` for an
+ * isolated admin that does not depend on the host app.
+ *
+ * Authorization: the admin UI can trigger jobs (via AddFromBackendInterface
+ * tasks), reset/remove queued jobs, and terminate workers — operational
+ * damage if exposed. The default policy is **deny**: the host application
+ * MUST set `Queue.adminAccess` to a `Closure` that receives the current
+ * request and returns literal `true` to grant access. Anything else
+ * (unset, non-Closure, returns false, returns a truthy non-bool, or throws)
+ * yields a 403.
+ *
+ * ```php
+ * Configure::write('Queue.adminAccess', function (\Cake\Http\ServerRequest $request): bool {
+ *     $identity = $request->getAttribute('identity');
+ *     return $identity !== null && in_array('admin', (array)$identity->roles, true);
+ * });
+ * ```
  */
 class QueueAppController extends AppController {
 
@@ -57,6 +78,50 @@ class QueueAppController extends AppController {
 		$this->activeConnection = $this->resolveConnection();
 		$this->set('queueConnections', $this->getConnections());
 		$this->set('queueActiveConnection', $this->activeConnection);
+	}
+
+	/**
+	 * Default-deny access gate. The plugin's admin UI can trigger jobs and
+	 * mutate queue state, so accidental exposure (a logged-in but non-admin
+	 * user, or a missing middleware in standalone mode) is treated as harmful
+	 * by default.
+	 *
+	 * @param \Cake\Event\EventInterface<\Cake\Controller\Controller> $event
+     *
+	 * @throws \Cake\Http\Exception\ForbiddenException When access is denied or unconfigured.
+     *
+	 * @return void
+	 */
+	public function beforeFilter(EventInterface $event): void {
+		parent::beforeFilter($event);
+
+		// Coexist with cakephp/authorization: the gate IS the authorization
+		// decision for these controllers, so silence the policy check.
+		if ($this->components()->has('Authorization') && method_exists($this->components()->get('Authorization'), 'skipAuthorization')) {
+			$this->components()->get('Authorization')->skipAuthorization();
+		}
+
+		$gate = Configure::read('Queue.adminAccess');
+		if (!($gate instanceof Closure)) {
+			throw new ForbiddenException(__d(
+				'queue',
+				'Queue admin backend is not configured. Set Queue.adminAccess to a Closure that returns true for permitted callers.',
+			));
+		}
+
+		try {
+			$allowed = $gate($this->request) === true;
+		} catch (ForbiddenException $e) {
+			throw $e;
+		} catch (Throwable $e) {
+			Log::warning(sprintf('Queue.adminAccess threw %s: %s', $e::class, $e->getMessage()));
+
+			throw new ForbiddenException(__d('queue', 'Queue admin access denied.'));
+		}
+
+		if (!$allowed) {
+			throw new ForbiddenException(__d('queue', 'Queue admin access denied.'));
+		}
 	}
 
 	/**
