@@ -104,6 +104,19 @@ return [
 		// - false (default): Extends App\Controller\AppController, inherits app auth/components
 		// - true: Isolated admin, skips app's AppController setup
 		'standalone' => false,
+
+		// Admin access gate. REQUIRED — the host app MUST set this to a Closure
+		// that returns true to grant access to /admin/queue/...; anything else
+		// (unset, non-Closure, returns false, returns a truthy non-bool, or throws)
+		// yields a 403. The admin UI can trigger jobs (via AddFromBackendInterface
+		// tasks), reset / remove queued jobs, and terminate workers; the default
+		// policy is deny. Independent of `standalone` — runs in both modes.
+		// Example — admin role check on the cakephp/authentication identity:
+		'adminAccess' => function (\Cake\Http\ServerRequest $request): bool {
+			$identity = $request->getAttribute('identity');
+
+			return $identity !== null && in_array('admin', (array)$identity->roles, true);
+		},
 	],
 	'Icon' => [
 		'sets' => [
