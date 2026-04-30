@@ -177,7 +177,9 @@ class Processor {
 				$this->io->out('Cannot start worker: Too many workers already/still running on this server (' . $limit . '/' . $limit . ')');
 			}
 
-			$this->QueueProcesses->cleanEndedProcesses();
+			// No retry-sweep here: the pre-sweep above already ran. If
+			// initPid still fails, the limit is genuinely reached and
+			// re-sweeping would not change that.
 
 			return CommandInterface::CODE_ERROR;
 		}
@@ -249,7 +251,10 @@ class Processor {
 			if ($this->exit || mt_rand(0, 100) > 100 - (int)Config::gcprob()) {
 				$this->io->out('Performing Old job cleanup.');
 				$this->QueuedJobs->cleanOldJobs();
-				$this->QueueProcesses->cleanEndedProcesses();
+				// `cleanEndedProcesses()` is no longer called here: it now
+				// runs unconditionally at every worker startup, so the
+				// shutdown sweep is redundant. `cleanOldJobs()` stays —
+				// that's about the queued_jobs table, not workers.
 			}
 			$this->io->hr();
 		}
