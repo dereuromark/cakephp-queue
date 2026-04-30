@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Queue\Test\TestCase\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\I18n\DateTime;
 use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
@@ -162,6 +163,79 @@ class QueueProcessesTableTest extends TestCase {
 
 		$queuedProcess = $queuedProcessesTable->get($queuedProcess->id);
 		$this->assertTrue($queuedProcess->terminate);
+	}
+
+	/**
+	 * Stale rows (those whose `modified` timestamp is older than the
+	 * configured `Queue.defaultRequeueTimeout`) belong to workers that
+	 * died without a graceful shutdown. `cleanEndedProcesses()` removes
+	 * them; fresh rows are kept.
+	 *
+	 * @return void
+	 */
+	public function testCleanEndedProcessesRemovesStaleRowsOnly() {
+		Configure::write('Queue.defaultRequeueTimeout', 60);
+
+		// Wipe fixture rows so the test reasons only about its own data.
+		$this->QueueProcesses->deleteAll(['1=1']);
+
+		$stale = $this->QueueProcesses->newEntity(['pid' => '111', 'workerkey' => 'stale-key']);
+		$this->QueueProcesses->saveOrFail($stale);
+		$this->QueueProcesses->updateAll(
+			['modified' => (new DateTime())->subSeconds(120)->toDateTimeString()],
+			['id' => $stale->id],
+		);
+
+		// Fresh: just created, modified == now.
+		$fresh = $this->QueueProcesses->newEntity(['pid' => '222', 'workerkey' => 'fresh-key']);
+		$this->QueueProcesses->saveOrFail($fresh);
+
+		$deleted = $this->QueueProcesses->cleanEndedProcesses();
+
+		$this->assertSame(1, $deleted);
+		$this->assertFalse(
+			$this->QueueProcesses->exists(['pid' => '111']),
+			'Stale row should have been deleted',
+		);
+		$this->assertTrue(
+			$this->QueueProcesses->exists(['pid' => '222']),
+			'Fresh row should be preserved',
+		);
+	}
+
+	/**
+	 * Regression: a worker starting up must sweep stale `queue_processes`
+	 * rows BEFORE attempting to register its own. Without this, a few
+	 * dead-but-uncleaned rows count toward `Queue.maxworkers` and can
+	 * lock out new workers.
+	 *
+	 * @return void
+	 */
+	public function testStaleRowsCountTowardMaxWorkersUntilCleaned() {
+		Configure::write('Queue.maxworkers', 2);
+		Configure::write('Queue.defaultRequeueTimeout', 60);
+
+		$this->QueueProcesses->deleteAll(['1=1']);
+		$server = $this->QueueProcesses->buildServerString();
+
+		// Use add() so `server` is populated as a real worker would.
+		$staleId1 = $this->QueueProcesses->add('111', 'key-111');
+		$staleId2 = $this->QueueProcesses->add('222', 'key-222');
+		$this->QueueProcesses->updateAll(
+			['modified' => (new DateTime())->subSeconds(120)->toDateTimeString()],
+			['id IN' => [$staleId1, $staleId2]],
+		);
+
+		// Without cleanup, validateCount would refuse a third worker.
+		$this->assertSame(2, $this->QueueProcesses->find()->where(['server' => $server])->count());
+
+		$this->QueueProcesses->cleanEndedProcesses();
+
+		$this->assertSame(0, $this->QueueProcesses->find()->where(['server' => $server])->count());
+
+		// And the third worker can now register.
+		$id = $this->QueueProcesses->add('333', 'key-333');
+		$this->assertNotEmpty($id);
 	}
 
 }
