@@ -1,5 +1,6 @@
 <?php
 
+use Cake\Http\ServerRequest;
 /**
  * This file configures default behavior for all workers
  *
@@ -112,7 +113,7 @@ return [
 		// tasks), reset / remove queued jobs, and terminate workers; the default
 		// policy is deny. Independent of `standalone` — runs in both modes.
 		// Example — admin role check on the cakephp/authentication identity:
-		'adminAccess' => function (\Cake\Http\ServerRequest $request): bool {
+		'adminAccess' => function (ServerRequest $request): bool {
 			$identity = $request->getAttribute('identity');
 
 			return $identity !== null && in_array('admin', (array)$identity->roles, true);
