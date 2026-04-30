@@ -35,6 +35,8 @@ class QueueShell extends AppShell {
 
 	protected $_messagesProcessed = 0;
 
+	protected $_workerLogFile = null;
+
 /**
  * Overwrite shell initialize to dynamically load all Queue Related Tasks.
  *
@@ -300,6 +302,7 @@ class QueueShell extends AppShell {
      * @return void
      */
     public function runworkersqs() {
+        $this->_initWorkerLog();
         //queue url is passed in thru URL
         $queueUrl = $this->args[0];
 
@@ -596,6 +599,35 @@ class QueueShell extends AppShell {
         'help' => 'Run Worker SQS',
         'parser' => $subcommandParserSqs
       ]);
+	}
+
+	protected function _initWorkerLog() {
+		$dir = TMP . 'queue';
+		if (!file_exists($dir)) {
+			mkdir($dir, 0755, true);
+		}
+		$this->_workerLogFile = $dir . DS . 'worker.log';
+	}
+
+	public function out($message = '', $newlines = 1, $level = Shell::NORMAL) {
+		if ($this->_workerLogFile) {
+			if (@filesize($this->_workerLogFile) > 5 * 1024 * 1024) {
+				@rename($this->_workerLogFile, $this->_workerLogFile . '.1');
+			}
+			$line = '[' . date('Y-m-d H:i:s') . '] ' . $message . "\n";
+			file_put_contents($this->_workerLogFile, $line, FILE_APPEND | LOCK_EX);
+			return;
+		}
+		return parent::out($message, $newlines, $level);
+	}
+
+	public function hr($newlines = 0, $width = 63) {
+		if ($this->_workerLogFile) {
+			$line = str_repeat('-', $width) . "\n";
+			file_put_contents($this->_workerLogFile, $line, FILE_APPEND | LOCK_EX);
+			return;
+		}
+		return parent::hr($newlines, $width);
 	}
 
 /**
