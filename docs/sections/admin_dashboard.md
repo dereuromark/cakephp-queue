@@ -53,6 +53,40 @@ This is useful when:
 - You want to use the Queue admin without configuring your app's authentication first
 - You're using the plugin in a minimal setup without a full application
 
+### Authorization (`Queue.adminAccess`, required)
+
+The admin UI can trigger jobs (via `AddFromBackendInterface` tasks),
+reset/remove queued jobs, and terminate workers — operational damage if
+exposed. The plugin therefore **fails closed by default**: every request
+to `/admin/queue/...` is rejected with `403` until the host app
+explicitly configures access.
+
+Set `Queue.adminAccess` to a `Closure` that receives the current request
+and returns literal `true` to grant access. Anything else (unset,
+non-`Closure`, returns `false`, returns a truthy non-bool, throws)
+yields a `403`.
+
+```php
+use Cake\Core\Configure;
+use Cake\Http\ServerRequest;
+
+// Example — admin role check (cakephp/authentication identity):
+Configure::write('Queue.adminAccess', function (ServerRequest $request): bool {
+    $identity = $request->getAttribute('identity');
+    return $identity !== null && in_array('admin', (array)$identity->roles, true);
+});
+```
+
+The gate runs in `beforeFilter` for every admin controller in the plugin
+and plays nicely with the cakephp/authorization plugin (it calls
+`skipAuthorization()` so the policy layer doesn't double-reject).
+`ForbiddenException` raised inside the Closure is respected as-is so
+callers can short-circuit with their own message; other throwables are
+logged via `Cake\Log\Log` and converted to a generic `403`.
+
+`Queue.adminAccess` is independent of `Queue.standalone` — the access
+gate runs in both modes.
+
 ### Using Your Application's Layout
 
 To use your application's default layout instead of the isolated Bootstrap 5 layout:
