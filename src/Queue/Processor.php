@@ -161,6 +161,13 @@ class Processor {
 	public function run(array $args): int {
 		$config = $this->getConfig($args);
 
+		// Sweep stale `queue_processes` rows from prior workers that died
+		// without a graceful shutdown (SIGKILL, OOM, container restart,
+		// etc.). Without this, ghost rows accumulate, count toward the
+		// `Queue.maxworkers` limit and can lock out new workers.
+		// Stale = not updated for `Queue.defaultRequeueTimeout` seconds.
+		$this->QueueProcesses->cleanEndedProcesses();
+
 		try {
 			$pid = $this->initPid();
 		} catch (PersistenceFailedException $exception) {
