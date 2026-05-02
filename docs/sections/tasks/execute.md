@@ -35,12 +35,13 @@ The `params` array will be joined with spaces and appended to the command.
 
 ### escape (default: true)
 
-By default, the command and parameters are escaped using `escapeshellcmd()` for security:
+By default, the command and each entry in `params` are escaped per token using `escapeshellarg()` so that arguments cannot break out into additional shell tokens (argument injection):
 
 ```php
 $data = [
-    'command' => 'bin/cake importer run',
-    'escape' => true, // Default - commands are escaped
+    'command' => 'bin/cake',
+    'params' => ['importer', 'run'],
+    'escape' => true, // Default - command and params escaped per token
 ];
 ```
 
@@ -52,6 +53,24 @@ $data = [
     'escape' => false, // Use with extreme caution
 ];
 ```
+
+`escape => false` is hard-rejected unless `debug` is `true`.
+
+### Queue.executeAllowedCommands (production allow-list)
+
+When `debug` is disabled, the `command` value MUST appear verbatim in the `Queue.executeAllowedCommands` allow-list, otherwise the task throws before invoking `exec()`:
+
+```php
+// config/app.php (or app_local.php)
+'Queue' => [
+    'executeAllowedCommands' => [
+        'bin/cake',
+        '/usr/bin/php',
+    ],
+],
+```
+
+If the allow-list is unset or empty in production, every Execute job is rejected. This protects against an attacker who can write to `queued_jobs` (DB-level compromise, or upstream code that pipes user input into `createJob('Queue.Execute', ...)`) from steering the exec call.
 
 ### redirect (default: true)
 
