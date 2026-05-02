@@ -90,16 +90,27 @@ class ExecuteTask extends Task implements AddInterface {
 			throw new QueueException('Command escaping must be enabled when debug mode is off for security reasons');
 		}
 
-		$command = $data['command'];
+		$rawCommand = (string)$data['command'];
+		if (!Configure::read('debug')) {
+			$allowed = (array)Configure::read('Queue.executeAllowedCommands', []);
+			if (!$allowed || !in_array($rawCommand, $allowed, true)) {
+				throw new QueueException(
+					'Command `' . $rawCommand . '` is not in Queue.executeAllowedCommands allow-list',
+				);
+			}
+		}
+
 		if ($data['escape']) {
-			$command = escapeshellcmd($data['command']);
+			$command = escapeshellarg($rawCommand);
+		} else {
+			$command = $rawCommand;
 		}
 
 		if ($data['params']) {
 			$params = $data['params'];
 			if ($data['escape']) {
 				foreach ($params as $key => $value) {
-					$params[$key] = escapeshellcmd($value);
+					$params[$key] = escapeshellarg((string)$value);
 				}
 			}
 			$command .= ' ' . implode(' ', $params);
