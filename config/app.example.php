@@ -90,6 +90,15 @@ return [
 			//],
 		],
 
+		// Per-command allow-list for Queue.Execute. Required when debug is disabled:
+		// the `command` value MUST appear here verbatim, otherwise ExecuteTask throws
+		// before invoking exec(). Empty/unset in production means every Execute job
+		// is rejected. Has no effect when debug is true.
+		'executeAllowedCommands' => [
+			//'bin/cake',
+			//'/usr/bin/php',
+		],
+
 		// Admin dashboard settings
 
 		// Layout for admin pages:
