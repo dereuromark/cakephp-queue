@@ -25,11 +25,11 @@ $this->Paginator->setTemplates([
 ?>
 <nav class="mt-3" aria-label="<?= __d('queue', 'Page navigation') ?>">
 	<ul class="pagination justify-content-center mb-2">
-		<?= $this->Paginator->first('<i class="fas fa-angle-double-left"></i>', ['escapeTitle' => false]) ?>
-		<?= $this->Paginator->prev('<i class="fas fa-angle-left"></i>', ['escapeTitle' => false]) ?>
+		<?= $this->Paginator->first('<i class="fas fa-angle-double-left"></i>', ['escape' => false]) ?>
+		<?= $this->Paginator->prev('<i class="fas fa-angle-left"></i>', ['escape' => false]) ?>
 		<?= $this->Paginator->numbers() ?>
-		<?= $this->Paginator->next('<i class="fas fa-angle-right"></i>', ['escapeTitle' => false]) ?>
-		<?= $this->Paginator->last('<i class="fas fa-angle-double-right"></i>', ['escapeTitle' => false]) ?>
+		<?= $this->Paginator->next('<i class="fas fa-angle-right"></i>', ['escape' => false]) ?>
+		<?= $this->Paginator->last('<i class="fas fa-angle-double-right"></i>', ['escape' => false]) ?>
 	</ul>
 	<p class="text-center text-muted small mb-0">
 		<?= $this->Paginator->counter(__d('queue', 'Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')) ?>
