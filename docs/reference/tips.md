@@ -25,7 +25,7 @@ return [
 
 If you now click into the first argument of `createJob()`, it should show you the available ones to quickly select:
 
-![](resources/autocomplete.png)
+![](./autocomplete.png)
 
 ## Only pass identification data if possible
 

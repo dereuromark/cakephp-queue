@@ -78,7 +78,7 @@ TableRegistry::getTableLocator()->get('Queue.QueuedJobs')
     ]);
 ```
 
-It will use the plugin's `EmailTask` to send out emails via CLI. See the [Email task documentation](tasks/email.md) for more details.
+It will use the plugin's `EmailTask` to send out emails via CLI. See the [Email task documentation](/tasks/email) for more details.
 
 Important: Do not forget to set your [domain](https://book.cakephp.org/5/en/core-libraries/email.html#sending-emails-from-cli) when sending from CLI.
 
@@ -280,7 +280,7 @@ You can also use the more visual progress bar (or any custom one of yours):
 ```php
 echo $this->QueueProgress->progressBar($queuedJob, 18);
 ```
-![HTML5](bar_text.png)
+![HTML5](./bar_text.png)
 
 The length refers to the amount of chars to display.
 
@@ -291,7 +291,7 @@ $textProgressBar = $this->QueueProgress->progressBar($queuedJob, 18);
 echo $this->QueueProgress->htmlProgressBar($queuedJob, $textProgressBar);
 ```
 
-![HTML5](bar_html.png)
+![HTML5](./bar_html.png)
 
 The text one will only be visible for older browsers that do not support the HTML5 tag.
 

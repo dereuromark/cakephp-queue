@@ -3,8 +3,8 @@
 There are multiple ways to send emails asynchronously using the Queue plugin:
 
 ## Using built-in tasks
-* [Email Task](./tasks/email.md) - For basic emails using Message class (most flexible)
-* [Mailer Task](./tasks/mailer.md) - For reusable templated emails using Mailer classes (best for standard emails)
+* [Email Task](/tasks/email) - For basic emails using Message class (most flexible)
+* [Mailer Task](/tasks/mailer) - For reusable templated emails using Mailer classes (best for standard emails)
 
 ## Using QueueTransport
 
