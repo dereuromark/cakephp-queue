@@ -377,6 +377,18 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 			</button>
 			<div class="collapse navbar-collapse" id="navbarNav">
 				<ul class="navbar-nav ms-auto">
+					<?php
+					$adminBackUrl = \Cake\Core\Configure::read('Queue.adminBackUrl');
+					$hasAdminBack = $adminBackUrl !== null && $adminBackUrl !== '';
+					$adminBackLabel = (string)\Cake\Core\Configure::read('Queue.adminBackLabel', __d('queue', 'Back to App'));
+					?>
+					<?php if ($hasAdminBack): ?>
+					<li class="nav-item">
+						<a class="nav-link" href="<?= $this->Url->build($adminBackUrl) ?>">
+							<i class="fas fa-arrow-left me-1"></i><?= h($adminBackLabel) ?>
+						</a>
+					</li>
+					<?php endif; ?>
 					<?php if (\Cake\Core\Plugin::isLoaded('QueueScheduler')): ?>
 					<li class="nav-item">
 						<a class="nav-link" href="<?= $this->Url->build(['plugin' => 'QueueScheduler', 'prefix' => 'Admin', 'controller' => 'QueueScheduler', 'action' => 'index']) ?>">

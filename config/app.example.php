@@ -107,6 +107,14 @@ return [
 		// - string: Uses specified layout
 		'adminLayout' => null,
 
+		// Back-to-App link in the admin header (opt-in). When set, an outline
+		// button appears in the top navbar so admins can escape the
+		// plugin-isolated layout. Accepts anything Router::url() takes — Cake
+		// URL array, path string, or full URL. Use 'plugin' => false to
+		// anchor the builder to the host app rather than the Queue plugin.
+		// 'adminBackUrl' => ['plugin' => false, 'prefix' => 'Admin', 'controller' => 'Overview', 'action' => 'index'],
+		// 'adminBackLabel' => 'Back to admin', // Optional. Defaults to "Back to App".
+
 		// auto-refresh dashboard in seconds (0 = disabled)
 		'dashboardAutoRefresh' => 0,
 
