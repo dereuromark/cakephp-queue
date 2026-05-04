@@ -28,7 +28,8 @@
 	],
 	"homepage": "https://github.com/dereuromark/cakephp-queue",
 	"support": {
-		"source": "https://github.com/dereuromark/cakephp-queue"
+		"source": "https://github.com/dereuromark/cakephp-queue",
+		"docs": "https://dereuromark.github.io/cakephp-queue/"
 	},
 	"require": {
 		"php": ">=8.2",

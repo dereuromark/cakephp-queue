@@ -220,5 +220,5 @@ This approach is JsonSerializer safe and works well with the queue system.
 
 ## See also
 
-- [QueueTransport configuration](../mailing.md#using-queuetransport) - Automatically queue all emails by changing transport configuration
-- [Creating custom email tasks](../mailing.md#creating-custom-email-tasks) - For more complex email workflows
+- [QueueTransport configuration](/guide/mailing#using-queuetransport) - Automatically queue all emails by changing transport configuration
+- [Creating custom email tasks](/guide/mailing#creating-custom-email-tasks) - For more complex email workflows
