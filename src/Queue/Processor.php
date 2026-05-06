@@ -228,8 +228,8 @@ class Processor {
 
 			if ($config['verbose']) {
 				$this->log('run', $pid, false);
+				$this->io->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
 			}
-			$this->io->out('[' . date('Y-m-d H:i:s') . '] Looking for Job ...');
 
 			$queuedJob = $this->QueuedJobs->requestJob($this->getTaskConf(), $config['groups'], $config['types']);
 
@@ -239,7 +239,9 @@ class Processor {
 				$this->io->out('nothing to do, exiting.');
 				$this->exit = true;
 			} else {
-				$this->io->out('nothing to do, sleeping.');
+				if ($config['verbose']) {
+					$this->io->out('nothing to do, sleeping.');
+				}
 				sleep(Config::sleeptime());
 			}
 
@@ -256,7 +258,9 @@ class Processor {
 				// shutdown sweep is redundant. `cleanOldJobs()` stays —
 				// that's about the queued_jobs table, not workers.
 			}
-			$this->io->hr();
+			if ($config['verbose']) {
+				$this->io->hr();
+			}
 		}
 
 		$this->deletePid($pid);
