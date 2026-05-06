@@ -49,7 +49,9 @@ class RunCommandTest extends TestCase {
 		$this->exec('queue run');
 
 		$output = $this->_out->output();
-		$this->assertStringContainsString('Looking for Job', $output);
+		// Worker loop ran to completion. The per-iteration heartbeat is
+		// verbose-only now, so assert on the always-on termination event.
+		$this->assertStringContainsString('terminating.', $output);
 		$this->assertExitCode(0);
 	}
 
@@ -63,7 +65,7 @@ class RunCommandTest extends TestCase {
 		$this->exec('queue run');
 
 		$output = $this->_out->output();
-		$this->assertStringContainsString('Looking for Job', $output);
+		$this->assertStringContainsString('Running Job of type "Foo"', $output);
 		$this->assertStringContainsString('CakePHP Foo Example.', $output);
 		$this->assertStringContainsString('My TestService', $output);
 		$this->assertExitCode(0);
