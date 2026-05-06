@@ -293,7 +293,6 @@ class QueuedTask extends QueueAppModel {
 
 
         if(!$result || !$result->get('Messages')) {
-            echo "\nNo messages\n";
             return [];
         }
         $message = $result->get('Messages')[0];
