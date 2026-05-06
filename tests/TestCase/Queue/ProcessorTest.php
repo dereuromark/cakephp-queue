@@ -132,6 +132,52 @@ class ProcessorTest extends TestCase {
 	}
 
 	/**
+	 * Without verbose, the idle-poll heartbeat ("Looking for Job ...",
+	 * "nothing to do, sleeping.", and the trailing horizontal rule) must
+	 * stay silent so a quiet queue doesn't spam stdout/log files.
+	 *
+	 * @return void
+	 */
+	public function testRunNonVerboseSuppressesIdlePollOutput() {
+		Configure::write('Queue.exitwhennothingtodo', true);
+
+		$out = new ConsoleOutput();
+		$err = new ConsoleOutput();
+		$this->Processor = new Processor(new Io(new ConsoleIo($out, $err)), new NullLogger());
+
+		$result = $this->Processor->run([]);
+
+		$this->assertSame(CommandInterface::CODE_SUCCESS, $result);
+		$output = $out->output();
+		$this->assertStringNotContainsString('Looking for Job', $output);
+		$this->assertStringNotContainsString('nothing to do, sleeping', $output);
+		$this->assertStringNotContainsString("\n---", $output);
+		// One-shot exit event still fires: that's not steady-state noise.
+		$this->assertStringContainsString('nothing to do, exiting.', $output);
+	}
+
+	/**
+	 * Verbose mode keeps the existing per-iteration heartbeat so operators
+	 * who opt in still see liveness output.
+	 *
+	 * @return void
+	 */
+	public function testRunVerboseShowsIdlePollOutput() {
+		Configure::write('Queue.exitwhennothingtodo', true);
+
+		$out = new ConsoleOutput();
+		$err = new ConsoleOutput();
+		$this->Processor = new Processor(new Io(new ConsoleIo($out, $err)), new NullLogger());
+
+		$result = $this->Processor->run(['verbose' => true]);
+
+		$this->assertSame(CommandInterface::CODE_SUCCESS, $result);
+		$output = $out->output();
+		$this->assertStringContainsString('Looking for Job', $output);
+		$this->assertStringContainsString('nothing to do, exiting.', $output);
+	}
+
+	/**
 	 * Helper method for skipping tests that need a real connection.
 	 *
 	 * @return void
