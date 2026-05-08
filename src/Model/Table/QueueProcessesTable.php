@@ -213,9 +213,17 @@ class QueueProcessesTable extends Table {
 	}
 
 	/**
+	 * @param bool $force If true, removes ALL rows regardless of heartbeat.
+	 *  Use as a recovery tool after container restarts where PIDs may be
+	 *  reused and stale rows would block new workers from registering.
+	 *
 	 * @return int
 	 */
-	public function cleanEndedProcesses(): int {
+	public function cleanEndedProcesses(bool $force = false): int {
+		if ($force) {
+			return $this->deleteAll(['1=1']);
+		}
+
 		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new DateTime())->subSeconds($timeout);
 

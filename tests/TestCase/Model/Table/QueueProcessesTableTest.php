@@ -240,6 +240,28 @@ class QueueProcessesTableTest extends TestCase {
 	}
 
 	/**
+	 * `--force` ignores the heartbeat threshold and wipes every row. Recovery
+	 * path for container restarts where the killed worker's row survives with
+	 * a recent `modified` timestamp, so the normal heartbeat-based cleanup
+	 * considers it "still alive."
+	 *
+	 * @return void
+	 */
+	public function testCleanEndedProcessesForceRemovesAllRows() {
+		Configure::write('Queue.maxworkers', 5);
+
+		$this->QueueProcesses->deleteAll(['1=1']);
+		$this->QueueProcesses->add('111', 'key-111');
+		$this->QueueProcesses->add('222', 'key-222');
+		$this->assertSame(2, $this->QueueProcesses->find()->count());
+
+		$deleted = $this->QueueProcesses->cleanEndedProcesses(true);
+
+		$this->assertSame(2, $deleted);
+		$this->assertSame(0, $this->QueueProcesses->find()->count());
+	}
+
+	/**
 	 * Container restart scenario: a worker died without cleaning up its
 	 * queue_processes row. A new worker starts with the same recycled PID.
 	 * The stale row's heartbeat is older than `staleHeartbeatThreshold`, so
