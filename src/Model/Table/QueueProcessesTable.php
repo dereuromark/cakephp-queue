@@ -161,22 +161,22 @@ class QueueProcessesTable extends Table {
 	}
 
 	/**
-	 * @param string $pid
+	 * Heartbeat update for the worker identified by `$workerkey`. Workerkey
+	 * is the per-process random hash assigned at startup; PID alone is not
+	 * a stable worker identity (the OS recycles low PIDs across container
+	 * restarts), so all heartbeat / removal paths look up by workerkey.
+	 *
+	 * @param string $workerkey
 	 *
 	 * @throws \Queue\Model\ProcessEndingException
 	 *
 	 * @return void
 	 */
-	public function update(string $pid): void {
-		$conditions = [
-			'pid' => $pid,
-			'server IS' => $this->buildServerString(),
-		];
-
+	public function update(string $workerkey): void {
 		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
-		$queueProcess = $this->find()->where($conditions)->firstOrFail();
+		$queueProcess = $this->find()->where(['workerkey' => $workerkey])->firstOrFail();
 		if ($queueProcess->terminate) {
-			throw new ProcessEndingException('PID terminated: ' . $pid);
+			throw new ProcessEndingException('Worker terminated: ' . $workerkey);
 		}
 
 		$queueProcess->modified = new DateTime();
@@ -184,17 +184,12 @@ class QueueProcessesTable extends Table {
 	}
 
 	/**
-	 * @param string $pid
+	 * @param string $workerkey
 	 *
 	 * @return void
 	 */
-	public function remove(string $pid): void {
-		$conditions = [
-			'pid' => $pid,
-			'server IS' => $this->buildServerString(),
-		];
-
-		$this->deleteAll($conditions);
+	public function remove(string $workerkey): void {
+		$this->deleteAll(['workerkey' => $workerkey]);
 	}
 
 	/**
@@ -268,7 +263,12 @@ class QueueProcessesTable extends Table {
 	}
 
 	/**
-	 * Soft ending of a running job, e.g. when migration is starting
+	 * Soft ending of a running job, e.g. when migration is starting.
+	 *
+	 * If multiple rows share this PID (possible since the unique
+	 * `(pid, server)` index was dropped), the most recently heartbeated
+	 * row is chosen — that is the live worker; older rows are stale
+	 * leftovers that will be cleaned up separately.
 	 *
 	 * @param string $pid
 	 *
@@ -280,7 +280,10 @@ class QueueProcessesTable extends Table {
 		}
 
 		/** @var \Queue\Model\Entity\QueueProcess $queuedProcess */
-		$queuedProcess = $this->find()->where(['pid' => $pid])->firstOrFail();
+		$queuedProcess = $this->find()
+			->where(['pid' => $pid])
+			->orderByDesc('modified')
+			->firstOrFail();
 		$queuedProcess->terminate = true;
 		$this->saveOrFail($queuedProcess);
 	}

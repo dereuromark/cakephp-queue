@@ -25,7 +25,9 @@ class QueueProcessesFixture extends TestFixture {
 		'_constraints' => [
 			'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
 			'workerkey' => ['type' => 'unique', 'columns' => ['workerkey'], 'length' => []],
-			'pid' => ['type' => 'unique', 'columns' => ['pid', 'server'], 'length' => []],
+		],
+		'_indexes' => [
+			'pid_server' => ['type' => 'index', 'columns' => ['pid', 'server']],
 		],
 		'_options' => [
 			'engine' => 'InnoDB',

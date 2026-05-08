@@ -97,11 +97,11 @@ class QueueProcessesTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testUpdate() {
-		$pid = '123';
-		$id = $this->QueueProcesses->add($pid, '456');
+		$workerkey = '456';
+		$id = $this->QueueProcesses->add('123', $workerkey);
 		$this->assertNotEmpty($id);
 
-		$this->QueueProcesses->update($pid);
+		$this->QueueProcesses->update($workerkey);
 
 		$queueProcess = $this->QueueProcesses->get($id);
 		$this->assertFalse($queueProcess->terminate);
@@ -111,14 +111,35 @@ class QueueProcessesTableTest extends TestCase {
 	 * @return void
 	 */
 	public function testRemove() {
-		$pid = '123';
-		$queueProcessId = $this->QueueProcesses->add($pid, '456');
+		$workerkey = '456';
+		$queueProcessId = $this->QueueProcesses->add('123', $workerkey);
 		$this->assertNotEmpty($queueProcessId);
 
-		$this->QueueProcesses->remove($pid);
+		$this->QueueProcesses->remove($workerkey);
 
 		$result = $this->QueueProcesses->find()->where(['id' => $queueProcessId])->first();
 		$this->assertNull($result);
+	}
+
+	/**
+	 * After dropping the unique `(pid, server)` index, two rows can coexist
+	 * with the same PID on the same server. Mostly happens transiently after
+	 * a container restart with PID reuse: one stale row + the new live one.
+	 * `workerkey` remains the canonical identity (still uniquely indexed).
+	 *
+	 * @return void
+	 */
+	public function testAddAllowsDuplicatePidServer() {
+		Configure::write('Queue.maxworkers', 5);
+		$this->QueueProcesses->deleteAll(['1=1']);
+
+		$firstId = $this->QueueProcesses->add('8', 'first-workerkey');
+		$secondId = $this->QueueProcesses->add('8', 'second-workerkey');
+
+		$this->assertNotEmpty($firstId);
+		$this->assertNotEmpty($secondId);
+		$this->assertNotSame($firstId, $secondId);
+		$this->assertSame(2, $this->QueueProcesses->find()->where(['pid' => '8'])->count());
 	}
 
 	/**
