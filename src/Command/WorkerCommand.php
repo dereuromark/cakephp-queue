@@ -59,6 +59,12 @@ class WorkerCommand extends Command {
 			'help' => 'PID (Process/Worker ID)',
 			'required' => false,
 		]);
+		$parser->addOption('force', [
+			'short' => 'f',
+			'help' => 'For `clean`: remove ALL queue_processes rows regardless of last heartbeat. '
+				. 'Use after container restarts when PID reuse blocks new workers from registering.',
+			'boolean' => true,
+		]);
 
 		$parser->setDescription(
 			'Display, end or kill running workers.',
@@ -80,7 +86,7 @@ class WorkerCommand extends Command {
 			$io->out('Actions are:');
 			$io->out('- end: Gracefully end a worker/process, use "all"/"server" for all');
 			$io->out('- kill: Kill a worker/process, use "all"/"server" for all');
-			$io->out('- clean: ');
+			$io->out('- clean: Remove stale processes (use --force to wipe all)');
 			$io->out();
 
 			/** @var array<\Queue\Model\Entity\QueueProcess> $processes */
@@ -110,6 +116,10 @@ class WorkerCommand extends Command {
 		}
 		if ($action === 'clean' && $pid) {
 			$io->abort('Clean action does not have a 2nd argument.');
+		}
+
+		if ($action === 'clean') {
+			return $this->clean($io, (bool)$args->getOption('force'));
 		}
 
 		/** @phpstan-ignore-next-line */
@@ -191,10 +201,21 @@ class WorkerCommand extends Command {
 
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
+	 * @param bool $force If true, ignores the heartbeat threshold and removes
+	 *  every queue_processes row. Recovery path for container restarts where
+	 *  recycled PIDs would otherwise collide with surviving rows.
 	 *
 	 * @return int
 	 */
-	protected function clean(ConsoleIo $io): int {
+	protected function clean(ConsoleIo $io, bool $force = false): int {
+		if ($force) {
+			$io->out('Force-deleting ALL queue_processes rows.');
+			$result = $this->QueueProcesses->cleanEndedProcesses(true);
+			$io->success('Deleted: ' . $result);
+
+			return static::CODE_SUCCESS;
+		}
+
 		$timeout = Config::defaultworkertimeout();
 		if (!$timeout) {
 			$io->abort('You disabled `defaultRequeueTimeout` in config. Aborting.');
