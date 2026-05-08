@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Queue\Test\TestCase\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\Database\Exception\QueryException;
 use Cake\I18n\DateTime;
 use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\ORM\TableRegistry;
@@ -236,6 +237,73 @@ class QueueProcessesTableTest extends TestCase {
 		// And the third worker can now register.
 		$id = $this->QueueProcesses->add('333', 'key-333');
 		$this->assertNotEmpty($id);
+	}
+
+	/**
+	 * Container restart scenario: a worker died without cleaning up its
+	 * queue_processes row. A new worker starts with the same recycled PID.
+	 * The stale row's heartbeat is older than `staleHeartbeatThreshold`, so
+	 * `add()` evicts it before inserting — no duplicate-key crash.
+	 *
+	 * @return void
+	 */
+	public function testAddEvictsStaleRowOnSamePidServer() {
+		Configure::write('Queue.maxworkers', 5);
+		$this->QueueProcesses->deleteAll(['1=1']);
+
+		$staleId = $this->QueueProcesses->add('8', 'old-workerkey');
+		$this->QueueProcesses->updateAll(
+			['modified' => (new DateTime())->subSeconds(180)->toDateTimeString()],
+			['id' => $staleId],
+		);
+
+		$newId = $this->QueueProcesses->add('8', 'new-workerkey');
+		$this->assertNotEmpty($newId);
+		$this->assertNotSame($staleId, $newId);
+
+		$survivors = $this->QueueProcesses->find()->where(['pid' => '8'])->all()->toArray();
+		$this->assertCount(1, $survivors);
+		$this->assertSame('new-workerkey', $survivors[0]->workerkey);
+	}
+
+	/**
+	 * If the existing row is fresh (recent heartbeat), it represents a real,
+	 * live worker — eviction would be wrong. The duplicate-key error is the
+	 * correct outcome. `Queue.maxworkers` is raised so `validateCount` cannot
+	 * mask the real source of failure: the (pid, server) unique index fires
+	 * at the DB level as a `QueryException`, not validation.
+	 *
+	 * @return void
+	 */
+	public function testAddDoesNotEvictRecentRowOnSamePidServer() {
+		Configure::write('Queue.maxworkers', 5);
+		$this->QueueProcesses->deleteAll(['1=1']);
+		$this->QueueProcesses->add('8', 'first-workerkey');
+
+		$this->expectException(QueryException::class);
+		$this->QueueProcesses->add('8', 'second-workerkey');
+	}
+
+	/**
+	 * Operators can tune the threshold for unusual heartbeat intervals.
+	 *
+	 * @return void
+	 */
+	public function testAddRespectsCustomStaleHeartbeatThreshold() {
+		Configure::write('Queue.maxworkers', 5);
+		Configure::write('Queue.staleHeartbeatThreshold', 30);
+		$this->QueueProcesses->deleteAll(['1=1']);
+
+		$staleId = $this->QueueProcesses->add('8', 'old-workerkey');
+		$this->QueueProcesses->updateAll(
+			['modified' => (new DateTime())->subSeconds(60)->toDateTimeString()],
+			['id' => $staleId],
+		);
+
+		$newId = $this->QueueProcesses->add('8', 'new-workerkey');
+		$this->assertNotEmpty($newId);
+
+		Configure::delete('Queue.staleHeartbeatThreshold');
 	}
 
 }
