@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Queue\Test\TestCase\Model\Table;
 
 use Cake\Core\Configure;
-use Cake\Database\Exception\QueryException;
 use Cake\I18n\DateTime;
 use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\ORM\TableRegistry;
@@ -311,20 +310,23 @@ class QueueProcessesTableTest extends TestCase {
 
 	/**
 	 * If the existing row is fresh (recent heartbeat), it represents a real,
-	 * live worker — eviction would be wrong. The duplicate-key error is the
-	 * correct outcome. `Queue.maxworkers` is raised so `validateCount` cannot
-	 * mask the real source of failure: the (pid, server) unique index fires
-	 * at the DB level as a `QueryException`, not validation.
+	 * live worker — the eviction guard inside `add()` must NOT touch it.
+	 * Verifies the threshold check (`modified <` clause) by asserting the
+	 * pre-existing row survives a second `add()` on the same (pid, server).
 	 *
 	 * @return void
 	 */
 	public function testAddDoesNotEvictRecentRowOnSamePidServer() {
 		Configure::write('Queue.maxworkers', 5);
 		$this->QueueProcesses->deleteAll(['1=1']);
-		$this->QueueProcesses->add('8', 'first-workerkey');
+		$firstId = $this->QueueProcesses->add('8', 'first-workerkey');
 
-		$this->expectException(QueryException::class);
 		$this->QueueProcesses->add('8', 'second-workerkey');
+
+		$this->assertTrue(
+			$this->QueueProcesses->exists(['id' => $firstId]),
+			'Recent row should not be evicted by a subsequent add() on the same (pid, server).',
+		);
 	}
 
 	/**
