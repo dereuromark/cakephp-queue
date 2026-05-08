@@ -148,9 +148,24 @@ class QueueProcessesTable extends Table {
 	 * @return int
 	 */
 	public function add(string $pid, string $key): int {
+		$server = $this->buildServerString();
+
+		// Evict any stale row holding our (pid, server) slot. Common after
+		// container restarts: the killed worker's row survives, and the
+		// unique index on (pid, server) would otherwise reject the insert.
+		// Only rows whose heartbeat is older than `staleHeartbeatThreshold`
+		// are removed, so a live worker on the same PID is never disturbed.
+		$staleThreshold = (new DateTime())->subSeconds(Config::staleHeartbeatThreshold());
+		$this->deleteAll([
+			'pid' => $pid,
+			'server IS' => $server,
+			'workerkey !=' => $key,
+			'modified <' => $staleThreshold,
+		]);
+
 		$data = [
 			'pid' => $pid,
-			'server' => $this->buildServerString(),
+			'server' => $server,
 			'workerkey' => $key,
 		];
 

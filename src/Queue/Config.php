@@ -75,6 +75,22 @@ class Config {
 	}
 
 	/**
+	 * Threshold in seconds after which a queue_processes row whose `modified`
+	 * timestamp is older is considered stale by a starting worker. Workers
+	 * heartbeat (refresh `modified`) on every loop iteration, so a row not
+	 * refreshed in ~90s almost certainly belongs to a dead worker — typically
+	 * a container that was force-restarted. This is intentionally much shorter
+	 * than `defaultRequeueTimeout` (which governs in-flight job requeueing).
+	 *
+	 * @return int
+	 */
+	public static function staleHeartbeatThreshold(): int {
+		$threshold = Configure::read('Queue.staleHeartbeatThreshold');
+
+		return $threshold ?? 90;
+	}
+
+	/**
 	 * @return int
 	 */
 	public static function gcprob(): int {
