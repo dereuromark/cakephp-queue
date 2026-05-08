@@ -73,6 +73,14 @@ class Processor {
 	protected ?string $pid = null;
 
 	/**
+	 * Random per-process identifier. Stable across the worker's lifetime;
+	 * unlike `pid`, never reused. Used for heartbeat and shutdown lookups.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $workerkey = null;
+
+	/**
 	 * @var \Queue\Model\Table\QueuedJobsTable
 	 */
 	protected QueuedJobsTable $QueuedJobs;
@@ -507,6 +515,7 @@ class Processor {
 		$this->QueueProcesses->add($pid, $key);
 
 		$this->pid = $pid;
+		$this->workerkey = $key;
 
 		return $pid;
 	}
@@ -525,12 +534,16 @@ class Processor {
 	}
 
 	/**
-	 * @param string $pid
+	 * @param string $pid Kept for log context; the actual lookup uses
+	 *  the per-process workerkey since PIDs are not unique identities.
 	 *
 	 * @return void
 	 */
 	protected function updatePid(string $pid): void {
-		$this->QueueProcesses->update($pid);
+		if ($this->workerkey === null) {
+			return;
+		}
+		$this->QueueProcesses->update($this->workerkey);
 	}
 
 	/**
@@ -548,19 +561,18 @@ class Processor {
 	}
 
 	/**
-	 * @param string|null $pid
+	 * @param string|null $pid Kept for backwards-compatible signature; the
+	 *  actual lookup uses the per-process workerkey since PIDs are not
+	 *  unique identities.
 	 *
 	 * @return void
 	 */
 	protected function deletePid(?string $pid): void {
-		if (!$pid) {
-			$pid = $this->pid;
-		}
-		if (!$pid) {
+		if ($this->workerkey === null) {
 			return;
 		}
 
-		$this->QueueProcesses->remove($pid);
+		$this->QueueProcesses->remove($this->workerkey);
 	}
 
 	/**
