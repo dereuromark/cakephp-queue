@@ -17,8 +17,9 @@ use const SIGUSR1;
 /**
  * QueueProcesses Model
  *
+ * @extends \Cake\ORM\Table<array{Timestamp: \Cake\ORM\Behavior\TimestampBehavior}>
+ * @property \Queue\Model\Table\QueuedJobsTable&\Cake\ORM\Association\HasOne $CurrentQueuedJobs
  * @method \Cake\ORM\Locator\TableLocator getTableLocator()
- * @mixin \Cake\ORM\Behavior\TimestampBehavior
  * @method \Queue\Model\Entity\QueueProcess get(mixed $primaryKey, array|string $finder = 'all', \Psr\SimpleCache\CacheInterface|string|null $cache = null, \Closure|string|null $cacheKey = null, mixed ...$args)
  * @method \Queue\Model\Entity\QueueProcess newEntity(array $data, array $options = [])
  * @method array<\Queue\Model\Entity\QueueProcess> newEntities(array $data, array $options = [])
@@ -32,8 +33,7 @@ use const SIGUSR1;
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> saveManyOrFail(iterable $entities, array $options = [])
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess>|false deleteMany(iterable $entities, array $options = [])
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> deleteManyOrFail(iterable $entities, array $options = [])
- * @property \Queue\Model\Table\QueuedJobsTable&\Cake\ORM\Association\HasOne $CurrentQueuedJobs
- * @extends \Cake\ORM\Table<array{Timestamp: \Cake\ORM\Behavior\TimestampBehavior}>
+ * @mixin \Cake\ORM\Behavior\TimestampBehavior
  */
 class QueueProcessesTable extends Table {
 

@@ -14,8 +14,8 @@ use RuntimeException;
 
 /**
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
- * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> paginate($object = null, array $settings = [])
  * @property \Search\Controller\Component\SearchComponent $Search
+ * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> paginate($object = null, array $settings = [])
  */
 class QueuedJobsController extends QueueAppController {
 

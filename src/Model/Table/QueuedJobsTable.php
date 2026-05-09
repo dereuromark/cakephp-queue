@@ -25,6 +25,8 @@ use Queue\Utility\Memory;
 /**
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
+ * @extends \Cake\ORM\Table<array{Search: \Search\Model\Behavior\SearchBehavior, Timestamp: \Cake\ORM\Behavior\TimestampBehavior}>
+ * @property \Queue\Model\Table\QueueProcessesTable&\Cake\ORM\Association\BelongsTo $WorkerProcesses
  * @method \Queue\Model\Entity\QueuedJob get(mixed $primaryKey, array|string $finder = 'all', \Psr\SimpleCache\CacheInterface|string|null $cache = null, \Closure|string|null $cacheKey = null, mixed ...$args)
  * @method \Queue\Model\Entity\QueuedJob newEntity(array $data, array $options = [])
  * @method array<\Queue\Model\Entity\QueuedJob> newEntities(array $data, array $options = [])
@@ -32,16 +34,14 @@ use Queue\Utility\Memory;
  * @method \Queue\Model\Entity\QueuedJob patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
  * @method array<\Queue\Model\Entity\QueuedJob> patchEntities(iterable $entities, array $data, array $options = [])
  * @method \Queue\Model\Entity\QueuedJob findOrCreate(\Cake\ORM\Query\SelectQuery|callable|array $search, ?callable $callback = null, array $options = [])
- * @mixin \Cake\ORM\Behavior\TimestampBehavior
  * @method \Queue\Model\Entity\QueuedJob saveOrFail(\Cake\Datasource\EntityInterface $entity, array $options = [])
- * @mixin \Search\Model\Behavior\SearchBehavior
- * @property \Queue\Model\Table\QueueProcessesTable&\Cake\ORM\Association\BelongsTo $WorkerProcesses
  * @method \Queue\Model\Entity\QueuedJob newEmptyEntity()
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob>|false saveMany(iterable $entities, array $options = [])
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> saveManyOrFail(iterable $entities, array $options = [])
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob>|false deleteMany(iterable $entities, array $options = [])
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> deleteManyOrFail(iterable $entities, array $options = [])
- * @extends \Cake\ORM\Table<array{Search: \Search\Model\Behavior\SearchBehavior, Timestamp: \Cake\ORM\Behavior\TimestampBehavior}>
+ * @mixin \Cake\ORM\Behavior\TimestampBehavior
+ * @mixin \Search\Model\Behavior\SearchBehavior
  */
 class QueuedJobsTable extends Table {
 
