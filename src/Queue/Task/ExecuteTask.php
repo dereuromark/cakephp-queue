@@ -49,15 +49,21 @@ class ExecuteTask extends Task implements AddInterface {
 			return;
 		}
 
-		$command = $data;
-		$params = null;
-		if (strpos($data, ' ') !== false) {
-			[$command, $params] = explode(' ', $data, 2);
-		}
+		// Tokenize like a shell so a quoted command path with embedded
+		// spaces survives intact:
+		//   bin/cake queue add Execute '"/usr/local/bin/My Tool" arg1 arg2'
+		// parses to command="/usr/local/bin/My Tool", params=["arg1","arg2"].
+		// `str_getcsv` with space-as-delimiter respects double-quoted
+		// strings and strips the surrounding quotes for us. Falls back to
+		// the simple `explode(' ', $data, 2)` shape for plain inputs.
+		$tokens = str_getcsv($data, ' ', '"', '\\');
+		$tokens = array_values(array_filter($tokens, static fn ($t) => $t !== '' && $t !== null));
+		$command = (string)array_shift($tokens);
+		$params = $tokens;
 
 		$data = [
 			'command' => $command,
-			'params' => $params ? [$params] : [],
+			'params' => $params,
 		];
 
 		$this->QueuedJobs->createJob('Queue.Execute', $data);

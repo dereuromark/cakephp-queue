@@ -188,4 +188,41 @@ class ExecuteTaskTest extends TestCase {
 		$this->assertTextContains('PHP ', $this->out->output());
 	}
 
+	/**
+	 * Regression: a quoted command path containing spaces must end up
+	 * intact in `data.command` rather than being split into pieces. The
+	 * previous `explode(' ', $data, 2)` shoved everything after the first
+	 * space (including the rest of a Windows-style path) into `params[0]`.
+	 *
+	 * @return void
+	 */
+	public function testAddPreservesQuotedCommandPathWithSpaces(): void {
+		$this->Task->add('"/usr/local/bin/My Tool" --flag arg2');
+
+		$queuedJob = $this->Task->QueuedJobs->find()->order(['id' => 'DESC'])->first();
+		$this->assertNotNull($queuedJob);
+		$data = is_array($queuedJob->data) ? $queuedJob->data : json_decode((string)$queuedJob->data, true);
+
+		$this->assertSame('/usr/local/bin/My Tool', $data['command']);
+		$this->assertSame(['--flag', 'arg2'], $data['params']);
+	}
+
+	/**
+	 * Mirror of the regression for the plain unquoted shape — the simple
+	 * `cmd arg1 arg2` flow must keep working the same way it did before
+	 * the str_getcsv tokenisation switch.
+	 *
+	 * @return void
+	 */
+	public function testAddTokenizesPlainSpaceSeparatedArgs(): void {
+		$this->Task->add('sleep 1s');
+
+		$queuedJob = $this->Task->QueuedJobs->find()->order(['id' => 'DESC'])->first();
+		$this->assertNotNull($queuedJob);
+		$data = is_array($queuedJob->data) ? $queuedJob->data : json_decode((string)$queuedJob->data, true);
+
+		$this->assertSame('sleep', $data['command']);
+		$this->assertSame(['1s'], $data['params']);
+	}
+
 }
