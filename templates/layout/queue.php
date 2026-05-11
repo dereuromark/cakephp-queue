@@ -359,6 +359,13 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 		[aria-expanded="true"] .collapse-icon {
 			transform: rotate(90deg);
 		}
+
+		/* Lighter placeholder so it doesn't get mistaken for real content */
+		.form-control::placeholder,
+		.form-select::placeholder {
+			color: #adb5bd;
+			opacity: 1;
+		}
 	</style>
 
 	<?= $this->fetch('meta') ?>
