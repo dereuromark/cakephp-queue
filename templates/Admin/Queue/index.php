@@ -1,8 +1,12 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var \Queue\Model\Entity\QueuedJob[] $pendingDetails
- * @var \Queue\Model\Entity\QueuedJob[] $scheduledDetails
+ * @var \Queue\Model\Entity\QueuedJob[] $pendingDetails Capped at $detailsLimit rows.
+ * @var \Queue\Model\Entity\QueuedJob[] $scheduledDetails Capped at $detailsLimit rows.
+ * @var bool $pendingDetailsTruncated True when the pending list was capped.
+ * @var bool $scheduledDetailsTruncated True when the scheduled list was capped.
+ * @var int $detailsLimit Configured cap for the visible pending/scheduled rows.
+ * @var int $totalPending True (uncapped) pending-jobs count.
  * @var string[] $tasks
  * @var string[] $addableTasks
  * @var array<string, string|null> $taskDescriptions
@@ -124,6 +128,23 @@ use Cake\Core\Configure;
 				) ?>
 			</div>
 			<div class="card-body p-0">
+				<?php if ($pendingDetailsTruncated): ?>
+					<div class="alert alert-info mb-0 small rounded-0 border-0 border-bottom">
+						<i class="fas fa-info-circle me-1"></i>
+						<?= __d(
+							'queue',
+							'Showing {0} most recent of {1} pending jobs. {2} for the full list.',
+							[
+								count($pendingDetails),
+								$totalPending,
+								$this->Html->link(
+									__d('queue', 'See QueuedJobs admin'),
+									['controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'in_progress']],
+								),
+							],
+						) ?>
+					</div>
+				<?php endif; ?>
 				<?php if ($pendingDetails): ?>
 					<div class="table-responsive">
 						<table class="table table-hover mb-0">
@@ -248,9 +269,26 @@ use Cake\Core\Configure;
 		<?php if ($scheduledDetails): ?>
 			<div class="card mb-4">
 				<div class="card-header">
-					<i class="fas fa-calendar me-2"></i><?= __d('queue', 'Scheduled Jobs') ?> (<?= count($scheduledDetails) ?>)
+					<i class="fas fa-calendar me-2"></i><?= __d('queue', 'Scheduled Jobs') ?> (<?= $scheduledJobs ?>)
 				</div>
 				<div class="card-body p-0">
+					<?php if ($scheduledDetailsTruncated): ?>
+						<div class="alert alert-info mb-0 small rounded-0 border-0 border-bottom">
+							<i class="fas fa-info-circle me-1"></i>
+							<?= __d(
+								'queue',
+								'Showing {0} most recent of {1} scheduled jobs. {2} for the full list.',
+								[
+									count($scheduledDetails),
+									$scheduledJobs,
+									$this->Html->link(
+										__d('queue', 'See QueuedJobs admin'),
+										['controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'scheduled']],
+									),
+								],
+							) ?>
+						</div>
+					<?php endif; ?>
 					<div class="table-responsive">
 						<table class="table table-hover mb-0">
 							<thead>

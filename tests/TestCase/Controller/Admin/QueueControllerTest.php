@@ -72,6 +72,52 @@ class QueueControllerTest extends TestCase {
 	}
 
 	/**
+	 * The pending/scheduled detail lists must be capped to
+	 * Queue.adminDetailsLimit so the dashboard renders a bounded amount of
+	 * markup and DebugKit's Variables panel doesn't OOM on large backlogs.
+	 *
+	 * @return void
+	 */
+	public function testIndexTruncatesPendingDetailsAtDetailsLimit() {
+		Configure::write('Queue.adminDetailsLimit', 3);
+
+		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		for ($i = 0; $i < 5; $i++) {
+			$QueuedJobs->createJob('Queue.Example', ['n' => $i]);
+		}
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+
+		$this->assertResponseCode(200);
+		$pendingDetails = $this->viewVariable('pendingDetails');
+		$this->assertCount(3, $pendingDetails);
+		$this->assertTrue($this->viewVariable('pendingDetailsTruncated'));
+		$this->assertSame(5, $this->viewVariable('totalPending'));
+		$this->assertSame(3, $this->viewVariable('detailsLimit'));
+	}
+
+	/**
+	 * The truncation flag must stay false when the backlog fits inside the
+	 * cap — otherwise the "Showing N of M" hint would render unnecessarily
+	 * and the controller would issue an extra count() it doesn't need.
+	 *
+	 * @return void
+	 */
+	public function testIndexNotTruncatedWhenWithinLimit() {
+		Configure::write('Queue.adminDetailsLimit', 200);
+
+		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		$QueuedJobs->createJob('Queue.Example');
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+
+		$this->assertResponseCode(200);
+		$this->assertFalse($this->viewVariable('pendingDetailsTruncated'));
+		$this->assertFalse($this->viewVariable('scheduledDetailsTruncated'));
+		$this->assertSame(1, $this->viewVariable('totalPending'));
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testProcesses() {

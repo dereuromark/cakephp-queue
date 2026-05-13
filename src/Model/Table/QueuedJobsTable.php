@@ -1041,6 +1041,46 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * Count of pending jobs (matches getPendingStats() conditions).
+	 *
+	 * Companion to getPendingStats() for callers that LIMIT the materialised
+	 * details list and need the unbounded total to render "showing N of M".
+	 *
+	 * @return int
+	 */
+	public function getPendingCount(): int {
+		return $this->find()
+			->where([
+				'completed IS' => null,
+				'OR' => [
+					'notbefore <=' => new DateTime(),
+					'notbefore IS' => null,
+				],
+			])
+			->count();
+	}
+
+	/**
+	 * Count of pending jobs that have never been fetched or attempted
+	 * (the "new" tile on the admin dashboard).
+	 *
+	 * @return int
+	 */
+	public function getNewCount(): int {
+		return $this->find()
+			->where([
+				'completed IS' => null,
+				'fetched IS' => null,
+				'attempts' => 0,
+				'OR' => [
+					'notbefore <=' => new DateTime(),
+					'notbefore IS' => null,
+				],
+			])
+			->count();
+	}
+
+	/**
 	 * @return \Cake\ORM\Query\SelectQuery
 	 */
 	public function getScheduledStats(): SelectQuery {
@@ -1066,6 +1106,23 @@ class QueuedJobsTable extends Table {
 		];
 
 		return $this->find('all', ...$findCond);
+	}
+
+	/**
+	 * Count of scheduled jobs (matches getScheduledStats() conditions).
+	 *
+	 * Companion to getScheduledStats() for callers that LIMIT the
+	 * materialised details list and need the unbounded total.
+	 *
+	 * @return int
+	 */
+	public function getScheduledCount(): int {
+		return $this->find()
+			->where([
+				'completed IS' => null,
+				'notbefore >' => new DateTime(),
+			])
+			->count();
 	}
 
 	/**
