@@ -10,6 +10,7 @@ use Cake\Event\Event;
 use Cake\Event\EventInterface;
 use Cake\Event\EventManager;
 use Cake\I18n\DateTime;
+use Cake\Log\Log;
 use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
@@ -185,12 +186,19 @@ class QueuedJobsTable extends Table {
 	 * - group: Used to group similar QueuedJobs
 	 * - reference: An optional reference string
 	 * - status: To set an initial status text
+	 * - unique: When true (with a `reference`), an existing pending job
+	 *   matching `(reference, resolved job_task)` is returned instead of
+	 *   inserting a duplicate row. Useful for fan-out dispatchers that
+	 *   could otherwise stack up identical per-tenant work when a previous
+	 *   run is still pending or stuck.
 	 *
 	 * @param string $jobTask Job task name or FQCN.
 	 * @param object|array<string, mixed>|null $data Array of data or DTO like object.
 	 * @param \Queue\Config\JobConfig|array<string, mixed> $config Config to save along with the job.
 	 *
-	 * @return \Queue\Model\Entity\QueuedJob Saved job entity
+	 * @throws \InvalidArgumentException If `unique` is set without a `reference`.
+	 *
+	 * @return \Queue\Model\Entity\QueuedJob Saved job entity (or the existing pending entity if `unique` deduped).
 	 */
 	public function createJob(string $jobTask, array|object|null $data = null, array|JobConfig $config = []): QueuedJob {
 		if (!$config instanceof JobConfig) {
@@ -206,8 +214,34 @@ class QueuedJobsTable extends Table {
 			throw new InvalidArgumentException('Data must be `array|null`, implement `' . FromArrayToArrayInterface::class . '` or provide a `toArray()` method');
 		}
 
+		$resolvedTask = $this->jobTask($jobTask);
+
+		if ($config->isUnique()) {
+			if (!$config->hasReference()) {
+				throw new InvalidArgumentException('createJob() with `unique` requires a `reference` to dedupe on.');
+			}
+
+			$existing = $this->find()
+				->where([
+					'reference' => $config->getReferenceOrFail(),
+					'job_task' => $resolvedTask,
+					'completed IS' => null,
+				])
+				->first();
+			if ($existing !== null) {
+				Log::info(sprintf(
+					'Queue.createJob: dedup hit for %s reference=%s (returning existing job_id=%d)',
+					$resolvedTask,
+					$config->getReferenceOrFail(),
+					$existing->id,
+				));
+
+				return $existing;
+			}
+		}
+
 		$queuedJob = [
-			'job_task' => $this->jobTask($jobTask),
+			'job_task' => $resolvedTask,
 			'data' => $data,
 			'notbefore' => $config->hasNotBefore() ? $this->getDateTime($config->getNotBeforeOrFail()) : null,
 			'priority' => $config->getPriority(),

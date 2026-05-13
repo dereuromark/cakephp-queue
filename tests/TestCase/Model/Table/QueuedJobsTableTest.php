@@ -16,6 +16,7 @@ use Cake\Event\EventManager;
 use Cake\I18n\DateTime;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
+use InvalidArgumentException;
 use Queue\Model\Enum\Priority;
 use Queue\Model\Table\QueuedJobsTable;
 use Queue\Queue\Task\ExampleTask;
@@ -705,6 +706,108 @@ class QueuedJobsTableTest extends TestCase {
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$data = $tmp->data;
 		$this->assertSame(['key' => 'k2'], $data);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testCreateJobUniqueReturnsExistingPendingJob(): void {
+		$first = $this->QueuedJobs->createJob(
+			'Foo',
+			['k' => 'v1'],
+			['reference' => 'tenant-1', 'unique' => true],
+		);
+
+		$second = $this->QueuedJobs->createJob(
+			'Foo',
+			['k' => 'v2'],
+			['reference' => 'tenant-1', 'unique' => true],
+		);
+
+		$this->assertSame($first->id, $second->id, 'unique should return the existing pending job');
+		// Original payload is preserved; the second call is a no-op insert.
+		$this->assertSame(['k' => 'v1'], $second->data);
+		$this->assertSame(1, $this->QueuedJobs->find()->where(['reference' => 'tenant-1'])->count());
+	}
+
+	/**
+	 * Once the first job is completed, a later `unique` call must create a
+	 * fresh row -- otherwise the next scheduled run could never enqueue.
+	 *
+	 * @return void
+	 */
+	public function testCreateJobUniqueInsertsAgainAfterCompletion(): void {
+		$first = $this->QueuedJobs->createJob(
+			'Foo',
+			null,
+			['reference' => 'tenant-2', 'unique' => true],
+		);
+
+		$first->completed = new DateTime();
+		$this->QueuedJobs->saveOrFail($first);
+
+		$second = $this->QueuedJobs->createJob(
+			'Foo',
+			null,
+			['reference' => 'tenant-2', 'unique' => true],
+		);
+
+		$this->assertNotSame($first->id, $second->id);
+		$this->assertSame(2, $this->QueuedJobs->find()->where(['reference' => 'tenant-2'])->count());
+	}
+
+	/**
+	 * Dedup is scoped to (reference, job_task) -- a different task name with
+	 * the same reference still inserts.
+	 *
+	 * @return void
+	 */
+	public function testCreateJobUniqueIsScopedByJobTask(): void {
+		Configure::write('Queue.skipExistenceCheck', true);
+
+		$foo = $this->QueuedJobs->createJob(
+			'Foo',
+			null,
+			['reference' => 'shared-ref', 'unique' => true],
+		);
+
+		$bar = $this->QueuedJobs->createJob(
+			'Bar',
+			null,
+			['reference' => 'shared-ref', 'unique' => true],
+		);
+
+		$this->assertNotSame($foo->id, $bar->id);
+		$this->assertSame('Foo', $foo->job_task);
+		$this->assertSame('Bar', $bar->job_task);
+	}
+
+	/**
+	 * Without `unique`, two calls with the same reference both insert -- BC
+	 * preserved for callers that use `reference` for audit but want every
+	 * scheduled run to enqueue independently.
+	 *
+	 * @return void
+	 */
+	public function testCreateJobWithoutUniqueDoesNotDedupe(): void {
+		$first = $this->QueuedJobs->createJob('Foo', null, ['reference' => 'tenant-3']);
+		$second = $this->QueuedJobs->createJob('Foo', null, ['reference' => 'tenant-3']);
+
+		$this->assertNotSame($first->id, $second->id);
+		$this->assertSame(2, $this->QueuedJobs->find()->where(['reference' => 'tenant-3'])->count());
+	}
+
+	/**
+	 * `unique` without a `reference` is a programming error -- fail fast at
+	 * the call site rather than silently inserting an undeduped row.
+	 *
+	 * @return void
+	 */
+	public function testCreateJobUniqueWithoutReferenceThrows(): void {
+		$this->expectException(InvalidArgumentException::class);
+		$this->expectExceptionMessageMatches('/unique.*reference/i');
+
+		$this->QueuedJobs->createJob('Foo', null, ['unique' => true]);
 	}
 
 	/**
