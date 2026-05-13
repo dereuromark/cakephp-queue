@@ -41,6 +41,11 @@ class JobConfig {
 	public const FIELD_STATUS = 'status';
 
 	/**
+	 * @var string
+	 */
+	public const FIELD_UNIQUE = 'unique';
+
+	/**
 	 * For camelBacked input/output.
 	 *
 	 * E.g. `myFieldName`
@@ -93,6 +98,14 @@ class JobConfig {
 	protected $status;
 
 	/**
+	 * Request-time flag. Not persisted; intentionally outside `_keyMap` so
+	 * it never leaks into `toArray()` output or the `queued_jobs` row.
+	 *
+	 * @var bool
+	 */
+	protected bool $unique = false;
+
+	/**
 	 * @var array<string, array<string, string>>
 	 */
 	protected array $_keyMap = [
@@ -127,6 +140,15 @@ class JobConfig {
 	 */
 	public function fromArray(array $data, ?string $type = null) {
 		$type = $this->keyType($type, static::TYPE_CAMEL);
+
+		// `unique` is a request-time flag, not persisted state, so it lives
+		// outside `_keyMap`. Handle it here so a caller can pass it in the
+		// array shape (`createJob($task, $data, ['reference' => ..., 'unique' => true])`)
+		// without tripping the strict `field()` lookup below.
+		if (array_key_exists('unique', $data)) {
+			$this->unique = (bool)$data['unique'];
+			unset($data['unique']);
+		}
 
 		foreach ($data as $field => $value) {
 			if ($type !== static::TYPE_CAMEL) {
@@ -475,6 +497,29 @@ class JobConfig {
 	 */
 	public function hasStatus(): bool {
 		return $this->status !== null;
+	}
+
+	/**
+	 * Enable dedup for this job: if a pending (incomplete) job already
+	 * exists with the same `reference` and resolved `job_task`,
+	 * `createJob()` returns that existing entity instead of inserting a
+	 * duplicate. Requires `reference` to be set.
+	 *
+	 * @param bool $unique
+	 *
+	 * @return $this
+	 */
+	public function setUnique(bool $unique) {
+		$this->unique = $unique;
+
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isUnique(): bool {
+		return $this->unique;
 	}
 
 }

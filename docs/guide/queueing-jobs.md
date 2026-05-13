@@ -27,7 +27,7 @@ The `createJob()` function takes three arguments.
 - The first argument is the name of the type of job that you are creating.
 - The second argument is optional, but if set must be an array of data and will be passed as a payload parameter to the `run()` function of the worker.
   It can also be a (DTO) object that implements `CakeDto\Dto\FromArrayToArrayInterface` or provides `toArray()` method.
-- The third argument is options (`'notBefore'`, `'priority'`, `'group'`, `'reference'`). Either as array or `Queue\Config\JobConfig` class.
+- The third argument is options (`'notBefore'`, `'priority'`, `'group'`, `'reference'`, `'unique'`). Either as array or `Queue\Config\JobConfig` class. See [Avoiding parallel (re)queueing](#avoiding-parallel-re-queueing) for the `unique` flag.
 
 > `priority` is sorted ascending, therefore a task with priority 1 will be executed before a task with priority 5
 
@@ -200,6 +200,41 @@ So if someone clicks on the button again before the job is finished, he will not
 For more complex use cases, you can manually use `->find()->where()`, of course.
 
 Note that the 2nd argument (job type) is optional, but recommended. If you do not use it, make sure your reference is globally unique.
+
+### Built-in dedup with `unique: true`
+
+For fan-out dispatchers and cron-driven tasks that enqueue many similar
+jobs, the manual `isQueued()` guard above is two lines of boilerplate
+per enqueue site. The `unique` option folds that into `createJob()`
+directly: if a pending (incomplete) job already exists for the same
+`(reference, resolved job_task)` pair, the existing entity is returned
+and no new row is inserted.
+
+```php
+$queuedJobsTable->createJob(
+    'VolunteerCheckOutReminder',
+    ['account_uuid' => $accountUuid],
+    [
+        'reference' => 'volunteer_check_out:' . $accountUuid,
+        'unique' => true,
+    ],
+);
+// First call: inserts a new pending job, returns the new entity.
+// Subsequent calls while that job is pending: return the *existing*
+// entity without inserting. Once the original completes, the next call
+// inserts a fresh row.
+```
+
+`unique: true` without a `reference` throws `InvalidArgumentException`
+— fail-fast at the call site rather than silently inserting an
+undeduped row. The dedup check uses an info-level log entry
+(`Queue.createJob: dedup hit for <task> reference=<ref> ...`) so
+operators can confirm the guard is firing.
+
+The dedup window is "the previous job is not yet completed" — pending,
+in-progress, and failed-but-not-completed jobs all block. This is the
+right shape for cron fan-out: if a previous tick is stuck or still
+running, the next tick holds back instead of stacking a duplicate.
 
 ## Updating progress/status
 
