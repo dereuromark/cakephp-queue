@@ -11,6 +11,7 @@ The Queue plugin runs background jobs out of your CakePHP database — no Redis,
 ## Operating the queue
 
 - [Configuration](/guide/configuration) — runtime tuning (worker lifetime, timeouts, retries, multi-server).
+- [Operations](/guide/operations) — production checklist: sizing workers, supervisor/systemd, monitoring, failure handling, schema migrations on live workers.
 - [Cron Setup](/guide/cron) — start workers on a schedule.
 - [Multi-Connection](/guide/multi-connection) — run queues against multiple databases.
 - [Real-Time Progress](/guide/realtime-progress) — Mercure / SSE for live progress UIs.

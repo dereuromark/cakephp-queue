@@ -442,20 +442,29 @@ class Processor {
 	 * @return bool
 	 */
 	protected function captureOutput(): bool {
-		if ($this->captureOutput === null) {
-			$configured = Configure::read('Queue.captureOutput');
-			if ($configured !== null) {
+		$configured = Configure::read('Queue.captureOutput');
+		if ($configured !== null) {
+			// Explicit config never changes mid-process, so memoize that
+			// branch and short-circuit on subsequent calls.
+			if ($this->captureOutput === null) {
 				$this->captureOutput = (bool)$configured;
-			} else {
-				try {
-					$this->captureOutput = $this->QueuedJobs->getSchema()->hasColumn('output');
-				} catch (Throwable) {
-					$this->captureOutput = false;
-				}
 			}
+
+			return $this->captureOutput;
 		}
 
-		return $this->captureOutput;
+		// Auto-detection path: re-check on every call rather than caching
+		// for the lifetime of the worker. A long-running worker that was
+		// started before `bin/cake migrations migrate` added the `output`
+		// column would otherwise see the old `false` for the rest of its
+		// runtime and silently drop captured stdout until restart. The
+		// per-call cost is a single schema lookup against a cached
+		// description, which is negligible compared to running a job.
+		try {
+			return $this->QueuedJobs->getSchema()->hasColumn('output');
+		} catch (Throwable) {
+			return false;
+		}
 	}
 
 	/**

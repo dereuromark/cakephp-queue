@@ -15,6 +15,7 @@ function guideSidebar() {
       text: 'Operating',
       items: [
         { text: 'Configuration', link: '/guide/configuration' },
+        { text: 'Operations', link: '/guide/operations' },
         { text: 'Cron Setup', link: '/guide/cron' },
         { text: 'Multi-Connection', link: '/guide/multi-connection' },
         { text: 'Real-Time Progress', link: '/guide/realtime-progress' },
