@@ -107,6 +107,15 @@ return [
 		// - string: Uses specified layout
 		'adminLayout' => null,
 
+		// Maximum number of pending and scheduled job rows the admin
+		// dashboard materialises and renders. Aggregate tile counts on the
+		// dashboard are still computed via DB count() and reflect the
+		// unbounded totals; only the visible row list is capped. Raise this
+		// for more rows at once, lower it if the page is sluggish on a
+		// large backlog. The cap also keeps DebugKit's Variables panel
+		// from OOM-ing on huge queues.
+		'adminDetailsLimit' => 200,
+
 		// Back-to-App link in the admin header (opt-in). When set, an outline
 		// button appears in the top navbar so admins can escape the
 		// plugin-isolated layout. Accepts anything Router::url() takes — Cake

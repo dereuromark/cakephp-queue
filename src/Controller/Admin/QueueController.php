@@ -47,16 +47,31 @@ class QueueController extends QueueAppController {
 		$status = $QueueProcesses->status();
 
 		$current = $this->QueuedJobs->getLength();
-		$pendingDetails = $this->QueuedJobs->getPendingStats()->toArray();
-		$new = 0;
-		foreach ($pendingDetails as $pendingDetail) {
-			if ($pendingDetail['fetched'] || $pendingDetail['attempts']) {
-				continue;
-			}
-			$new++;
+
+		// Cap how many pending/scheduled rows we materialise and pass to the
+		// view. Without a cap a backlog of thousands of pending jobs makes
+		// the dashboard explode: heavy per-row HTML in the response, and
+		// DebugKit's Variables panel serialising every entity for its
+		// snapshot can OOM the request. Aggregate tile counts on the
+		// dashboard keep using DB-side count() queries so they reflect the
+		// true totals regardless of the visible-list cap.
+		$detailsLimit = (int)Configure::read('Queue.adminDetailsLimit', 200);
+
+		// +1 row past the cap so we can detect truncation without a second
+		// count query in the small-backlog case.
+		$pendingDetails = $this->QueuedJobs->getPendingStats()->limit($detailsLimit + 1)->toArray();
+		$pendingDetailsTruncated = count($pendingDetails) > $detailsLimit;
+		if ($pendingDetailsTruncated) {
+			array_pop($pendingDetails);
 		}
 
-		$scheduledDetails = $this->QueuedJobs->getScheduledStats()->toArray();
+		$new = $this->QueuedJobs->getNewCount();
+
+		$scheduledDetails = $this->QueuedJobs->getScheduledStats()->limit($detailsLimit + 1)->toArray();
+		$scheduledDetailsTruncated = count($scheduledDetails) > $detailsLimit;
+		if ($scheduledDetailsTruncated) {
+			array_pop($scheduledDetails);
+		}
 
 		$data = $this->QueuedJobs->getStats();
 
@@ -74,7 +89,17 @@ class QueueController extends QueueAppController {
 		$servers = $QueueProcesses->serverList();
 		$workers = $status ? $status['workers'] : 0;
 
-		$scheduledJobs = count($scheduledDetails);
+		// True totals from DB. When the visible list is truncated we need
+		// these for the "showing N of M" hint; when it isn't, they also
+		// happen to match $pendingDetails count (small extra query that
+		// avoids one branch in the derivation below).
+		$totalPending = $pendingDetailsTruncated
+			? $this->QueuedJobs->getPendingCount()
+			: count($pendingDetails);
+		$scheduledJobs = $scheduledDetailsTruncated
+			? $this->QueuedJobs->getScheduledCount()
+			: count($scheduledDetails);
+
 		$runningJobs = $this->QueuedJobs->find()
 			->where([
 				'completed IS' => null,
@@ -89,7 +114,7 @@ class QueueController extends QueueAppController {
 			])
 			->count();
 		// Pending = total pending minus running and failed (to avoid double counting)
-		$pendingJobs = max(0, count($pendingDetails) - $runningJobs - $failedJobs);
+		$pendingJobs = max(0, $totalPending - $runningJobs - $failedJobs);
 
 		$configurations = (array)Configure::read('Queue');
 
@@ -99,6 +124,10 @@ class QueueController extends QueueAppController {
 			'data',
 			'pendingDetails',
 			'scheduledDetails',
+			'pendingDetailsTruncated',
+			'scheduledDetailsTruncated',
+			'detailsLimit',
+			'totalPending',
 			'status',
 			'tasks',
 			'addableTasks',
