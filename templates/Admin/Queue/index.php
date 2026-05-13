@@ -139,7 +139,7 @@ use Cake\Core\Configure;
 								$totalPending,
 								$this->Html->link(
 									__d('queue', 'See QueuedJobs admin'),
-									['controller' => 'QueuedJobs', 'action' => 'index'],
+									['controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'in_progress']],
 								),
 							],
 						) ?>
@@ -277,8 +277,15 @@ use Cake\Core\Configure;
 							<i class="fas fa-info-circle me-1"></i>
 							<?= __d(
 								'queue',
-								'Showing {0} most recent of {1} scheduled jobs.',
-								[count($scheduledDetails), $scheduledJobs],
+								'Showing {0} most recent of {1} scheduled jobs. {2} for the full list.',
+								[
+									count($scheduledDetails),
+									$scheduledJobs,
+									$this->Html->link(
+										__d('queue', 'See QueuedJobs admin'),
+										['controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'scheduled']],
+									),
+								],
 							) ?>
 						</div>
 					<?php endif; ?>
