@@ -248,6 +248,22 @@ if ($request && $request->getParam('controller') === 'Queue' && $request->getPar
 			border: 1px solid #ffc107;
 		}
 
+		.status-banner.status-stalled {
+			background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+			border: 1px solid #dc3545;
+			border-left-width: 4px;
+		}
+
+		.status-banner.status-stalled .stalled-details dt {
+			padding-top: 0.125rem;
+		}
+
+		.status-banner.status-stalled .stalled-details code {
+			background: rgba(220, 53, 69, 0.08);
+			padding: 0.125rem 0.375rem;
+			border-radius: 0.25rem;
+		}
+
 		.status-banner .status-icon {
 			font-size: 1.5rem;
 		}

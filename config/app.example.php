@@ -127,6 +127,23 @@ return [
 		// auto-refresh dashboard in seconds (0 = disabled)
 		'dashboardAutoRefresh' => 0,
 
+		// Status-banner thresholds on the admin dashboard, in seconds. The
+		// banner has three colors: green (running), yellow (idle), red
+		// (stalled — action required).
+		//   running:  fresh heartbeat              (< dashboardIdleAfter)
+		//   idle:     stale heartbeat, no backlog  (>= dashboardIdleAfter)
+		//   stalled:  >= dashboardStalledAfter with a pending backlog and no
+		//             in-flight job, OR no worker reporting with backlog
+		// Defaults (60 / 120) are deliberate UI policy — human-perceptible
+		// 1-min / 2-min boundaries — not derived from queue mechanics, since
+		// no existing config knob (workerLifetime, defaultRequeueTimeout,
+		// sleeptime) actually means "heartbeat freshness." Override for
+		// unusual cadences (e.g. slow cron in `exitwhennothingtodo` mode —
+		// raise dashboardStalledAfter past the cron interval to avoid
+		// false-red between ticks).
+		'dashboardIdleAfter' => 60,
+		'dashboardStalledAfter' => 120,
+
 		// Standalone mode for admin controllers:
 		// - false (default): Extends App\Controller\AppController, inherits app auth/components
 		// - true: Isolated admin, skips app's AppController setup
