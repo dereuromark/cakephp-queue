@@ -25,58 +25,168 @@
 
 use Cake\Core\Configure;
 
+// Banner thresholds are a UI policy, not a system mechanic: how long the
+// dashboard waits before nagging the admin. Defaults are 60s yellow / 120s
+// red — human-perceptible minute boundaries — and don't derive from queue
+// config knobs because none of them actually mean "heartbeat freshness":
+//   - workerLifetime is an exit policy (a 1h-lifetime worker still
+//     heartbeats every ~sleeptime when idle).
+//   - defaultRequeueTimeout is the job-reassignment safeguard, tuned for
+//     max job duration (often 5-10 min).
+//   - sleeptime is closest to the real heartbeat cadence for an idle
+//     worker, but busy workers don't sleep — and we already cover the
+//     busy-worker case via the `runningJobs > 0` escape hatch below.
+// Override these for installations with unusual cron cadence (e.g. slow
+// `exitwhennothingtodo` cron — raise dashboardStalledAfter past the cron
+// interval to avoid false-red between ticks).
+$idleAfterSeconds = (int)Configure::read('Queue.dashboardIdleAfter', 60);
+$stalledAfterSeconds = (int)Configure::read('Queue.dashboardStalledAfter', 120);
 ?>
 
 <!-- Status Banner -->
-<?php if ($status): ?>
-	<?php
+<?php
+/**
+ * Three-state status (running / idle / stalled). State is computed for both the
+ * "have a recent heartbeat" path and the "no active worker rows at all" path so
+ * that a total cron outage — the worst case — surfaces as red, not as a muted
+ * info notice.
+ *
+ *   running   <idleAfterSeconds                                       green
+ *   idle      idleAfterSeconds-stalledAfterSeconds,
+ *             OR no heartbeat & no backlog                            yellow
+ *   stalled   ≥stalledAfterSeconds with pending backlog and no
+ *             in-flight job, OR no heartbeat at all with pending      red
+ *
+ * Thresholds default to 60s yellow / 120s red — human-perceptible minute
+ * boundaries — and can be tuned via Queue.dashboardIdleAfter and
+ * Queue.dashboardStalledAfter for installs with unusual cron cadence.
+ *
+ * Notes:
+ *   - In cron-driven mode workers are short-lived; `workers == 0` is the normal
+ *     idle state for a quiet system, so red requires a real pending backlog too.
+ *   - `runningJobs > 0` (derived in the controller from
+ *     `fetched IS NOT NULL AND completed IS NULL`) keeps a busy worker out of
+ *     red: heartbeats fire at the top of each loop, not during long jobs, so
+ *     a >2 min task with more pending behind it would look stalled by heartbeat
+ *     age alone.
+ *   - When `$status` is empty, `QueueProcessesTable::status()` filtered every
+ *     worker row past `Queue.defaultRequeueTimeout`. In that case a pending
+ *     backlog or stuck in-flight job is unambiguously a problem.
+ */
+$state = 'idle';
+$time = null;
+$relTime = null;
+
+if ($status) {
 	/** @var \Cake\I18n\DateTime $time */
 	$time = $status['time'];
-	$running = $time->addMinutes(1)->isFuture();
+	$now = new \Cake\I18n\DateTime();
+	$secondsSinceActivity = max(0, $now->getTimestamp() - $time->getTimestamp());
+
+	$state = 'running';
+	if ($secondsSinceActivity >= $idleAfterSeconds) {
+		$state = 'idle';
+	}
+	if ($secondsSinceActivity >= $stalledAfterSeconds && $pendingJobs > 0 && $runningJobs === 0) {
+		$state = 'stalled';
+	}
+
 	$relTime = method_exists($this->Time, 'relLengthOfTime')
 		? $this->Time->relLengthOfTime($status['time'])
 		: $this->Time->timeAgoInWords($status['time']);
-	?>
-	<div class="status-banner <?= $running ? 'status-running' : 'status-idle' ?>">
-		<div class="d-flex align-items-center justify-content-between">
-			<div class="d-flex align-items-center">
-				<span class="status-icon me-3">
-					<?php if ($running): ?>
-						<i class="fas fa-check-circle text-success"></i>
-					<?php else: ?>
-						<i class="fas fa-pause-circle text-warning"></i>
-					<?php endif; ?>
-				</span>
-				<div>
-					<strong><?= $running ? __d('queue', 'Queue Running') : __d('queue', 'Queue Idle') ?></strong>
-					<div class="text-muted small">
+} elseif ($pendingJobs > 0 || $runningJobs > 0) {
+	// No worker has reported within `Queue.defaultRequeueTimeout`, yet jobs are
+	// either waiting (pending) or marked in-flight (fetched but not completed).
+	// Pending + no heartbeat = cron likely dead. Running + no heartbeat = worker
+	// died mid-job and left a stale fetched row, OR a job legitimately ran past
+	// the requeue timeout (which is itself a misconfiguration worth surfacing).
+	$state = 'stalled';
+}
+
+$stateMeta = [
+	'running' => ['icon' => 'check-circle', 'iconColor' => 'text-success', 'label' => __d('queue', 'Queue Running')],
+	'idle' => ['icon' => 'pause-circle', 'iconColor' => 'text-warning', 'label' => __d('queue', 'Queue Idle')],
+	'stalled' => ['icon' => 'exclamation-circle', 'iconColor' => 'text-danger', 'label' => __d('queue', 'Queue Stalled')],
+][$state];
+?>
+<div class="status-banner status-<?= $state ?>">
+	<div class="d-flex align-items-center justify-content-between">
+		<div class="d-flex align-items-center">
+			<span class="status-icon me-3">
+				<i class="fas fa-<?= $stateMeta['icon'] ?> <?= $stateMeta['iconColor'] ?>"></i>
+			</span>
+			<div>
+				<strong><?= $stateMeta['label'] ?></strong>
+				<?php if ($state === 'stalled'): ?>
+					<span class="badge bg-danger ms-2"><?= __d('queue', 'action required') ?></span>
+				<?php endif; ?>
+				<div class="text-muted small">
+					<?php if ($status): ?>
 						<?= __d('queue', 'Last activity {0}', $relTime) ?>
 						&bull;
-						<?= $this->Html->link(
-							__d('queue', '{0} worker(s)', $workers),
-							['action' => 'processes'],
-							['class' => 'text-decoration-none']
-						) ?>
+					<?php else: ?>
+						<?= __d('queue', 'No worker reporting') ?>
 						&bull;
-						<?= __d('queue', '{0} server(s)', count($servers)) ?>
-					</div>
+					<?php endif; ?>
+					<?= $this->Html->link(
+						__d('queue', '{0} worker(s)', $workers),
+						['action' => 'processes'],
+						['class' => 'text-decoration-none']
+					) ?>
+					&bull;
+					<?= __d('queue', '{0} server(s)', count($servers)) ?>
 				</div>
 			</div>
-			<div>
-				<?= $this->Html->link(
-					'<i class="fas fa-cogs me-1"></i>' . __d('queue', 'Manage Workers'),
-					['action' => 'processes'],
-					['class' => 'btn btn-sm btn-outline-dark', 'escapeTitle' => false]
-				) ?>
-			</div>
+		</div>
+		<div>
+			<?= $this->Html->link(
+				'<i class="fas fa-cogs me-1"></i>' . __d('queue', 'Manage Workers'),
+				['action' => 'processes'],
+				['class' => 'btn btn-sm btn-outline-dark', 'escapeTitle' => false]
+			) ?>
 		</div>
 	</div>
-<?php else: ?>
-	<div class="alert alert-secondary">
-		<i class="fas fa-info-circle me-2"></i>
-		<?= __d('queue', 'No queue status available. Workers may not have started yet.') ?>
-	</div>
-<?php endif; ?>
+	<?php if ($state === 'stalled'): ?>
+		<?php
+		if (!$status && $runningJobs > 0) {
+			$causeHint = __d('queue', 'A job is marked in-flight but no worker is reporting. The worker likely crashed mid-job — reset stale fetched jobs and check cron.');
+		} elseif (!$status) {
+			$causeHint = __d('queue', 'No worker has reported in. Cron is likely not firing — check that {0} runs on at least one server.', '<code>bin/cake queue run</code>');
+		} elseif ($workers === 0) {
+			$causeHint = __d('queue', 'Jobs are waiting but no workers are running. Check that {0} cron is firing on at least one server.', '<code>bin/cake queue run</code>');
+		} else {
+			$causeHint = __d('queue', "Jobs are waiting but aren't being picked up. Workers may have crashed — restart the queue or clean up stale processes.");
+		}
+		?>
+		<div class="stalled-details mt-3 pt-3 border-top border-danger-subtle">
+			<dl class="row mb-2 small">
+				<dt class="col-sm-3 text-muted fw-normal"><?= __d('queue', 'Last activity') ?></dt>
+				<dd class="col-sm-9 mb-1">
+					<?php if ($time): ?>
+						<code><?= h($time->i18nFormat('yyyy-MM-dd HH:mm:ss')) ?></code>
+						<span class="text-muted">· <?= $relTime ?></span>
+					<?php else: ?>
+						<span class="text-danger fw-medium"><?= __d('queue', 'No worker has reported recently') ?></span>
+					<?php endif; ?>
+				</dd>
+				<dt class="col-sm-3 text-muted fw-normal"><?= __d('queue', 'Workers') ?></dt>
+				<dd class="col-sm-9 mb-1">
+					<strong class="<?= $workers === 0 ? 'text-danger' : '' ?>"><?= $workers ?></strong>
+					<?= __d('queue', 'on {0} server(s)', count($servers)) ?>
+				</dd>
+				<dt class="col-sm-3 text-muted fw-normal"><?= __d('queue', 'Pending') ?></dt>
+				<dd class="col-sm-9 mb-0">
+					<strong class="<?= $pendingJobs > 0 ? 'text-danger' : '' ?>"><?= $pendingJobs ?></strong>
+					<?= __d('queue', 'jobs waiting') ?>
+				</dd>
+			</dl>
+			<div class="small">
+				<i class="fas fa-info-circle me-1 text-danger"></i>
+				<?= $causeHint ?>
+			</div>
+		</div>
+	<?php endif; ?>
+</div>
 
 <!-- Stats Cards -->
 <div class="row g-3 mb-4">
