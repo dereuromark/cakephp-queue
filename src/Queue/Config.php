@@ -27,7 +27,7 @@ class Config {
 				);
 			}
 		}
-		$timeout = $timeout ?? 600; // 10min default
+		$timeout ??= 600; // 10min default
 
 		if ($timeout <= 0) {
 			throw new InvalidArgumentException('Queue.defaultRequeueTimeout (or deprecated defaultworkertimeout) is less or equal than zero. Indefinite running of jobs is not supported.');

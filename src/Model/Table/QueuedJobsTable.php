@@ -267,7 +267,7 @@ class QueuedJobsTable extends Table {
 	 * @return string
 	 */
 	protected function jobTask(string $jobType): string {
-		if ($this->taskFinder === null) {
+		if (!$this->taskFinder instanceof \Queue\Queue\TaskFinder) {
 			$this->taskFinder = new TaskFinder();
 		}
 
@@ -981,7 +981,7 @@ class QueuedJobsTable extends Table {
 
 			// MySQL DAYOFWEEK returns 1=Sunday, 2=Monday, etc. Adjust to 0=Sunday
 			if ($driverName === static::DRIVER_MYSQL) {
-				$day = $day - 1;
+				$day -= 1;
 			}
 
 			// Ensure day is in valid range (0-6)
@@ -1260,10 +1260,9 @@ class QueuedJobsTable extends Table {
 	 * @return string
 	 */
 	protected function getDriverName(): string {
-		$className = explode('\\', $this->getConnection()->config()['driver']);
-		$name = end($className) ?: '';
+		$className = explode('\\', (string) $this->getConnection()->config()['driver']);
 
-		return $name;
+		return end($className) ?: '';
 	}
 
 	/**
@@ -1277,7 +1276,7 @@ class QueuedJobsTable extends Table {
 		$include = [];
 		$exclude = [];
 		foreach ($values as $value) {
-			if (substr($value, 0, 1) === '-') {
+			if (str_starts_with($value, '-')) {
 				$exclude[] = substr($value, 1);
 			} else {
 				$include[] = $value;

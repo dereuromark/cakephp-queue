@@ -24,7 +24,7 @@ class QueuedJobTask implements TaskInterface {
 		$list = [];
 
 		$names = $this->collectQueuedJobTasks();
-		foreach ($names as $name => $className) {
+		foreach (array_keys($names) as $name) {
 			$list[$name] = "'$name'";
 		}
 
@@ -44,9 +44,8 @@ class QueuedJobTask implements TaskInterface {
 	 */
 	protected function collectQueuedJobTasks(): array {
 		$taskFinder = new TaskFinder();
-		$tasks = $taskFinder->all();
 
-		return $tasks;
+		return $taskFinder->all();
 	}
 
 }

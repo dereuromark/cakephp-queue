@@ -198,10 +198,10 @@ class Processor {
 			pcntl_async_signals(true);
 		}
 		if (function_exists('pcntl_signal')) {
-			pcntl_signal(SIGTERM, [&$this, 'exit']);
-			pcntl_signal(SIGINT, [&$this, 'abort']);
-			pcntl_signal(SIGTSTP, [&$this, 'abort']);
-			pcntl_signal(SIGQUIT, [&$this, 'abort']);
+			pcntl_signal(SIGTERM, $this->exit(...));
+			pcntl_signal(SIGINT, $this->abort(...));
+			pcntl_signal(SIGTSTP, $this->abort(...));
+			pcntl_signal(SIGQUIT, $this->abort(...));
 			if (Configure::read('Queue.canInterruptSleep')) {
 				// Defining a signal handler here will make the worker wake up
 				// from its sleep() when SIGUSR1 is received. Since waking it
@@ -222,12 +222,12 @@ class Processor {
 
 			try {
 				$this->updatePid($pid);
-			} catch (RecordNotFoundException $exception) {
+			} catch (RecordNotFoundException) {
 				// Manually killed
 				$this->exit = true;
 
 				continue;
-			} catch (ProcessEndingException $exception) {
+			} catch (ProcessEndingException) {
 				// Soft killed, e.g. during deploy update
 				$this->exit = true;
 
@@ -533,13 +533,7 @@ class Processor {
 	 * @return string
 	 */
 	protected function retrievePid(): string {
-		if (function_exists('posix_getpid')) {
-			$pid = (string)posix_getpid();
-		} else {
-			$pid = $this->QueuedJobs->key();
-		}
-
-		return $pid;
+		return function_exists('posix_getpid') ? (string)posix_getpid() : $this->QueuedJobs->key();
 	}
 
 	/**

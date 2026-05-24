@@ -59,7 +59,7 @@ class AddCommand extends Command {
 		$taskName = $args->getArgument('task');
 		if (!$taskName) {
 			$io->out(count($tasks) . ' tasks available:');
-			foreach ($tasks as $task => $className) {
+			foreach (array_keys($tasks) as $task) {
 				$io->out(' - ' . $task);
 			}
 

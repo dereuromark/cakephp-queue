@@ -172,14 +172,12 @@ class JsonableBehavior extends Behavior {
 	 * @return string|null
 	 */
 	public function _encode($val) {
-		if (!empty($this->_config['fields'])) {
-			if ($this->_config['input'] === 'json') {
-				if (!is_string($val)) {
+		if (!empty($this->_config['fields']) && $this->_config['input'] === 'json') {
+            if (!is_string($val)) {
 					throw new InvalidArgumentException('Only accepts JSON string for input type `json`');
 				}
-				$val = $this->_fromJson($val);
-			}
-		}
+            $val = $this->_fromJson($val);
+        }
 		if (!is_array($val)) {
 			return null;
 		}

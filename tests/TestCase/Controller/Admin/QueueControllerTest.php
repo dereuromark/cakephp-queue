@@ -349,7 +349,7 @@ class QueueControllerTest extends TestCase {
 	 */
 	protected function _needsConnection() {
 		$config = ConnectionManager::getConfig('test');
-		$skip = strpos($config['driver'], 'Mysql') === false && strpos($config['driver'], 'Postgres') === false;
+		$skip = !str_contains((string) $config['driver'], 'Mysql') && !str_contains((string) $config['driver'], 'Postgres');
 		$this->skipIf($skip, 'Only Mysql/Postgres is working yet for this.');
 	}
 

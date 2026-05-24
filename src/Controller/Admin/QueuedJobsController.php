@@ -75,7 +75,7 @@ class QueuedJobsController extends QueueAppController {
 		}
 		$queuedJobs = $this->paginate($query);
 
-		$this->set(compact('queuedJobs'));
+		$this->set(['queuedJobs' => $queuedJobs]);
 
 		if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Search')) {
 			$jobTypes = $this->QueuedJobs->find()->where()->find(
@@ -83,7 +83,7 @@ class QueuedJobsController extends QueueAppController {
 				keyField: 'job_task',
 				valueField: 'job_task',
 			)->distinct('job_task')->toArray();
-			$this->set(compact('jobTypes'));
+			$this->set(['jobTypes' => $jobTypes]);
 		}
 	}
 
@@ -112,7 +112,7 @@ class QueuedJobsController extends QueueAppController {
 			keyField: 'job_task',
 			valueField: 'job_task',
 		)->distinct('job_task')->toArray();
-		$this->set(compact('stats', 'jobTypes', 'jobType'));
+		$this->set(['stats' => $stats, 'jobTypes' => $jobTypes, 'jobType' => $jobType]);
 	}
 
 	/**
@@ -153,7 +153,7 @@ class QueuedJobsController extends QueueAppController {
 			valueField: 'job_task',
 		)->distinct('job_task')->toArray();
 
-		$this->set(compact('heatmapData', 'jobTypes', 'jobType', 'metric', 'days'));
+		$this->set(['heatmapData' => $heatmapData, 'jobTypes' => $jobTypes, 'jobType' => $jobType, 'metric' => $metric, 'days' => $days]);
 	}
 
 	/**
@@ -173,7 +173,7 @@ class QueuedJobsController extends QueueAppController {
 			$this->response = $this->response->withDownload('queued-job-' . $id . '.json');
 		}
 
-		$this->set(compact('queuedJob'));
+		$this->set(['queuedJob' => $queuedJob]);
 		$this->viewBuilder()->setOption('serialize', ['queuedJob']);
 	}
 
@@ -286,7 +286,7 @@ class QueuedJobsController extends QueueAppController {
 			$this->Flash->error(__d('queue', 'The queued job could not be saved. Please try again.'));
 		}
 
-		$this->set(compact('queuedJob'));
+		$this->set(['queuedJob' => $queuedJob]);
 	}
 
 	/**
@@ -322,7 +322,7 @@ class QueuedJobsController extends QueueAppController {
 			}
 		}
 
-		$this->set(compact('queuedJob'));
+		$this->set(['queuedJob' => $queuedJob]);
 	}
 
 	/**
@@ -407,7 +407,7 @@ class QueuedJobsController extends QueueAppController {
 		$taskFinder = new TaskFinder();
 		$allTasks = $taskFinder->all();
 		$tasks = [];
-		foreach ($allTasks as $task => $className) {
+		foreach (array_keys($allTasks) as $task) {
 			if (!str_starts_with($task, 'Queue.')) {
 				continue;
 			}
@@ -440,7 +440,7 @@ class QueuedJobsController extends QueueAppController {
 			$this->Flash->error(__d('queue', 'The job could not be queued. Please try again.'));
 		}
 
-		$this->set(compact('tasks', 'queuedJob'));
+		$this->set(['tasks' => $tasks, 'queuedJob' => $queuedJob]);
 	}
 
 	/**
@@ -458,7 +458,7 @@ class QueuedJobsController extends QueueAppController {
 			->toArray();
 
 		$tasks = [];
-		foreach ($allTasks as $task => $className) {
+		foreach (array_keys($allTasks) as $task) {
 			if (!str_starts_with($task, 'Queue.')) {
 				continue;
 			}
@@ -488,7 +488,7 @@ class QueuedJobsController extends QueueAppController {
 			return $this->redirect(['action' => 'migrate']);
 		}
 
-		$this->set(compact('tasks'));
+		$this->set(['tasks' => $tasks]);
 	}
 
 }

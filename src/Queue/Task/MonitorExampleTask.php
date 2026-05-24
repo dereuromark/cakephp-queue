@@ -102,7 +102,7 @@ class MonitorExampleTask extends Task implements AddInterface, AddFromBackendInt
 		$data = explode("\n", file_get_contents('/proc/meminfo') ?: '');
 		$meminfo = [];
 		foreach ($data as $line) {
-			if (strpos($line, ':') === false) {
+			if (!str_contains($line, ':')) {
 				continue;
 			}
 			[$key, $val] = explode(':', $line);

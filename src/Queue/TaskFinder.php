@@ -145,7 +145,7 @@ class TaskFinder {
 
 		if (!str_contains($jobTask, '\\')) {
 			// Let's try matching without plugin prefix
-			foreach ($all as $name => $className) {
+			foreach (array_keys($all) as $name) {
 				if (!str_contains($name, '.')) {
 					continue;
 				}

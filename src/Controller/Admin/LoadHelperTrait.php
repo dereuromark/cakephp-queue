@@ -28,11 +28,7 @@ trait LoadHelperTrait {
 		}
 
 		// Configure helper: prefer Shim, fallback to Queue's own
-		if (Plugin::isLoaded('Shim')) {
-			$helpers[] = 'Shim.Configure';
-		} else {
-			$helpers[] = 'Queue.Configure';
-		}
+		$helpers[] = Plugin::isLoaded('Shim') ? 'Shim.Configure' : 'Queue.Configure';
 
 		if (Configure::read('Icon.sets') && class_exists(IconHelper::class)) {
 			$helpers[] = 'Templating.Icon';

@@ -59,7 +59,7 @@ class InfoCommand extends Command {
 		$addableTasks = $this->getAddableTasks();
 
 		$io->out(count($tasks) . ' tasks available:');
-		foreach ($tasks as $task => $className) {
+		foreach (array_keys($tasks) as $task) {
 			if (array_key_exists($task, $addableTasks)) {
 				$task .= ' <info>[addable via CLI]</info>';
 			}

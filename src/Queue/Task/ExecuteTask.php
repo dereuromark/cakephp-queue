@@ -106,11 +106,7 @@ class ExecuteTask extends Task implements AddInterface {
 			}
 		}
 
-		if ($data['escape']) {
-			$command = escapeshellarg($rawCommand);
-		} else {
-			$command = $rawCommand;
-		}
+		$command = $data['escape'] ? escapeshellarg($rawCommand) : $rawCommand;
 
 		if ($data['params']) {
 			$params = $data['params'];

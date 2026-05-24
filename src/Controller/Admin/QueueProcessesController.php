@@ -48,7 +48,7 @@ class QueueProcessesController extends QueueAppController {
 	public function index() {
 		$queueProcesses = $this->paginate();
 
-		$this->set(compact('queueProcesses'));
+		$this->set(['queueProcesses' => $queueProcesses]);
 	}
 
 	/**
@@ -61,7 +61,7 @@ class QueueProcessesController extends QueueAppController {
 	public function view(?int $id = null) {
 		$queueProcess = $this->QueueProcesses->get($id);
 
-		$this->set(compact('queueProcess'));
+		$this->set(['queueProcess' => $queueProcess]);
 	}
 
 	/**
@@ -84,7 +84,7 @@ class QueueProcessesController extends QueueAppController {
 			$this->Flash->error(__d('queue', 'The queue process could not be saved. Please, try again.'));
 		}
 
-		$this->set(compact('queueProcess'));
+		$this->set(['queueProcess' => $queueProcess]);
 	}
 
 	/**
@@ -100,7 +100,7 @@ class QueueProcessesController extends QueueAppController {
 			$queueProcess->terminate = true;
 			$this->QueueProcesses->saveOrFail($queueProcess);
 			$this->Flash->success(__d('queue', 'The queue process has been deleted.'));
-		} catch (Exception $exception) {
+		} catch (Exception) {
 			$this->Flash->error(__d('queue', 'The queue process could not be deleted. Please, try again.'));
 		}
 

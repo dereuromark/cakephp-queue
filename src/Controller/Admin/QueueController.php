@@ -118,28 +118,7 @@ class QueueController extends QueueAppController {
 
 		$configurations = (array)Configure::read('Queue');
 
-		$this->set(compact(
-			'new',
-			'current',
-			'data',
-			'pendingDetails',
-			'scheduledDetails',
-			'pendingDetailsTruncated',
-			'scheduledDetailsTruncated',
-			'detailsLimit',
-			'totalPending',
-			'status',
-			'tasks',
-			'addableTasks',
-			'taskDescriptions',
-			'servers',
-			'workers',
-			'pendingJobs',
-			'scheduledJobs',
-			'runningJobs',
-			'failedJobs',
-			'configurations',
-		));
+		$this->set(['new' => $new, 'current' => $current, 'data' => $data, 'pendingDetails' => $pendingDetails, 'scheduledDetails' => $scheduledDetails, 'pendingDetailsTruncated' => $pendingDetailsTruncated, 'scheduledDetailsTruncated' => $scheduledDetailsTruncated, 'detailsLimit' => $detailsLimit, 'totalPending' => $totalPending, 'status' => $status, 'tasks' => $tasks, 'addableTasks' => $addableTasks, 'taskDescriptions' => $taskDescriptions, 'servers' => $servers, 'workers' => $workers, 'pendingJobs' => $pendingJobs, 'scheduledJobs' => $scheduledJobs, 'runningJobs' => $runningJobs, 'failedJobs' => $failedJobs, 'configurations' => $configurations]);
 	}
 
 	/**
@@ -249,7 +228,7 @@ class QueueController extends QueueAppController {
 		$terminated = $QueueProcesses->find()->where(['terminate' => true])->all()->toArray();
 		$key = $QueueProcesses->buildServerString();
 
-		$this->set(compact('terminated', 'processes', 'key'));
+		$this->set(['terminated' => $terminated, 'processes' => $processes, 'key' => $key]);
 	}
 
 	/**
@@ -307,7 +286,7 @@ class QueueController extends QueueAppController {
 		if (is_array($url)) {
 			throw new NotFoundException('Invalid array in query string');
 		}
-		if ($url && (mb_substr($url, 0, 1) !== '/' || mb_substr($url, 0, 2) === '//')) {
+		if ($url && (mb_substr((string) $url, 0, 1) !== '/' || mb_substr((string) $url, 0, 2) === '//')) {
 			$url = null;
 		}
 
