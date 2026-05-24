@@ -205,7 +205,7 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 		}
 
 		foreach ($settings as $method => $setting) {
-			$setter = 'set' . ucfirst((string) $method);
+			$setter = 'set' . ucfirst((string)$method);
 			if (in_array($method, ['theme', 'template', 'layout'], true)) {
 				call_user_func_array([$this->mailer->viewBuilder(), $setter], (array)$setting);
 

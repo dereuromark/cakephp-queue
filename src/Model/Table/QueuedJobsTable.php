@@ -267,7 +267,7 @@ class QueuedJobsTable extends Table {
 	 * @return string
 	 */
 	protected function jobTask(string $jobType): string {
-		if (!$this->taskFinder instanceof \Queue\Queue\TaskFinder) {
+		if (!$this->taskFinder instanceof TaskFinder) {
 			$this->taskFinder = new TaskFinder();
 		}
 
@@ -1260,7 +1260,7 @@ class QueuedJobsTable extends Table {
 	 * @return string
 	 */
 	protected function getDriverName(): string {
-		$className = explode('\\', (string) $this->getConnection()->config()['driver']);
+		$className = explode('\\', (string)$this->getConnection()->config()['driver']);
 
 		return end($className) ?: '';
 	}

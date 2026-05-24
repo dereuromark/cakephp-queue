@@ -415,7 +415,7 @@ class EmailTaskTest extends TestCase {
 	 */
 	protected function _skipPostgres() {
 		$config = ConnectionManager::getConfig('test');
-		$skip = str_contains((string) $config['driver'], 'Postgres');
+		$skip = str_contains((string)$config['driver'], 'Postgres');
 		$this->skipIf($skip, 'Only non Postgres is working yet for this.');
 	}
 

@@ -286,7 +286,7 @@ class QueueController extends QueueAppController {
 		if (is_array($url)) {
 			throw new NotFoundException('Invalid array in query string');
 		}
-		if ($url && (mb_substr((string) $url, 0, 1) !== '/' || mb_substr((string) $url, 0, 2) === '//')) {
+		if ($url && (mb_substr((string)$url, 0, 1) !== '/' || mb_substr((string)$url, 0, 2) === '//')) {
 			$url = null;
 		}
 
