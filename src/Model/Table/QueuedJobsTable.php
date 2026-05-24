@@ -267,7 +267,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return string
 	 */
-	protected function jobTask(string $jobType): string {
+protected function jobTask(string $jobType): string {
 		if (!($this->taskFinder instanceof TaskFinder)) {
 			$this->taskFinder = new TaskFinder();
 		}
