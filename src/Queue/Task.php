@@ -98,7 +98,7 @@ abstract class Task implements TaskInterface {
 		$QueuedJobs = $tableLocator->get($this->queueModelClass);
 		$this->QueuedJobs = $QueuedJobs;
 
-		if (property_exists($this, 'defaultTable') && $this->defaultTable !== null) {
+		if (isset($this->defaultTable)) {
 			$this->fetchTable();
 		}
 	}
