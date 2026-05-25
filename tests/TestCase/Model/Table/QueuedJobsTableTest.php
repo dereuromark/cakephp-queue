@@ -321,11 +321,11 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
-     * Test creating Jobs to run close to a specified time, and strtotime parsing.
-     * Using toUnixString() function to convert Time object to timestamp, instead of strtotime
-     *
-     * @return void
-     */
+	 * Test creating Jobs to run close to a specified time, and strtotime parsing.
+	 * Using toUnixString() function to convert Time object to timestamp, instead of strtotime
+	 *
+	 * @return void
+	 */
 	public function testNotBefore() {
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', null, ['notBefore' => '+ 1 Min']));
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', null, ['notBefore' => '+ 1 Day']));

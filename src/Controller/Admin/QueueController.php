@@ -118,7 +118,28 @@ class QueueController extends QueueAppController {
 
 		$configurations = (array)Configure::read('Queue');
 
-		$this->set(['new' => $new, 'current' => $current, 'data' => $data, 'pendingDetails' => $pendingDetails, 'scheduledDetails' => $scheduledDetails, 'pendingDetailsTruncated' => $pendingDetailsTruncated, 'scheduledDetailsTruncated' => $scheduledDetailsTruncated, 'detailsLimit' => $detailsLimit, 'totalPending' => $totalPending, 'status' => $status, 'tasks' => $tasks, 'addableTasks' => $addableTasks, 'taskDescriptions' => $taskDescriptions, 'servers' => $servers, 'workers' => $workers, 'pendingJobs' => $pendingJobs, 'scheduledJobs' => $scheduledJobs, 'runningJobs' => $runningJobs, 'failedJobs' => $failedJobs, 'configurations' => $configurations]);
+		$this->set(compact(
+			'new',
+			'current',
+			'data',
+			'pendingDetails',
+			'scheduledDetails',
+			'pendingDetailsTruncated',
+			'scheduledDetailsTruncated',
+			'detailsLimit',
+			'totalPending',
+			'status',
+			'tasks',
+			'addableTasks',
+			'taskDescriptions',
+			'servers',
+			'workers',
+			'pendingJobs',
+			'scheduledJobs',
+			'runningJobs',
+			'failedJobs',
+			'configurations',
+		));
 	}
 
 	/**
