@@ -57,7 +57,6 @@ class SimpleQueueTransport extends AbstractTransport {
 		];
 
 		foreach ($settings as $setting => $value) {
-			/** @phpstan-ignore-next-line */
 			if ($value[0] === null || $value[0] === []) {
 				unset($settings[$setting]);
 			}

@@ -111,6 +111,8 @@ class QueueAppController extends AppController {
 
 		try {
 			$allowed = $gate($this->request) === true;
+		} catch (ForbiddenException $e) {
+			throw $e;
 		} catch (Throwable $e) {
 			Log::warning(sprintf('Queue.adminAccess threw %s: %s', $e::class, $e->getMessage()));
 
