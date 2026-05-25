@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace TestApp\Dto;
 
-use CakeDto\Dto\FromArrayToArrayInterface;
+use PhpCollective\Dto\Dto\FromArrayToArrayInterface;
 
 class MyTaskDto implements FromArrayToArrayInterface {
 
