@@ -236,12 +236,12 @@ class QueueProcessesTable extends Table {
 		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
-			$results = $this->find()
-				->where(['modified >' => $thresholdTime])
-				->orderByDesc('modified')
-				->enableHydration(false)
-				->all()
-				->toArray();
+		$results = $this->find()
+			->where(['modified >' => $thresholdTime])
+			->orderByDesc('modified')
+			->enableHydration(false)
+			->all()
+			->toArray();
 
 		if (!$results) {
 			return [];
