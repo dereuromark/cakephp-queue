@@ -112,7 +112,7 @@ class QueuedJobsController extends QueueAppController {
 			keyField: 'job_task',
 			valueField: 'job_task',
 		)->distinct('job_task')->toArray();
-		$this->set(['stats' => $stats, 'jobTypes' => $jobTypes, 'jobType' => $jobType]);
+		$this->set(compact('stats', 'jobTypes', 'jobType'));
 	}
 
 	/**
@@ -153,7 +153,7 @@ class QueuedJobsController extends QueueAppController {
 			valueField: 'job_task',
 		)->distinct('job_task')->toArray();
 
-		$this->set(['heatmapData' => $heatmapData, 'jobTypes' => $jobTypes, 'jobType' => $jobType, 'metric' => $metric, 'days' => $days]);
+		$this->set(compact('heatmapData', 'jobTypes', 'jobType', 'metric', 'days'));
 	}
 
 	/**
@@ -440,7 +440,7 @@ class QueuedJobsController extends QueueAppController {
 			$this->Flash->error(__d('queue', 'The job could not be queued. Please try again.'));
 		}
 
-		$this->set(['tasks' => $tasks, 'queuedJob' => $queuedJob]);
+		$this->set(compact('tasks', 'queuedJob'));
 	}
 
 	/**
