@@ -75,7 +75,7 @@ class ProgressExampleTask extends Task implements AddInterface, AddFromBackendIn
 	public function run(array $data, int $jobId): void {
 		$this->io->hr();
 		$this->io->out('CakePHP Queue ProgressExample task.');
-		$seconds = empty($data['duration']) ? 2 * static::MINUTE : (int)$data['duration'];
+		$seconds = !empty($data['duration']) ? (int)$data['duration'] : 2 * static::MINUTE;
 
 		$this->io->out('A total of ' . $seconds . ' seconds need to pass...');
 		for ($i = 0; $i < $seconds; $i++) {
