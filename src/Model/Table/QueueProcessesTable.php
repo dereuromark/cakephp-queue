@@ -242,6 +242,7 @@ class QueueProcessesTable extends Table {
 			->enableHydration(false)
 			->all()
 			->toArray();
+		/** @var array<array{modified: \Cake\I18n\DateTime}> $results */
 
 		if (!$results) {
 			return [];

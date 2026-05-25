@@ -221,6 +221,7 @@ class QueuedJobsTable extends Table {
 				throw new InvalidArgumentException('createJob() with `unique` requires a `reference` to dedupe on.');
 			}
 
+			/** @var \Queue\Model\Entity\QueuedJob|null $existing */
 			$existing = $this->find()
 				->where([
 					'reference' => $config->getReferenceOrFail(),
@@ -451,6 +452,7 @@ class QueuedJobsTable extends Table {
 			->limit(static::STATS_LIMIT)
 			->all()
 			->toArray();
+		/** @var array<array{created: \DateTime, duration: int|float|null, job_task: string}> $jobs */
 
 		$result = [];
 
