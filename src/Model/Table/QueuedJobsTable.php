@@ -267,11 +267,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return string
 	 */
-<<<<<<< HEAD
 	protected function jobTask(string $jobType): string {
-=======
-	protected function jobTask(string $jobType): string {
->>>>>>> e852801 (Address queue review follow-ups)
 		if (!($this->taskFinder instanceof TaskFinder)) {
 			$this->taskFinder = new TaskFinder();
 		}
