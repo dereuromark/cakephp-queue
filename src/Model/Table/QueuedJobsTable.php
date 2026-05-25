@@ -205,7 +205,7 @@ class QueuedJobsTable extends Table {
 			$config = $this->createConfig()->fromArray($config);
 		}
 
-		if ($data instanceof FromArrayToArrayInterface) {
+		if (interface_exists(FromArrayToArrayInterface::class) && $data instanceof FromArrayToArrayInterface) {
 			$data = $data->toArray();
 		} elseif (is_object($data) && method_exists($data, 'toArray')) {
 			$data = $data->toArray();
