@@ -54,7 +54,8 @@
 		"friendsofcake/search": "For admin backend and filtering of current jobs."
 	},
 	"conflict": {
-		"cakephp/migrations": "<4.5"
+		"cakephp/migrations": "<4.5",
+		"dereuromark/cakephp-dto": "<3.0.0"
 	},
 	"minimum-stability": "stable",
 	"prefer-stable": true,
