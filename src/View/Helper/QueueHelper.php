@@ -87,30 +87,6 @@ class QueueHelper extends Helper {
 	}
 
 	/**
-	 * Returns true if job has been manually restarted (reset).
-	 *
-	 * A restarted job has been fetched and has attempts, but no failure_message
-	 * (the failure_message was cleared when the job was reset).
-	 *
-	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
-	 *
-	 * @return bool
-	 */
-	public function isRestarted(QueuedJob $queuedJob): bool {
-		if ($queuedJob->completed || !$queuedJob->fetched) {
-			return false;
-		}
-
-		// Must have attempts (was previously run)
-		if ($queuedJob->attempts < 1) {
-			return false;
-		}
-
-		// Must NOT have a failure_message (it was cleared by reset)
-		return !$queuedJob->failure_message;
-	}
-
-	/**
 	 * Returns failure status (message) if applicable.
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
@@ -122,8 +98,11 @@ class QueueHelper extends Helper {
 			return null;
 		}
 
+		// No failure message yet: the job is simply running its current attempt,
+		// which is indistinguishable from a reset-and-rerun job, so there is no
+		// distinct failure status to report.
 		if (!$queuedJob->failure_message) {
-			return __d('queue', 'Restarted');
+			return null;
 		}
 
 		$taskConfig = $this->taskConfig($queuedJob->job_task);
