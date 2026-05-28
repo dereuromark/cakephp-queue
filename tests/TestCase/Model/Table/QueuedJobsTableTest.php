@@ -835,6 +835,46 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * A job that has exhausted its retries (status = aborted) is terminal and
+	 * must no longer count as queued, even though it has no completed stamp.
+	 * Normal null-status rows still count.
+	 *
+	 * @return void
+	 */
+	public function testIsQueuedExcludesAborted() {
+		$queuedJob = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'foo-bar',
+		]);
+		$this->QueuedJobs->saveOrFail($queuedJob);
+		$this->assertTrue($this->QueuedJobs->isQueued('foo-bar'));
+
+		$this->QueuedJobs->markJobAborted($queuedJob);
+		$this->assertFalse($this->QueuedJobs->isQueued('foo-bar'));
+	}
+
+	/**
+	 * markJobAborted() stamps the terminal status without touching completed.
+	 *
+	 * @return void
+	 */
+	public function testMarkJobAborted() {
+		$queuedJob = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'foo-bar',
+		]);
+		$this->QueuedJobs->saveOrFail($queuedJob);
+
+		$this->assertTrue($this->QueuedJobs->markJobAborted($queuedJob));
+
+		$reloaded = $this->QueuedJobs->get($queuedJob->id);
+		$this->assertSame(QueuedJobsTable::STATUS_ABORTED, $reloaded->status);
+		$this->assertNull($reloaded->completed);
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testGetStats() {

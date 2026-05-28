@@ -349,7 +349,13 @@ class Processor {
 			EventManager::instance()->dispatch($event);
 
 			// Dispatch event when job has exhausted all retries
-			if ($failedStatus === 'aborted') {
+			if ($failedStatus === $this->QueuedJobs::STATUS_ABORTED) {
+				// Persist the terminal state so the job stops counting as
+				// queued/in-progress (it will never run again). Without this
+				// it keeps `completed IS NULL` forever and wedges callers that
+				// gate on isQueued(), e.g. a non-concurrent scheduler row.
+				$this->QueuedJobs->markJobAborted($queuedJob);
+
 				$event = new Event('Queue.Job.maxAttemptsExhausted', $this, [
 					'job' => $queuedJob,
 					'failureMessage' => $failureMessage,

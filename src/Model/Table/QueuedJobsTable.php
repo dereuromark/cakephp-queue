@@ -77,6 +77,16 @@ class QueuedJobsTable extends Table {
 	public const DAY = 86400;
 
 	/**
+	 * Terminal `status` value stamped on a job that has exhausted all of its
+	 * retries. Distinguishes a permanently-failed job (which will never run
+	 * again) from one that is pending, in progress, or still being retried —
+	 * all of which otherwise share `completed IS NULL`.
+	 *
+	 * @var string
+	 */
+	public const STATUS_ABORTED = 'aborted';
+
+	/**
 	 * @var array<string, string>
 	 */
 	public array $rateHistory = [];
@@ -291,6 +301,15 @@ class QueuedJobsTable extends Table {
 		$conditions = [
 			'reference' => $reference,
 			'completed IS' => null,
+			// A job that exhausted its retries (status = aborted) will never
+			// run again, so it is not "queued" anymore even though it has no
+			// completed timestamp. Excluding it stops callers that gate on
+			// isQueued() — e.g. a non-concurrent scheduler row — from wedging
+			// permanently behind a dead job. The OR keeps null/other statuses.
+			'OR' => [
+				'status IS' => null,
+				'status !=' => static::STATUS_ABORTED,
+			],
 		];
 		if ($jobTask) {
 			$conditions['job_task'] = $jobTask;
@@ -770,6 +789,26 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * Mark a job as terminally failed (aborted) after it has exhausted all
+	 * retries. Records the terminal `status` so the job is no longer reported
+	 * as queued/in-progress: `isQueued()` excludes it, the admin status filter
+	 * skips it, and the status badge renders it as failed rather than running.
+	 *
+	 * Call this only once the worker has determined no further attempts will
+	 * be made (see Processor, getFailedStatus() === self::STATUS_ABORTED).
+	 *
+	 * @param \Queue\Model\Entity\QueuedJob $job Job
+	 *
+	 * @return bool Success
+	 */
+	public function markJobAborted(QueuedJob $job): bool {
+		return (bool)$this->updateAll(
+			['status' => static::STATUS_ABORTED],
+			['id' => $job->id],
+		);
+	}
+
+	/**
 	 * Removes all failed jobs.
 	 *
 	 * @return int Count of deleted rows
@@ -1202,7 +1241,7 @@ class QueuedJobsTable extends Table {
 			return $failureMessageRequeued;
 		}
 
-		return 'aborted';
+		return static::STATUS_ABORTED;
 	}
 
 	/**

@@ -271,6 +271,11 @@ class ProcessorTest extends TestCase {
 		// Verify event data
 		// The event was fired successfully (assertEventFired passed)
 		// We don't need to check the event data again since assertEventFired confirms it was fired
+
+		// The exhausted job must be stamped terminal so it no longer counts as
+		// queued/in-progress (otherwise isQueued() wedges callers behind it).
+		$reloaded = $QueuedJobs->get($job->id);
+		$this->assertSame(QueuedJobsTable::STATUS_ABORTED, $reloaded->status);
 	}
 
 	/**

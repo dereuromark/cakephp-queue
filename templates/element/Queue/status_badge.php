@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Job Status Badge Element
  *
  * @var \Cake\View\View $this
  * @var \Queue\Model\Entity\QueuedJob $job The queued job entity
  */
+use Queue\Model\Table\QueuedJobsTable;
 
 $status = 'pending';
 $icon = 'clock';
@@ -12,7 +14,10 @@ $icon = 'clock';
 if ($job->completed) {
 	$status = 'completed';
 	$icon = 'check';
-} elseif ($job->failure_message) {
+} elseif ($job->status === QueuedJobsTable::STATUS_ABORTED || $job->failure_message) {
+	// Terminal: retries exhausted (status = aborted) or a recorded failure.
+	// Checked before `fetched` so a job whose worker died on its last attempt
+	// shows as Failed, not stuck "Running".
 	$status = 'failed';
 	$icon = 'times';
 } elseif ($job->fetched) {

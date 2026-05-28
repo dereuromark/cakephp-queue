@@ -6,6 +6,7 @@ namespace Queue\Model\Filter;
 use Cake\Http\Exception\NotImplementedException;
 use Cake\I18n\DateTime;
 use Cake\ORM\Query\SelectQuery;
+use Queue\Model\Table\QueuedJobsTable;
 use Search\Model\Filter\FilterCollection;
 
 class QueuedJobsCollection extends FilterCollection {
@@ -32,9 +33,17 @@ class QueuedJobsCollection extends FilterCollection {
 					if ($status === 'in_progress') {
 						$query->where([
 							'completed IS' => null,
+							// Exclude terminally-failed (aborted) jobs: they are
+							// done, not in progress, even without a completed stamp.
 							'OR' => [
-								'notbefore <=' => new DateTime(),
-								'notbefore IS' => null,
+								'status IS' => null,
+								'status !=' => QueuedJobsTable::STATUS_ABORTED,
+							],
+							'AND' => [
+								'OR' => [
+									'notbefore <=' => new DateTime(),
+									'notbefore IS' => null,
+								],
 							],
 						]);
 
