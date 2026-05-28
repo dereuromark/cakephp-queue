@@ -904,6 +904,26 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * getLength() backs the dashboard "Pending Jobs (new/current)" card; it must
+	 * exclude aborted jobs so the card total stays consistent with the pending
+	 * list (getPendingStats()), which already excludes them.
+	 *
+	 * @return void
+	 */
+	public function testGetLengthExcludesAborted() {
+		$job = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'len-one',
+		]);
+		$this->QueuedJobs->saveOrFail($job);
+		$this->assertSame(1, $this->QueuedJobs->getLength());
+
+		$this->QueuedJobs->markJobAborted($job);
+		$this->assertSame(0, $this->QueuedJobs->getLength());
+	}
+
+	/**
 	 * Resetting an aborted job for rerun must clear its terminal status so it
 	 * counts as pending again and gets picked up.
 	 *

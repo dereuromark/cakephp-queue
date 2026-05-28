@@ -54,6 +54,55 @@ class QueuedJobsCollection extends FilterCollection {
 
 						return true;
 					}
+					if ($status === 'pending') {
+						// Waiting to be picked up: never fetched, no failure, due,
+						// and not aborted. Mirrors the dashboard "Pending" card
+						// (totalPending minus running and retriable-failed).
+						$query->where([
+							'completed IS' => null,
+							'fetched IS' => null,
+							'failure_message IS' => null,
+							'AND' => [
+								[
+									'OR' => [
+										'notbefore <=' => new DateTime(),
+										'notbefore IS' => null,
+									],
+								],
+								[
+									'OR' => [
+										'status IS' => null,
+										'status !=' => QueuedJobsTable::STATUS_ABORTED,
+									],
+								],
+							],
+						]);
+
+						return true;
+					}
+					if ($status === 'running') {
+						// Picked up by a worker and not yet completed or failed.
+						$query->where([
+							'completed IS' => null,
+							'fetched IS NOT' => null,
+							'failure_message IS' => null,
+						]);
+
+						return true;
+					}
+					if ($status === 'failed') {
+						// Unfinished jobs with a recorded failure: still-retrying
+						// ones and terminally aborted ones alike.
+						$query->where(['completed IS' => null, 'failure_message IS NOT' => null]);
+
+						return true;
+					}
+					if ($status === 'aborted') {
+						// Terminally failed: retries exhausted, will never run again.
+						$query->where(['completed IS' => null, 'status' => QueuedJobsTable::STATUS_ABORTED]);
+
+						return true;
+					}
 
 					throw new NotImplementedException('Invalid status type');
 				},

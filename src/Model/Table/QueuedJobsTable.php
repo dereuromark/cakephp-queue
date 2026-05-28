@@ -327,20 +327,12 @@ class QueuedJobsTable extends Table {
 	 * @return int
 	 */
 	public function getLength(?string $type = null): int {
-		$findConf = [
-			'conditions' => [
-				'completed IS' => null,
-				'OR' => [
-					'notbefore <=' => new DateTime(),
-					'notbefore IS' => null,
-				],
-			],
-		];
+		$conditions = $this->pendingConditions();
 		if ($type !== null) {
-			$findConf['conditions']['job_task'] = $type;
+			$conditions['job_task'] = $type;
 		}
 
-		return $this->find('all', ...$findConf)->count();
+		return $this->find('all', conditions: $conditions)->count();
 	}
 
 	/**

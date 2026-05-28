@@ -196,6 +196,7 @@ $stateMeta = [
 			'count' => $scheduledJobs,
 			'icon' => 'calendar',
 			'color' => 'info',
+			'link' => $this->Url->build(['action' => 'index', 'controller' => 'QueuedJobs', '?' => ['status' => 'scheduled']]),
 		]) ?>
 	</div>
 	<div class="col-md-3 col-sm-6">
@@ -204,6 +205,7 @@ $stateMeta = [
 			'count' => $pendingJobs,
 			'icon' => 'clock',
 			'color' => 'warning',
+			'link' => $this->Url->build(['action' => 'index', 'controller' => 'QueuedJobs', '?' => ['status' => 'pending']]),
 		]) ?>
 	</div>
 	<div class="col-md-3 col-sm-6">
@@ -212,6 +214,7 @@ $stateMeta = [
 			'count' => $runningJobs,
 			'icon' => 'spinner',
 			'color' => 'primary',
+			'link' => $this->Url->build(['action' => 'index', 'controller' => 'QueuedJobs', '?' => ['status' => 'running']]),
 		]) ?>
 	</div>
 	<div class="col-md-3 col-sm-6">
@@ -220,6 +223,7 @@ $stateMeta = [
 			'count' => $failedJobs,
 			'icon' => 'times-circle',
 			'color' => 'danger',
+			'link' => $this->Url->build(['action' => 'index', 'controller' => 'QueuedJobs', '?' => ['status' => 'failed']]),
 		]) ?>
 	</div>
 </div>

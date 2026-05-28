@@ -263,6 +263,39 @@ JSON,
 	}
 
 	/**
+	 * The status filter supports running, failed and aborted in addition to
+	 * completed/in_progress/scheduled, so the dashboard stat cards can link to
+	 * the matching job list.
+	 *
+	 * @return void
+	 */
+	public function testIndexSearchByRunningFailedAborted() {
+		$this->createJob(['job_task' => 'waiting']);
+		$this->createJob(['job_task' => 'running', 'fetched' => new DateTime('-1 minute')]);
+		$this->createJob(['job_task' => 'failing', 'failure_message' => 'boom', 'attempts' => 1]);
+		$this->createJob(['job_task' => 'dead', 'failure_message' => 'boom', 'attempts' => 3, 'status' => 'aborted']);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'pending']]);
+		$this->assertResponseCode(200);
+		$tasks = collection($this->viewVariable('queuedJobs'))->extract('job_task')->toList();
+		$this->assertSame(['waiting'], $tasks);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'running']]);
+		$this->assertResponseCode(200);
+		$tasks = collection($this->viewVariable('queuedJobs'))->extract('job_task')->toList();
+		$this->assertSame(['running'], $tasks);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'failed']]);
+		$tasks = collection($this->viewVariable('queuedJobs'))->extract('job_task')->toList();
+		sort($tasks);
+		$this->assertSame(['dead', 'failing'], $tasks);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'aborted']]);
+		$tasks = collection($this->viewVariable('queuedJobs'))->extract('job_task')->toList();
+		$this->assertSame(['dead'], $tasks);
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testView() {
