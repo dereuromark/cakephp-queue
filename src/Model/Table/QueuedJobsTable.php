@@ -210,7 +210,7 @@ class QueuedJobsTable extends Table {
 	 *
 	 * @return \Queue\Model\Entity\QueuedJob Saved job entity (or the existing pending entity if `unique` deduped).
 	 */
-	public function createJob(string $jobTask, array|object|null $data = null, array|JobConfig $config = []): QueuedJob {
+	public function createJob(string $jobTask, object|array|null $data = null, JobConfig|array $config = []): QueuedJob {
 		if (!$config instanceof JobConfig) {
 			$config = $this->createConfig()->fromArray($config);
 		}
