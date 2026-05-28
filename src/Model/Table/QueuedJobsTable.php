@@ -276,14 +276,31 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * Whether a not-yet-completed job exists for the given reference.
+	 *
+	 * By default any row with `completed IS NULL` counts — including a job
+	 * that was fetched by a worker which then died (OOM, timeout, kill)
+	 * without ever marking the row completed or failed. Such a row stays
+	 * `completed IS NULL` indefinitely, so callers that gate on `isQueued()`
+	 * (e.g. a non-concurrent scheduler) can wedge permanently behind a job
+	 * that will never make progress.
+	 *
+	 * Pass `$staleTimeout` (seconds) to discount those abandoned rows: a row
+	 * that was fetched longer ago than the timeout and is still not completed
+	 * is presumed dead and no longer counts as queued. Rows that have not been
+	 * fetched yet, or were fetched within the window, still count. The default
+	 * `null` preserves the original behaviour and is fully backward compatible.
+	 *
 	 * @param string $reference
 	 * @param string|null $jobTask
+	 * @param int|null $staleTimeout Seconds after which a fetched-but-not-completed
+	 *   row is treated as abandoned and excluded. `null` (default) disables the check.
 	 *
 	 * @throws \InvalidArgumentException
 	 *
 	 * @return bool
 	 */
-	public function isQueued(string $reference, ?string $jobTask = null): bool {
+	public function isQueued(string $reference, ?string $jobTask = null, ?int $staleTimeout = null): bool {
 		if (!$reference) {
 			throw new InvalidArgumentException('A reference is needed');
 		}
@@ -294,6 +311,12 @@ class QueuedJobsTable extends Table {
 		];
 		if ($jobTask) {
 			$conditions['job_task'] = $jobTask;
+		}
+		if ($staleTimeout !== null) {
+			$conditions['OR'] = [
+				'fetched IS' => null,
+				'fetched >=' => $this->getDateTime()->subSeconds($staleTimeout),
+			];
 		}
 
 		return (bool)$this->find()->where($conditions)->select(['id'])->first();

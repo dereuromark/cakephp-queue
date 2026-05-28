@@ -835,6 +835,47 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * A job fetched longer ago than the stale timeout, but never completed,
+	 * is presumed abandoned and excluded once `$staleTimeout` is given.
+	 *
+	 * @return void
+	 */
+	public function testIsQueuedStaleTimeout() {
+		$queuedJob = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'foo-bar',
+			'fetched' => (new DateTime())->subSeconds(120),
+		]);
+		$this->QueuedJobs->saveOrFail($queuedJob);
+
+		// Without the timeout the abandoned row still counts (unchanged default).
+		$this->assertTrue($this->QueuedJobs->isQueued('foo-bar'));
+
+		// Fetched 120s ago, timeout 60s => presumed dead, excluded.
+		$this->assertFalse($this->QueuedJobs->isQueued('foo-bar', null, 60));
+
+		// Fetched 120s ago, timeout 300s => still within window, counts.
+		$this->assertTrue($this->QueuedJobs->isQueued('foo-bar', null, 300));
+	}
+
+	/**
+	 * A not-yet-fetched job always counts as queued, regardless of timeout.
+	 *
+	 * @return void
+	 */
+	public function testIsQueuedStaleTimeoutIgnoresUnfetched() {
+		$queuedJob = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'foo-bar',
+		]);
+		$this->QueuedJobs->saveOrFail($queuedJob);
+
+		$this->assertTrue($this->QueuedJobs->isQueued('foo-bar', null, 1));
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testGetStats() {
