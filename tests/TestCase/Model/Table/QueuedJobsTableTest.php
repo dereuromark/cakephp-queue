@@ -875,6 +875,59 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * Aborted jobs keep `completed IS NULL` but are terminal, so they must not
+	 * be counted by the pending stats/count used on the admin dashboard.
+	 *
+	 * @return void
+	 */
+	public function testGetPendingCountExcludesAborted() {
+		$pending = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'pending-one',
+		]);
+		$this->QueuedJobs->saveOrFail($pending);
+
+		$aborted = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'aborted-one',
+		]);
+		$this->QueuedJobs->saveOrFail($aborted);
+		$this->QueuedJobs->markJobAborted($aborted);
+
+		$this->assertSame(1, $this->QueuedJobs->getPendingCount());
+
+		$statsRefs = $this->QueuedJobs->getPendingStats()->all()->extract('reference')->toArray();
+		$this->assertContains('pending-one', $statsRefs);
+		$this->assertNotContains('aborted-one', $statsRefs);
+	}
+
+	/**
+	 * Resetting an aborted job for rerun must clear its terminal status so it
+	 * counts as pending again and gets picked up.
+	 *
+	 * @return void
+	 */
+	public function testResetClearsAbortedStatus() {
+		$job = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'reset-me',
+			'attempts' => 3,
+		]);
+		$this->QueuedJobs->saveOrFail($job);
+		$this->QueuedJobs->markJobAborted($job);
+		$this->assertSame(0, $this->QueuedJobs->getPendingCount());
+
+		$this->QueuedJobs->reset($job->id, true);
+
+		$reloaded = $this->QueuedJobs->get($job->id);
+		$this->assertNull($reloaded->status);
+		$this->assertSame(1, $this->QueuedJobs->getPendingCount());
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testGetStats() {

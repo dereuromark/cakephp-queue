@@ -113,8 +113,22 @@ class QueueController extends QueueAppController {
 				'failure_message IS NOT' => null,
 			])
 			->count();
-		// Pending = total pending minus running and failed (to avoid double counting)
-		$pendingJobs = max(0, $totalPending - $runningJobs - $failedJobs);
+		// Aborted jobs (retries exhausted) carry a failure_message but are
+		// terminal and already excluded from getPendingCount()/getPendingStats().
+		// Subtract only the still-retriable failures here so aborted rows are not
+		// removed twice (which would under-count, or zero out, real pending work).
+		$retriableFailedJobs = $this->QueuedJobs->find()
+			->where([
+				'completed IS' => null,
+				'failure_message IS NOT' => null,
+				'OR' => [
+					'status IS' => null,
+					'status !=' => $this->QueuedJobs::STATUS_ABORTED,
+				],
+			])
+			->count();
+		// Pending = total pending minus running and still-retriable failed (to avoid double counting)
+		$pendingJobs = max(0, $totalPending - $runningJobs - $retriableFailedJobs);
 
 		$configurations = (array)Configure::read('Queue');
 

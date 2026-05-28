@@ -844,6 +844,9 @@ class QueuedJobsTable extends Table {
 			'failure_message' => null,
 			'output' => null,
 			'memory' => null,
+			// Clear the terminal aborted status so a reset job counts as pending
+			// again (getPendingCount()/isQueued() exclude status = aborted).
+			'status' => null,
 		];
 		$conditions = [
 			'completed IS' => null,
@@ -1103,16 +1106,35 @@ class QueuedJobsTable extends Table {
 				'failure_message',
 				'memory',
 			],
-			'conditions' => [
-				'completed IS' => null,
+			'conditions' => $this->pendingConditions(),
+		];
+
+		return $this->find('all', ...$findCond);
+	}
+
+	/**
+	 * Shared WHERE conditions for "pending" jobs: not completed, due to run, and
+	 * not terminally aborted. An aborted job keeps `completed IS NULL` but will
+	 * never run again (retries exhausted), so it must not be reported as pending.
+	 *
+	 * @return array<int|string, mixed>
+	 */
+	protected function pendingConditions(): array {
+		return [
+			'completed IS' => null,
+			[
 				'OR' => [
 					'notbefore <=' => new DateTime(),
 					'notbefore IS' => null,
 				],
 			],
+			[
+				'OR' => [
+					'status IS' => null,
+					'status !=' => static::STATUS_ABORTED,
+				],
+			],
 		];
-
-		return $this->find('all', ...$findCond);
 	}
 
 	/**
@@ -1125,13 +1147,7 @@ class QueuedJobsTable extends Table {
 	 */
 	public function getPendingCount(): int {
 		return $this->find()
-			->where([
-				'completed IS' => null,
-				'OR' => [
-					'notbefore <=' => new DateTime(),
-					'notbefore IS' => null,
-				],
-			])
+			->where($this->pendingConditions())
 			->count();
 	}
 
