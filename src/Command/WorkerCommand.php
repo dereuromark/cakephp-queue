@@ -122,8 +122,7 @@ class WorkerCommand extends Command {
 			return $this->clean($io, (bool)$args->getOption('force'));
 		}
 
-		/** @phpstan-ignore-next-line */
-		return $this->$action($io, $pid);
+		return (int)$this->$action($io, $pid);
 	}
 
 	/**
