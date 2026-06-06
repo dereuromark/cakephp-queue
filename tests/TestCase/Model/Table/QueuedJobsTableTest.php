@@ -134,6 +134,23 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * A failure message larger than the TEXT column must be truncated instead of
+	 * overflowing the column and throwing while recording the failure.
+	 *
+	 * @return void
+	 */
+	public function testMarkJobFailedTruncatesOversizedMessage() {
+		$job = $this->QueuedJobs->createJob('Foo', ['test' => 'data']);
+		$oversized = str_repeat('x', QueuedJobsTable::FAILURE_MESSAGE_MAX_LENGTH + 5000);
+
+		$this->assertTrue($this->QueuedJobs->markJobFailed($job, $oversized));
+
+		$stored = $this->QueuedJobs->get($job->id);
+		$this->assertNotNull($stored->failure_message);
+		$this->assertLessThanOrEqual(QueuedJobsTable::FAILURE_MESSAGE_MAX_LENGTH, strlen((string)$stored->failure_message));
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testFlushFailedJobs() {

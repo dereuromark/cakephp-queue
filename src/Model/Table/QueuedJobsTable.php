@@ -77,6 +77,16 @@ class QueuedJobsTable extends Table {
 	public const DAY = 86400;
 
 	/**
+	 * Maximum byte length persisted to the `failure_message` / `output` TEXT
+	 * columns. A larger value is byte-truncated before save so recording a big
+	 * failure (e.g. a database error that echoes a huge query) can never overflow
+	 * the column and crash the worker while it is recording the failure.
+	 *
+	 * @var int
+	 */
+	public const FAILURE_MESSAGE_MAX_LENGTH = 65535;
+
+	/**
 	 * Terminal `status` value stamped on a job that has exhausted all of its
 	 * retries. Distinguishes a permanently-failed job (which will never run
 	 * again) from one that is pending, in progress, or still being retried —
@@ -768,6 +778,13 @@ class QueuedJobsTable extends Table {
 	 * @return bool Success
 	 */
 	public function markJobFailed(QueuedJob $job, ?string $failureMessage = null, ?string $output = null): bool {
+		if ($failureMessage !== null) {
+			$failureMessage = mb_strcut($failureMessage, 0, static::FAILURE_MESSAGE_MAX_LENGTH);
+		}
+		if ($output !== null) {
+			$output = mb_strcut($output, 0, static::FAILURE_MESSAGE_MAX_LENGTH);
+		}
+
 		$fields = [
 			'failure_message' => $failureMessage,
 			'memory' => Memory::usage(),
