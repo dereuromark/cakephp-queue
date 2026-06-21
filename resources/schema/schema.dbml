@@ -1,0 +1,56 @@
+// cakephp-queue — database schema snapshot (DBML)
+//
+// A merged snapshot of all plugin migrations under config/Migrations/.
+// Hand-maintained: update it when you add a migration that changes these tables.
+// Paste into https://dbdiagram.io (or any DBML tool) to view/diagram.
+// DBML reference: https://dbml.dbdiagram.io/docs
+// Need it as a migration or raw SQL? Convert this DBML at https://toolbox.dereuromark.de/dbml
+
+Project cakephp_queue {
+  database_type: 'Generic'
+  Note: 'Queue plugin tables only.'
+}
+
+Table queued_jobs {
+  id integer [pk, increment]
+  job_task varchar(90) [not null]
+  data text [null]
+  job_group varchar(190) [null]
+  reference varchar(190) [null]
+  created datetime [not null]
+  notbefore datetime [null]
+  fetched datetime [null]
+  completed datetime [null]
+  progress float [null]
+  attempts tinyint [null, default: 0]
+  failure_message text [null]
+  workerkey varchar(45) [null]
+  status varchar(190) [null]
+  priority integer [not null, default: 5]
+  memory integer [null, note: 'MB']
+  output text [null]
+
+  indexes {
+    completed [name: 'completed']
+    job_task [name: 'job_task']
+    (completed, priority, notbefore, id) [name: 'queue_fetch_optimization']
+    fetched [name: 'fetched']
+    (job_task, completed) [name: 'job_task_completed']
+    workerkey [name: 'queued_jobs_workerkey']
+  }
+}
+
+Table queue_processes {
+  id integer [pk, increment]
+  pid varchar(40) [not null]
+  created datetime [not null]
+  modified datetime [not null]
+  terminate boolean [not null, default: false]
+  server varchar(90) [null]
+  workerkey varchar(45) [not null]
+
+  indexes {
+    workerkey [unique, name: 'workerkey']
+    (pid, server) [name: 'pid_server']
+  }
+}

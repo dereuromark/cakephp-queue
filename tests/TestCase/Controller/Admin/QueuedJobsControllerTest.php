@@ -5,6 +5,8 @@ namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\Http\Exception\NotFoundException;
+use Cake\I18n\DateTime;
 use Cake\TestSuite\IntegrationTestTrait;
 use Laminas\Diactoros\UploadedFile;
 use Shim\TestSuite\TestCase;
@@ -21,6 +23,8 @@ class QueuedJobsControllerTest extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
+
+		$this->loadPlugins(['Queue', 'Search']);
 
 		$this->disableErrorHandlerMiddleware();
 	}
@@ -85,7 +89,7 @@ class QueuedJobsControllerTest extends TestCase {
 
 		$this->assertResponseCode(302);
 
-		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$queuedJobs = $this->fetchTable('Queue.QueuedJobs');
 		/** @var \Queue\Model\Entity\QueuedJob $modifiedJob */
 		$modifiedJob = $queuedJobs->get($job->id);
 		$this->assertSame(8, $modifiedJob->priority);
@@ -95,11 +99,59 @@ class QueuedJobsControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testData() {
-		$job = $this->createJob();
+		$job = $this->createJob(['data' => '{"verbose":true,"count":22,"string":"string"}']);
 
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'data', $job->id]);
 
 		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testDataPost() {
+		$job = $this->createJob();
+
+		$data = [
+			'data_string' => <<<JSON
+{
+    "class": "App\\\\Command\\\\RealNotificationCommand",
+    "args": [
+        "--verbose",
+        "-d"
+    ]
+}
+JSON,
+		];
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'data', $job->id], $data);
+
+		$this->assertResponseCode(302);
+
+		/** @var \Queue\Model\Entity\QueuedJob $job */
+		$job = $this->fetchTable('Queue.QueuedJobs')->get($job->id);
+		$expected = '{"class":"App\\\\Command\\\\RealNotificationCommand","args":["--verbose","-d"]}';
+		$this->assertSame($expected, $job->data);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testDataPostInvalidJson(): void {
+		$job = $this->createJob(['data' => '{"valid":"json"}']);
+
+		$this->enableRetainFlashMessages();
+		$data = [
+			'data_string' => 'not valid json {',
+		];
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'data', $job->id], $data);
+
+		$this->assertResponseCode(200);
+		$this->assertFlashMessage('Invalid JSON: Syntax error');
+
+		// Verify original data was not modified
+		/** @var \Queue\Model\Entity\QueuedJob $job */
+		$job = $this->fetchTable('Queue.QueuedJobs')->get($job->id);
+		$this->assertSame('{"valid":"json"}', $job->data);
 	}
 
 	/**
@@ -113,6 +165,64 @@ class QueuedJobsControllerTest extends TestCase {
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'stats']);
 
 		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testHeatmap(): void {
+		Configure::write('Queue.isStatisticEnabled', true);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'heatmap']);
+
+		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testHeatmapNotEnabled(): void {
+		Configure::write('Queue.isStatisticEnabled', false);
+
+		$this->expectException(NotFoundException::class);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'heatmap']);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testHeatmapWithFilters(): void {
+		Configure::write('Queue.isStatisticEnabled', true);
+		$this->createJob(['job_task' => 'Queue.Example']);
+
+		$this->get([
+			'prefix' => 'Admin',
+			'plugin' => 'Queue',
+			'controller' => 'QueuedJobs',
+			'action' => 'heatmap',
+			'?' => [
+				'metric' => 'completed',
+				'days' => 7,
+				'job_type' => 'Queue.Example',
+			],
+		]);
+
+		$this->assertResponseCode(200);
+
+		$heatmapData = $this->viewVariable('heatmapData');
+		$this->assertArrayHasKey('grid', $heatmapData);
+		$this->assertArrayHasKey('summary', $heatmapData);
+		$this->assertCount(7, $heatmapData['grid']); // 7 days of week
+
+		$metric = $this->viewVariable('metric');
+		$this->assertSame('completed', $metric);
+
+		$days = $this->viewVariable('days');
+		$this->assertSame(7, $days);
+
+		$jobType = $this->viewVariable('jobType');
+		$this->assertSame('Queue.Example', $jobType);
 	}
 
 	/**
@@ -132,11 +242,57 @@ class QueuedJobsControllerTest extends TestCase {
 	 * @return void
 	 */
 	public function testIndexSearch() {
-		$this->createJob();
+		$incompleteJob = $this->createJob();
+
+		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$completedJob = $queuedJobs->get($incompleteJob->id);
+		$completedJob->fetched = new DateTime('-1 hour');
+		$completedJob->completed = new DateTime();
+		$queuedJobs->saveOrFail($completedJob);
+
+		$this->createJob(['job_task' => 'bar']);
 
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'completed']]);
 
 		$this->assertResponseCode(200);
+		$queuedJobs = $this->viewVariable('queuedJobs');
+		$this->assertCount(1, $queuedJobs, 'Should only show completed jobs');
+		$jobTasks = collection($queuedJobs)->extract('job_task')->toList();
+		$this->assertContains('foo', $jobTasks);
+		$this->assertNotContains('bar', $jobTasks);
+	}
+
+	/**
+	 * The status filter supports running, failed and aborted in addition to
+	 * completed/in_progress/scheduled, so the dashboard stat cards can link to
+	 * the matching job list.
+	 *
+	 * @return void
+	 */
+	public function testIndexSearchByRunningFailedAborted() {
+		$this->createJob(['job_task' => 'waiting']);
+		$this->createJob(['job_task' => 'running', 'fetched' => new DateTime('-1 minute')]);
+		$this->createJob(['job_task' => 'failing', 'failure_message' => 'boom', 'attempts' => 1]);
+		$this->createJob(['job_task' => 'dead', 'failure_message' => 'boom', 'attempts' => 3, 'status' => 'aborted']);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'pending']]);
+		$this->assertResponseCode(200);
+		$tasks = collection($this->viewVariable('queuedJobs'))->extract('job_task')->toList();
+		$this->assertSame(['waiting'], $tasks);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'running']]);
+		$this->assertResponseCode(200);
+		$tasks = collection($this->viewVariable('queuedJobs'))->extract('job_task')->toList();
+		$this->assertSame(['running'], $tasks);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'failed']]);
+		$tasks = collection($this->viewVariable('queuedJobs'))->extract('job_task')->toList();
+		sort($tasks);
+		$this->assertSame(['dead', 'failing'], $tasks);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'aborted']]);
+		$tasks = collection($this->viewVariable('queuedJobs'))->extract('job_task')->toList();
+		$this->assertSame(['dead'], $tasks);
 	}
 
 	/**
@@ -164,6 +320,119 @@ class QueuedJobsControllerTest extends TestCase {
 		$content = (string)$this->_response->getBody();
 		$json = json_decode($content, true);
 		$this->assertNotEmpty($json);
+	}
+
+	/**
+	 * Test clone method
+	 *
+	 * @return void
+	 */
+	public function testClone() {
+		$job = $this->createJob();
+
+		// Mark as completed so it can be cloned
+		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$job->fetched = new DateTime('-1 hour');
+		$job->completed = new DateTime();
+		$queuedJobs->saveOrFail($job);
+
+		$countBefore = $queuedJobs->find()->count();
+
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'clone', $job->id]);
+
+		$this->assertResponseCode(302);
+		$this->assertRedirect(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+
+		$countAfter = $queuedJobs->find()->count();
+		$this->assertSame($countBefore + 1, $countAfter, 'A new job should be created');
+	}
+
+	/**
+	 * Test execute method (GET)
+	 *
+	 * @return void
+	 */
+	public function testExecute() {
+		Configure::write('debug', true);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'execute']);
+
+		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * Test execute method (POST)
+	 *
+	 * @return void
+	 */
+	public function testExecutePost() {
+		Configure::write('debug', true);
+
+		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$countBefore = $queuedJobs->find()->count();
+
+		$data = [
+			'command' => 'echo "test"',
+			'amount' => 1,
+			'escape' => '1',
+			'log' => '0',
+			'exit_code' => '',
+		];
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'execute'], $data);
+
+		$this->assertResponseCode(302);
+
+		$countAfter = $queuedJobs->find()->count();
+		$this->assertSame($countBefore + 1, $countAfter, 'A new job should be created');
+	}
+
+	/**
+	 * Test execute method throws 404 when not in debug mode
+	 *
+	 * @return void
+	 */
+	public function testExecuteNotDebug() {
+		Configure::write('debug', false);
+
+		$this->disableErrorHandlerMiddleware();
+		$this->expectException(NotFoundException::class);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'execute']);
+	}
+
+	/**
+	 * Test migrate method (GET)
+	 *
+	 * @return void
+	 */
+	public function testMigrate() {
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'migrate']);
+
+		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * Test migrate method (POST)
+	 *
+	 * @return void
+	 */
+	public function testMigratePost() {
+		// Create a job with old-style task name (without plugin prefix)
+		$this->createJob(['job_task' => 'ProgressExample']);
+
+		$data = [
+			'tasks' => [
+				'ProgressExample' => '1',
+			],
+		];
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'migrate'], $data);
+
+		$this->assertResponseCode(302);
+
+		$queuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
+		$queuedJob = $queuedJobs->find()->where(['job_task' => 'Queue.ProgressExample'])->first();
+		$this->assertNotNull($queuedJob, 'Job should be migrated to use Queue. prefix');
 	}
 
 	/**
@@ -197,7 +466,7 @@ class QueuedJobsControllerTest extends TestCase {
 	 */
 	protected function _needsConnection() {
 		$config = ConnectionManager::getConfig('test');
-		$skip = strpos($config['driver'], 'Mysql') === false && strpos($config['driver'], 'Postgres') === false;
+		$skip = !str_contains((string)$config['driver'], 'Mysql') && !str_contains((string)$config['driver'], 'Postgres');
 		$this->skipIf($skip, 'Only Mysql/Postgres is working yet for this.');
 	}
 

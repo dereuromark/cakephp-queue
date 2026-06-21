@@ -3,13 +3,14 @@ declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Controller\Admin;
 
+use Cake\Core\Configure;
+use Cake\Core\Plugin;
 use Cake\Datasource\ConnectionManager;
 use Cake\Http\ServerRequest;
 use Cake\I18n\DateTime;
 use Cake\TestSuite\IntegrationTestTrait;
 use Queue\Controller\Admin\QueueController;
 use Shim\TestSuite\TestCase;
-use Shim\TestSuite\TestTrait;
 use Tools\I18n\DateTime as ToolsDateTime;
 
 /**
@@ -18,7 +19,6 @@ use Tools\I18n\DateTime as ToolsDateTime;
 class QueueControllerTest extends TestCase {
 
 	use IntegrationTestTrait;
-	use TestTrait;
 
 	/**
 	 * Fixtures
@@ -36,6 +36,8 @@ class QueueControllerTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 
+		$this->loadPlugins(['Queue']);
+
 		$this->disableErrorHandlerMiddleware();
 	}
 
@@ -47,8 +49,15 @@ class QueueControllerTest extends TestCase {
 		$this->invokeMethod($controller, 'loadHelpers');
 
 		$view = $controller->createView();
-		$engine = $view->Time->getConfig('engine');
-		$this->assertTrue(in_array($engine, [DateTime::class, ToolsDateTime::class], true));
+
+		// Time helper should be loaded (either Tools.Time or core Time)
+		$this->assertTrue($view->helpers()->has('Time'));
+
+		// If Tools plugin is loaded, it should use the Tools Time helper with engine config
+		if (Plugin::isLoaded('Tools')) {
+			$engine = $view->Time->getConfig('engine');
+			$this->assertTrue(in_array($engine, [DateTime::class, ToolsDateTime::class], true));
+		}
 	}
 
 	/**
@@ -60,6 +69,52 @@ class QueueControllerTest extends TestCase {
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
 
 		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * The pending/scheduled detail lists must be capped to
+	 * Queue.adminDetailsLimit so the dashboard renders a bounded amount of
+	 * markup and DebugKit's Variables panel doesn't OOM on large backlogs.
+	 *
+	 * @return void
+	 */
+	public function testIndexTruncatesPendingDetailsAtDetailsLimit() {
+		Configure::write('Queue.adminDetailsLimit', 3);
+
+		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		for ($i = 0; $i < 5; $i++) {
+			$QueuedJobs->createJob('Queue.Example', ['n' => $i]);
+		}
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+
+		$this->assertResponseCode(200);
+		$pendingDetails = $this->viewVariable('pendingDetails');
+		$this->assertCount(3, $pendingDetails);
+		$this->assertTrue($this->viewVariable('pendingDetailsTruncated'));
+		$this->assertSame(5, $this->viewVariable('totalPending'));
+		$this->assertSame(3, $this->viewVariable('detailsLimit'));
+	}
+
+	/**
+	 * The truncation flag must stay false when the backlog fits inside the
+	 * cap — otherwise the "Showing N of M" hint would render unnecessarily
+	 * and the controller would issue an extra count() it doesn't need.
+	 *
+	 * @return void
+	 */
+	public function testIndexNotTruncatedWhenWithinLimit() {
+		Configure::write('Queue.adminDetailsLimit', 200);
+
+		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		$QueuedJobs->createJob('Queue.Example');
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+
+		$this->assertResponseCode(200);
+		$this->assertFalse($this->viewVariable('pendingDetailsTruncated'));
+		$this->assertFalse($this->viewVariable('scheduledDetailsTruncated'));
+		$this->assertSame(1, $this->viewVariable('totalPending'));
 	}
 
 	/**
@@ -277,13 +332,24 @@ class QueueControllerTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testIndexStandalone(): void {
+		Configure::write('Queue.standalone', true);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+
+		$this->assertResponseCode(200);
+	}
+
+	/**
 	 * Helper method for skipping tests that need a real connection.
 	 *
 	 * @return void
 	 */
 	protected function _needsConnection() {
 		$config = ConnectionManager::getConfig('test');
-		$skip = strpos($config['driver'], 'Mysql') === false && strpos($config['driver'], 'Postgres') === false;
+		$skip = !str_contains((string)$config['driver'], 'Mysql') && !str_contains((string)$config['driver'], 'Postgres');
 		$this->skipIf($skip, 'Only Mysql/Postgres is working yet for this.');
 	}
 

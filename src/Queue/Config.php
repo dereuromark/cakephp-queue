@@ -16,21 +16,46 @@ class Config {
 	 * @return int
 	 */
 	public static function defaultworkertimeout(): int {
-		$timeout = Configure::read('Queue.defaultworkertimeout', 600); // 10min
+		// Check for new config name first, fall back to old name for backward compatibility
+		$timeout = Configure::read('Queue.defaultRequeueTimeout');
+		if ($timeout === null) {
+			$timeout = Configure::read('Queue.defaultworkertimeout');
+			if ($timeout !== null) {
+				trigger_error(
+					'Config key "Queue.defaultworkertimeout" is deprecated. Use "Queue.defaultRequeueTimeout" instead.',
+					E_USER_DEPRECATED,
+				);
+			}
+		}
+		$timeout ??= 600; // 10min default
+
 		if ($timeout <= 0) {
-			throw new InvalidArgumentException('Queue.defaultworkertimeout is less or equal than zero. Indefinite running of workers is not supported.');
+			throw new InvalidArgumentException('Queue.defaultRequeueTimeout (or deprecated defaultworkertimeout) is less or equal than zero. Indefinite running of jobs is not supported.');
 		}
 
 		return $timeout;
 	}
 
 	/**
-	 * Seconds of running time after which the worker will terminate (0 = unlimited)
+	 * Seconds of running time after which the worker will terminate.
+	 * Note: 0 = unlimited is allowed but not recommended. Use a non-zero value for better control.
 	 *
 	 * @return int
 	 */
 	public static function workermaxruntime(): int {
-		return Configure::read('Queue.workermaxruntime', 120);
+		// Check for new config name first, fall back to old name for backward compatibility
+		$runtime = Configure::read('Queue.workerLifetime');
+		if ($runtime === null) {
+			$runtime = Configure::read('Queue.workermaxruntime');
+			if ($runtime !== null) {
+				trigger_error(
+					'Config key "Queue.workermaxruntime" is deprecated. Use "Queue.workerLifetime" instead.',
+					E_USER_DEPRECATED,
+				);
+			}
+		}
+
+		return $runtime ?? 120;
 	}
 
 	/**
@@ -50,6 +75,22 @@ class Config {
 	}
 
 	/**
+	 * Threshold in seconds after which a queue_processes row whose `modified`
+	 * timestamp is older is considered stale by a starting worker. Workers
+	 * heartbeat (refresh `modified`) on every loop iteration, so a row not
+	 * refreshed in ~90s almost certainly belongs to a dead worker — typically
+	 * a container that was force-restarted. This is intentionally much shorter
+	 * than `defaultRequeueTimeout` (which governs in-flight job requeueing).
+	 *
+	 * @return int
+	 */
+	public static function staleHeartbeatThreshold(): int {
+		$threshold = Configure::read('Queue.staleHeartbeatThreshold');
+
+		return $threshold ?? 90;
+	}
+
+	/**
 	 * @return int
 	 */
 	public static function gcprob(): int {
@@ -60,7 +101,19 @@ class Config {
 	 * @return int
 	 */
 	public static function defaultworkerretries(): int {
-		return Configure::read('Queue.defaultworkerretries', 1);
+		// Check for new config name first, fall back to old name for backward compatibility
+		$retries = Configure::read('Queue.defaultJobRetries');
+		if ($retries === null) {
+			$retries = Configure::read('Queue.defaultworkerretries');
+			if ($retries !== null) {
+				trigger_error(
+					'Config key "Queue.defaultworkerretries" is deprecated. Use "Queue.defaultJobRetries" instead.',
+					E_USER_DEPRECATED,
+				);
+			}
+		}
+
+		return $retries ?? 1;
 	}
 
 	/**
@@ -91,6 +144,8 @@ class Config {
 	 */
 	public static function taskConfig(array $tasks): array {
 		$config = [];
+		$defaultTimeout = static::defaultworkertimeout();
+		$taskOverrides = Configure::read('Queue.tasks', []);
 
 		foreach ($tasks as $task => $className) {
 			[$pluginName, $taskName] = pluginSplit($task);
@@ -98,14 +153,24 @@ class Config {
 			/** @var \Queue\Queue\Task $taskObject */
 			$taskObject = new $className();
 
+			// Get task-specific config overrides from Configure
+			$taskConfig = $taskOverrides[$task] ?? [];
+
+			$taskTimeout = $taskConfig['timeout'] ?? $taskObject->timeout ?? $defaultTimeout;
+
+			// Auto-cap task timeout to defaultRequeueTimeout to prevent duplicate execution
+			if ($taskTimeout > $defaultTimeout) {
+				$taskTimeout = $defaultTimeout;
+			}
+
 			$config[$task]['class'] = $className;
 			$config[$task]['name'] = $taskName;
 			$config[$task]['plugin'] = $pluginName;
-			$config[$task]['timeout'] = $taskObject->timeout ?? static::defaultworkertimeout();
-			$config[$task]['retries'] = $taskObject->retries ?? static::defaultworkerretries();
-			$config[$task]['rate'] = $taskObject->rate;
-			$config[$task]['costs'] = $taskObject->costs;
-			$config[$task]['unique'] = $taskObject->unique;
+			$config[$task]['timeout'] = $taskTimeout;
+			$config[$task]['retries'] = $taskConfig['retries'] ?? $taskObject->retries ?? static::defaultworkerretries();
+			$config[$task]['rate'] = $taskConfig['rate'] ?? $taskObject->rate;
+			$config[$task]['costs'] = $taskConfig['costs'] ?? $taskObject->costs;
+			$config[$task]['unique'] = $taskConfig['unique'] ?? $taskObject->unique;
 
 			unset($taskObject);
 		}

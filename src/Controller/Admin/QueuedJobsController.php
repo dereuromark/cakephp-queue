@@ -3,23 +3,26 @@ declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
-use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\DateTime;
 use Cake\View\JsonView;
+use InvalidArgumentException;
 use Queue\Queue\TaskFinder;
 use RuntimeException;
 
 /**
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
- * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> paginate($object = null, array $settings = [])
  * @property \Search\Controller\Component\SearchComponent $Search
+ * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueuedJob> paginate($object = null, array $settings = [])
  */
-class QueuedJobsController extends AppController {
+class QueuedJobsController extends QueueAppController {
 
-	use LoadHelperTrait;
+	/**
+	 * @var string|null
+	 */
+	protected ?string $defaultTable = 'Queue.QueuedJobs';
 
 	/**
 	 * @var array<string, mixed>
@@ -36,8 +39,12 @@ class QueuedJobsController extends AppController {
 	public function initialize(): void {
 		parent::initialize();
 
+		// Set connection for multi-connection support
+		if ($this->activeConnection !== 'default') {
+			$this->QueuedJobs->setConnection($this->getActiveConnectionObject());
+		}
+
 		$this->enableSearch();
-		$this->loadHelpers();
 	}
 
 	/**
@@ -81,19 +88,23 @@ class QueuedJobsController extends AppController {
 	}
 
 	/**
-	 * Index method
+	 * Stats method
 	 *
-	 * @param string|null $jobType
+	 * Uses query parameter `job_type` to filter by specific job type.
+	 * Query parameter is used instead of route parameter to support job types
+	 * containing slashes (e.g., Vendor/Plugin.Task).
 	 *
 	 * @throws \Cake\Http\Exception\NotFoundException
 	 *
 	 * @return void
 	 */
-	public function stats(?string $jobType = null): void {
+	public function stats(): void {
 		if (!Configure::read('Queue.isStatisticEnabled')) {
 			throw new NotFoundException('Not enabled');
 		}
 
+		// Use query parameter to avoid routing issues with job types containing slashes (e.g., Vendor/Plugin.Task)
+		$jobType = $this->request->getQuery('job_type');
 		$stats = $this->QueuedJobs->getFullStats($jobType);
 
 		$jobTypes = $this->QueuedJobs->find()->where()->find(
@@ -101,7 +112,48 @@ class QueuedJobsController extends AppController {
 			keyField: 'job_task',
 			valueField: 'job_task',
 		)->distinct('job_task')->toArray();
-		$this->set(compact('stats', 'jobTypes'));
+		$this->set(compact('stats', 'jobTypes', 'jobType'));
+	}
+
+	/**
+	 * Heatmap method
+	 *
+	 * Shows a heatmap visualization of job activity by day of week and hour.
+	 *
+	 * @throws \Cake\Http\Exception\NotFoundException
+	 *
+	 * @return void
+	 */
+	public function heatmap(): void {
+		if (!Configure::read('Queue.isStatisticEnabled')) {
+			throw new NotFoundException('Not enabled');
+		}
+
+		$jobType = $this->request->getQuery('job_type');
+		$metric = $this->request->getQuery('metric', 'created');
+		$days = (int)$this->request->getQuery('days', 30);
+
+		// Validate metric
+		if (!in_array($metric, ['created', 'completed'], true)) {
+			$metric = 'created';
+		}
+
+		// Validate days range
+		if ($days < 7) {
+			$days = 7;
+		} elseif ($days > 365) {
+			$days = 365;
+		}
+
+		$heatmapData = $this->QueuedJobs->getHeatmapData($metric, $days, $jobType);
+
+		$jobTypes = $this->QueuedJobs->find()->where()->find(
+			'list',
+			keyField: 'job_task',
+			valueField: 'job_task',
+		)->distinct('job_task')->toArray();
+
+		$this->set(compact('heatmapData', 'jobTypes', 'jobType', 'metric', 'days'));
 	}
 
 	/**
@@ -112,9 +164,10 @@ class QueuedJobsController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function view(?int $id = null) {
-		$queuedJob = $this->QueuedJobs->get((int)$id, [
-			'contain' => ['WorkerProcesses'],
-		]);
+		$queuedJob = $this->QueuedJobs->get(
+			(int)$id,
+			contain: ['WorkerProcesses'],
+		);
 
 		if ($this->request->getParam('_ext') && $this->request->getParam('_ext') === 'json' && $this->request->getQuery('download')) {
 			$this->response = $this->response->withDownload('queued-job-' . $id . '.json');
@@ -141,13 +194,27 @@ class QueuedJobsController extends AppController {
 			/** @var \Laminas\Diactoros\UploadedFile|null $file */
 			$file = $this->request->getData('file');
 			if ($file && $file->getError() == UPLOAD_ERR_OK && $file->getSize() > 0) {
+				$clientMediaType = $file->getClientMediaType();
+				if ($clientMediaType !== 'application/json') {
+					throw new RuntimeException('Only JSON files are allowed');
+				}
+
 				$content = file_get_contents($file->getStream()->getMetadata('uri'));
 				if ($content === false) {
 					throw new RuntimeException('Cannot parse file');
 				}
+
 				$json = json_decode($content, true);
+				if (json_last_error() !== JSON_ERROR_NONE) {
+					throw new RuntimeException('Invalid JSON: ' . json_last_error_msg());
+				}
+
 				if (!$json || empty($json['queuedJob'])) {
-					throw new RuntimeException('Invalid JSON content');
+					throw new RuntimeException('Invalid JSON content: missing queuedJob data');
+				}
+
+				if (!is_array($json['queuedJob'])) {
+					throw new RuntimeException('Invalid JSON structure: queuedJob must be an array');
 				}
 
 				$data = $json['queuedJob'];
@@ -201,9 +268,7 @@ class QueuedJobsController extends AppController {
 	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit(?int $id = null) {
-		$queuedJob = $this->QueuedJobs->get($id, [
-			'contain' => [],
-		]);
+		$queuedJob = $this->QueuedJobs->get($id);
 		if ($queuedJob->completed) {
 			$this->Flash->error(__d('queue', 'The queued job is already completed.'));
 
@@ -230,7 +295,34 @@ class QueuedJobsController extends AppController {
 	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
 	public function data(?int $id = null) {
-		return $this->edit($id);
+		$this->QueuedJobs->addBehavior('Queue.Jsonable', ['input' => 'json', 'fields' => ['data'], 'map' => ['data_string']]);
+
+		$queuedJob = $this->QueuedJobs->get($id);
+		if ($queuedJob->completed) {
+			$this->Flash->error(__d('queue', 'The queued job is already completed.'));
+
+			return $this->redirect(['action' => 'view', $id]);
+		}
+
+		if ($this->request->is(['patch', 'post', 'put'])) {
+			try {
+				$queuedJob = $this->QueuedJobs->patchEntity($queuedJob, $this->request->getData());
+				if ($this->QueuedJobs->save($queuedJob)) {
+					$this->Flash->success(__d('queue', 'The queued job has been saved.'));
+
+					return $this->redirect(['action' => 'view', $id]);
+				}
+
+				$this->Flash->error(__d('queue', 'The queued job could not be saved. Please try again.'));
+			} catch (InvalidArgumentException $e) {
+				$this->Flash->error($e->getMessage());
+
+				// Preserve the user's invalid input so they can fix it
+				$queuedJob->data_string = $this->request->getData('data_string');
+			}
+		}
+
+		$this->set(compact('queuedJob'));
 	}
 
 	/**
@@ -250,6 +342,23 @@ class QueuedJobsController extends AppController {
 		}
 
 		return $this->redirect(['action' => 'index']);
+	}
+
+	/**
+	 * @param int|null $id Queued Job id.
+	 *
+	 * @return \Cake\Http\Response|null|void Redirects to index.
+	 */
+	public function clone(?int $id = null) {
+		$this->request->allowMethod(['post', 'put']);
+		$queuedJob = $this->QueuedJobs->get($id);
+		if ($this->QueuedJobs->clone($queuedJob)) {
+			$this->Flash->success(__d('queue', 'The queued job has been cloned and will now run.'));
+		} else {
+			$this->Flash->error(__d('queue', 'The queued job could not be cloned. Please try again.'));
+		}
+
+		return $this->redirect(['controller' => 'Queue', 'action' => 'index']);
 	}
 
 	/**
@@ -298,11 +407,11 @@ class QueuedJobsController extends AppController {
 		$taskFinder = new TaskFinder();
 		$allTasks = $taskFinder->all();
 		$tasks = [];
-		foreach ($allTasks as $task => $className) {
-			if (substr($task, 0, 6) !== 'Queue.') {
+		foreach (array_keys($allTasks) as $task) {
+			if (!str_starts_with($task, 'Queue.')) {
 				continue;
 			}
-			if (substr($task, -7) !== 'Example') {
+			if (!str_ends_with($task, 'Example')) {
 				continue;
 			}
 
@@ -349,8 +458,8 @@ class QueuedJobsController extends AppController {
 			->toArray();
 
 		$tasks = [];
-		foreach ($allTasks as $task => $className) {
-			if (strpos($task, 'Queue.') !== 0) {
+		foreach (array_keys($allTasks) as $task) {
+			if (!str_starts_with($task, 'Queue.')) {
 				continue;
 			}
 

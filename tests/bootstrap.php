@@ -11,14 +11,15 @@ use Cake\TestSuite\Fixture\SchemaLoader;
 use Foo\FooPlugin;
 use Queue\QueuePlugin;
 use Shim\Filesystem\Folder;
+use Templating\View\Icon\BootstrapIcon;
 use TestApp\Controller\AppController;
-use Tools\View\Icon\BootstrapIcon;
+use TestApp\View\AppView;
 
 if (!defined('DS')) {
 	define('DS', DIRECTORY_SEPARATOR);
 }
 if (!defined('WINDOWS')) {
-	if (DS === '\\' || substr(PHP_OS, 0, 3) === 'WIN') {
+	if (DS === '\\' || str_starts_with(PHP_OS, 'WIN')) {
 		define('WINDOWS', true);
 	} else {
 		define('WINDOWS', false);
@@ -64,15 +65,15 @@ Configure::write('Icon', [
 Configure::write('debug', true);
 
 Configure::write('EmailTransport', [
-		'default' => [
-			'className' => 'Debug',
-		],
+	'default' => [
+		'className' => 'Debug',
+	],
 ]);
 Configure::write('Email', [
-		'default' => [
-			'transport' => 'default',
-			'from' => 'you@localhost',
-		],
+	'default' => [
+		'transport' => 'default',
+		'from' => 'you@localhost',
+	],
 ]);
 
 mb_internal_encoding('UTF-8');
@@ -87,16 +88,16 @@ $cache = [
 		'engine' => 'File',
 		'path' => CACHE,
 	],
-	'_cake_core_' => [
+	'_cake_translations_' => [
 		'className' => 'File',
-		'prefix' => 'crud_myapp_cake_core_',
+		'prefix' => 'myapp_cake_translations_',
 		'path' => CACHE . 'persistent/',
 		'serialize' => true,
 		'duration' => '+10 seconds',
 	],
 	'_cake_model_' => [
 		'className' => 'File',
-		'prefix' => 'crud_my_app_cake_model_',
+		'prefix' => 'myapp_cake_model_',
 		'path' => CACHE . 'models/',
 		'serialize' => 'File',
 		'duration' => '+10 seconds',
@@ -106,6 +107,7 @@ $cache = [
 Cache::setConfig($cache);
 
 class_alias(AppController::class, 'App\Controller\AppController');
+class_alias(AppView::class, 'App\View\AppView');
 
 Plugin::getCollection()->add(new QueuePlugin());
 Plugin::getCollection()->add(new FooPlugin());
@@ -136,3 +138,8 @@ if (env('FIXTURE_SCHEMA_METADATA')) {
 	$loader = new SchemaLoader();
 	$loader->loadInternalFile(env('FIXTURE_SCHEMA_METADATA'));
 }
+
+// Permissive default for test runs. Production installs MUST configure their
+// own Closure (default-deny). Individual tests may override or delete this to
+// exercise the deny path.
+Configure::write('Queue.adminAccess', fn () => true);

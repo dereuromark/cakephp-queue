@@ -5,14 +5,12 @@ namespace Queue;
 
 use Cake\Console\CommandCollection;
 use Cake\Core\BasePlugin;
-use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Routing\RouteBuilder;
 use Queue\Command\AddCommand;
 use Queue\Command\BakeQueueTaskCommand;
 use Queue\Command\InfoCommand;
 use Queue\Command\JobCommand;
-use Queue\Command\MigrateTasksCommand;
 use Queue\Command\RunCommand;
 use Queue\Command\WorkerCommand;
 
@@ -41,9 +39,6 @@ class QueuePlugin extends BasePlugin {
 		$commands->add('queue job', JobCommand::class);
 		if (class_exists('Bake\Command\SimpleBakeCommand')) {
 			$commands->add('bake queue_task', BakeQueueTaskCommand::class);
-		}
-		if (Configure::read('debug')) {
-			$commands->add('queue migrate_tasks', MigrateTasksCommand::class);
 		}
 
 		return $commands;

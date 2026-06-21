@@ -61,13 +61,6 @@ class SimpleQueueTransportTest extends TestCase {
 		]);
 
 		$mailer->render('Foo Bar Content');
-		/*
-        $mailer->viewBuilder()->setLayout('test_layout');
-        $mailer->viewBuilder()->setTemplate('test_template');
-        $mailer->viewBuilder()->setTheme('EuroTheme');
-        $mailer->set('var1', 1);
-        $mailer->set('var2', 2);
-        */
 		$mailer->setSubject("L'utilisateur n'a pas pu être enregistré");
 		$mailer->setReplyTo('noreply@cakephp.org');
 		$mailer->setReadReceipt('noreply2@cakephp.org');
@@ -77,9 +70,9 @@ class SimpleQueueTransportTest extends TestCase {
 
 		$result = $this->QueueTransport->send($mailer->getMessage());
 		$this->assertSame('Queue.Email', $result['job_task']);
-		$this->assertTrue(strlen($result['data']) < 10000);
+		$this->assertNotEmpty($result['data']);
 
-		$output = unserialize($result['data']);
+		$output = $result['data'];
 
 		$settings = $output['settings'];
 		$this->assertSame([['noreply@cakephp.org' => 'CakePHP Test']], $settings['from']);

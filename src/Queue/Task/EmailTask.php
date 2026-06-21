@@ -78,7 +78,7 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 			return;
 		}
 
-		$this->io->err('Queue Email Task cannot be added via Console without `Config.adminEmail` being set.');
+		$this->io->warn('Queue Email Task cannot be added via Console without `Config.adminEmail` being set.');
 		$this->io->out('Please set this config value in your app.php Configure config. It will use this for to+from then.');
 		$this->io->out('Or use createJob() on the QueuedTasks Table to create a proper QueueEmail job.');
 		$this->io->out('The payload $data array should look something like this:');
@@ -136,7 +136,8 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 			$serialized = $data['serialized'] ?? false;
 
 			if ($serialized) {
-				$this->message = is_array($settings) ? static::unserialize($object, $settings) : unserialize($settings);
+				$allowedClass = is_object($class) ? $class::class : $class;
+				$this->message = is_array($settings) ? static::unserialize($object, $settings) : unserialize($settings, ['allowed_classes' => [$allowedClass]]);
 			} else {
 				/** @var class-string<\Cake\Mailer\Message> $class */
 				$this->message = new $class($settings);
@@ -163,8 +164,48 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 		$this->mailer = $this->getMailer();
 
 		$settings = $data['settings'] + $this->defaults;
+
+		foreach (['to', 'from', 'cc', 'bcc', 'replyTo', 'sender', 'returnPath', 'readReceipt'] as $addressMethod) {
+			if (!array_key_exists($addressMethod, $settings)) {
+				continue;
+			}
+
+			$setter = 'set' . ucfirst($addressMethod);
+			$this->mailer->{$setter}(...$this->addressArguments($settings[$addressMethod]));
+			unset($settings[$addressMethod]);
+		}
+
+		// Message body keys from a serialized Message payload use different names than
+		// their setter methods. Route them explicitly so the generic loop does not try
+		// to call nonexistent `setHtmlMessage`/`setTextMessage` on the Mailer.
+		if (array_key_exists('htmlMessage', $settings)) {
+			$this->mailer->getMessage()->setBodyHtml((string)$settings['htmlMessage']);
+			unset($settings['htmlMessage']);
+		}
+		if (array_key_exists('textMessage', $settings)) {
+			$this->mailer->getMessage()->setBodyText((string)$settings['textMessage']);
+			unset($settings['textMessage']);
+		}
+
+		// `headers` must be passed as a single positional argument — the map's string
+		// keys would otherwise be interpreted as named parameters under PHP 8.
+		if (array_key_exists('headers', $settings)) {
+			$this->mailer->getMessage()->setHeaders((array)$settings['headers']);
+			unset($settings['headers']);
+		}
+
+		// `appCharset` has no setter on Mailer or Message. Fall back to the Message
+		// charset when a dedicated `charset` value was not also provided.
+		if (array_key_exists('appCharset', $settings)) {
+			$appCharset = (string)$settings['appCharset'];
+			unset($settings['appCharset']);
+			if (!array_key_exists('charset', $settings)) {
+				$this->mailer->getMessage()->setCharset($appCharset);
+			}
+		}
+
 		foreach ($settings as $method => $setting) {
-			$setter = 'set' . ucfirst($method);
+			$setter = 'set' . ucfirst((string)$method);
 			if (in_array($method, ['theme', 'template', 'layout'], true)) {
 				call_user_func_array([$this->mailer->viewBuilder(), $setter], (array)$setting);
 
@@ -173,6 +214,13 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 			if (in_array($method, ['helper', 'helpers'], true)) {
 				$setter = 'add' . ucfirst($method);
 				call_user_func_array([$this->mailer->viewBuilder(), $setter], (array)$setting);
+
+				continue;
+			}
+
+			// Special handling for attachments - pass the array directly
+			if ($method === 'attachments') {
+				$this->mailer->setAttachments($setting);
 
 				continue;
 			}
@@ -197,6 +245,26 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 		}
 
 		$this->mailer->deliver((string)$message);
+	}
+
+	/**
+	 * Normalizes an address setting into positional arguments for setTo/setFrom/etc.
+	 *
+	 * List-shaped arrays are unpacked into positional arguments (matching the
+	 * historical `call_user_func_array` behavior), while associative `email => name`
+	 * maps are passed as a single positional argument so PHP 8 does not interpret
+	 * their string keys as named parameters.
+	 *
+	 * @param mixed $setting
+     *
+	 * @return array
+	 */
+	protected function addressArguments(mixed $setting): array {
+		if (is_array($setting) && $setting !== [] && array_is_list($setting)) {
+			return $setting;
+		}
+
+		return [$setting];
 	}
 
 	/**

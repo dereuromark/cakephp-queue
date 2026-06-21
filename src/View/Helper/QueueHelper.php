@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Queue\View\Helper;
 
 use Cake\View\Helper;
+use DateInterval;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
@@ -35,11 +36,8 @@ class QueueHelper extends Helper {
 
 		// Requeued
 		$taskConfig = $this->taskConfig($queuedJob->job_task);
-		if ($taskConfig && $queuedJob->attempts <= $taskConfig['retries']) {
-			return false;
-		}
 
-		return true;
+		return !($taskConfig && $queuedJob->attempts <= $taskConfig['retries']);
 	}
 
 	/**
@@ -63,6 +61,32 @@ class QueueHelper extends Helper {
 	}
 
 	/**
+	 * Returns true if job has been requeued (has failure message but within retry limit).
+	 *
+	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 *
+	 * @return bool
+	 */
+	public function isRequeued(QueuedJob $queuedJob): bool {
+		if ($queuedJob->completed || !$queuedJob->fetched) {
+			return false;
+		}
+
+		// Must have a failure message to be considered "requeued"
+		if (!$queuedJob->failure_message) {
+			return false;
+		}
+
+		if ($queuedJob->attempts < 1) {
+			return false;
+		}
+
+		$taskConfig = $this->taskConfig($queuedJob->job_task);
+
+		return $taskConfig && $queuedJob->attempts <= $taskConfig['retries'];
+	}
+
+	/**
 	 * Returns failure status (message) if applicable.
 	 *
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
@@ -74,8 +98,11 @@ class QueueHelper extends Helper {
 			return null;
 		}
 
+		// No failure message yet: the job is simply running its current attempt,
+		// which is indistinguishable from a reset-and-rerun job, so there is no
+		// distinct failure status to report.
 		if (!$queuedJob->failure_message) {
-			return __d('queue', 'Restarted');
+			return null;
 		}
 
 		$taskConfig = $this->taskConfig($queuedJob->job_task);
@@ -98,6 +125,117 @@ class QueueHelper extends Helper {
 		}
 
 		return $this->taskConfig[$jobTask] ?? [];
+	}
+
+	/**
+	 * Formats seconds into a human-readable string for large values.
+	 *
+	 * Returns the seconds with human-readable addition in brackets for values >= 3600 (1 hour).
+	 *
+	 * @param int $seconds
+	 *
+	 * @return string
+	 */
+	public function secondsToHumanReadable(int $seconds): string {
+		if ($seconds < 3600) {
+			return (string)$seconds;
+		}
+
+		$parts = [];
+		$days = (int)floor($seconds / 86400);
+		$hours = (int)floor(($seconds % 86400) / 3600);
+		$minutes = (int)floor(($seconds % 3600) / 60);
+
+		if ($days > 0) {
+			$parts[] = $days . 'd';
+		}
+		if ($hours > 0) {
+			$parts[] = $hours . 'h';
+		}
+		if ($minutes > 0) {
+			$parts[] = $minutes . 'm';
+		}
+
+		return $seconds . ' (' . implode(' ', $parts) . ')';
+	}
+
+	/**
+	 * Returns the duration of a completed job.
+	 *
+	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 *
+	 * @return string|null Duration string or null if not calculable
+	 */
+	public function duration(QueuedJob $queuedJob): ?string {
+		if (!$queuedJob->completed) {
+			return null;
+		}
+
+		if (!$queuedJob->fetched) {
+			return null;
+		}
+
+		$interval = $queuedJob->completed->diff($queuedJob->fetched);
+
+		return $this->formatInterval($interval);
+	}
+
+	/**
+	 * Formats a DateInterval into a human-readable duration string.
+	 *
+	 * @param \DateInterval $interval
+	 *
+	 * @return string
+	 */
+	public function formatInterval(DateInterval $interval): string {
+		$parts = [];
+
+		if ($interval->d > 0) {
+			$parts[] = $interval->d . 'd';
+		}
+		if ($interval->h > 0) {
+			$parts[] = $interval->h . 'h';
+		}
+		if ($interval->i > 0) {
+			$parts[] = $interval->i . 'm';
+		}
+		if ($interval->s > 0 || empty($parts)) {
+			$parts[] = $interval->s . 's';
+		}
+
+		// Minimum display is "< 1s" when no time parts
+		if (implode('', $parts) === '0s') {
+			return '< 1s';
+		}
+
+		return implode(' ', $parts);
+	}
+
+	/**
+	 * Returns a color for heatmap visualization based on intensity.
+	 *
+	 * Uses a green gradient from light (low activity) to dark (high activity).
+	 *
+	 * @param float $intensity Value between 0 and 1
+	 *
+	 * @return string CSS color value
+	 */
+	public function heatmapColor(float $intensity): string {
+		if ($intensity <= 0) {
+			return '#ebedf0'; // Empty/no activity
+		}
+
+		// Green gradient similar to GitHub contribution graph
+		$colors = [
+			'#9be9a8', // Light green (low)
+			'#40c463', // Medium green
+			'#30a14e', // Darker green
+			'#216e39', // Dark green (high)
+		];
+
+		$index = min((int)floor($intensity * count($colors)), count($colors) - 1);
+
+		return $colors[$index];
 	}
 
 }

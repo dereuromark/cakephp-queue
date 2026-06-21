@@ -11,7 +11,17 @@ use Cake\Core\Configure;
 use Cake\I18n\Number;
 use Queue\Queue\TaskFinder;
 
+/**
+ * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
+ */
 class InfoCommand extends Command {
+
+	/**
+	 * @return string
+	 */
+	public static function getDescription(): string {
+		return 'Show queue status and available tasks.';
+	}
 
 	/**
 	 * @var string|null
@@ -49,7 +59,7 @@ class InfoCommand extends Command {
 		$addableTasks = $this->getAddableTasks();
 
 		$io->out(count($tasks) . ' tasks available:');
-		foreach ($tasks as $task => $className) {
+		foreach (array_keys($tasks) as $task) {
 			if (array_key_exists($task, $addableTasks)) {
 				$task .= ' <info>[addable via CLI]</info>';
 			}
@@ -62,6 +72,15 @@ class InfoCommand extends Command {
 
 		$io->out('Current Settings:');
 		$conf = (array)Configure::read('Queue');
+
+		// Map of old config names to new names for display
+		$configMapping = [
+			'defaultworkertimeout' => 'defaultRequeueTimeout',
+			'workermaxruntime' => 'workerLifetime',
+			'defaultworkerretries' => 'defaultJobRetries',
+			'workertimeout' => 'workerPhpTimeout',
+		];
+
 		foreach ($conf as $key => $val) {
 			if ($val === false) {
 				$val = 'no';
@@ -69,15 +88,23 @@ class InfoCommand extends Command {
 			if ($val === true) {
 				$val = 'yes';
 			}
-			$io->out('* ' . $key . ': ' . print_r($val, true));
+
+			// Display new config name if it exists, otherwise use the original
+			$displayKey = $key;
+			if (isset($configMapping[$key])) {
+				$displayKey = $configMapping[$key] . ' (was: ' . $key . ')';
+			}
+
+			$io->out('* ' . $displayKey . ': ' . print_r($val, true));
 		}
 
 		$io->out();
 		$io->hr();
 		$io->out();
 
-		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
-		$QueueProcesses = $this->getTableLocator()->get('Queue.QueueProcesses');
+		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
 
 		$io->out('Total unfinished jobs: ' . $QueuedJobs->getLength());
 		$status = $QueueProcesses->status();
@@ -90,11 +117,17 @@ class InfoCommand extends Command {
 		$io->out();
 
 		$io->out('Jobs currently in the queue:');
+		/** @var array<string, string> $types */
 		$types = $QueuedJobs->getTypes()->toArray();
 		//TODO: refactor using $io->helper table?
 		foreach ($types as $type) {
 			$io->out(' - ' . str_pad($type, 20, ' ', STR_PAD_RIGHT) . ': ' . $QueuedJobs->getLength($type));
 		}
+
+		$io->out();
+
+		$scheduled = $QueuedJobs->getScheduledStats()->count();
+		$io->out('Jobs currently scheduled to run in the future: ' . $scheduled);
 
 		$io->out();
 		$io->hr();

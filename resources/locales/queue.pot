@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2021-07-04 13:38+0000\n"
+"POT-Creation-Date: 2026-05-04 04:14+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -14,490 +14,732 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: Controller/Admin/QueueController.php:160
-msgid "{n} jobs reset for re-run"
+msgid "Invalid connection: {0}. Must be one of: {1}"
 msgstr ""
 
-#: Controller/Admin/QueueController.php:175
-msgid "{n} jobs removed"
+msgid "Queue admin backend is not configured. Set Queue.adminAccess to a Closure that returns true for permitted callers."
 msgstr ""
 
-#: Controller/Admin/QueueController.php:190
+msgid "Queue admin access denied."
+msgstr ""
+
+msgid "Invalid connection: {0}"
+msgstr ""
+
+msgid "{0} jobs reset for re-run"
+msgstr ""
+
+msgid "{0} jobs removed"
+msgstr ""
+
 msgid "OK"
 msgstr ""
 
-#: Controller/Admin/QueueProcessesController.php:73
 msgid "The queue process has been saved."
 msgstr ""
 
-#: Controller/Admin/QueueProcessesController.php:78
 msgid "The queue process could not be saved. Please, try again."
 msgstr ""
 
-#: Controller/Admin/QueueProcessesController.php:95
-#: Controller/Admin/QueueProcessesController.php:116
 msgid "The queue process has been deleted."
 msgstr ""
 
-#: Controller/Admin/QueueProcessesController.php:97
-#: Controller/Admin/QueueProcessesController.php:118
 msgid "The queue process could not be deleted. Please, try again."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:182
 msgid "Please, try again."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:197
 msgid "The queued job is already completed."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:205
 msgid "The queued job has been saved."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:210
 msgid "The queued job could not be saved. Please try again."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:234
 msgid "The queued job has been deleted."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:236
 msgid "The queued job could not be deleted. Please try again."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:273
+msgid "The queued job has been cloned and will now run."
+msgstr ""
+
+msgid "The queued job could not be cloned. Please try again."
+msgstr ""
+
 msgid "The requested job has been queued "
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:311
 msgid "The requested job has been queued."
 msgstr ""
 
-#: Controller/Admin/QueuedJobsController.php:316
 msgid "The job could not be queued. Please try again."
 msgstr ""
 
-#: View/Helper/QueueHelper.php:79
+msgid "Demonstrates cost management to prevent server overload"
+msgstr ""
+
+msgid "Simple task that outputs to console"
+msgstr ""
+
+msgid "Demonstrates exception handling (always fails)"
+msgstr ""
+
+msgid "Logs server memory and PHP info"
+msgstr ""
+
+msgid "Long-running task (~2 min) with progress bar updates"
+msgstr ""
+
+msgid "Demonstrates retry behavior (fails 3x, succeeds on 4th)"
+msgstr ""
+
+msgid "Creates another Example job upon completion (chaining)"
+msgstr ""
+
+msgid "Only one instance can run at a time across all workers"
+msgstr ""
+
 msgid "Restarted"
 msgstr ""
 
-#: View/Helper/QueueHelper.php:84
 msgid "Requeued"
 msgstr ""
 
-#: View/Helper/QueueHelper.php:87
 msgid "Aborted"
 msgstr ""
 
-#: Admin/Queue/index.php:18
-#: Admin/QueueProcesses/edit.php:9
-#: Admin/QueueProcesses/index.php:10
-#: Admin/QueueProcesses/index.php:26
-#: Admin/QueueProcesses/view.php:10
-#: Admin/QueuedJobs/data.php:9
-#: Admin/QueuedJobs/edit.php:9
-#: Admin/QueuedJobs/execute.php:8
-#: Admin/QueuedJobs/import.php:8
-#: Admin/QueuedJobs/index.php:13
-#: Admin/QueuedJobs/index.php:50
-#: Admin/QueuedJobs/migrate.php:9
-#: Admin/QueuedJobs/stats.php:14
-#: Admin/QueuedJobs/test.php:10
-#: Admin/QueuedJobs/view.php:9
-msgid "Actions"
+msgid "Queue Running"
 msgstr ""
 
-#: Admin/Queue/index.php:19
-#: Admin/Queue/index.php:21
-msgid "Reset {0}"
+msgid "Queue Idle"
 msgstr ""
 
-#: Admin/Queue/index.php:19
-#: Admin/Queue/index.php:20
-msgid "Failed Jobs"
+msgid "Last activity {0}"
 msgstr ""
 
-#: Admin/Queue/index.php:19
-msgid "Sure? This will make all failed jobs ready for re-run."
+msgid "{0} worker(s)"
 msgstr ""
 
-#: Admin/Queue/index.php:20
-msgid "Flush {0}"
+msgid "{0} server(s)"
 msgstr ""
 
-#: Admin/Queue/index.php:20
-msgid "Sure? This will remove all failed jobs."
+msgid "Manage Workers"
 msgstr ""
 
-#: Admin/Queue/index.php:21
-msgid "All Jobs"
+msgid "No queue status available. Workers may not have started yet."
 msgstr ""
 
-#: Admin/Queue/index.php:21
-msgid "Sure? This will make all failed as well as still running jobs ready for re-run."
+msgid "Scheduled"
 msgstr ""
 
-#: Admin/Queue/index.php:22
-msgid "Hard Reset {0}"
+msgid "Pending"
 msgstr ""
 
-#: Admin/Queue/index.php:22
-#: Admin/Queue/index.php:28
-#: Admin/Queue/processes.php:22
-#: Admin/QueuedJobs/stats.php:21
-msgid "Queue"
-msgstr ""
-
-#: Admin/Queue/index.php:22
-msgid "Sure? This will delete all jobs and completely reset the queue."
-msgstr ""
-
-#: Admin/Queue/index.php:23
-#: Admin/Queue/processes.php:17
-#: Admin/QueueProcesses/edit.php:11
-#: Admin/QueueProcesses/view.php:19
-#: Admin/QueuedJobs/data.php:11
-#: Admin/QueuedJobs/edit.php:18
-#: Admin/QueuedJobs/execute.php:10
-#: Admin/QueuedJobs/stats.php:16
-#: Admin/QueuedJobs/test.php:11
-#: Admin/QueuedJobs/view.php:17
-msgid "List {0}"
-msgstr ""
-
-#: Admin/Queue/index.php:23
-#: Admin/Queue/index.php:53
-#: Admin/QueuedJobs/data.php:11
-#: Admin/QueuedJobs/edit.php:18
-#: Admin/QueuedJobs/execute.php:10
-#: Admin/QueuedJobs/index.php:35
-#: Admin/QueuedJobs/stats.php:16
-#: Admin/QueuedJobs/test.php:11
-#: Admin/QueuedJobs/view.php:17
-msgid "Queued Jobs"
-msgstr ""
-
-#: Admin/Queue/index.php:33
-#: Admin/QueuedJobs/view.php:75
-msgid "Status"
-msgstr ""
-
-#: Admin/Queue/index.php:40
 msgid "Running"
 msgstr ""
 
-#: Admin/Queue/index.php:40
-msgid "Not running"
-msgstr ""
-
-#: Admin/Queue/index.php:40
-msgid "last {0}"
-msgstr ""
-
-#: Admin/Queue/index.php:55
-msgid "{0} task(s) newly await processing."
-msgstr ""
-
-#: Admin/Queue/index.php:65
-#: Admin/QueuedJobs/view.php:101
-msgid "Soft reset"
-msgstr ""
-
-#: Admin/Queue/index.php:66
-#: Admin/Queue/index.php:68
-msgid "Remove"
-msgstr ""
-
-#: Admin/Queue/index.php:73
-msgid "scheduled {0}"
-msgstr ""
-
-#: Admin/Queue/index.php:76
-#: Admin/QueueProcesses/view.php:26
-#: Admin/QueuedJobs/view.php:36
-msgid "Created"
-msgstr ""
-
-#: Admin/Queue/index.php:79
-#: Admin/QueuedJobs/view.php:53
-msgid "Fetched"
-msgstr ""
-
-#: Admin/Queue/index.php:83
-msgid "status"
-msgstr ""
-
-#: Admin/Queue/index.php:88
-#: Admin/QueuedJobs/view.php:79
-msgid "Progress"
-msgstr ""
-
-#: Admin/Queue/index.php:95
-msgid "Failures"
-msgstr ""
-
-#: Admin/Queue/index.php:98
-#: Admin/QueuedJobs/view.php:134
-msgid "Failure Message"
-msgstr ""
-
-#: Admin/Queue/index.php:109
-msgid "Statistics"
-msgstr ""
-
-#: Admin/Queue/index.php:129
-msgid "Detailed Statistics"
-msgstr ""
-
-#: Admin/Queue/index.php:197
-msgid "Trigger Delayed Test/Demo Job"
-msgstr ""
-
-#: Admin/Queue/index.php:199
-msgid "Trigger Execute Job(s)"
-msgstr ""
-
-#: Admin/Queue/processes.php:16
-#: Admin/QueueProcesses/index.php:11
-#: Admin/QueuedJobs/execute.php:9
-#: Admin/QueuedJobs/index.php:14
-#: Admin/QueuedJobs/stats.php:15
-#: Admin/QueuedJobs/view.php:10
-msgid "Dashboard"
-msgstr ""
-
-#: Admin/Queue/processes.php:17
-#: Admin/QueueProcesses/edit.php:11
-#: Admin/QueueProcesses/index.php:17
-#: Admin/QueueProcesses/view.php:19
-msgid "Queue Processes"
-msgstr ""
-
-#: Admin/Queue/processes.php:24
-msgid "Current Queue Processes"
-msgstr ""
-
-#: Admin/Queue/processes.php:25
-msgid "Active processes"
-msgstr ""
-
-#: Admin/Queue/processes.php:39
-msgid "Finish current job and end"
-msgstr ""
-
-#: Admin/Queue/processes.php:41
-msgid "Kill"
-msgstr ""
-
-#: Admin/Queue/processes.php:41
-msgid "Soft kill"
-msgstr ""
-
-#: Admin/Queue/processes.php:54
-msgid "Terminated"
-msgstr ""
-
-#: Admin/Queue/processes.php:55
-msgid "These have been marked as to be terminated after finishing this round"
-msgstr ""
-
-#: Admin/QueueProcesses/edit.php:10
-#: Admin/QueueProcesses/index.php:12
-#: Admin/QueuedJobs/data.php:10
-#: Admin/QueuedJobs/edit.php:10
-#: Admin/QueuedJobs/migrate.php:10
-msgid "Back"
-msgstr ""
-
-#: Admin/QueueProcesses/edit.php:16
-msgid "Edit PID {0}"
-msgstr ""
-
-#: Admin/QueueProcesses/edit.php:20
-#: Admin/QueueProcesses/view.php:11
-msgid "Edit Queue Process"
-msgstr ""
-
-#: Admin/QueueProcesses/edit.php:25
-#: Admin/QueuedJobs/data.php:24
-#: Admin/QueuedJobs/edit.php:32
-#: Admin/QueuedJobs/execute.php:30
-#: Admin/QueuedJobs/import.php:23
-#: Admin/QueuedJobs/migrate.php:25
-#: Admin/QueuedJobs/test.php:30
-msgid "Submit"
-msgstr ""
-
-#: Admin/QueueProcesses/index.php:13
-msgid "Cleanup"
-msgstr ""
-
-#: Admin/QueueProcesses/index.php:22
-msgid "Started"
-msgstr ""
-
-#: Admin/QueueProcesses/index.php:23
-msgid "Last Run"
-msgstr ""
-
-#: Admin/QueueProcesses/index.php:24
-#: Admin/QueueProcesses/view.php:39
-msgid "Active"
-msgstr ""
-
-#: Admin/QueueProcesses/index.php:58
-#: Admin/QueueProcesses/view.php:14
-msgid "Terminate"
-msgstr ""
-
-#: Admin/QueueProcesses/index.php:58
-#: Admin/QueueProcesses/view.php:14
-msgid "Are you sure you want to terminate # {0}?"
-msgstr ""
-
-#: Admin/QueueProcesses/view.php:14
-msgid "Terminate (clean remove)"
-msgstr ""
-
-#: Admin/QueueProcesses/view.php:16
-#: Admin/QueuedJobs/edit.php:12
-msgid "Delete"
-msgstr ""
-
-#: Admin/QueueProcesses/view.php:16
-msgid "Delete (not advised)"
-msgstr ""
-
-#: Admin/QueueProcesses/view.php:16
-#: Admin/QueuedJobs/edit.php:14
-#: Admin/QueuedJobs/index.php:115
-#: Admin/QueuedJobs/view.php:16
-msgid "Are you sure you want to delete # {0}?"
-msgstr ""
-
-#: Admin/QueueProcesses/view.php:35
-msgid "Modified"
-msgstr ""
-
-#: Admin/QueueProcesses/view.php:43
-msgid "Server"
-msgstr ""
-
-#: Admin/QueueProcesses/view.php:47
-#: Admin/QueuedJobs/view.php:109
-msgid "Workerkey"
-msgstr ""
-
-#: Admin/QueuedJobs/data.php:15
-#: Admin/QueuedJobs/edit.php:22
-msgid "Edit"
-msgstr ""
-
-#: Admin/QueuedJobs/data.php:19
-msgid "Edit Queued Job Payload"
-msgstr ""
-
-#: Admin/QueuedJobs/edit.php:17
-msgid "Edit Payload"
-msgstr ""
-
-#: Admin/QueuedJobs/edit.php:26
-#: Admin/QueuedJobs/view.php:14
-msgid "Edit Queued Job"
-msgstr ""
-
-#: Admin/QueuedJobs/execute.php:14
-msgid "Add Execute Jobs"
-msgstr ""
-
-#: Admin/QueuedJobs/execute.php:18
-msgid "Trigger Execute Job"
-msgstr ""
-
-#: Admin/QueuedJobs/import.php:17
-msgid "Import Job from exported JSON"
-msgstr ""
-
-#: Admin/QueuedJobs/index.php:16
-msgid "Import"
-msgstr ""
-
-#: Admin/QueuedJobs/index.php:22
-msgid "Current server time"
-msgstr ""
-
-#: Admin/QueuedJobs/migrate.php:14
-msgid "Migrate v3 to v4"
-msgstr ""
-
-#: Admin/QueuedJobs/migrate.php:18
-msgid "Chose Tasks to migrate"
-msgstr ""
-
-#: Admin/QueuedJobs/stats.php:26
-msgid "Job Statistics"
-msgstr ""
-
-#: Admin/QueuedJobs/test.php:15
-msgid "Create test jobs"
-msgstr ""
-
-#: Admin/QueuedJobs/test.php:19
-msgid "Trigger Delayed Job"
-msgstr ""
-
-#: Admin/QueuedJobs/view.php:11
-msgid "Export"
-msgstr ""
-
-#: Admin/QueuedJobs/view.php:16
-msgid "Delete Queued Job"
-msgstr ""
-
-#: Admin/QueuedJobs/view.php:24
-msgid "Job Type"
-msgstr ""
-
-#: Admin/QueuedJobs/view.php:28
-msgid "Job Group"
-msgstr ""
-
-#: Admin/QueuedJobs/view.php:32
-msgid "Reference"
-msgstr ""
-
-#: Admin/QueuedJobs/view.php:40
-msgid "Notbefore"
-msgstr ""
-
-#: Admin/QueuedJobs/view.php:58
-msgid "Delay"
-msgstr ""
-
-#: Admin/QueuedJobs/view.php:64
-msgid "Completed"
-msgstr ""
-
-#: Admin/QueuedJobs/view.php:69
-msgid "Duration"
-msgstr ""
-
-#: Admin/QueuedJobs/view.php:96
 msgid "Failed"
 msgstr ""
 
-#: Admin/QueuedJobs/view.php:103
-msgid "Force reset"
+msgid "Pending Jobs"
 msgstr ""
 
-#: Admin/QueuedJobs/view.php:118
+msgid "View All"
+msgstr ""
+
+msgid "Task"
+msgstr ""
+
+msgid "Reference"
+msgstr ""
+
+msgid "Created"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "Scheduled {0}"
+msgstr ""
+
+msgid "Attempts"
+msgstr ""
+
+msgid "Reset"
+msgstr ""
+
+msgid "Sure?"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "No pending jobs"
+msgstr ""
+
+msgid "Scheduled Jobs"
+msgstr ""
+
+msgid "Scheduled For"
+msgstr ""
+
+msgid "Statistics"
+msgstr ""
+
+msgid "Finished"
+msgstr ""
+
+msgid "Avg. Existence"
+msgstr ""
+
+msgid "Avg. Delay"
+msgstr ""
+
+msgid "Avg. Runtime"
+msgstr ""
+
+msgid "Time Series"
+msgstr ""
+
+msgid "Heatmap"
+msgstr ""
+
+msgid "Trigger Jobs"
+msgstr ""
+
+msgid "Jobs implementing AddFromBackendInterface"
+msgstr ""
+
+msgid "No addable tasks available"
+msgstr ""
+
+msgid "Execute Job"
+msgstr ""
+
+msgid "Test/Demo Jobs"
+msgstr ""
+
+msgid "Trigger Delayed Test Job"
+msgstr ""
+
+msgid "Configuration"
+msgstr ""
+
+msgid "Server"
+msgstr ""
+
+msgid "extension"
+msgstr ""
+
+msgid "Runtime Configuration"
+msgstr ""
+
+msgid "No configuration found"
+msgstr ""
+
+msgid "Active Workers"
+msgstr ""
+
+msgid "Current Queue Processes"
+msgstr ""
+
+msgid "active"
+msgstr ""
+
+msgid "Active"
+msgstr ""
+
+msgid "Current Job"
+msgstr ""
+
+msgid "Idle - waiting for jobs"
+msgstr ""
+
+msgid "Last activity"
+msgstr ""
+
+msgid "Finish & End"
+msgstr ""
+
+msgid "Finish current job and end worker"
+msgstr ""
+
+msgid "Kill"
+msgstr ""
+
+msgid "Send SIGTERM to terminate immediately"
+msgstr ""
+
+msgid "Sure? This sends SIGTERM to the process."
+msgstr ""
+
+msgid "No active workers"
+msgstr ""
+
+msgid "Start a worker using the CLI command"
+msgstr ""
+
+msgid "Termination Pending"
+msgstr ""
+
+msgid "These workers have been marked for termination after finishing their current job"
+msgstr ""
+
+msgid "Pending termination"
+msgstr ""
+
+msgid "View Process History"
+msgstr ""
+
+msgid "Edit Process"
+msgstr ""
+
+msgid "Back"
+msgstr ""
+
+msgid "Server Identifier"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Queue Processes"
+msgstr ""
+
+msgid "Cleanup"
+msgstr ""
+
+msgid "Sure to remove all outdated ones (>{0}s)?"
+msgstr ""
+
+msgid "PID"
+msgstr ""
+
+msgid "Started"
+msgstr ""
+
+msgid "Last Run"
+msgstr ""
+
+msgid "Long running process"
+msgstr ""
+
+msgid "Beyond default worker timeout!"
+msgstr ""
+
+msgid "View"
+msgstr ""
+
+msgid "Terminate"
+msgstr ""
+
+msgid "Are you sure you want to terminate # {0}?"
+msgstr ""
+
+msgid "Process Details"
+msgstr ""
+
+msgid "Long running"
+msgstr ""
+
+msgid "Last Modified"
+msgstr ""
+
+msgid "Terminated"
+msgstr ""
+
+msgid "Worker Key"
+msgstr ""
+
+msgid "Terminate (Graceful)"
+msgstr ""
+
+msgid "Delete (Force)"
+msgstr ""
+
+msgid "Are you sure you want to delete # {0}?"
+msgstr ""
+
+msgid "Edit Queued Job Payload"
+msgstr ""
+
+msgid "Payload Data (JSON/Serialized)"
+msgstr ""
+
+msgid "Edit Queued Job"
+msgstr ""
+
+msgid "Edit Payload"
+msgstr ""
+
+msgid "Delete Job"
+msgstr ""
+
+msgid "Add Execute Jobs"
+msgstr ""
+
+msgid "Command"
+msgstr ""
+
+msgid "Escape command"
+msgstr ""
+
+msgid "Enable logging"
+msgstr ""
+
+msgid "Expected Exit Code"
+msgstr ""
+
+msgid "Amount of jobs to spawn"
+msgstr ""
+
+msgid "Escaping is recommended to keep on for security."
+msgstr ""
+
+msgid "Create Job"
+msgstr ""
+
+msgid "Sun"
+msgstr ""
+
+msgid "Mon"
+msgstr ""
+
+msgid "Tue"
+msgstr ""
+
+msgid "Wed"
+msgstr ""
+
+msgid "Thu"
+msgstr ""
+
+msgid "Fri"
+msgstr ""
+
+msgid "Sat"
+msgstr ""
+
+msgid "Sunday"
+msgstr ""
+
+msgid "Monday"
+msgstr ""
+
+msgid "Tuesday"
+msgstr ""
+
+msgid "Wednesday"
+msgstr ""
+
+msgid "Thursday"
+msgstr ""
+
+msgid "Friday"
+msgstr ""
+
+msgid "Saturday"
+msgstr ""
+
+msgid "Throughput Summary"
+msgstr ""
+
+msgid "Last {0} days"
+msgstr ""
+
+msgid "Total Jobs"
+msgstr ""
+
+msgid "Avg/Hour"
+msgstr ""
+
+msgid "Peak Hour"
+msgstr ""
+
+msgid "Quietest"
+msgstr ""
+
+msgid "Busiest Day"
+msgstr ""
+
+msgid "Activity Heatmap"
+msgstr ""
+
+msgid "Jobs Created"
+msgstr ""
+
+msgid "Jobs Completed"
+msgstr ""
+
+msgid "Clear Filter"
+msgstr ""
+
+msgid "jobs"
+msgstr ""
+
+msgid "Less"
+msgstr ""
+
+msgid "More"
+msgstr ""
+
+msgid "Filters"
+msgstr ""
+
+msgid "Metric"
+msgstr ""
+
+msgid "Time Range"
+msgstr ""
+
+msgid "Last 7 days"
+msgstr ""
+
+msgid "Last 30 days"
+msgstr ""
+
+msgid "Last 90 days"
+msgstr ""
+
+msgid "Last 180 days"
+msgstr ""
+
+msgid "Last year"
+msgstr ""
+
+msgid "Job Type"
+msgstr ""
+
+msgid "All Types"
+msgstr ""
+
+msgid "Apply"
+msgstr ""
+
+msgid "Back to Dashboard"
+msgstr ""
+
+msgid "Import Job"
+msgstr ""
+
+msgid "JSON File"
+msgstr ""
+
+msgid "Reset job state (clear completed/failed status)"
+msgstr ""
+
+msgid "Import a job from a previously exported JSON file."
+msgstr ""
+
+msgid "Import"
+msgstr ""
+
+msgid "Queued Jobs"
+msgstr ""
+
+msgid "Group"
+msgstr ""
+
+msgid "Fetched"
+msgstr ""
+
+msgid "Completed"
+msgstr ""
+
 msgid "Priority"
 msgstr ""
 
-#: Admin/QueuedJobs/view.php:123
+msgid "Duration"
+msgstr ""
+
+msgid "Done"
+msgstr ""
+
+msgid "Memory Usage"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Migrate v3 to v4"
+msgstr ""
+
+msgid "This will update job task names from the old v3 format to the new v4 format."
+msgstr ""
+
+msgid "Migrate"
+msgstr ""
+
+msgid "Old Name"
+msgstr ""
+
+msgid "New Name"
+msgstr ""
+
+msgid "Migrate Selected"
+msgstr ""
+
+msgid "Job Statistics"
+msgstr ""
+
+msgid "All Jobs"
+msgstr ""
+
+msgid "For already processed jobs - in average seconds per timeframe."
+msgstr ""
+
+msgid "Filter by Job Type"
+msgstr ""
+
+msgid "Job Processing Time (seconds)"
+msgstr ""
+
+msgid "Create Test Job"
+msgstr ""
+
+msgid "-- Select Task --"
+msgstr ""
+
+msgid "Current server time"
+msgstr ""
+
+msgid "Schedule For (Not Before)"
+msgstr ""
+
+msgid "The target time must also be in server timezone."
+msgstr ""
+
+msgid "Job"
+msgstr ""
+
+msgid "Clone & Re-run"
+msgstr ""
+
+msgid "Export"
+msgstr ""
+
+msgid "Job Details"
+msgstr ""
+
+msgid "Job Group"
+msgstr ""
+
+msgid "Workerkey"
+msgstr ""
+
+msgid "Timeline"
+msgstr ""
+
+msgid "Delay"
+msgstr ""
+
 msgid "Data"
+msgstr ""
+
+msgid "Edit Data"
+msgstr ""
+
+msgid "Output"
+msgstr ""
+
+msgid "Failure Message"
+msgstr ""
+
+msgid "Progress"
+msgstr ""
+
+msgid "Soft Reset"
+msgstr ""
+
+msgid "Force Reset"
+msgstr ""
+
+msgid "Sure? This job is currently waiting to be re-queued."
+msgstr ""
+
+msgid "Database Connection"
+msgstr ""
+
+msgid "Connection"
+msgstr ""
+
+msgid "Navigation"
+msgstr ""
+
+msgid "Dashboard"
+msgstr ""
+
+msgid "Jobs"
+msgstr ""
+
+msgid "Workers (Active)"
+msgstr ""
+
+msgid "Processes (History)"
+msgstr ""
+
+msgid "Quick Actions"
+msgstr ""
+
+msgid "Reset Failed"
+msgstr ""
+
+msgid "Sure? This will make all failed jobs ready for re-run."
+msgstr ""
+
+msgid "Flush Failed"
+msgstr ""
+
+msgid "Sure? This will remove all failed jobs."
+msgstr ""
+
+msgid "Reset All"
+msgstr ""
+
+msgid "Sure? This will make all failed as well as still running jobs ready for re-run."
+msgstr ""
+
+msgid "Hard Reset"
+msgstr ""
+
+msgid "Sure? This will delete all jobs and completely reset the queue."
+msgstr ""
+
+msgid "Page navigation"
+msgstr ""
+
+msgid "Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total"
+msgstr ""
+
+msgid "Search & Filter"
+msgstr ""
+
+msgid "Auto-wildcard mode"
+msgstr ""
+
+msgid "Search (Group/Reference)"
+msgstr ""
+
+msgid "-- All Tasks --"
+msgstr ""
+
+msgid "-- All Statuses --"
+msgstr ""
+
+msgid "Filter"
+msgstr ""
+
+msgid "Server Time"
 msgstr ""
 

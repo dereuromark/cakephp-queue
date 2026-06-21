@@ -11,11 +11,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.1', '8.3']
+        php-version: ['8.2', '8.5']
         db-type: ['sqlite', 'mysql', 'pgsql']
         prefer-lowest: ['']
         include:
-          - php-version: '8.1'
+          - php-version: '8.2'
             db-type: 'sqlite'
             prefer-lowest: 'prefer-lowest'
 
@@ -28,7 +28,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Setup Service
         if: matrix.db-type == 'mysql'
@@ -59,10 +59,10 @@ jobs:
           if ${{ matrix.prefer-lowest == 'prefer-lowest' }}
           then
             composer update --prefer-lowest --prefer-stable
+            composer require --dev dereuromark/composer-prefer-lowest:dev-master
           else
             composer install --no-progress --prefer-dist --optimize-autoloader
           fi
-          if ${{ matrix.prefer-lowest == 'prefer-lowest' }}; then composer lowest-setup; fi
 
       - name: Setup problem matchers for PHPUnit
         if: matrix.db-type == 'mysql'
@@ -77,30 +77,33 @@ jobs:
           if [[ ${{ matrix.db-type }} == 'sqlite' ]]; then export DB_URL='sqlite:///:memory:'; fi
           if [[ ${{ matrix.db-type }} == 'mysql' ]]; then export DB_URL='mysql://root:root@127.0.0.1/cakephp?encoding=utf8'; fi
           if [[ ${{ matrix.db-type }} == 'pgsql' ]]; then export DB_URL='postgres://postgres:postgres@127.0.0.1/postgres'; fi
-          if [[ ${{ matrix.php-version }} == '8.1' ]]; then
+          if [[ ${{ matrix.php-version }} == '8.2' ]]; then
             vendor/bin/phpunit --coverage-clover=coverage.xml
           else
             vendor/bin/phpunit
           fi
 
       - name: Validate prefer-lowest
-        run: if ${{ matrix.prefer-lowest == 'prefer-lowest' }}; then vendor/bin/validate-prefer-lowest -m; fi
+        if: matrix.prefer-lowest == 'prefer-lowest'
+        run: vendor/bin/validate-prefer-lowest -m
 
-      - name: Code Coverage Report
-        if: success() && matrix.php-version == '8.1'
-        uses: codecov/codecov-action@v3
+      - name: Upload coverage reports to Codecov
+        if: success() && matrix.php-version == '8.2'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   validation:
     name: Coding Standard & Static Analysis
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: '8.2'
           extensions: mbstring, intl
           coverage: none
 

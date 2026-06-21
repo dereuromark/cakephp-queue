@@ -65,8 +65,10 @@ class MailerTaskTest extends TestCase {
 		], 0);
 
 		$reflection = new ReflectionClass($this->Task);
+		if (!$reflection->hasProperty('mailer')) {
+			$this->fail('Property mailer does not exist');
+		}
 		$property = $reflection->getProperty('mailer');
-		$property->setAccessible(true);
 		$mailer = $property->getValue($this->Task);
 
 		$this->assertInstanceOf(TestMailer::class, $mailer);

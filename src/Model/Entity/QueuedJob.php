@@ -8,7 +8,8 @@ use Cake\ORM\Entity;
 /**
  * @property int $id
  * @property string $job_task
- * @property string|null $data
+ * @property array|null $data
+ * @property string|null $data_string Virtual property from JsonableBehavior
  * @property string|null $job_group
  * @property string|null $reference
  * @property \Cake\I18n\DateTime $created
@@ -22,6 +23,10 @@ use Cake\ORM\Entity;
  * @property string|null $status
  * @property int $priority
  * @property \Queue\Model\Entity\QueueProcess $worker_process
+ * @property int|null $memory
+ * @property string|null $output
+ * @property string|null $headers !
+ * @property string|null $message !
  */
 class QueuedJob extends Entity {
 
@@ -32,5 +37,16 @@ class QueuedJob extends Entity {
 		'*' => true,
 		'id' => false,
 	];
+
+	/**
+	 * @return string[]
+	 */
+	public static function statusesForSearch(): array {
+		return [
+			'completed' => 'Completed',
+			'in_progress' => 'In Progress',
+			'scheduled' => 'Scheduled',
+		];
+	}
 
 }

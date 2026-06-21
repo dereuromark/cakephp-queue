@@ -13,6 +13,13 @@ use Queue\Queue\TaskFinder;
 class AddCommand extends Command {
 
 	/**
+	 * @return string
+	 */
+	public static function getDescription(): string {
+		return 'Add a job to the queue.';
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public static function defaultName(): string {
@@ -52,7 +59,7 @@ class AddCommand extends Command {
 		$taskName = $args->getArgument('task');
 		if (!$taskName) {
 			$io->out(count($tasks) . ' tasks available:');
-			foreach ($tasks as $task => $className) {
+			foreach (array_keys($tasks) as $task) {
 				$io->out(' - ' . $task);
 			}
 

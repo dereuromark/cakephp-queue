@@ -13,8 +13,6 @@ use Cake\Mailer\TransportFactory;
 use Cake\TestSuite\TestCase;
 use Queue\Console\Io;
 use Queue\Queue\Task\EmailTask;
-use Queue\Utility\JsonSerializer;
-use Queue\Utility\Serializer;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
 use Tools\Mailer\Message as MailerMessage;
@@ -81,8 +79,6 @@ class EmailTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testAddMessageSerialized() {
-		Configure::write('Queue.serializerClass', JsonSerializer::class);
-
 		$message = new Message();
 		$message
 			->setSubject('I haz Cake')
@@ -100,12 +96,12 @@ class EmailTaskTest extends TestCase {
 
 		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
 		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
-		$queuedJobsTable->createJob('Email', $data);
+		$queuedJobsTable->createJob('Queue.Email', $data);
 
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
 		$queuedJob = $queuedJobsTable->find()->orderByDesc('id')->firstOrFail();
 
-		$settings = Serializer::deserialize($queuedJob->data)['settings'];
+		$settings = $queuedJob->data['settings'];
 		$message = (new Message())->createFromArray($settings);
 
 		$this->assertSame('I haz Cake', $message->getSubject());
@@ -118,8 +114,6 @@ class EmailTaskTest extends TestCase {
 		$this->Task->run($data, 0);
 
 		$this->assertInstanceOf(Message::class, $this->Task->message);
-
-		Configure::delete('Queue.serializerClass');
 	}
 
 	/**
@@ -143,12 +137,12 @@ class EmailTaskTest extends TestCase {
 
 		/** @var \Queue\Model\Table\QueuedJobsTable $queuedJobsTable */
 		$queuedJobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
-		$queuedJobsTable->createJob('Email', $data);
+		$queuedJobsTable->createJob('Queue.Email', $data);
 
 		/** @var \Queue\Model\Entity\QueuedJob $queuedJob */
 		$queuedJob = $queuedJobsTable->find()->orderByDesc('id')->firstOrFail();
 
-		$settings = Serializer::deserialize($queuedJob->data)['settings'];
+		$settings = $queuedJob->data['settings'];
 		$message = unserialize($settings);
 
 		$this->assertSame('I haz Cake', $message->getSubject());
@@ -215,6 +209,117 @@ class EmailTaskTest extends TestCase {
 	}
 
 	/**
+	 * Address settings stored as associative `email => name` maps must be
+	 * accepted without triggering PHP 8 "Unknown named parameter" errors.
+	 *
+	 * @return void
+	 */
+	public function testRunArrayAssociativeAddressMap() {
+		$settings = [
+			'from' => [
+				'sender@test.de' => 'Sender Name',
+			],
+			'to' => [
+				'recipient@test.de' => 'Recipient Name',
+			],
+			'cc' => [
+				'copy@test.de' => 'Copy Name',
+				'copy-other@test.de' => 'Other Copy Name',
+			],
+			'bcc' => [
+				'bcc@test.de' => 'BCC Name',
+			],
+			'replyTo' => [
+				'reply@test.de' => 'Reply Name',
+			],
+		];
+
+		$data = [
+			'settings' => $settings,
+			'content' => 'Foo Bar',
+		];
+		$this->Task->run($data, 0);
+
+		$this->assertInstanceOf(Mailer::class, $this->Task->mailer);
+
+		$mailer = $this->Task->mailer;
+		$this->assertSame(['sender@test.de' => 'Sender Name'], $mailer->getFrom());
+		$this->assertSame(['recipient@test.de' => 'Recipient Name'], $mailer->getTo());
+		$this->assertSame([
+			'copy@test.de' => 'Copy Name',
+			'copy-other@test.de' => 'Other Copy Name',
+		], $mailer->getCc());
+		$this->assertSame(['bcc@test.de' => 'BCC Name'], $mailer->getBcc());
+		$this->assertSame(['reply@test.de' => 'Reply Name'], $mailer->getReplyTo());
+	}
+
+	/**
+	 * Settings keys coming from a JSON-round-tripped `Message::__serialize()` payload
+	 * (e.g. `htmlMessage`, `textMessage`, `appCharset`) must not be routed to
+	 * nonexistent `set<Prop>()` methods on the Mailer.
+	 *
+	 * @return void
+	 */
+	public function testRunArrayMessageSerializableProperties() {
+		$settings = [
+			'from' => 'sender@test.de',
+			'to' => 'recipient@test.de',
+			'subject' => 'Message Subject',
+			'domain' => 'example.com',
+			'charset' => 'utf-8',
+			'headerCharset' => 'utf-8',
+			'appCharset' => 'UTF-8',
+			'emailFormat' => 'html',
+			'messageId' => true,
+			'htmlMessage' => '<p>Hello</p>',
+			'textMessage' => 'Hello',
+		];
+
+		$data = [
+			'settings' => $settings,
+		];
+		$this->Task->run($data, 0);
+
+		$this->assertInstanceOf(Mailer::class, $this->Task->mailer);
+
+		$message = $this->Task->mailer->getMessage();
+		$this->assertSame('Message Subject', $message->getSubject());
+		$this->assertSame('example.com', $message->getDomain());
+		$this->assertSame('html', $message->getEmailFormat());
+		$this->assertSame('utf-8', $message->getCharset());
+		$this->assertSame('utf-8', $message->getHeaderCharset());
+	}
+
+	/**
+	 * An associative `headers` map inside `settings` must not be expanded into named
+	 * parameters when calling `Message::setHeaders()`.
+	 *
+	 * @return void
+	 */
+	public function testRunArrayHeadersInSettings() {
+		$settings = [
+			'from' => 'sender@test.de',
+			'to' => 'recipient@test.de',
+			'headers' => [
+				'X-Custom' => 'queued',
+				'X-Other' => 'value',
+			],
+		];
+
+		$data = [
+			'settings' => $settings,
+			'content' => 'Foo Bar',
+		];
+		$this->Task->run($data, 0);
+
+		$this->assertInstanceOf(Mailer::class, $this->Task->mailer);
+
+		$headers = $this->Task->mailer->getMessage()->getHeaders(['_headers']);
+		$this->assertSame('queued', $headers['X-Custom']);
+		$this->assertSame('value', $headers['X-Other']);
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testRunToolsEmailMessageClassString() {
@@ -230,8 +335,7 @@ class EmailTaskTest extends TestCase {
 		$queuedJobsTable->createJob('Queue.Email', ['class' => $class, 'settings' => $settings]);
 
 		$queuedJob = $queuedJobsTable->find()->orderByDesc('id')->firstOrFail();
-		$data = unserialize($queuedJob->data);
-		/** @var \TestApp\Mailer\TestMailer $mailer */
+		$data = $queuedJob->data;
 		$class = $data['class'];
 
 		$transportMock = $this->createMock(
@@ -254,13 +358,64 @@ class EmailTaskTest extends TestCase {
 	}
 
 	/**
+	 * Test that attachments are properly handled when passed as an array
+	 *
+	 * @return void
+	 */
+	public function testRunWithAttachments() {
+		// Create temporary files for testing
+		$tmpFile1 = tempnam(sys_get_temp_dir(), 'test_file1_') . '.txt';
+		$tmpFile2 = tempnam(sys_get_temp_dir(), 'test_file2_') . '.pdf';
+
+		file_put_contents($tmpFile1, 'Test content for file 1');
+		file_put_contents($tmpFile2, 'Test content for file 2');
+
+		$attachments = [
+			'file1.txt' => [
+				'file' => $tmpFile1,
+				'mimetype' => 'text/plain',
+			],
+			'file2.pdf' => $tmpFile2,
+		];
+
+		$settings = [
+			'from' => 'test@test.de',
+			'to' => 'recipient@test.de',
+			'subject' => 'Test with attachments',
+			'attachments' => $attachments,
+		];
+
+		$data = [
+			'settings' => $settings,
+			'content' => 'Email with attachments',
+		];
+
+		$this->Task->run($data, 0);
+
+		$this->assertInstanceOf(Mailer::class, $this->Task->mailer);
+
+		$mailerAttachments = $this->Task->mailer->getMessage()->getAttachments();
+		$this->assertCount(2, $mailerAttachments);
+		$this->assertArrayHasKey('file1.txt', $mailerAttachments);
+		$this->assertArrayHasKey('file2.pdf', $mailerAttachments);
+		$this->assertSame($tmpFile1, $mailerAttachments['file1.txt']['file']);
+		$this->assertSame('text/plain', $mailerAttachments['file1.txt']['mimetype']);
+		$this->assertSame($tmpFile2, $mailerAttachments['file2.pdf']['file']);
+		$this->assertSame('application/pdf', $mailerAttachments['file2.pdf']['mimetype']);
+
+		// Clean up temporary files
+		unlink($tmpFile1);
+		unlink($tmpFile2);
+	}
+
+	/**
 	 * Helper method for skipping tests that need a non Postgres connection.
 	 *
 	 * @return void
 	 */
 	protected function _skipPostgres() {
 		$config = ConnectionManager::getConfig('test');
-		$skip = strpos($config['driver'], 'Postgres') !== false;
+		$skip = str_contains((string)$config['driver'], 'Postgres');
 		$this->skipIf($skip, 'Only non Postgres is working yet for this.');
 	}
 

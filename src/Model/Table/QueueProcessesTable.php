@@ -11,26 +11,29 @@ use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use Queue\Model\ProcessEndingException;
 use Queue\Queue\Config;
+use const SIGTERM;
+use const SIGUSR1;
 
 /**
  * QueueProcesses Model
  *
+ * @extends \Cake\ORM\Table<array{Timestamp: \Cake\ORM\Behavior\TimestampBehavior}>
+ * @property \Queue\Model\Table\QueuedJobsTable&\Cake\ORM\Association\HasOne $CurrentQueuedJobs
  * @method \Cake\ORM\Locator\TableLocator getTableLocator()
- * @mixin \Cake\ORM\Behavior\TimestampBehavior
  * @method \Queue\Model\Entity\QueueProcess get(mixed $primaryKey, array|string $finder = 'all', \Psr\SimpleCache\CacheInterface|string|null $cache = null, \Closure|string|null $cacheKey = null, mixed ...$args)
  * @method \Queue\Model\Entity\QueueProcess newEntity(array $data, array $options = [])
  * @method array<\Queue\Model\Entity\QueueProcess> newEntities(array $data, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess|false save(\Cake\Datasource\EntityInterface $entity, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess patchEntity(\Cake\Datasource\EntityInterface $entity, array $data, array $options = [])
  * @method array<\Queue\Model\Entity\QueueProcess> patchEntities(iterable $entities, array $data, array $options = [])
- * @method \Queue\Model\Entity\QueueProcess findOrCreate($search, ?callable $callback = null, array $options = [])
+ * @method \Queue\Model\Entity\QueueProcess findOrCreate(\Cake\ORM\Query\SelectQuery|callable|array $search, ?callable $callback = null, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess saveOrFail(\Cake\Datasource\EntityInterface $entity, array $options = [])
  * @method \Queue\Model\Entity\QueueProcess newEmptyEntity()
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess>|false saveMany(iterable $entities, array $options = [])
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> saveManyOrFail(iterable $entities, array $options = [])
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess>|false deleteMany(iterable $entities, array $options = [])
  * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> deleteManyOrFail(iterable $entities, array $options = [])
- * @property \Queue\Model\Table\QueuedJobsTable&\Cake\ORM\Association\HasOne $CurrentQueuedJobs
+ * @mixin \Cake\ORM\Behavior\TimestampBehavior
  */
 class QueueProcessesTable extends Table {
 
@@ -145,9 +148,24 @@ class QueueProcessesTable extends Table {
 	 * @return int
 	 */
 	public function add(string $pid, string $key): int {
+		$server = $this->buildServerString();
+
+		// Evict any stale row holding our (pid, server) slot. Common after
+		// container restarts: the killed worker's row survives, and the
+		// unique index on (pid, server) would otherwise reject the insert.
+		// Only rows whose heartbeat is older than `staleHeartbeatThreshold`
+		// are removed, so a live worker on the same PID is never disturbed.
+		$staleThreshold = (new DateTime())->subSeconds(Config::staleHeartbeatThreshold());
+		$this->deleteAll([
+			'pid' => $pid,
+			'server IS' => $server,
+			'workerkey !=' => $key,
+			'modified <' => $staleThreshold,
+		]);
+
 		$data = [
 			'pid' => $pid,
-			'server' => $this->buildServerString(),
+			'server' => $server,
 			'workerkey' => $key,
 		];
 
@@ -158,22 +176,22 @@ class QueueProcessesTable extends Table {
 	}
 
 	/**
-	 * @param string $pid
+	 * Heartbeat update for the worker identified by `$workerkey`. Workerkey
+	 * is the per-process random hash assigned at startup; PID alone is not
+	 * a stable worker identity (the OS recycles low PIDs across container
+	 * restarts), so all heartbeat / removal paths look up by workerkey.
+	 *
+	 * @param string $workerkey
 	 *
 	 * @throws \Queue\Model\ProcessEndingException
 	 *
 	 * @return void
 	 */
-	public function update(string $pid): void {
-		$conditions = [
-			'pid' => $pid,
-			'server IS' => $this->buildServerString(),
-		];
-
+	public function update(string $workerkey): void {
 		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
-		$queueProcess = $this->find()->where($conditions)->firstOrFail();
+		$queueProcess = $this->find()->where(['workerkey' => $workerkey])->firstOrFail();
 		if ($queueProcess->terminate) {
-			throw new ProcessEndingException('PID terminated: ' . $pid);
+			throw new ProcessEndingException('Worker terminated: ' . $workerkey);
 		}
 
 		$queueProcess->modified = new DateTime();
@@ -181,23 +199,26 @@ class QueueProcessesTable extends Table {
 	}
 
 	/**
-	 * @param string $pid
+	 * @param string $workerkey
 	 *
 	 * @return void
 	 */
-	public function remove(string $pid): void {
-		$conditions = [
-			'pid' => $pid,
-			'server IS' => $this->buildServerString(),
-		];
-
-		$this->deleteAll($conditions);
+	public function remove(string $workerkey): void {
+		$this->deleteAll(['workerkey' => $workerkey]);
 	}
 
 	/**
+	 * @param bool $force If true, removes ALL rows regardless of heartbeat.
+	 *  Use as a recovery tool after container restarts where PIDs may be
+	 *  reused and stale rows would block new workers from registering.
+	 *
 	 * @return int
 	 */
-	public function cleanEndedProcesses(): int {
+	public function cleanEndedProcesses(bool $force = false): int {
+		if ($force) {
+			return $this->deleteAll(['1=1']);
+		}
+
 		$timeout = Config::defaultworkertimeout();
 		$thresholdTime = (new DateTime())->subSeconds($timeout);
 
@@ -227,6 +248,7 @@ class QueueProcessesTable extends Table {
 		}
 
 		$count = count($results);
+		/** @var array{modified: \Cake\I18n\DateTime} $record */
 		$record = array_shift($results);
 		/** @var \Cake\I18n\DateTime $time */
 		$time = $record['modified'];
@@ -256,6 +278,7 @@ class QueueProcessesTable extends Table {
 			$query = $query->where(['server' => $QueueProcesses->buildServerString()]);
 		}
 
+		/** @var array<\Queue\Model\Entity\QueueProcess> $processes */
 		$processes = $query
 			->all()
 			->toArray();
@@ -264,7 +287,12 @@ class QueueProcessesTable extends Table {
 	}
 
 	/**
-	 * Soft ending of a running job, e.g. when migration is starting
+	 * Soft ending of a running job, e.g. when migration is starting.
+	 *
+	 * If multiple rows share this PID (possible since the unique
+	 * `(pid, server)` index was dropped), the most recently heartbeated
+	 * row is chosen — that is the live worker; older rows are stale
+	 * leftovers that will be cleaned up separately.
 	 *
 	 * @param string $pid
 	 *
@@ -276,7 +304,10 @@ class QueueProcessesTable extends Table {
 		}
 
 		/** @var \Queue\Model\Entity\QueueProcess $queuedProcess */
-		$queuedProcess = $this->find()->where(['pid' => $pid])->firstOrFail();
+		$queuedProcess = $this->find()
+			->where(['pid' => $pid])
+			->orderByDesc('modified')
+			->firstOrFail();
 		$queuedProcess->terminate = true;
 		$this->saveOrFail($queuedProcess);
 	}
@@ -290,9 +321,14 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return void
 	 */
-	public function terminateProcess(string $pid, int $sig = SIGTERM): void {
+	public function terminateProcess(string $pid, int $sig = 0): void {
 		if (!$pid) {
 			return;
+		}
+
+		// In the Windows operating system the SIGTERM constant is not defined
+		if (!$sig && defined('SIGTERM')) {
+			$sig = SIGTERM;
 		}
 
 		$killed = false;
@@ -300,7 +336,11 @@ class QueueProcessesTable extends Table {
 			$killed = posix_kill((int)$pid, $sig);
 		}
 		if (!$killed) {
-			exec('kill -' . $sig . ' ' . $pid);
+			$safePid = (int)$pid;
+			$safeSig = (int)$sig;
+			if ($safePid > 0) {
+				exec('kill -' . $safeSig . ' ' . $safePid);
+			}
 		}
 		sleep(1);
 
@@ -346,6 +386,23 @@ class QueueProcessesTable extends Table {
 		}
 
 		return $serverName ?: null;
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	public function serverList(): array {
+		/** @var array<string, string> $list */
+		$list = $this->find()
+			->distinct(['server'])
+			->where(['server IS NOT' => null])
+			->find(
+				'list',
+				keyField: 'server',
+				valueField: 'server',
+			)->toArray();
+
+		return $list;
 	}
 
 }

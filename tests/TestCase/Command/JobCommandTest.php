@@ -29,7 +29,7 @@ class JobCommandTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		//$this->useCommandRunner();
+		$this->loadPlugins(['Queue']);
 
 		Configure::write('Queue.cleanuptimeout', 10);
 	}

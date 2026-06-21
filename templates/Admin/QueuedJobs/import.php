@@ -3,23 +3,41 @@
  * @var \App\View\AppView $this
  */
 ?>
-<nav class="large-3 medium-4 columns" id="actions-sidebar">
-	<ul class="side-nav">
-		<li class="nav-item heading"><?= __d('queue', 'Actions') ?></li>
-		<li class="nav-item"><?= $this->Html->link('Back', ['action' => 'index']); ?></li>
-	</ul>
-</nav>
-<div class="releases form large-9 medium-8 columns content">
-	<h1>Import</h1>
+<div class="row">
+	<div class="col-lg-8">
+		<div class="card">
+			<div class="card-header">
+				<i class="fas fa-file-import me-2"></i><?= __d('queue', 'Import Job') ?>
+			</div>
+			<div class="card-body">
+				<?= $this->Form->create(null, ['type' => 'file']) ?>
+				<?= $this->Form->control('file', [
+					'type' => 'file',
+					'required' => true,
+					'accept' => '.json',
+					'class' => 'form-control',
+					'label' => __d('queue', 'JSON File'),
+				]) ?>
 
-	<?= $this->Form->create(null, ['type' => 'file']) ?>
-	<fieldset>
-		<legend><?= __d('queue', 'Import Job from exported JSON') ?></legend>
-		<?php
-			echo $this->Form->control('file', ['type' => 'file', 'required' => true, 'accept' => '.json']);
-			echo $this->Form->control('reset', ['type' => 'checkbox', 'default' => true]);
-		?>
-	</fieldset>
-	<?= $this->Form->button(__d('queue', 'Submit')) ?>
-	<?= $this->Form->end() ?>
+				<div class="mt-3">
+					<?= $this->Form->control('reset', [
+						'type' => 'checkbox',
+						'default' => true,
+						'class' => 'form-check-input',
+						'label' => ['text' => __d('queue', 'Reset job state (clear completed/failed status)'), 'class' => 'form-check-label'],
+					]) ?>
+				</div>
+
+				<p class="text-muted small mt-3">
+					<i class="fas fa-info-circle me-1"></i>
+					<?= __d('queue', 'Import a job from a previously exported JSON file.') ?>
+				</p>
+
+				<div class="mt-3">
+					<?= $this->Form->button('<i class="fas fa-upload me-1"></i>' . __d('queue', 'Import'), ['class' => 'btn btn-primary', 'escapeTitle' => false]) ?>
+				</div>
+				<?= $this->Form->end() ?>
+			</div>
+		</div>
+	</div>
 </div>

@@ -3,18 +3,21 @@ declare(strict_types=1);
 
 namespace Queue\Controller\Admin;
 
-use App\Controller\AppController;
 use Cake\Core\Configure;
 use Exception;
+use const SIGTERM;
 
 /**
  * @property \Queue\Model\Table\QueueProcessesTable $QueueProcesses
- * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> paginate($object = null, array $settings = [])
  * @property \Queue\Model\Table\QueuedJobsTable $QueuedJobs
+ * @method \Cake\Datasource\ResultSetInterface<\Queue\Model\Entity\QueueProcess> paginate(\Cake\Datasource\RepositoryInterface|\Cake\Datasource\QueryInterface|string|null $object = null, array $settings = [])
  */
-class QueueProcessesController extends AppController {
+class QueueProcessesController extends QueueAppController {
 
-	use LoadHelperTrait;
+	/**
+	 * @var string|null
+	 */
+	protected ?string $defaultTable = 'Queue.QueueProcesses';
 
 	/**
 	 * @var array<string, mixed>
@@ -31,7 +34,10 @@ class QueueProcessesController extends AppController {
 	public function initialize(): void {
 		parent::initialize();
 
-		$this->loadHelpers();
+		// Set connection for multi-connection support
+		if ($this->activeConnection !== 'default') {
+			$this->QueueProcesses->setConnection($this->getActiveConnectionObject());
+		}
 	}
 
 	/**
@@ -53,9 +59,7 @@ class QueueProcessesController extends AppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function view(?int $id = null) {
-		$queueProcess = $this->QueueProcesses->get($id, [
-			'contain' => [],
-		]);
+		$queueProcess = $this->QueueProcesses->get($id);
 
 		$this->set(compact('queueProcess'));
 	}
@@ -68,9 +72,7 @@ class QueueProcessesController extends AppController {
 	 * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit(?int $id = null) {
-		$queueProcess = $this->QueueProcesses->get($id, [
-			'contain' => [],
-		]);
+		$queueProcess = $this->QueueProcesses->get($id);
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$queueProcess = $this->QueueProcesses->patchEntity($queueProcess, $this->request->getData());
 			if ($this->QueueProcesses->save($queueProcess)) {
@@ -98,7 +100,7 @@ class QueueProcessesController extends AppController {
 			$queueProcess->terminate = true;
 			$this->QueueProcesses->saveOrFail($queueProcess);
 			$this->Flash->success(__d('queue', 'The queue process has been deleted.'));
-		} catch (Exception $exception) {
+		} catch (Exception) {
 			$this->Flash->error(__d('queue', 'The queue process could not be deleted. Please, try again.'));
 		}
 

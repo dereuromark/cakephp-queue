@@ -7,7 +7,12 @@
 		"cakephp",
 		"queue",
 		"deferred tasks",
-		"background"
+		"background",
+		"admin-panel",
+		"standalone-ui",
+		"jobs",
+		"workers",
+		"async"
 	],
 	"authors": [
 		{
@@ -21,29 +26,36 @@
 			"role": "Contributor"
 		}
 	],
-	"homepage": "https://github.com/dereuromark/cakephp-queue",
+	"homepage": "https://dereuromark.github.io/cakephp-queue/",
 	"support": {
-		"source": "https://github.com/dereuromark/cakephp-queue"
+		"source": "https://github.com/dereuromark/cakephp-queue",
+		"docs": "https://dereuromark.github.io/cakephp-queue/"
 	},
 	"require": {
-		"php": ">=8.1",
-		"brick/varexporter": "^0.4.0",
-		"cakephp/cakephp": "^5.0.0"
+		"php": ">=8.2",
+		"brick/varexporter": "^0.5.0 || ^0.6.0 || ^0.7.0",
+		"cakephp/cakephp": "^5.1.1"
 	},
 	"require-dev": {
-		"cakedc/cakephp-phpstan": "^3.0.0",
+		"cakedc/cakephp-phpstan": "^4.0.0",
 		"cakephp/bake": "^3.0.1",
-		"cakephp/migrations": "^4.0.1",
+		"cakephp/migrations": "^5.0.0",
 		"dereuromark/cakephp-ide-helper": "^2.0.0",
-		"dereuromark/cakephp-tools": "^3.0.0",
-		"fig-r/psr2r-sniffer": "dev-next",
-		"friendsofcake/search": "^7.0.0",
-		"phpunit/phpunit": "^10.1"
+		"dereuromark/cakephp-templating": "^0.2.7",
+		"dereuromark/cakephp-tools": "^3.12.0",
+		"dereuromark/cakephp-dto": "^3.0.0",
+		"fig-r/psr2r-sniffer": "dev-master",
+		"friendsofcake/search": "^7.7.0",
+		"phpunit/phpunit": "^11.5 || ^12.1 || ^13.0"
 	},
 	"suggest": {
 		"dereuromark/cakephp-ide-helper": "For maximum IDE support, especially around createJob() usage.",
 		"dereuromark/cakephp-tools": "For the QueueEmailTask (if you don't write your own task here). Also for admin backend.",
 		"friendsofcake/search": "For admin backend and filtering of current jobs."
+	},
+	"conflict": {
+		"cakephp/migrations": "<4.5",
+		"dereuromark/cakephp-dto": "<3.0.0"
 	},
 	"minimum-stability": "stable",
 	"prefer-stable": true,
@@ -69,14 +81,17 @@
 		"sort-packages": true
 	},
 	"scripts": {
-		"cs-check": "phpcs --extensions=php",
-		"cs-fix": "phpcbf --extensions=php",
+		"cs-check": "phpcs --colors --parallel=16",
+		"cs-fix": "phpcbf --colors --parallel=16",
 		"lowest": "validate-prefer-lowest",
 		"lowest-setup": "composer update --prefer-lowest --prefer-stable --prefer-dist --no-interaction && cp composer.json composer.backup && composer require --dev dereuromark/composer-prefer-lowest && mv composer.backup composer.json",
-		"stan": "phpstan analyse",
-		"stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^1.10.0 && mv composer.backup composer.json",
-		"stan-tests": "phpstan analyse -c tests/phpstan.neon",
+		"stan": "phpstan analyze",
+		"stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^2.0.0 && mv composer.backup composer.json",
+		"stan-tests": "phpstan analyze -c tests/phpstan.neon",
 		"test": "phpunit",
-		"test-coverage": "phpunit --log-junit tmp/coverage/unitreport.xml --coverage-html tmp/coverage --coverage-clover tmp/coverage/coverage.xml"
+		"test-coverage": "phpunit --log-junit tmp/coverage/unitreport.xml --coverage-html tmp/coverage --coverage-clover tmp/coverage/coverage.xml",
+		"pot-setup": "cp composer.json composer.backup && composer require --dev dereuromark/cakephp-translate && mv composer.backup composer.json",
+		"pot-check": "php vendor/dereuromark/cakephp-translate/scripts/pot-updater.php --fail-on-diff",
+		"pot-update": "php vendor/dereuromark/cakephp-translate/scripts/pot-updater.php --update"
 	}
 }

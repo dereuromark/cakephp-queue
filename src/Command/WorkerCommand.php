@@ -17,6 +17,13 @@ use Queue\Queue\Config;
  */
 class WorkerCommand extends Command {
 
+	/**
+	 * @return string
+	 */
+	public static function getDescription(): string {
+		return 'Manage queue workers.';
+	}
+
 	protected QueueProcessesTable $QueueProcesses;
 
 	/**
@@ -35,7 +42,7 @@ class WorkerCommand extends Command {
 	 * @inheritDoc
 	 */
 	public static function defaultName(): string {
-		return 'queue job';
+		return 'queue worker';
 	}
 
 	/**
@@ -51,6 +58,12 @@ class WorkerCommand extends Command {
 		$parser->addArgument('pid', [
 			'help' => 'PID (Process/Worker ID)',
 			'required' => false,
+		]);
+		$parser->addOption('force', [
+			'short' => 'f',
+			'help' => 'For `clean`: remove ALL queue_processes rows regardless of last heartbeat. '
+				. 'Use after container restarts when PID reuse blocks new workers from registering.',
+			'boolean' => true,
 		]);
 
 		$parser->setDescription(
@@ -73,7 +86,7 @@ class WorkerCommand extends Command {
 			$io->out('Actions are:');
 			$io->out('- end: Gracefully end a worker/process, use "all"/"server" for all');
 			$io->out('- kill: Kill a worker/process, use "all"/"server" for all');
-			$io->out('- clean: ');
+			$io->out('- clean: Remove stale processes (use --force to wipe all)');
 			$io->out();
 
 			/** @var array<\Queue\Model\Entity\QueueProcess> $processes */
@@ -105,7 +118,11 @@ class WorkerCommand extends Command {
 			$io->abort('Clean action does not have a 2nd argument.');
 		}
 
-		return $this->$action($io, $pid);
+		if ($action === 'clean') {
+			return $this->clean($io, (bool)$args->getOption('force'));
+		}
+
+		return (int)$this->$action($io, $pid);
 	}
 
 	/**
@@ -183,13 +200,24 @@ class WorkerCommand extends Command {
 
 	/**
 	 * @param \Cake\Console\ConsoleIo $io
+	 * @param bool $force If true, ignores the heartbeat threshold and removes
+	 *  every queue_processes row. Recovery path for container restarts where
+	 *  recycled PIDs would otherwise collide with surviving rows.
 	 *
 	 * @return int
 	 */
-	protected function clean(ConsoleIo $io): int {
+	protected function clean(ConsoleIo $io, bool $force = false): int {
+		if ($force) {
+			$io->out('Force-deleting ALL queue_processes rows.');
+			$result = $this->QueueProcesses->cleanEndedProcesses(true);
+			$io->success('Deleted: ' . $result);
+
+			return static::CODE_SUCCESS;
+		}
+
 		$timeout = Config::defaultworkertimeout();
 		if (!$timeout) {
-			$io->abort('You disabled `defaultworkertimeout` in config. Aborting.');
+			$io->abort('You disabled `defaultRequeueTimeout` in config. Aborting.');
 		}
 		$thresholdTime = (new DateTime())->subSeconds($timeout);
 

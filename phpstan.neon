@@ -4,16 +4,16 @@ parameters:
 		- src/
 	bootstrapFiles:
 		- tests/bootstrap.php
-	checkMissingIterableValueType: false
-	checkGenericClassInNonGenericObjectType: false
 	earlyTerminatingMethodCalls:
 		Cake\Console\BaseCommand:
 			- abort
 		Cake\Console\ConsoleIo:
 			- abort
+	treatPhpDocTypesAsCertain: false
 	ignoreErrors:
-		- '#Access to an undefined property Cake\\ORM\\BehaviorRegistry::\$Search#'
-		- '#Negated boolean expression is always false.#'
+		- identifier: missingType.iterableValue
+		- identifier: missingType.generics
+		- identifier: trait.unused
 		- '#Parameter \#1 \$.+ of function call_user_func_array expects .+, array.+ given.#'
 
 includes:

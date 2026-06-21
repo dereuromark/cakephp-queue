@@ -11,11 +11,16 @@ namespace Queue\Test\TestCase\Model\Table;
 
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\Event\EventList;
+use Cake\Event\EventManager;
 use Cake\I18n\DateTime;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
+use InvalidArgumentException;
+use Queue\Model\Enum\Priority;
 use Queue\Model\Table\QueuedJobsTable;
 use Queue\Queue\Task\ExampleTask;
+use TestApp\Dto\MyTaskDto;
 
 /**
  * Queue\Model\Table\QueuedJobsTable Test Case
@@ -129,6 +134,23 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * A failure message larger than the TEXT column must be truncated instead of
+	 * overflowing the column and throwing while recording the failure.
+	 *
+	 * @return void
+	 */
+	public function testMarkJobFailedTruncatesOversizedMessage() {
+		$job = $this->QueuedJobs->createJob('Foo', ['test' => 'data']);
+		$oversized = str_repeat('x', QueuedJobsTable::FAILURE_MESSAGE_MAX_LENGTH + 5000);
+
+		$this->assertTrue($this->QueuedJobs->markJobFailed($job, $oversized));
+
+		$stored = $this->QueuedJobs->get($job->id);
+		$this->assertNotNull($stored->failure_message);
+		$this->assertLessThanOrEqual(QueuedJobsTable::FAILURE_MESSAGE_MAX_LENGTH, strlen((string)$stored->failure_message));
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testFlushFailedJobs() {
@@ -178,7 +200,7 @@ class QueuedJobsTableTest extends TestCase {
 		$this->assertSame('Foo', $job->job_task);
 		$this->assertSame(1, $job->attempts);
 		$this->assertNull($job->completed);
-		$this->assertSame($testData, unserialize($job->data));
+		$this->assertSame($testData, $job->data);
 
 		// after this job has been fetched, it may not be reassigned.
 		$result = $this->QueuedJobs->requestJob($capabilities);
@@ -224,6 +246,46 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testCreateWithDto() {
+		$array = [
+			'some' => 'random',
+			'test' => 'data',
+		];
+		$dto = new MyTaskDto($array);
+
+		$queuedJob = $this->QueuedJobs->createJob(ExampleTask::class, $dto);
+		$this->assertTrue((bool)$queuedJob);
+		$this->assertSame($array, $queuedJob->data);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testCreateWithObject() {
+		$array = [
+			'some' => 'random',
+			'test' => 'data',
+		];
+		$dto = new class () {
+			/**
+			 * @return string[]
+			 */
+			public function toArray(): array {
+				return [
+					'some' => 'random',
+					'test' => 'data',
+				];
+			}
+		};
+
+		$queuedJob = $this->QueuedJobs->createJob(ExampleTask::class, $dto);
+		$this->assertTrue((bool)$queuedJob);
+		$this->assertSame($array, $queuedJob->data);
+	}
+
+	/**
 	 * Test the delivery of jobs in sequence, skipping fetched but not completed tasks.
 	 *
 	 * @return void
@@ -256,7 +318,7 @@ class QueuedJobsTableTest extends TestCase {
 		foreach (range(0, 4) as $num) {
 			$this->QueuedJobs->clearKey();
 			$array[$num] = $this->QueuedJobs->requestJob($capabilities);
-			$jobData = unserialize($array[$num]['data']);
+			$jobData = $array[$num]['data'];
 			$this->assertSame($num, $jobData['tasknum']);
 		}
 		// now mark them as done
@@ -268,7 +330,7 @@ class QueuedJobsTableTest extends TestCase {
 		// jobs should be fetched in the original sequence.
 		foreach (range(5, 9) as $num) {
 			$job = $this->QueuedJobs->requestJob($capabilities);
-			$jobData = unserialize($job->data);
+			$jobData = $job->data;
 			$this->assertSame($num, $jobData['tasknum']);
 			$this->assertTrue($this->QueuedJobs->markJobDone($job));
 			$this->assertSame(9 - $num, $this->QueuedJobs->getLength());
@@ -279,7 +341,7 @@ class QueuedJobsTableTest extends TestCase {
 	 * Test creating Jobs to run close to a specified time, and strtotime parsing.
 	 * Using toUnixString() function to convert Time object to timestamp, instead of strtotime
 	 *
-	 * @return null
+	 * @return void
 	 */
 	public function testNotBefore() {
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', null, ['notBefore' => '+ 1 Min']));
@@ -354,7 +416,7 @@ class QueuedJobsTableTest extends TestCase {
 			$tmp = $this->QueuedJobs->requestJob($capabilities);
 
 			$this->assertSame($item['name'], $tmp['job_task']);
-			$dataValue = $tmp['data'] !== null ? unserialize($tmp['data']) : null;
+			$dataValue = $tmp['data'];
 			$this->assertEquals($item['data'], $dataValue);
 		}
 	}
@@ -412,7 +474,7 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
-		$this->assertSame($data1, unserialize($tmp['data']));
+		$this->assertSame($data1, $tmp['data']);
 
 		//The rate limit should now skip over Foo-2 and fetch a Queue.Example.
 		$this->QueuedJobs->clearKey();
@@ -434,7 +496,7 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
-		$this->assertSame($data2, unserialize($tmp['data']));
+		$this->assertSame($data2, $tmp['data']);
 
 		//and again rate limit to Queue.Example.
 		$this->QueuedJobs->clearKey();
@@ -449,7 +511,7 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
-		$this->assertSame($data3, unserialize($tmp['data']));
+		$this->assertSame($data3, $tmp['data']);
 
 		//and again rate limit to Queue.Example.
 		$this->QueuedJobs->clearKey();
@@ -488,14 +550,14 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
-		$this->assertSame($data, unserialize($tmp['data']));
+		$this->assertSame($data, $tmp['data']);
 		$this->assertSame(0, $tmp['attempts']);
 		sleep(2);
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
-		$this->assertSame($data, unserialize($tmp['data']));
+		$this->assertSame($data, $tmp['data']);
 		$this->assertSame(1, $tmp['attempts']);
 		$this->assertSame('Restart after timeout', $tmp['failure_message']);
 	}
@@ -529,14 +591,14 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
-		$this->assertSame(['1'], unserialize($tmp['data']));
+		$this->assertSame(['1'], $tmp['data']);
 		$this->assertSame('0', $tmp['attempts']);
 		sleep(2);
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
-		$this->assertSame(['1'], unserialize($tmp['data']));
+		$this->assertSame(['1'], $tmp['data']);
 		$this->assertSame('1', $tmp['attempts']);
 		$this->assertSame('Restart after timeout', $tmp['failure_message']);
 	}
@@ -588,13 +650,13 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
-		$this->assertSame($data, unserialize($tmp['data']));
+		$this->assertSame($data, $tmp['data']);
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
 		$this->assertSame('Foo', $tmp['job_task']);
 
-		$this->assertSame($data2, unserialize($tmp['data']));
+		$this->assertSame($data2, $tmp['data']);
 
 		// well, lets try that Again, while limiting by Group
 		// create an ungrouped task
@@ -612,12 +674,12 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities, ['testgroup']);
 		$this->assertSame('Foo', $tmp['job_task']);
-		$this->assertSame($data4, unserialize($tmp['data']));
+		$this->assertSame($data4, $tmp['data']);
 
 		$this->QueuedJobs->clearKey();
 		$tmp = $this->QueuedJobs->requestJob($capabilities, ['testgroup', '-excluded']);
 		$this->assertSame('Foo', $tmp['job_task']);
-		$this->assertSame($data6, unserialize($tmp['data']));
+		$this->assertSame($data6, $tmp['data']);
 
 		// use FindProgress on the testgroup:
 		$progress = $this->QueuedJobs->find(
@@ -653,14 +715,116 @@ class QueuedJobsTableTest extends TestCase {
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', $data));
 
 		$data = ['key' => 'k2'];
-		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', $data, ['priority' => 1]));
+		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', $data, ['priority' => Priority::Critical]));
 
 		$data = ['key' => 'k3'];
 		$this->assertTrue((bool)$this->QueuedJobs->createJob('Foo', $data, ['priority' => 6]));
 
 		$tmp = $this->QueuedJobs->requestJob($capabilities);
-		$data = unserialize($tmp['data']);
+		$data = $tmp->data;
 		$this->assertSame(['key' => 'k2'], $data);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testCreateJobUniqueReturnsExistingPendingJob(): void {
+		$first = $this->QueuedJobs->createJob(
+			'Foo',
+			['k' => 'v1'],
+			['reference' => 'tenant-1', 'unique' => true],
+		);
+
+		$second = $this->QueuedJobs->createJob(
+			'Foo',
+			['k' => 'v2'],
+			['reference' => 'tenant-1', 'unique' => true],
+		);
+
+		$this->assertSame($first->id, $second->id, 'unique should return the existing pending job');
+		// Original payload is preserved; the second call is a no-op insert.
+		$this->assertSame(['k' => 'v1'], $second->data);
+		$this->assertSame(1, $this->QueuedJobs->find()->where(['reference' => 'tenant-1'])->count());
+	}
+
+	/**
+	 * Once the first job is completed, a later `unique` call must create a
+	 * fresh row -- otherwise the next scheduled run could never enqueue.
+	 *
+	 * @return void
+	 */
+	public function testCreateJobUniqueInsertsAgainAfterCompletion(): void {
+		$first = $this->QueuedJobs->createJob(
+			'Foo',
+			null,
+			['reference' => 'tenant-2', 'unique' => true],
+		);
+
+		$first->completed = new DateTime();
+		$this->QueuedJobs->saveOrFail($first);
+
+		$second = $this->QueuedJobs->createJob(
+			'Foo',
+			null,
+			['reference' => 'tenant-2', 'unique' => true],
+		);
+
+		$this->assertNotSame($first->id, $second->id);
+		$this->assertSame(2, $this->QueuedJobs->find()->where(['reference' => 'tenant-2'])->count());
+	}
+
+	/**
+	 * Dedup is scoped to (reference, job_task) -- a different task name with
+	 * the same reference still inserts.
+	 *
+	 * @return void
+	 */
+	public function testCreateJobUniqueIsScopedByJobTask(): void {
+		Configure::write('Queue.skipExistenceCheck', true);
+
+		$foo = $this->QueuedJobs->createJob(
+			'Foo',
+			null,
+			['reference' => 'shared-ref', 'unique' => true],
+		);
+
+		$bar = $this->QueuedJobs->createJob(
+			'Bar',
+			null,
+			['reference' => 'shared-ref', 'unique' => true],
+		);
+
+		$this->assertNotSame($foo->id, $bar->id);
+		$this->assertSame('Foo', $foo->job_task);
+		$this->assertSame('Bar', $bar->job_task);
+	}
+
+	/**
+	 * Without `unique`, two calls with the same reference both insert -- BC
+	 * preserved for callers that use `reference` for audit but want every
+	 * scheduled run to enqueue independently.
+	 *
+	 * @return void
+	 */
+	public function testCreateJobWithoutUniqueDoesNotDedupe(): void {
+		$first = $this->QueuedJobs->createJob('Foo', null, ['reference' => 'tenant-3']);
+		$second = $this->QueuedJobs->createJob('Foo', null, ['reference' => 'tenant-3']);
+
+		$this->assertNotSame($first->id, $second->id);
+		$this->assertSame(2, $this->QueuedJobs->find()->where(['reference' => 'tenant-3'])->count());
+	}
+
+	/**
+	 * `unique` without a `reference` is a programming error -- fail fast at
+	 * the call site rather than silently inserting an undeduped row.
+	 *
+	 * @return void
+	 */
+	public function testCreateJobUniqueWithoutReferenceThrows(): void {
+		$this->expectException(InvalidArgumentException::class);
+		$this->expectExceptionMessageMatches('/unique.*reference/i');
+
+		$this->QueuedJobs->createJob('Foo', null, ['unique' => true]);
 	}
 
 	/**
@@ -688,6 +852,119 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * A job that has exhausted its retries (status = aborted) is terminal and
+	 * must no longer count as queued, even though it has no completed stamp.
+	 * Normal null-status rows still count.
+	 *
+	 * @return void
+	 */
+	public function testIsQueuedExcludesAborted() {
+		$queuedJob = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'foo-bar',
+		]);
+		$this->QueuedJobs->saveOrFail($queuedJob);
+		$this->assertTrue($this->QueuedJobs->isQueued('foo-bar'));
+
+		$this->QueuedJobs->markJobAborted($queuedJob);
+		$this->assertFalse($this->QueuedJobs->isQueued('foo-bar'));
+	}
+
+	/**
+	 * markJobAborted() stamps the terminal status without touching completed.
+	 *
+	 * @return void
+	 */
+	public function testMarkJobAborted() {
+		$queuedJob = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'foo-bar',
+		]);
+		$this->QueuedJobs->saveOrFail($queuedJob);
+
+		$this->assertTrue($this->QueuedJobs->markJobAborted($queuedJob));
+
+		$reloaded = $this->QueuedJobs->get($queuedJob->id);
+		$this->assertSame(QueuedJobsTable::STATUS_ABORTED, $reloaded->status);
+		$this->assertNull($reloaded->completed);
+	}
+
+	/**
+	 * Aborted jobs keep `completed IS NULL` but are terminal, so they must not
+	 * be counted by the pending stats/count used on the admin dashboard.
+	 *
+	 * @return void
+	 */
+	public function testGetPendingCountExcludesAborted() {
+		$pending = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'pending-one',
+		]);
+		$this->QueuedJobs->saveOrFail($pending);
+
+		$aborted = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'aborted-one',
+		]);
+		$this->QueuedJobs->saveOrFail($aborted);
+		$this->QueuedJobs->markJobAborted($aborted);
+
+		$this->assertSame(1, $this->QueuedJobs->getPendingCount());
+
+		$statsRefs = $this->QueuedJobs->getPendingStats()->all()->extract('reference')->toArray();
+		$this->assertContains('pending-one', $statsRefs);
+		$this->assertNotContains('aborted-one', $statsRefs);
+	}
+
+	/**
+	 * getLength() backs the dashboard "Pending Jobs (new/current)" card; it must
+	 * exclude aborted jobs so the card total stays consistent with the pending
+	 * list (getPendingStats()), which already excludes them.
+	 *
+	 * @return void
+	 */
+	public function testGetLengthExcludesAborted() {
+		$job = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'len-one',
+		]);
+		$this->QueuedJobs->saveOrFail($job);
+		$this->assertSame(1, $this->QueuedJobs->getLength());
+
+		$this->QueuedJobs->markJobAborted($job);
+		$this->assertSame(0, $this->QueuedJobs->getLength());
+	}
+
+	/**
+	 * Resetting an aborted job for rerun must clear its terminal status so it
+	 * counts as pending again and gets picked up.
+	 *
+	 * @return void
+	 */
+	public function testResetClearsAbortedStatus() {
+		$job = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'reset-me',
+			'attempts' => 3,
+		]);
+		$this->QueuedJobs->saveOrFail($job);
+		$this->QueuedJobs->markJobAborted($job);
+		$this->assertSame(0, $this->QueuedJobs->getPendingCount());
+
+		$this->QueuedJobs->reset($job->id, true);
+
+		$reloaded = $this->QueuedJobs->get($job->id);
+		$this->assertNull($reloaded->status);
+		$this->assertSame(1, $this->QueuedJobs->getPendingCount());
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testGetStats() {
@@ -711,13 +988,94 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testGetHeatmapData(): void {
+		// Create jobs with different timestamps
+		$now = new DateTime();
+
+		$queuedJob = $this->QueuedJobs->newEntity([
+			'job_task' => 'Foo',
+			'created' => $now->subHours(2),
+			'completed' => $now->subHours(1),
+		]);
+		$this->QueuedJobs->saveOrFail($queuedJob);
+
+		$queuedJob2 = $this->QueuedJobs->newEntity([
+			'job_task' => 'Foo',
+			'created' => $now->subHours(3),
+			'completed' => $now->subHours(2),
+		]);
+		$this->QueuedJobs->saveOrFail($queuedJob2);
+
+		$result = $this->QueuedJobs->getHeatmapData('created', 30);
+
+		// Check grid structure is 7x24
+		$this->assertArrayHasKey('grid', $result);
+		$this->assertArrayHasKey('summary', $result);
+		$this->assertCount(7, $result['grid']);
+		foreach ($result['grid'] as $hours) {
+			$this->assertCount(24, $hours);
+		}
+
+		// Check summary fields
+		$this->assertArrayHasKey('total', $result['summary']);
+		$this->assertArrayHasKey('avgPerHour', $result['summary']);
+		$this->assertArrayHasKey('peakHour', $result['summary']);
+		$this->assertArrayHasKey('peakCount', $result['summary']);
+		$this->assertArrayHasKey('quietestHour', $result['summary']);
+		$this->assertArrayHasKey('quietestCount', $result['summary']);
+		$this->assertArrayHasKey('busiestDay', $result['summary']);
+		$this->assertArrayHasKey('days', $result['summary']);
+
+		$this->assertSame(2, $result['summary']['total']);
+		$this->assertSame(30, $result['summary']['days']);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testGetHeatmapDataFieldWhitelist(): void {
+		// Create a job
+		$now = new DateTime();
+		$queuedJob = $this->QueuedJobs->newEntity([
+			'job_task' => 'Foo',
+			'created' => $now,
+			'completed' => $now,
+		]);
+		$this->QueuedJobs->saveOrFail($queuedJob);
+
+		// Test with valid field
+		$result = $this->QueuedJobs->getHeatmapData('completed', 30);
+		$this->assertSame(1, $result['summary']['total']);
+
+		// Test with invalid field (should fall back to 'created')
+		$result = $this->QueuedJobs->getHeatmapData('invalid_field', 30);
+		$this->assertSame(1, $result['summary']['total']);
+	}
+
+	/**
+	 * Test that Queue.Job.created event is fired when a job is created.
+	 *
+	 * @return void
+	 */
+	public function testJobCreatedEventFired(): void {
+		$eventList = new EventList();
+		EventManager::instance()->setEventList($eventList);
+
+		$this->QueuedJobs->createJob('Queue.Example', ['test' => 'data']);
+
+		$this->assertEventFired('Queue.Job.created');
+	}
+
+	/**
 	 * Helper method for skipping tests that need a real connection.
 	 *
 	 * @return void
 	 */
 	protected function _needsConnection() {
 		$config = ConnectionManager::getConfig('test');
-		$skip = strpos($config['driver'], 'Mysql') === false && strpos($config['driver'], 'Postgres') === false;
+		$skip = !str_contains((string)$config['driver'], 'Mysql') && !str_contains((string)$config['driver'], 'Postgres');
 		$this->skipIf($skip, 'Only Mysql/Postgres is working yet for this.');
 	}
 

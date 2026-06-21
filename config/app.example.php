@@ -1,25 +1,45 @@
 <?php
 
+use Cake\Http\ServerRequest;
 /**
  * This file configures default behavior for all workers
  *
  * To modify these parameters, copy this file into your own CakePHP config directory or copy the array into your existing file.
  */
-use Tools\View\Icon\BootstrapIcon;
+use Templating\View\Icon\BootstrapIcon;
 
 return [
 	'Queue' => [
-		// time (in seconds) after which a job is requeued if the worker doesn't report back
-		'defaultworkertimeout' => 1800,
+		// seconds of running time after which the worker process will terminate (0 = unlimited, but not recommended)
+		'workerLifetime' => 60, // 1 minutes
+		// Legacy: 'workermaxruntime' is deprecated but still supported
 
-		// seconds of running time after which the worker will terminate (0 = unlimited)
-		'workermaxruntime' => 120,
+		// optional random offset (0-N seconds) added per worker to stagger shutdowns in a fleet (0 = disabled)
+		'workerLifetimeJitter' => 0,
+
+		// seconds of running time after which the PHP process will terminate, null uses workerLifetime * 2
+		'workerPhpTimeout' => null,
+		// Legacy: 'workertimeout' is deprecated but still supported
+
+		// time (in seconds) after which a job is requeued if the worker doesn't report back
+		// IMPORTANT: Task-specific timeouts should NOT exceed this value to prevent duplicate execution
+		'defaultRequeueTimeout' => 180, // 3 minutes
+		// Legacy: 'defaultworkertimeout' is deprecated but still supported
+
+		// Threshold in seconds: a queue_processes row whose heartbeat (`modified`
+		// timestamp) is older than this is treated as a dead worker by a
+		// starting worker and cleaned up. Workers refresh their heartbeat every
+		// loop, so a row not touched in this window almost certainly belongs to
+		// a force-killed process. Intentionally much shorter than
+		// defaultRequeueTimeout (which governs in-flight job requeueing).
+		'staleHeartbeatThreshold' => 90, // 90 seconds
 
 		// minimum time (in seconds) which a task remains in the database before being cleaned up.
 		'cleanuptimeout' => 2592000, // 30 days
 
 		// number of retries if a job fails or times out.
-		'defaultworkerretries' => 1,
+		'defaultJobRetries' => 1,
+		// Legacy: 'defaultworkerretries' is deprecated but still supported
 
 		// seconds to sleep() when no executable job is found
 		'sleeptime' => 10,
@@ -36,17 +56,32 @@ return [
 		// instruct a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running)
 		'exitwhennothingtodo' => false,
 
-		// seconds of running time after which the PHP process will terminate, null uses workermaxruntime * 100
-		'workertimeout' => null,
-
 		// determine whether logging is enabled
 		'log' => true,
+
+		// capture task output (stdout/stderr) and store in database
+		'captureOutput' => false,
+
+		// maximum size in bytes for captured output (0 = unlimited)
+		'maxOutputSize' => 65536, // 64KB
 
 		// set default Mailer class
 		'mailerClass' => 'Cake\Mailer\Email',
 
 		// set default datasource connection
 		'connection' => null,
+
+		// Multi-connection mode: whitelist of datasource connection names a
+		// worker / job command may run against. Leave empty (or with fewer than
+		// 2 entries) to stay in single-connection mode, where the singular
+		// `connection` above (or 'default') is used. With 2+ entries, the first
+		// is the default and any --connection passed to the run/job commands
+		// must appear in this list or a RuntimeException is thrown. The admin
+		// dashboard also exposes a connection switcher when this has 2+ entries.
+		'connections' => [
+			//'default',
+			//'queue_secondary',
+		],
 
 		// enable Search. requires friendsofcake/search
 		'isSearchEnabled' => true,
@@ -68,9 +103,84 @@ return [
 		// ignores task classes
 		'ignoredTasks' => [],
 
-		// Control serializer strategy
-		'serializerClass' => null, // FQCN
-		'serializerConfig' => null,
+		// per-task configuration overrides (timeout, retries, rate, costs, unique)
+		'tasks' => [
+			//'Queue.ProgressExample' => [
+			//	'timeout' => 300,
+			//],
+		],
+
+		// Per-command allow-list for Queue.Execute. Required when debug is disabled:
+		// the `command` value MUST appear here verbatim, otherwise ExecuteTask throws
+		// before invoking exec(). Empty/unset in production means every Execute job
+		// is rejected. Has no effect when debug is true.
+		'executeAllowedCommands' => [
+			//'bin/cake',
+			//'/usr/bin/php',
+		],
+
+		// Admin dashboard settings
+
+		// Layout for admin pages:
+		// - null (default): Uses 'Queue.queue' isolated Bootstrap 5 layout
+		// - false: Disables plugin layout, uses app's default layout
+		// - string: Uses specified layout
+		'adminLayout' => null,
+
+		// Maximum number of pending and scheduled job rows the admin
+		// dashboard materialises and renders. Aggregate tile counts on the
+		// dashboard are still computed via DB count() and reflect the
+		// unbounded totals; only the visible row list is capped. Raise this
+		// for more rows at once, lower it if the page is sluggish on a
+		// large backlog. The cap also keeps DebugKit's Variables panel
+		// from OOM-ing on huge queues.
+		'adminDetailsLimit' => 200,
+
+		// Back-to-App link in the admin header (opt-in). When set, an outline
+		// button appears in the top navbar so admins can escape the
+		// plugin-isolated layout. Accepts anything Router::url() takes — Cake
+		// URL array, path string, or full URL. Use 'plugin' => false to
+		// anchor the builder to the host app rather than the Queue plugin.
+		// 'adminBackUrl' => ['plugin' => false, 'prefix' => 'Admin', 'controller' => 'Overview', 'action' => 'index'],
+		// 'adminBackLabel' => 'Back to admin', // Optional. Defaults to "Back to App".
+
+		// auto-refresh dashboard in seconds (0 = disabled)
+		'dashboardAutoRefresh' => 0,
+
+		// Status-banner thresholds on the admin dashboard, in seconds. The
+		// banner has three colors: green (running), yellow (idle), red
+		// (stalled — action required).
+		//   running:  fresh heartbeat              (< dashboardIdleAfter)
+		//   idle:     stale heartbeat, no backlog  (>= dashboardIdleAfter)
+		//   stalled:  >= dashboardStalledAfter with a pending backlog and no
+		//             in-flight job, OR no worker reporting with backlog
+		// Defaults (60 / 120) are deliberate UI policy — human-perceptible
+		// 1-min / 2-min boundaries — not derived from queue mechanics, since
+		// no existing config knob (workerLifetime, defaultRequeueTimeout,
+		// sleeptime) actually means "heartbeat freshness." Override for
+		// unusual cadences (e.g. slow cron in `exitwhennothingtodo` mode —
+		// raise dashboardStalledAfter past the cron interval to avoid
+		// false-red between ticks).
+		'dashboardIdleAfter' => 60,
+		'dashboardStalledAfter' => 120,
+
+		// Standalone mode for admin controllers:
+		// - false (default): Extends App\Controller\AppController, inherits app auth/components
+		// - true: Isolated admin, skips app's AppController setup
+		'standalone' => false,
+
+		// Admin access gate. REQUIRED — the host app MUST set this to a Closure
+		// that returns true to grant access to /admin/queue/...; anything else
+		// (unset, non-Closure, returns false, returns a truthy non-bool, or throws)
+		// yields a 403. The admin UI can trigger jobs (via AddFromBackendInterface
+		// tasks), reset / remove queued jobs, and terminate workers; the default
+		// policy is deny. Independent of `standalone` — runs in both modes.
+		// Example — admin role check on the cakephp/authentication identity:
+		'adminAccess' => function (ServerRequest $request): bool {
+			$identity = $request->getAttribute('identity');
+
+			return $identity !== null && in_array('admin', (array)$identity->roles, true);
+		},
 	],
 	'Icon' => [
 		'sets' => [

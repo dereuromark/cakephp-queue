@@ -57,15 +57,15 @@ class SimpleQueueTransport extends AbstractTransport {
 		];
 
 		foreach ($settings as $setting => $value) {
-			if (array_key_exists(0, $value) && ($value[0] === null || $value[0] === [])) {
+			if ($value[0] === null || $value[0] === []) {
 				unset($settings[$setting]);
 			}
 		}
 
 		$QueuedJobs = $this->getQueuedJobsModel();
 		$result = $QueuedJobs->createJob('Queue.Email', ['settings' => $settings]);
-		$result['headers'] = $message->getHeadersString();
-		$result['message'] = $message->getBodyString();
+		$result->headers = $message->getHeadersString();
+		$result->message = $message->getBodyString();
 
 		return $result->toArray();
 	}

@@ -8,7 +8,7 @@ use TestApp\Queue\Task\Sub\FooBarBazTask;
 class FooBarBazTaskTest extends TestCase {
 
 	/**
-	 * @var array<string>
+	 * @var list<string>
 	 */
 	protected array $fixtures = [
 		'plugin.Queue.QueuedJobs',
