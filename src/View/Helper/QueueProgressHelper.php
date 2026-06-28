@@ -20,7 +20,7 @@ class QueueProgressHelper extends Helper {
 	use LocatorAwareTrait;
 
 	/**
-	 * @var array<mixed>
+	 * @var array<int|string, array<string, mixed>|string>
 	 */
 	protected array $helpers = [
 		'Tools.Progress',
