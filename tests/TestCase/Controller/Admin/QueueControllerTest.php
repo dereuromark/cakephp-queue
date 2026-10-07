@@ -135,6 +135,25 @@ class QueueControllerTest extends TestCase {
 	}
 
 	/**
+	 * A details limit of 0 lists no rows, but the card and its link must stay.
+	 *
+	 * @return void
+	 */
+	public function testIndexShowsAbortedCardWithZeroDetailsLimit() {
+		Configure::write('Queue.adminDetailsLimit', 0);
+
+		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		$QueuedJobs->markJobAborted($QueuedJobs->createJob('Queue.Example'));
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+
+		$this->assertResponseCode(200);
+		$this->assertSame([], $this->viewVariable('abortedDetails'));
+		$this->assertSame(1, $this->viewVariable('abortedJobs'));
+		$this->assertResponseContains('status=aborted');
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testIndexHidesAbortedCardWithoutAbortedJobs() {

@@ -237,7 +237,7 @@ $stateMeta = [
 	<!-- Main Content Column -->
 	<div class="col-lg-8">
 		<!-- Aborted Jobs Card -->
-		<?php if ($abortedDetails): ?>
+		<?php if ($abortedJobs): ?>
 			<div class="card mb-4">
 				<div class="card-header d-flex justify-content-between align-items-center">
 					<span><i class="fas fa-times-circle text-danger me-2"></i><?= __d('queue', 'Aborted Jobs') ?> (<?= $abortedJobs ?>)</span>
