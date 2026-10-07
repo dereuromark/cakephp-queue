@@ -46,6 +46,10 @@ class QueuedJob extends Entity {
 			'completed' => 'Completed',
 			'in_progress' => 'In Progress',
 			'scheduled' => 'Scheduled',
+			'pending' => 'Pending',
+			'running' => 'Running',
+			'failed' => 'Requeued/Failed',
+			'aborted' => 'Aborted',
 		];
 	}
 

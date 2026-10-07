@@ -28,7 +28,7 @@ class QueueController extends QueueAppController {
 		parent::initialize();
 
 		// Set connection for multi-connection support
-		if ($this->activeConnection !== 'default') {
+		if ($this->activeConnection !== $this->QueuedJobs->getConnection()->configName()) {
 			$this->QueuedJobs->setConnection($this->getActiveConnectionObject());
 		}
 	}
@@ -41,7 +41,7 @@ class QueueController extends QueueAppController {
 	 */
 	public function index() {
 		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
-		if ($this->activeConnection !== 'default') {
+		if ($this->activeConnection !== $QueueProcesses->getConnection()->configName()) {
 			$QueueProcesses->setConnection($this->getActiveConnectionObject());
 		}
 		$status = $QueueProcesses->status();
@@ -226,9 +226,11 @@ class QueueController extends QueueAppController {
 			throw new NotFoundException();
 		}
 
-		$this->QueuedJobs->reset($id);
-
-		$this->Flash->success('Job # ' . $id . ' re-added');
+		if ($this->QueuedJobs->reset($id)) {
+			$this->Flash->success('Job # ' . $id . ' re-added');
+		} else {
+			$this->Flash->error('Job # ' . $id . ' could not be reset, it is not failed (anymore).');
+		}
 
 		return $this->refererRedirect($this->referer(['action' => 'index'], true));
 	}
@@ -254,7 +256,7 @@ class QueueController extends QueueAppController {
 	 */
 	public function processes() {
 		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
-		if ($this->activeConnection !== 'default') {
+		if ($this->activeConnection !== $QueueProcesses->getConnection()->configName()) {
 			$QueueProcesses->setConnection($this->getActiveConnectionObject());
 		}
 
@@ -266,6 +268,10 @@ class QueueController extends QueueAppController {
 		}
 		if ($this->request->is('post') && $this->request->getQuery('kill')) {
 			$pid = (string)$this->request->getQuery('kill');
+			// Only signal PIDs of known workers; posix_kill() also accepts -1 and 0.
+			if ((int)$pid <= 1 || !$QueueProcesses->exists(['pid' => $pid])) {
+				throw new NotFoundException('No such worker process.');
+			}
 			$QueueProcesses->terminateProcess($pid);
 
 			return $this->redirect(['action' => 'processes']);
@@ -333,7 +339,8 @@ class QueueController extends QueueAppController {
 		if (is_array($url)) {
 			throw new NotFoundException('Invalid array in query string');
 		}
-		if ($url && (mb_substr((string)$url, 0, 1) !== '/' || mb_substr((string)$url, 0, 2) === '//')) {
+		// Browsers treat "/\\host" like "//host", so both are protocol-relative.
+		if ($url && (mb_substr((string)$url, 0, 1) !== '/' || in_array(mb_substr((string)$url, 1, 1), ['/', '\\'], true))) {
 			$url = null;
 		}
 

@@ -6,6 +6,7 @@ namespace Queue\Test\TestCase\Controller\Admin;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Datasource\ConnectionManager;
+use Cake\Http\Exception\NotFoundException;
 use Cake\Http\ServerRequest;
 use Cake\I18n\DateTime;
 use Cake\TestSuite\IntegrationTestTrait;
@@ -215,6 +216,30 @@ class QueueControllerTest extends TestCase {
 	}
 
 	/**
+	 * posix_kill() treats -1 as "every process"; only known workers may be signaled.
+	 *
+	 * @return void
+	 */
+	public function testProcessesKillRejectsUnknownPid() {
+		$this->expectException(NotFoundException::class);
+
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'processes', '?' => ['kill' => '-1']]);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testResetJobRedirectRejectsBackslashHost() {
+		$jobsTable = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$job = $jobsTable->newEntity(['job_task' => 'foo', 'attempts' => 1, 'failure_message' => 'Some error']);
+		$jobsTable->saveOrFail($job);
+
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'resetJob', $job->id, '?' => ['redirect' => '/\\evil.example']]);
+
+		$this->assertRedirect(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+	}
+
+	/**
 	 * @return void
 	 */
 	public function testAddJob() {
@@ -237,6 +262,7 @@ class QueueControllerTest extends TestCase {
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
 			'attempts' => 1,
+			'failure_message' => 'Some error',
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -256,6 +282,7 @@ class QueueControllerTest extends TestCase {
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
 			'attempts' => 1,
+			'failure_message' => 'Some error',
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -276,6 +303,7 @@ class QueueControllerTest extends TestCase {
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
 			'attempts' => 1,
+			'failure_message' => 'Some error',
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -298,6 +326,7 @@ class QueueControllerTest extends TestCase {
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
 			'attempts' => 1,
+			'failure_message' => 'Some error',
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -320,6 +349,7 @@ class QueueControllerTest extends TestCase {
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
 			'attempts' => 1,
+			'failure_message' => 'Some error',
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -346,6 +376,7 @@ class QueueControllerTest extends TestCase {
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
 			'attempts' => 1,
+			'failure_message' => 'Some error',
 		]);
 		$jobsTable->saveOrFail($job);
 
@@ -366,6 +397,7 @@ class QueueControllerTest extends TestCase {
 		$job = $jobsTable->newEntity([
 			'job_task' => 'foo',
 			'attempts' => 1,
+			'failure_message' => 'Some error',
 			'fetched' => (new DateTime())->subHours(1),
 		]);
 		$jobsTable->saveOrFail($job);

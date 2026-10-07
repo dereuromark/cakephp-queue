@@ -3,9 +3,13 @@ declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Mailer\Transport;
 
+use Cake\Console\ConsoleIo;
 use Cake\Mailer\Mailer;
 use Cake\TestSuite\TestCase;
+use Queue\Console\Io;
 use Queue\Mailer\Transport\SimpleQueueTransport;
+use Queue\Queue\Task\EmailTask;
+use Shim\TestSuite\ConsoleOutput;
 
 /**
  * Test case
@@ -77,11 +81,41 @@ class SimpleQueueTransportTest extends TestCase {
 		$settings = $output['settings'];
 		$this->assertSame([['noreply@cakephp.org' => 'CakePHP Test']], $settings['from']);
 		$this->assertSame(['L\'utilisateur n\'a pas pu être enregistré'], $settings['subject']);
-		$this->assertSame(['queue'], $settings['transport']);
-		$this->assertNotEmpty($settings['attachments']);
+		$this->assertSame('queue', $output['transport']);
+		$this->assertArrayHasKey('wow.txt', $settings['attachments']);
+		$this->assertStringContainsString('Foo Bar Content', $settings['textMessage']);
 
 		$this->assertNotEmpty($result['headers']);
 		$this->assertTextContains('Foo Bar Content', $result['message']);
+	}
+
+	/**
+	 * The queued payload must produce the same mail when the EmailTask runs it.
+	 *
+	 * @return void
+	 */
+	public function testSendRoundTripThroughEmailTask() {
+		$this->QueueTransport->setConfig(['transport' => 'default']);
+		$mailer = new Mailer();
+		$mailer->setFrom('noreply@cakephp.org')
+			->setTo('cake@cakephp.org')
+			->setSubject('Round trip')
+			->setEmailFormat('both')
+			->setAttachments(['wow.txt' => ['data' => 'much wow!', 'mimetype' => 'text/plain']]);
+		$mailer->getMessage()->setHeaders(['X-Custom' => 'yes']);
+		$mailer->render('Foo Bar Content');
+
+		$result = $this->QueueTransport->send($mailer->getMessage());
+
+		$task = new EmailTask(new Io(new ConsoleIo(new ConsoleOutput(), new ConsoleOutput())));
+		$task->run(json_decode(json_encode($result['data']), true), 0);
+
+		$message = $task->mailer->getMessage();
+		$this->assertStringContainsString('Foo Bar Content', $message->getBodyText());
+		$this->assertStringContainsString('Foo Bar Content', $message->getBodyHtml());
+		$this->assertArrayHasKey('wow.txt', $message->getAttachments());
+		$this->assertSame('yes', $message->getHeaders()['X-Custom']);
+		$this->assertArrayNotHasKey(0, $message->getHeaders());
 	}
 
 }

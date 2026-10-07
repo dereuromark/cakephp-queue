@@ -14,14 +14,14 @@ A sensible starting point: one worker per available CPU core for CPU-bound workl
 
 ### Per-task concurrency limits
 
-If a single task class can saturate workers (e.g. a heavy report generator), cap it with the task's `$rate` / `$timeout` properties or with a per-task `Configure::write('Queue.taskTimeout.MyTask', ...)` override. See [Configuration](/guide/configuration).
+If a single task class can saturate workers (e.g. a heavy report generator), cap it with the task's `$rate`, `$timeout`, `$unique` or `$costs` properties. See [Configuration](/guide/configuration).
 
 ## Worker lifetime and restart cadence
 
 Workers should be designed to exit and respawn periodically — this is the simplest defense against memory leaks, accumulated state, and any in-process cache that drifts from the database (e.g. a freshly migrated column that an older worker can't see yet — see the `captureOutput` regression that landed mid-2026).
 
 - **`workerLifetime`** (`Configure::write('Queue.workerLifetime', 3600)`) — exit cleanly after N seconds. Process supervisor brings up a fresh worker. Default 0 means run forever; for production use a bounded value.
-- **`workerRetry`** — number of retries on transient errors before a job is marked failed. Match this to your task idempotency story.
+- **`defaultJobRetries`** (or the task's `$retries` property) - number of retries on transient errors before a job is aborted. Match this to your task idempotency story.
 - **`exitwhennothingtodo`** — when set, the worker exits on its first empty poll. Suitable for cron-managed workers; leave off for long-running supervisor-managed processes.
 
 ### Recommended supervisor / systemd unit
@@ -67,13 +67,13 @@ The admin dashboard's "tips" sidebar contains the same SQL for quick eyeballing.
 
 ## Failure handling
 
-The queue retries failed jobs up to `Queue.workerRetry` times before marking them dead. Dead jobs sit in `queued_jobs` with `failure_message` populated and `failed` set — they aren't auto-purged.
+The queue retries failed jobs up to the task's `$retries` (default `Queue.defaultJobRetries`) times. After that the job is aborted: it stays in `queued_jobs` with `failure_message` populated and `status = 'aborted'`, shows in the dashboard's Aborted Jobs card, and runs again only after a reset.
 
 ### Investigating a failure
 
 1. **Admin dashboard → Failed jobs view** sorts by most recent. Each row links to its full payload + stack trace.
-2. **`bin/cake queue clean`** moves completed and old failed jobs out; configure retention via `Queue.cleanuptimeout` (default 30 days).
-3. **`bin/cake queue retry <job-id>`** requeues a dead job. Useful for transient failures (network blip, downstream service down) after you've fixed the cause.
+2. **`bin/cake queue job clean`** deletes completed jobs older than `Queue.cleanuptimeout` (default 30 days).
+3. **`bin/cake queue job reset <job-id>`** requeues a dead job. Useful for transient failures (network blip, downstream service down) after you've fixed the cause.
 
 ### Dead-letter pattern
 

@@ -923,6 +923,89 @@ class QueuedJobsTableTest extends TestCase {
 	/**
 	 * @return void
 	 */
+	public function testCreateJobUniqueIgnoresAborted() {
+		$first = $this->QueuedJobs->createJob('Queue.Example', null, ['reference' => 'ref-1', 'unique' => true]);
+		$this->QueuedJobs->markJobAborted($first);
+
+		$second = $this->QueuedJobs->createJob('Queue.Example', null, ['reference' => 'ref-1', 'unique' => true]);
+
+		$this->assertNotSame($first->id, $second->id);
+	}
+
+	/**
+	 * Attempts are counted on fetch, so a running job must not count as failed.
+	 *
+	 * @return void
+	 */
+	public function testResetSkipsRunningJobs() {
+		$running = $this->QueuedJobs->newEntity(['job_task' => 'Foo', 'attempts' => 1, 'fetched' => new DateTime(), 'workerkey' => 'abc']);
+		$this->QueuedJobs->saveOrFail($running);
+		$failed = $this->QueuedJobs->newEntity(['job_task' => 'Foo', 'attempts' => 1, 'fetched' => new DateTime(), 'failure_message' => 'Boom']);
+		$this->QueuedJobs->saveOrFail($failed);
+		$aborted = $this->QueuedJobs->newEntity(['job_task' => 'Foo', 'attempts' => 2, 'fetched' => new DateTime(), 'status' => QueuedJobsTable::STATUS_ABORTED]);
+		$this->QueuedJobs->saveOrFail($aborted);
+
+		$this->assertSame(2, $this->QueuedJobs->reset());
+
+		$this->assertSame('abc', $this->QueuedJobs->get($running->id)->workerkey);
+		$this->assertSame(0, $this->QueuedJobs->get($failed->id)->attempts);
+		$this->assertNull($this->QueuedJobs->get($aborted->id)->status);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testAbortStaleJobs() {
+		$tasks = ['Foo' => ['timeout' => 60, 'retries' => 1]];
+		$stale = $this->QueuedJobs->newEntity(['job_task' => 'Foo', 'attempts' => 2, 'fetched' => (new DateTime())->subMinutes(5)]);
+		$this->QueuedJobs->saveOrFail($stale);
+		$retryLeft = $this->QueuedJobs->newEntity(['job_task' => 'Foo', 'attempts' => 1, 'fetched' => (new DateTime())->subMinutes(5)]);
+		$this->QueuedJobs->saveOrFail($retryLeft);
+		$stillRunning = $this->QueuedJobs->newEntity(['job_task' => 'Foo', 'attempts' => 2, 'fetched' => new DateTime()]);
+		$this->QueuedJobs->saveOrFail($stillRunning);
+
+		$this->assertSame(1, $this->QueuedJobs->abortStaleJobs($tasks));
+
+		$this->assertSame(QueuedJobsTable::STATUS_ABORTED, $this->QueuedJobs->get($stale->id)->status);
+		$this->assertNull($this->QueuedJobs->get($retryLeft->id)->status);
+		$this->assertNull($this->QueuedJobs->get($stillRunning->id)->status);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testMarkJobDoneClearsAbortedAndFailure() {
+		$job = $this->QueuedJobs->createJob('Queue.Example');
+		$this->QueuedJobs->markJobFailed($job, 'Worker process terminated by signal');
+		$this->QueuedJobs->markJobAborted($job);
+
+		$this->QueuedJobs->markJobDone($job);
+
+		$job = $this->QueuedJobs->get($job->id);
+		$this->assertNotNull($job->completed);
+		$this->assertNull($job->status);
+		$this->assertNull($job->failure_message);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testCloneAndRerunClearAbortedStatus() {
+		$job = $this->QueuedJobs->createJob('Queue.Example');
+		$this->QueuedJobs->markJobAborted($job);
+		$job = $this->QueuedJobs->get($job->id);
+
+		$clone = $this->QueuedJobs->clone($job);
+		$this->assertNull($clone->status);
+
+		$this->QueuedJobs->updateAll(['completed' => new DateTime(), 'status' => QueuedJobsTable::STATUS_ABORTED], ['id' => $job->id]);
+		$this->QueuedJobs->rerun($job->id);
+		$this->assertNull($this->QueuedJobs->get($job->id)->status);
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testGetAbortedStats() {
 		$pending = $this->QueuedJobs->newEntity([
 			'key' => 'key',

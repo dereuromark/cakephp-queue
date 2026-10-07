@@ -8,6 +8,7 @@ use Cake\TestSuite\TestCase;
 use Cake\View\View;
 use DateInterval;
 use Queue\Model\Entity\QueuedJob;
+use Queue\Model\Table\QueuedJobsTable;
 use Queue\View\Helper\QueueHelper;
 
 class QueueHelperTest extends TestCase {
@@ -111,6 +112,25 @@ class QueueHelperTest extends TestCase {
 		$queuedJob->failure_message = 'Foo';
 		$result = $this->QueueHelper->failureStatus($queuedJob);
 		$this->assertSame('Aborted', $result);
+	}
+
+	/**
+	 * The persisted aborted status wins over a recomputation from the current retries config.
+	 *
+	 * @return void
+	 */
+	public function testAbortedStatusIsRespected(): void {
+		$queuedJob = new QueuedJob([
+			'job_task' => 'Queue.Example',
+			'fetched' => new DateTime(),
+			'attempts' => 1,
+			'failure_message' => 'Boom',
+			'status' => QueuedJobsTable::STATUS_ABORTED,
+		]);
+
+		$this->assertTrue($this->QueueHelper->hasFailed($queuedJob));
+		$this->assertFalse($this->QueueHelper->isRequeued($queuedJob));
+		$this->assertSame('Aborted', $this->QueueHelper->failureStatus($queuedJob));
 	}
 
 	/**
