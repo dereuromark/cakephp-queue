@@ -236,6 +236,104 @@ $stateMeta = [
 <div class="row">
 	<!-- Main Content Column -->
 	<div class="col-lg-8">
+		<!-- Aborted Jobs Card -->
+		<?php if ($abortedDetails): ?>
+			<div class="card mb-4">
+				<div class="card-header d-flex justify-content-between align-items-center">
+					<span><i class="fas fa-times-circle text-danger me-2"></i><?= __d('queue', 'Aborted Jobs') ?> (<?= $abortedJobs ?>)</span>
+					<?= $this->Html->link(
+						__d('queue', 'View All'),
+						['controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'aborted']],
+						['class' => 'btn btn-sm btn-outline-primary']
+					) ?>
+				</div>
+				<div class="card-body p-0">
+					<?php if ($abortedDetailsTruncated): ?>
+						<div class="alert alert-info mb-0 small rounded-0 border-0 border-bottom">
+							<i class="fas fa-info-circle me-1"></i>
+							<?= __d(
+								'queue',
+								'Showing {0} most recent of {1} aborted jobs. {2} for the full list.',
+								[
+									count($abortedDetails),
+									$abortedJobs,
+									$this->Html->link(
+										__d('queue', 'See QueuedJobs admin'),
+										['controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'aborted']],
+									),
+								],
+							) ?>
+						</div>
+					<?php endif; ?>
+					<div class="table-responsive">
+						<table class="table table-hover mb-0">
+							<thead>
+								<tr>
+									<th><?= __d('queue', 'Task') ?></th>
+									<th><?= __d('queue', 'Reference') ?></th>
+									<th><?= __d('queue', 'Created') ?></th>
+									<th><?= __d('queue', 'Failure') ?></th>
+									<th><?= __d('queue', 'Actions') ?></th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ($abortedDetails as $abortedJob): ?>
+									<tr>
+										<td>
+											<?= $this->Html->link(
+												h($abortedJob->job_task),
+												['controller' => 'QueuedJobs', 'action' => 'view', $abortedJob->id],
+												['class' => 'text-decoration-none fw-medium']
+											) ?>
+										</td>
+										<td><code class="small"><?= h($abortedJob->reference ?: '-') ?></code></td>
+										<td class="text-muted small"><?= $this->Time->nice($abortedJob->created) ?></td>
+										<td>
+											<span class="badge badge-failed">
+												<i class="fas fa-times me-1"></i><?= __d('queue', 'Aborted') ?>
+											</span>
+											<div class="small text-muted"><?= __d('queue', 'Attempts') ?>: <?= $this->Queue->attempts($abortedJob) ?></div>
+											<?php if ($abortedJob->failure_message): ?>
+												<div class="small text-muted text-break"><?= h($this->Text->truncate($abortedJob->failure_message, 120)) ?></div>
+											<?php endif; ?>
+										</td>
+										<td class="text-nowrap">
+											<?= $this->Form->postButton(
+												'<i class="fas fa-redo"></i>',
+												['action' => 'resetJob', $abortedJob->id],
+												[
+													'escapeTitle' => false,
+													'class' => 'btn btn-sm btn-outline-primary',
+													'title' => __d('queue', 'Reset'),
+													'form' => [
+														'class' => 'd-inline',
+														'data-confirm-message' => __d('queue', 'Sure?'),
+													],
+												]
+											) ?>
+											<?= $this->Form->postButton(
+												'<i class="fas fa-trash"></i>',
+												['action' => 'removeJob', $abortedJob->id],
+												[
+													'escapeTitle' => false,
+													'class' => 'btn btn-sm btn-outline-danger',
+													'title' => __d('queue', 'Remove'),
+													'form' => [
+														'class' => 'd-inline',
+														'data-confirm-message' => __d('queue', 'Sure?'),
+													],
+												]
+											) ?>
+										</td>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		<?php endif; ?>
+
 		<!-- Pending Jobs Card -->
 		<div class="card mb-4">
 			<div class="card-header d-flex justify-content-between align-items-center">
@@ -378,104 +476,6 @@ $stateMeta = [
 				<?php endif; ?>
 			</div>
 		</div>
-
-		<!-- Aborted Jobs Card -->
-		<?php if ($abortedDetails): ?>
-			<div class="card mb-4">
-				<div class="card-header d-flex justify-content-between align-items-center">
-					<span><i class="fas fa-times-circle text-danger me-2"></i><?= __d('queue', 'Aborted Jobs') ?> (<?= $abortedJobs ?>)</span>
-					<?= $this->Html->link(
-						__d('queue', 'View All'),
-						['controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'aborted']],
-						['class' => 'btn btn-sm btn-outline-primary']
-					) ?>
-				</div>
-				<div class="card-body p-0">
-					<?php if ($abortedDetailsTruncated): ?>
-						<div class="alert alert-info mb-0 small rounded-0 border-0 border-bottom">
-							<i class="fas fa-info-circle me-1"></i>
-							<?= __d(
-								'queue',
-								'Showing {0} most recent of {1} aborted jobs. {2} for the full list.',
-								[
-									count($abortedDetails),
-									$abortedJobs,
-									$this->Html->link(
-										__d('queue', 'See QueuedJobs admin'),
-										['controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'aborted']],
-									),
-								],
-							) ?>
-						</div>
-					<?php endif; ?>
-					<div class="table-responsive">
-						<table class="table table-hover mb-0">
-							<thead>
-								<tr>
-									<th><?= __d('queue', 'Task') ?></th>
-									<th><?= __d('queue', 'Reference') ?></th>
-									<th><?= __d('queue', 'Created') ?></th>
-									<th><?= __d('queue', 'Failure') ?></th>
-									<th><?= __d('queue', 'Actions') ?></th>
-								</tr>
-							</thead>
-							<tbody>
-								<?php foreach ($abortedDetails as $abortedJob): ?>
-									<tr>
-										<td>
-											<?= $this->Html->link(
-												h($abortedJob->job_task),
-												['controller' => 'QueuedJobs', 'action' => 'view', $abortedJob->id],
-												['class' => 'text-decoration-none fw-medium']
-											) ?>
-										</td>
-										<td><code class="small"><?= h($abortedJob->reference ?: '-') ?></code></td>
-										<td class="text-muted small"><?= $this->Time->nice($abortedJob->created) ?></td>
-										<td>
-											<span class="badge badge-failed">
-												<i class="fas fa-times me-1"></i><?= __d('queue', 'Aborted') ?>
-											</span>
-											<div class="small text-muted"><?= __d('queue', 'Attempts') ?>: <?= $this->Queue->attempts($abortedJob) ?></div>
-											<?php if ($abortedJob->failure_message): ?>
-												<div class="small text-muted text-break"><?= h($this->Text->truncate($abortedJob->failure_message, 120)) ?></div>
-											<?php endif; ?>
-										</td>
-										<td class="text-nowrap">
-											<?= $this->Form->postButton(
-												'<i class="fas fa-redo"></i>',
-												['action' => 'resetJob', $abortedJob->id],
-												[
-													'escapeTitle' => false,
-													'class' => 'btn btn-sm btn-outline-primary',
-													'title' => __d('queue', 'Reset'),
-													'form' => [
-														'class' => 'd-inline',
-														'data-confirm-message' => __d('queue', 'Sure?'),
-													],
-												]
-											) ?>
-											<?= $this->Form->postButton(
-												'<i class="fas fa-trash"></i>',
-												['action' => 'removeJob', $abortedJob->id],
-												[
-													'escapeTitle' => false,
-													'class' => 'btn btn-sm btn-outline-danger',
-													'title' => __d('queue', 'Remove'),
-													'form' => [
-														'class' => 'd-inline',
-														'data-confirm-message' => __d('queue', 'Sure?'),
-													],
-												]
-											) ?>
-										</td>
-									</tr>
-								<?php endforeach; ?>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		<?php endif; ?>
 
 		<!-- Scheduled Jobs Card -->
 		<?php if ($scheduledDetails): ?>
