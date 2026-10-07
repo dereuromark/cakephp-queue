@@ -241,11 +241,25 @@ $stateMeta = [
 			<div class="card mb-4">
 				<div class="card-header d-flex justify-content-between align-items-center">
 					<span><i class="fas fa-times-circle text-danger me-2"></i><?= __d('queue', 'Aborted Jobs') ?> (<?= $abortedJobs ?>)</span>
-					<?= $this->Html->link(
-						__d('queue', 'View All'),
-						['controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'aborted']],
-						['class' => 'btn btn-sm btn-outline-primary']
-					) ?>
+					<div class="d-flex gap-1">
+						<?= $this->Form->postButton(
+							'<i class="fas fa-redo me-1"></i>' . __d('queue', 'Reset All'),
+							['action' => 'reset', '?' => ['aborted' => 1]],
+							[
+								'escapeTitle' => false,
+								'class' => 'btn btn-sm btn-outline-warning',
+								'form' => [
+									'class' => 'd-inline',
+									'data-confirm-message' => __d('queue', 'Reset all {0} aborted jobs?', $abortedJobs),
+								],
+							]
+						) ?>
+						<?= $this->Html->link(
+							__d('queue', 'View All'),
+							['controller' => 'QueuedJobs', 'action' => 'index', '?' => ['status' => 'aborted']],
+							['class' => 'btn btn-sm btn-outline-primary']
+						) ?>
+					</div>
 				</div>
 				<div class="card-body p-0">
 					<?php if ($abortedDetailsTruncated): ?>

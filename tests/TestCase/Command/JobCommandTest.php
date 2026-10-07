@@ -8,6 +8,7 @@ use Cake\Core\Configure;
 use Cake\I18n\DateTime;
 use Cake\TestSuite\TestCase;
 use Queue\Model\Entity\QueuedJob;
+use Queue\Model\Table\QueuedJobsTable;
 
 /**
  * @uses \Queue\Command\JobCommand
@@ -128,6 +129,22 @@ class JobCommandTest extends TestCase {
 
 		$output = $this->_out->output();
 		$this->assertStringContainsString('Deleted: ', $output);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testExecuteFlushAborted(): void {
+		$aborted = $this->createJob(['status' => QueuedJobsTable::STATUS_ABORTED, 'attempts' => 2]);
+		$failed = $this->createJob(['failure_message' => 'Boom', 'attempts' => 1]);
+
+		$this->exec('queue job flush --aborted');
+
+		$this->assertExitCode(0);
+		$this->assertStringContainsString('Deleted aborted: 1', $this->_out->output());
+		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$this->assertFalse($QueuedJobs->exists(['id' => $aborted->id]));
+		$this->assertTrue($QueuedJobs->exists(['id' => $failed->id]));
 	}
 
 	/**

@@ -72,4 +72,35 @@ class InfoCommandTest extends TestCase {
 		$this->assertExitCode(0);
 	}
 
+	/**
+	 * @return void
+	 */
+	public function testExecuteJson(): void {
+		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$QueuedJobs->createJob('Queue.Example');
+		$QueuedJobs->markJobAborted($QueuedJobs->createJob('Queue.Example'));
+
+		$this->exec('queue info --format json');
+
+		$this->assertExitCode(0);
+		$info = json_decode($this->_out->output(), true);
+		$this->assertIsArray($info);
+		$this->assertSame(1, $info['jobs']['pending']);
+		$this->assertSame(1, $info['jobs']['aborted']);
+		$this->assertContains('Queue.Example', $info['tasks']);
+		$this->assertArrayNotHasKey('settings', $info);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testExecuteShowsAbortedCount(): void {
+		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$QueuedJobs->markJobAborted($QueuedJobs->createJob('Queue.Example'));
+
+		$this->exec('queue info');
+
+		$this->assertOutputContains('Aborted jobs (retries exhausted): 1');
+	}
+
 }

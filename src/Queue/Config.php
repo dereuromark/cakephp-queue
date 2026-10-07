@@ -68,6 +68,15 @@ class Config {
 	}
 
 	/**
+	 * Seconds after their last attempt before a cleanup run removes aborted jobs (0 keeps them)
+	 *
+	 * @return int
+	 */
+	public static function cleanupAbortedTimeout(): int {
+		return (int)Configure::read('Queue.cleanupAbortedTimeout', 0);
+	}
+
+	/**
 	 * @return int
 	 */
 	public static function sleeptime(): int {

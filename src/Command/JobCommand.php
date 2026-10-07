@@ -61,6 +61,10 @@ class JobCommand extends Command {
 			'help' => 'ID of job record, or "all" for all',
 			'required' => false,
 		]);
+		$parser->addOption('aborted', [
+			'help' => 'With flush: remove aborted jobs (retries exhausted) instead of failed ones',
+			'boolean' => true,
+		]);
 		$parser->addOption('connection', [
 			'help' => 'Database connection to use (must be in Queue.connections whitelist if multi-connection mode is enabled)',
 			'default' => null,
@@ -101,7 +105,7 @@ class JobCommand extends Command {
 			$io->out('- view: Display status of a job');
 			$io->out('- rerun: Rerun a successfully run job ("all" for all)');
 			$io->out('- reset: Reset a failed job ("all" for all)');
-			$io->out('- flush: Remove (all) failed jobs');
+			$io->out('- flush: Remove (all) failed jobs, or aborted ones with --aborted');
 			$io->out('- remove: Remove a job ("all" for truncating)');
 			$io->out('- clean: Cleanup (old jobs removal)');
 			$io->out();
@@ -144,6 +148,9 @@ class JobCommand extends Command {
 			$action .= 'All';
 
 			return $this->$action($io);
+		}
+		if ($action === 'flush' && $args->getOption('aborted')) {
+			return $this->flushAborted($io);
 		}
 		if (in_array($action, ['clean', 'flush'], true)) {
 			return $this->$action($io);
@@ -319,14 +326,29 @@ class JobCommand extends Command {
 	 *
 	 * @return int
 	 */
+	protected function flushAborted(ConsoleIo $io): int {
+		$result = $this->QueuedJobs->flushAbortedJobs();
+		$io->success('Deleted aborted: ' . $result);
+
+		return static::CODE_SUCCESS;
+	}
+
+	/**
+	 * @param \Cake\Console\ConsoleIo $io
+	 *
+	 * @return int
+	 */
 	protected function clean(ConsoleIo $io): int {
-		if (!Config::cleanuptimeout()) {
+		if (!Config::cleanuptimeout() && !Config::cleanupAbortedTimeout()) {
 			$io->abort('You disabled cleanuptimeout in config. Aborting.');
 		}
 
-		$date = (new DateTime())->subSeconds(Config::cleanuptimeout());
-
-		$io->out('Deleting old jobs, that have finished before ' . $date);
+		if (Config::cleanuptimeout()) {
+			$io->out('Deleting old jobs, that have finished before ' . (new DateTime())->subSeconds(Config::cleanuptimeout()));
+		}
+		if (Config::cleanupAbortedTimeout()) {
+			$io->out('Deleting aborted jobs, last attempted before ' . (new DateTime())->subSeconds(Config::cleanupAbortedTimeout()));
+		}
 		$result = $this->QueuedJobs->cleanOldJobs();
 		$io->success('Deleted: ' . $result);
 

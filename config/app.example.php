@@ -37,6 +37,9 @@ return [
 		// minimum time (in seconds) which a task remains in the database before being cleaned up.
 		'cleanuptimeout' => 2592000, // 30 days
 
+		// seconds after their last attempt before aborted jobs (retries exhausted) are cleaned up, 0 keeps them
+		'cleanupAbortedTimeout' => 0,
+
 		// number of retries if a job fails or times out.
 		'defaultJobRetries' => 1,
 		// Legacy: 'defaultworkerretries' is deprecated but still supported

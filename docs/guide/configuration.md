@@ -80,6 +80,12 @@ You may create a file called `app_queue.php` inside your `config` folder (NOT th
     $config['Queue']['cleanuptimeout'] = 2592000; // 30 days
     ```
 
+- Seconds after their last attempt before a cleanup run removes aborted jobs (retries exhausted). Defaults to 0, which keeps them until they are reset or flushed:
+
+    ```php
+    $config['Queue']['cleanupAbortedTimeout'] = 604800; // 7 days
+    ```
+
 - Max workers (per server):
 
     ```php

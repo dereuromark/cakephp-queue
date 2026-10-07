@@ -1006,6 +1006,40 @@ class QueuedJobsTableTest extends TestCase {
 	/**
 	 * @return void
 	 */
+	public function testCleanOldJobsAbortedRetention() {
+		$old = $this->QueuedJobs->newEntity(['job_task' => 'Foo', 'attempts' => 2, 'fetched' => (new DateTime())->subDays(10), 'status' => QueuedJobsTable::STATUS_ABORTED]);
+		$this->QueuedJobs->saveOrFail($old);
+		$recent = $this->QueuedJobs->newEntity(['job_task' => 'Foo', 'attempts' => 2, 'fetched' => (new DateTime())->subDays(1), 'status' => QueuedJobsTable::STATUS_ABORTED]);
+		$this->QueuedJobs->saveOrFail($recent);
+
+		$this->QueuedJobs->cleanOldJobs();
+		$this->assertTrue($this->QueuedJobs->exists(['id' => $old->id]), 'Aborted jobs are kept by default');
+
+		Configure::write('Queue.cleanupAbortedTimeout', 7 * DAY);
+		$this->QueuedJobs->cleanOldJobs();
+		Configure::delete('Queue.cleanupAbortedTimeout');
+
+		$this->assertFalse($this->QueuedJobs->exists(['id' => $old->id]));
+		$this->assertTrue($this->QueuedJobs->exists(['id' => $recent->id]));
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testResetAborted() {
+		$aborted = $this->QueuedJobs->createJob('Queue.Example');
+		$this->QueuedJobs->markJobAborted($aborted);
+		$pending = $this->QueuedJobs->createJob('Queue.Example');
+
+		$this->assertSame(1, $this->QueuedJobs->resetAborted());
+		$this->assertSame(0, $this->QueuedJobs->getAbortedCount());
+		$this->assertSame(2, $this->QueuedJobs->getPendingCount());
+		$this->assertNotNull($pending->id);
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testGetAbortedStats() {
 		$pending = $this->QueuedJobs->newEntity([
 			'key' => 'key',

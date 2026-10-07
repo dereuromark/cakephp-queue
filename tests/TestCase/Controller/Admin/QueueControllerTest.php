@@ -157,6 +157,19 @@ class QueueControllerTest extends TestCase {
 	/**
 	 * @return void
 	 */
+	public function testResetAborted() {
+		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		$QueuedJobs->markJobAborted($QueuedJobs->createJob('Queue.Example'));
+
+		$this->post(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'reset', '?' => ['aborted' => 1]]);
+
+		$this->assertResponseCode(302);
+		$this->assertSame(0, $QueuedJobs->getAbortedCount());
+	}
+
+	/**
+	 * @return void
+	 */
 	public function testIndexHidesAbortedCardWithoutAbortedJobs() {
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
 
