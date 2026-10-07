@@ -199,7 +199,7 @@ class ExecuteTaskTest extends TestCase {
 	public function testAddPreservesQuotedCommandPathWithSpaces(): void {
 		$this->Task->add('"/usr/local/bin/My Tool" --flag arg2');
 
-		$queuedJob = $this->Task->QueuedJobs->find()->order(['id' => 'DESC'])->first();
+		$queuedJob = $this->Task->QueuedJobs->find()->orderBy(['id' => 'DESC'])->first();
 		$this->assertNotNull($queuedJob);
 		$data = is_array($queuedJob->data) ? $queuedJob->data : json_decode((string)$queuedJob->data, true);
 
@@ -217,7 +217,7 @@ class ExecuteTaskTest extends TestCase {
 	public function testAddTokenizesPlainSpaceSeparatedArgs(): void {
 		$this->Task->add('sleep 1s');
 
-		$queuedJob = $this->Task->QueuedJobs->find()->order(['id' => 'DESC'])->first();
+		$queuedJob = $this->Task->QueuedJobs->find()->orderBy(['id' => 'DESC'])->first();
 		$this->assertNotNull($queuedJob);
 		$data = is_array($queuedJob->data) ? $queuedJob->data : json_decode((string)$queuedJob->data, true);
 

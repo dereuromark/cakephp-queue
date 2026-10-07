@@ -10,6 +10,7 @@ use Cake\Mailer\Message;
 use Cake\Mailer\TransportFactory;
 use Psr\Log\LoggerInterface;
 use Queue\Console\Io;
+use Queue\Mailer\PresetBodyRenderer;
 use Queue\Model\QueueException;
 use Queue\Queue\AddFromBackendInterface;
 use Queue\Queue\AddInterface;
@@ -178,12 +179,13 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 		// Message body keys from a serialized Message payload use different names than
 		// their setter methods. Route them explicitly so the generic loop does not try
 		// to call nonexistent `setHtmlMessage`/`setTextMessage` on the Mailer.
+		$bodies = [];
 		if (array_key_exists('htmlMessage', $settings)) {
-			$this->mailer->getMessage()->setBodyHtml((string)$settings['htmlMessage']);
+			$bodies[Message::MESSAGE_HTML] = (string)$settings['htmlMessage'];
 			unset($settings['htmlMessage']);
 		}
 		if (array_key_exists('textMessage', $settings)) {
-			$this->mailer->getMessage()->setBodyText((string)$settings['textMessage']);
+			$bodies[Message::MESSAGE_TEXT] = (string)$settings['textMessage'];
 			unset($settings['textMessage']);
 		}
 
@@ -242,6 +244,10 @@ class EmailTask extends Task implements AddInterface, AddFromBackendInterface {
 				throw new QueueException('Please provide headers as array.');
 			}
 			$this->mailer->getMessage()->setHeaders($data['headers']);
+		}
+
+		if ($bodies && $message === null && !$this->mailer->viewBuilder()->getTemplate()) {
+			$this->mailer->setRenderer(new PresetBodyRenderer($bodies));
 		}
 
 		$this->mailer->deliver((string)$message);

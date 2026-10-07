@@ -135,7 +135,9 @@ class WorkerCommand extends Command {
 		if ($pid === 'all' || $pid === 'server') {
 			$workers = $this->QueueProcesses->getProcesses($pid === 'server');
 			foreach ($workers as $worker) {
-				$this->QueueProcesses->endProcess($worker->pid);
+				// By row, not PID: in containers several workers can share PID 1.
+				$worker->terminate = true;
+				$this->QueueProcesses->saveOrFail($worker);
 				$io->success('Job ' . $worker->pid . ' marked for termination (will finish current job)');
 			}
 
@@ -167,7 +169,7 @@ class WorkerCommand extends Command {
 			foreach ($workers as $worker) {
 				if ($pid === 'all' && Configure::read('Queue.multiserver')) {
 					$serverString = $this->QueueProcesses->buildServerString();
-					if ($serverString !== $worker->workerkey) {
+					if ($serverString !== $worker->server) {
 						$io->abort('Cannot kill by PID in multiserver environment for this CLI. You need to execute this on the same server.');
 					}
 				}
@@ -186,7 +188,7 @@ class WorkerCommand extends Command {
 
 		if (Configure::read('Queue.multiserver')) {
 			$serverString = $this->QueueProcesses->buildServerString();
-			if ($serverString !== $worker->workerkey) {
+			if ($serverString !== $worker->server) {
 				$io->abort('Cannot kill by PID in multiserver environment for this CLI. You need to execute this on the same server.');
 			}
 		}

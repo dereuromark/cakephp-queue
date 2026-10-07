@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Queue\Controller\Admin;
 
 use Cake\Core\Configure;
+use Cake\Http\Exception\BadRequestException;
 use Exception;
 use const SIGTERM;
 
@@ -35,7 +36,7 @@ class QueueProcessesController extends QueueAppController {
 		parent::initialize();
 
 		// Set connection for multi-connection support
-		if ($this->activeConnection !== 'default') {
+		if ($this->activeConnection !== $this->QueueProcesses->getConnection()->configName()) {
 			$this->QueueProcesses->setConnection($this->getActiveConnectionObject());
 		}
 	}
@@ -117,6 +118,10 @@ class QueueProcessesController extends QueueAppController {
 		$this->request->allowMethod(['post', 'delete']);
 		$queueProcess = $this->QueueProcesses->get($id);
 
+		// SIGINT, SIGKILL, SIGTERM as numbers: the constants are missing without pcntl.
+		if (!in_array($sig, [null, 0, 2, 9, 15], true)) {
+			throw new BadRequestException('Unsupported signal.');
+		}
 		if (!Configure::read('Queue.multiserver')) {
 			$this->QueueProcesses->terminateProcess($queueProcess->pid, $sig ?: SIGTERM);
 		}

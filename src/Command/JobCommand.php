@@ -13,6 +13,7 @@ use Cake\Error\Debugger;
 use Cake\I18n\DateTime;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\Table\QueuedJobsTable;
+use Queue\Queue\Config;
 use RuntimeException;
 
 /**
@@ -187,9 +188,9 @@ class JobCommand extends Command {
 	 * @return int
 	 */
 	protected function resetAll(ConsoleIo $io): int {
-		$count = $this->QueuedJobs->reset(null, true);
+		$count = $this->QueuedJobs->reset();
 		if (!$count) {
-			$io->out('No incomplete jobs to reset.');
+			$io->out('No failed jobs to reset.');
 
 			return static::CODE_SUCCESS;
 		}
@@ -319,11 +320,11 @@ class JobCommand extends Command {
 	 * @return int
 	 */
 	protected function clean(ConsoleIo $io): int {
-		if (!Configure::read('Queue.cleanuptimeout')) {
-			$io->abort('You disabled cleanuptimout in config. Aborting.');
+		if (!Config::cleanuptimeout()) {
+			$io->abort('You disabled cleanuptimeout in config. Aborting.');
 		}
 
-		$date = (new DateTime())->subSeconds((int)Configure::read('Queue.cleanuptimeout'));
+		$date = (new DateTime())->subSeconds(Config::cleanuptimeout());
 
 		$io->out('Deleting old jobs, that have finished before ' . $date);
 		$result = $this->QueuedJobs->cleanOldJobs();

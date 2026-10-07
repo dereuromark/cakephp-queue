@@ -61,7 +61,7 @@ class BakeQueueTaskCommand extends SimpleBakeCommand {
 		$io->out('Generating: ' . $className . ' test class');
 
 		$plugin = (string)$args->getOption('plugin');
-		$namespace = $plugin ? str_replace('/', DS, $plugin) : Configure::read('App.namespace');
+		$namespace = $plugin ? str_replace('/', '\\', $plugin) : Configure::read('App.namespace');
 
 		$content = $this->generateTaskTestContent($className, $namespace);
 		$path = $plugin ? Plugin::path($plugin) : ROOT . DS;

@@ -247,6 +247,10 @@ class QueuedJobsTable extends Table {
 					'reference' => $config->getReferenceOrFail(),
 					'job_task' => $resolvedTask,
 					'completed IS' => null,
+					'OR' => [
+						'status IS' => null,
+						'status !=' => static::STATUS_ABORTED,
+					],
 				])
 				->first();
 			if ($existing !== null) {
@@ -589,7 +593,7 @@ class QueuedJobsTable extends Table {
 			/** @var array<\Queue\Model\Entity\QueuedJob> $runningJobs */
 			$runningJobs = $this->find('queued')
 				->contain(['WorkerProcesses'])
-				->where(['QueuedJobs.job_task IN' => $constraintJobs, 'QueuedJobs.workerkey IS NOT' => null, 'QueuedJobs.workerkey !=' => $this->_key, 'WorkerProcesses.modified >' => (new DateTime())->subSeconds(Config::defaultworkertimeout())])
+				->where(['QueuedJobs.job_task IN' => $constraintJobs, 'QueuedJobs.workerkey IS NOT' => null, 'QueuedJobs.workerkey !=' => $this->_key, 'QueuedJobs.failure_message IS' => null, 'WorkerProcesses.modified >' => (new DateTime())->subSeconds(Config::defaultworkertimeout())])
 				->all()
 				->toArray();
 		}
@@ -759,13 +763,20 @@ class QueuedJobsTable extends Table {
 			'progress' => 1,
 			'completed' => $this->getDateTime(),
 			'memory' => Memory::usage(),
+			// A signal handler may have marked the job failed while it kept running to completion.
+			'failure_message' => null,
 		];
 		if ($output !== null) {
 			$fields['output'] = $output;
 		}
 		$job = $this->patchEntity($job, $fields);
+		if (!$this->save($job)) {
+			return false;
+		}
+		// Set via updateAll() by markJobAborted(), so the entity may not know about it.
+		$this->updateAll(['status' => null], ['id' => $job->id, 'status' => static::STATUS_ABORTED]);
 
-		return (bool)$this->save($job);
+		return true;
 	}
 
 	/**
@@ -815,6 +826,35 @@ class QueuedJobsTable extends Table {
 			['status' => static::STATUS_ABORTED],
 			['id' => $job->id],
 		);
+	}
+
+	/**
+	 * Marks jobs as aborted whose worker died on the last attempt without a
+	 * chance to record it (SIGKILL, OOM, fatal error). They are never fetched
+	 * again, but would otherwise stay "running" forever.
+	 *
+	 * @param array<string, array<string, mixed>> $tasks Task configuration as used for requestJob().
+	 *
+	 * @return int Count of jobs marked aborted
+	 */
+	public function abortStaleJobs(array $tasks): int {
+		$count = 0;
+		$now = $this->getDateTime();
+		foreach ($tasks as $name => $task) {
+			$timeoutAt = clone $now;
+			$count += $this->updateAll(['status' => static::STATUS_ABORTED], [
+				'job_task' => $name,
+				'completed IS' => null,
+				'fetched <' => $timeoutAt->subSeconds((int)$task['timeout']),
+				'attempts >=' => (int)$task['retries'] + 1,
+				'OR' => [
+					'status IS' => null,
+					'status !=' => static::STATUS_ABORTED,
+				],
+			]);
+		}
+
+		return $count;
 	}
 
 	/**
@@ -868,7 +908,14 @@ class QueuedJobsTable extends Table {
 			$conditions['id'] = $id;
 		}
 		if (!$full) {
+			// attempts is incremented on fetch, so it alone would also match running jobs.
 			$conditions['attempts >'] = 0;
+			$conditions[] = [
+				'OR' => [
+					'failure_message IS NOT' => null,
+					'status' => static::STATUS_ABORTED,
+				],
+			];
 		}
 
 		return $this->updateAll($fields, $conditions);
@@ -890,6 +937,7 @@ class QueuedJobsTable extends Table {
 			'failure_message' => null,
 			'output' => null,
 			'memory' => null,
+			'status' => null,
 		];
 		$conditions = [
 			'completed IS NOT' => null,
@@ -917,6 +965,7 @@ class QueuedJobsTable extends Table {
 			'failure_message' => null,
 			'output' => null,
 			'memory' => null,
+			'status' => null,
 		];
 		$conditions = [
 			'completed IS NOT' => null,
@@ -941,6 +990,7 @@ class QueuedJobsTable extends Table {
 			'failure_message' => null,
 			'output' => null,
 			'memory' => null,
+			'status' => null,
 		];
 		$data = $defaults + $queuedJob->toArray();
 		$data['created'] = new DateTime();

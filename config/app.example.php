@@ -62,11 +62,11 @@ return [
 		// capture task output (stdout/stderr) and store in database
 		'captureOutput' => false,
 
-		// maximum size in bytes for captured output (0 = unlimited)
+		// maximum size in bytes for captured output (0 = default of 64KB)
 		'maxOutputSize' => 65536, // 64KB
 
 		// set default Mailer class
-		'mailerClass' => 'Cake\Mailer\Email',
+		'mailerClass' => 'Cake\Mailer\Mailer',
 
 		// set default datasource connection
 		'connection' => null,

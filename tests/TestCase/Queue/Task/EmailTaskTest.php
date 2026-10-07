@@ -288,6 +288,7 @@ class EmailTaskTest extends TestCase {
 		$this->assertSame('html', $message->getEmailFormat());
 		$this->assertSame('utf-8', $message->getCharset());
 		$this->assertSame('utf-8', $message->getHeaderCharset());
+		$this->assertSame('<p>Hello</p>', $message->getBodyHtml());
 	}
 
 	/**

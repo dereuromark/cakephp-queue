@@ -21,6 +21,13 @@ use Queue\Model\Table\QueuedJobsTable;
  */
 class SimpleQueueTransport extends AbstractTransport {
 
+	/**
+	 * Headers the Message builds itself; copying them over would pin a stale boundary or date.
+	 *
+	 * @var array<string>
+	 */
+	protected const GENERATED_HEADERS = ['Date', 'Message-ID', 'MIME-Version', 'Content-Type', 'Content-Transfer-Encoding'];
+
 	use LocatorAwareTrait;
 
 	/**
@@ -48,22 +55,39 @@ class SimpleQueueTransport extends AbstractTransport {
 			'returnPath' => [$message->getReturnPath()],
 			'messageId' => [$message->getMessageId()],
 			'domain' => [$message->getDomain()],
-			'headers' => [$message->getHeaders()],
 			'headerCharset' => [$message->getHeaderCharset()],
 			'emailFormat' => [$message->getEmailFormat()],
 			'subject' => [$message->getOriginalSubject()],
-			'transport' => [$this->_config['transport']],
-			'attachments' => [$message->getAttachments()],
 		];
 
 		foreach ($settings as $setting => $value) {
-			if ($value[0] === null || $value[0] === []) {
+			if ($value[0] === []) {
 				unset($settings[$setting]);
 			}
 		}
 
+		// Passed as-is, not as setter argument lists: EmailTask hands these to the Message directly.
+		$headers = array_diff_key($message->getHeaders(), array_flip(static::GENERATED_HEADERS));
+		if ($headers) {
+			$settings['headers'] = $headers;
+		}
+		if ($message->getAttachments()) {
+			$settings['attachments'] = $message->getAttachments();
+		}
+		$html = $message->getBodyHtml();
+		if ($html !== '') {
+			$settings['htmlMessage'] = $html;
+		}
+		$text = $message->getBodyText();
+		if ($text !== '') {
+			$settings['textMessage'] = $text;
+		}
+
 		$QueuedJobs = $this->getQueuedJobsModel();
-		$result = $QueuedJobs->createJob('Queue.Email', ['settings' => $settings]);
+		$result = $QueuedJobs->createJob('Queue.Email', [
+			'settings' => $settings,
+			'transport' => $this->_config['transport'] ?? null,
+		]);
 		$result->headers = $message->getHeadersString();
 		$result->message = $message->getBodyString();
 

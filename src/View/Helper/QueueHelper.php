@@ -6,6 +6,7 @@ namespace Queue\View\Helper;
 use Cake\View\Helper;
 use DateInterval;
 use Queue\Model\Entity\QueuedJob;
+use Queue\Model\Table\QueuedJobsTable;
 use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
 
@@ -27,6 +28,9 @@ class QueueHelper extends Helper {
 	public function hasFailed(QueuedJob $queuedJob): bool {
 		if ($queuedJob->completed || !$queuedJob->fetched || !$queuedJob->attempts) {
 			return false;
+		}
+		if ($queuedJob->status === QueuedJobsTable::STATUS_ABORTED) {
+			return true;
 		}
 
 		// Restarted
@@ -73,7 +77,7 @@ class QueueHelper extends Helper {
 		}
 
 		// Must have a failure message to be considered "requeued"
-		if (!$queuedJob->failure_message) {
+		if (!$queuedJob->failure_message || $queuedJob->status === QueuedJobsTable::STATUS_ABORTED) {
 			return false;
 		}
 
@@ -101,6 +105,9 @@ class QueueHelper extends Helper {
 		// No failure message yet: the job is simply running its current attempt,
 		// which is indistinguishable from a reset-and-rerun job, so there is no
 		// distinct failure status to report.
+		if ($queuedJob->status === QueuedJobsTable::STATUS_ABORTED) {
+			return __d('queue', 'Aborted');
+		}
 		if (!$queuedJob->failure_message) {
 			return null;
 		}

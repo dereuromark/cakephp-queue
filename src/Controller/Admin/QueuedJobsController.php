@@ -40,7 +40,7 @@ class QueuedJobsController extends QueueAppController {
 		parent::initialize();
 
 		// Set connection for multi-connection support
-		if ($this->activeConnection !== 'default') {
+		if ($this->activeConnection !== $this->QueuedJobs->getConnection()->configName()) {
 			$this->QueuedJobs->setConnection($this->getActiveConnectionObject());
 		}
 
@@ -276,7 +276,7 @@ class QueuedJobsController extends QueueAppController {
 		}
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$queuedJob = $this->QueuedJobs->patchEntity($queuedJob, $this->request->getData());
+			$queuedJob = $this->QueuedJobs->patchEntity($queuedJob, $this->request->getData(), ['fields' => ['notbefore', 'priority']]);
 			if ($this->QueuedJobs->save($queuedJob)) {
 				$this->Flash->success(__d('queue', 'The queued job has been saved.'));
 
@@ -380,7 +380,7 @@ class QueuedJobsController extends QueueAppController {
 				return null;
 			}
 
-			$amount = $data['amount'];
+			$amount = max(1, min(100, (int)($data['amount'] ?? 1)));
 			unset($data['amount']);
 
 			$data['escape'] = (bool)$data['escape'];
@@ -476,7 +476,7 @@ class QueuedJobsController extends QueueAppController {
 
 			$count = 0;
 			foreach ($tasksToMigrate as $taskToMigrate => $status) {
-				if (!$status) {
+				if (!$status || !isset($tasks[$taskToMigrate])) {
 					continue;
 				}
 

@@ -176,6 +176,9 @@ class Processor {
 		// Stale = not updated for `Queue.defaultRequeueTimeout` seconds.
 		$this->QueueProcesses->cleanEndedProcesses();
 
+		$jitterOffset = $this->computeLifetimeJitterOffset();
+		$maxRuntime = $this->resolveMaxRuntime($config['maxruntime'], $jitterOffset);
+
 		try {
 			$pid = $this->initPid();
 		} catch (PersistenceFailedException $exception) {
@@ -214,11 +217,9 @@ class Processor {
 		$this->exit = false;
 
 		$startTime = time();
-		$jitterOffset = $this->computeLifetimeJitterOffset();
-		$maxRuntime = $this->resolveMaxRuntime($config['maxruntime'], $jitterOffset);
 
 		while (!$this->exit) {
-			$this->setPhpTimeout($maxRuntime);
+			$this->setPhpTimeout($config['maxruntime']);
 
 			try {
 				$this->updatePid($pid);
@@ -261,6 +262,7 @@ class Processor {
 			if ($this->exit || mt_rand(0, 100) > 100 - (int)Config::gcprob()) {
 				$this->io->out('Performing Old job cleanup.');
 				$this->QueuedJobs->cleanOldJobs();
+				$this->QueuedJobs->abortStaleJobs($this->getTaskConf());
 				// `cleanEndedProcesses()` is no longer called here: it now
 				// runs unconditionally at every worker startup, so the
 				// shutdown sweep is redundant. `cleanOldJobs()` stays —
@@ -362,6 +364,8 @@ class Processor {
 				]);
 				EventManager::instance()->dispatch($event);
 			}
+
+			$this->currentJob = null;
 
 			return;
 		}
@@ -481,7 +485,8 @@ class Processor {
 	 * @return void
 	 */
 	protected function exit(int $signal): void {
-		if ($this->currentJob) {
+		$job = $this->currentJob;
+		if ($job) {
 			$failureMessage = 'Worker process terminated by signal (SIGTERM) - job execution interrupted due to timeout or manual termination';
 			$capturedOutput = null;
 			if ($this->captureOutput()) {
@@ -489,11 +494,23 @@ class Processor {
 				$capturedOutput = $this->io->getOutputAsText($maxOutputSize);
 				$this->io->disableOutputCapture();
 			}
-			$this->QueuedJobs->markJobFailed($this->currentJob, $failureMessage, $capturedOutput);
-			$this->logError('Job ' . $this->currentJob->job_task . ' (id ' . $this->currentJob->id . ') failed due to worker termination', $this->pid);
+			$this->QueuedJobs->markJobFailed($job, $failureMessage, $capturedOutput);
+			$this->markAbortedIfExhausted($job);
+			$this->logError('Job ' . $job->job_task . ' (id ' . $job->id . ') failed due to worker termination', $this->pid);
 			$this->currentJob = null;
 		}
 		$this->exit = true;
+	}
+
+	/**
+	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
+	 *
+	 * @return void
+	 */
+	protected function markAbortedIfExhausted(QueuedJob $queuedJob): void {
+		if ($this->QueuedJobs->getFailedStatus($queuedJob, $this->getTaskConf()) === QueuedJobsTable::STATUS_ABORTED) {
+			$this->QueuedJobs->markJobAborted($queuedJob);
+		}
 	}
 
 	/**
@@ -513,6 +530,7 @@ class Processor {
 				$this->io->disableOutputCapture();
 			}
 			$this->QueuedJobs->markJobFailed($this->currentJob, $failureMessage, $capturedOutput);
+			$this->markAbortedIfExhausted($this->currentJob);
 			$this->currentJob = null;
 		}
 
