@@ -73,6 +73,12 @@ class QueueController extends QueueAppController {
 			array_pop($scheduledDetails);
 		}
 
+		$abortedDetails = $this->QueuedJobs->getAbortedStats()->limit($detailsLimit + 1)->toArray();
+		$abortedDetailsTruncated = count($abortedDetails) > $detailsLimit;
+		if ($abortedDetailsTruncated) {
+			array_pop($abortedDetails);
+		}
+
 		$data = $this->QueuedJobs->getStats();
 
 		$taskFinder = new TaskFinder();
@@ -99,6 +105,9 @@ class QueueController extends QueueAppController {
 		$scheduledJobs = $scheduledDetailsTruncated
 			? $this->QueuedJobs->getScheduledCount()
 			: count($scheduledDetails);
+		$abortedJobs = $abortedDetailsTruncated
+			? $this->QueuedJobs->getAbortedCount()
+			: count($abortedDetails);
 
 		$runningJobs = $this->QueuedJobs->find()
 			->where([
@@ -138,8 +147,10 @@ class QueueController extends QueueAppController {
 			'data',
 			'pendingDetails',
 			'scheduledDetails',
+			'abortedDetails',
 			'pendingDetailsTruncated',
 			'scheduledDetailsTruncated',
+			'abortedDetailsTruncated',
 			'detailsLimit',
 			'totalPending',
 			'status',
@@ -152,6 +163,7 @@ class QueueController extends QueueAppController {
 			'scheduledJobs',
 			'runningJobs',
 			'failedJobs',
+			'abortedJobs',
 			'configurations',
 		));
 	}
