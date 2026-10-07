@@ -291,7 +291,11 @@ class QueueController extends QueueAppController {
 	 */
 	public function reset() {
 		$this->request->allowMethod('post');
-		$resetted = $this->QueuedJobs->reset(null, (bool)$this->request->getQuery('full'));
+		if ($this->request->getQuery('aborted')) {
+			$resetted = $this->QueuedJobs->resetAborted();
+		} else {
+			$resetted = $this->QueuedJobs->reset(null, (bool)$this->request->getQuery('full'));
+		}
 
 		$message = __d('queue', '{0} jobs reset for re-run', $resetted);
 		$this->Flash->success($message);

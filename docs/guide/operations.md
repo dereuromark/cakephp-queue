@@ -57,7 +57,7 @@ The admin dashboard surfaces:
 - `queued_jobs` table — pending + recent jobs grouped by task, with progress, failure-message, and exit status.
 - Per-task counters: queued / in-flight / failed / completed in the last 24h.
 
-For external monitoring (Prometheus, Datadog, etc.), poll the same tables. The cheapest signals worth alerting on:
+For external monitoring (Prometheus, Datadog, etc.), `bin/cake queue info --format json` prints the job counts (unfinished, pending, scheduled, aborted), the worker count and last run, queued jobs per task, and finished-job statistics. Settings are left out of the JSON because they can hold closures and credentials. You can also poll the tables directly. The cheapest signals worth alerting on:
 
 - **stale workers**: any row in `queue_processes` where `modified` is older than `defaultRequeueTimeout + 60s` is a worker that died without cleanup. The plugin auto-evicts these on next startup, but a persistent count > 0 means workers are crashing faster than they recover.
 - **backlog growth**: `count(*)` of `queued_jobs WHERE completed IS NULL AND fetched IS NULL`. A monotonically rising number means you're under-provisioned.
@@ -72,8 +72,9 @@ The queue retries failed jobs up to the task's `$retries` (default `Queue.defaul
 ### Investigating a failure
 
 1. **Admin dashboard → Failed jobs view** sorts by most recent. Each row links to its full payload + stack trace.
-2. **`bin/cake queue job clean`** deletes completed jobs older than `Queue.cleanuptimeout` (default 30 days).
-3. **`bin/cake queue job reset <job-id>`** requeues a dead job. Useful for transient failures (network blip, downstream service down) after you've fixed the cause.
+2. **`bin/cake queue job clean`** deletes completed jobs older than `Queue.cleanuptimeout` (default 30 days), and aborted jobs whose last attempt is older than `Queue.cleanupAbortedTimeout` (default 0, keeps them).
+3. **`bin/cake queue job reset <job-id>`** requeues a dead job. Useful for transient failures (network blip, downstream service down) after you've fixed the cause. The dashboard's Aborted Jobs card has a "Reset All" button for all aborted jobs at once.
+4. **`bin/cake queue job flush --aborted`** deletes all aborted jobs; without `--aborted` it removes failed jobs.
 
 ### Dead-letter pattern
 

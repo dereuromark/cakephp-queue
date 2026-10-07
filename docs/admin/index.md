@@ -160,7 +160,7 @@ The dashboard provides:
 
 1. **Status Banner** - Shows queue status (Running/Idle) with last activity timestamp
 2. **Stats Cards** - Quick overview of job counts by status
-3. **Aborted Jobs** - Jobs that used up their retries, with inline reset and remove. Shown only when there are any
+3. **Aborted Jobs** - Jobs that used up their retries, with inline reset and remove and a "Reset All" button. Shown only when there are any
 4. **Pending Jobs Table** - List of pending/running jobs with inline actions
 5. **Scheduled Jobs** - Jobs scheduled for future execution
 6. **Statistics** - Aggregated statistics for completed jobs

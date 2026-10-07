@@ -884,19 +884,7 @@ class QueuedJobsTable extends Table {
 	 * @return int Success
 	 */
 	public function reset(?int $id = null, bool $full = false): int {
-		$fields = [
-			'completed' => null,
-			'fetched' => null,
-			'progress' => null,
-			'attempts' => 0,
-			'workerkey' => null,
-			'failure_message' => null,
-			'output' => null,
-			'memory' => null,
-			// Clear the terminal aborted status so a reset job counts as pending
-			// again (getPendingCount()/isQueued() exclude status = aborted).
-			'status' => null,
-		];
+		$fields = $this->resetFields();
 		$conditions = [
 			'completed IS' => null,
 			'OR' => [
@@ -919,6 +907,25 @@ class QueuedJobsTable extends Table {
 		}
 
 		return $this->updateAll($fields, $conditions);
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	protected function resetFields(): array {
+		return [
+			'completed' => null,
+			'fetched' => null,
+			'progress' => null,
+			'attempts' => 0,
+			'workerkey' => null,
+			'failure_message' => null,
+			'output' => null,
+			'memory' => null,
+			// Clear the terminal aborted status so a reset job counts as pending
+			// again (getPendingCount()/isQueued() exclude status = aborted).
+			'status' => null,
+		];
 	}
 
 	/**
@@ -1331,16 +1338,36 @@ class QueuedJobsTable extends Table {
 	 * @return int
 	 */
 	public function cleanOldJobs(): int {
+		$count = 0;
 		$cleanupTimeout = Config::cleanuptimeout();
-		if (!$cleanupTimeout) {
-			return 0;
+		if ($cleanupTimeout) {
+			$count += $this->deleteAll([
+				'completed <' => (new DateTime())->subSeconds($cleanupTimeout),
+			]);
 		}
 
-		$threshold = (new DateTime())->subSeconds($cleanupTimeout);
+		$abortedTimeout = Config::cleanupAbortedTimeout();
+		if ($abortedTimeout) {
+			$count += $this->deleteAll($this->abortedConditions() + [
+				'fetched <' => (new DateTime())->subSeconds($abortedTimeout),
+			]);
+		}
 
-		return $this->deleteAll([
-			'completed <' => $threshold,
-		]);
+		return $count;
+	}
+
+	/**
+	 * @return int Count of deleted rows
+	 */
+	public function flushAbortedJobs(): int {
+		return $this->deleteAll($this->abortedConditions());
+	}
+
+	/**
+	 * @return int Count of jobs queued again
+	 */
+	public function resetAborted(): int {
+		return $this->updateAll($this->resetFields(), $this->abortedConditions());
 	}
 
 	/**

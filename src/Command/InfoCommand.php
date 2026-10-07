@@ -41,6 +41,11 @@ class InfoCommand extends Command {
 	public function getOptionParser(): ConsoleOptionParser {
 		$parser = parent::getOptionParser();
 
+		$parser->addOption('format', [
+			'help' => 'Output format. `json` prints job counts, workers and statistics for monitoring (no settings).',
+			'choices' => ['text', 'json'],
+			'default' => 'text',
+		]);
 		$parser->setDescription(
 			'Get list of available tasks as well as current settings and statistics.',
 		);
@@ -55,6 +60,12 @@ class InfoCommand extends Command {
 	 * @return int|null|void
 	 */
 	public function execute(Arguments $args, ConsoleIo $io) {
+		if ($args->getOption('format') === 'json') {
+			$io->out((string)json_encode($this->jsonInfo(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+
+			return static::CODE_SUCCESS;
+		}
+
 		$tasks = $this->getTasks();
 		$addableTasks = $this->getAddableTasks();
 
@@ -128,6 +139,7 @@ class InfoCommand extends Command {
 
 		$scheduled = $QueuedJobs->getScheduledStats()->count();
 		$io->out('Jobs currently scheduled to run in the future: ' . $scheduled);
+		$io->out('Aborted jobs (retries exhausted): ' . $QueuedJobs->getAbortedCount());
 
 		$io->out();
 		$io->hr();
@@ -143,6 +155,51 @@ class InfoCommand extends Command {
 			$io->out('   - Average Execution delay  : ' . str_pad(Number::precision($item['fetchdelay'], 0), 8, ' ', STR_PAD_LEFT) . 's');
 			$io->out('   - Average Execution time   : ' . str_pad(Number::precision($item['runtime'], 0), 8, ' ', STR_PAD_LEFT) . 's');
 		}
+	}
+
+	/**
+	 * Settings are left out: they can hold closures and credentials.
+	 *
+	 * @return array<string, mixed>
+	 */
+	protected function jsonInfo(): array {
+		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
+		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
+		$status = $QueueProcesses->status();
+
+		$queuedByTask = [];
+		/** @var array<string, string> $types */
+		$types = $QueuedJobs->getTypes()->toArray();
+		foreach ($types as $type) {
+			$queuedByTask[$type] = $QueuedJobs->getLength($type);
+		}
+
+		$finished = [];
+		foreach ($QueuedJobs->getStats() as $item) {
+			$finished[$item['job_task']] = [
+				'count' => (int)$item['num'],
+				'avgExistence' => (float)$item['alltime'],
+				'avgDelay' => (float)$item['fetchdelay'],
+				'avgRuntime' => (float)$item['runtime'],
+			];
+		}
+
+		return [
+			'server' => $QueueProcesses->buildServerString(),
+			'workers' => $status ? $status['workers'] : 0,
+			'lastRun' => $status ? $status['time']->toIso8601String() : null,
+			'jobs' => [
+				'unfinished' => $QueuedJobs->getLength(),
+				'pending' => $QueuedJobs->getPendingCount(),
+				'scheduled' => $QueuedJobs->getScheduledCount(),
+				'aborted' => $QueuedJobs->getAbortedCount(),
+			],
+			'queuedByTask' => $queuedByTask,
+			'finished' => $finished,
+			'tasks' => array_keys($this->getTasks()),
+		];
 	}
 
 	/**
