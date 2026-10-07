@@ -97,6 +97,55 @@ class QueueControllerTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testIndexListsAbortedJobs() {
+		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		$QueuedJobs->createJob('Queue.Example', null, ['reference' => 'pending-one']);
+		$aborted = $QueuedJobs->createJob('Queue.Example', null, ['reference' => 'aborted-one']);
+		$QueuedJobs->markJobAborted($aborted);
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+
+		$this->assertResponseCode(200);
+		$this->assertSame(['pending-one'], array_column($this->viewVariable('pendingDetails'), 'reference'));
+		$this->assertSame(['aborted-one'], array_column($this->viewVariable('abortedDetails'), 'reference'));
+		$this->assertFalse($this->viewVariable('abortedDetailsTruncated'));
+		$this->assertSame(1, $this->viewVariable('abortedJobs'));
+		$this->assertResponseContains('status=aborted');
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testIndexTruncatesAbortedDetailsAtDetailsLimit() {
+		Configure::write('Queue.adminDetailsLimit', 2);
+
+		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		for ($i = 0; $i < 3; $i++) {
+			$QueuedJobs->markJobAborted($QueuedJobs->createJob('Queue.Example', ['n' => $i]));
+		}
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+
+		$this->assertResponseCode(200);
+		$this->assertCount(2, $this->viewVariable('abortedDetails'));
+		$this->assertTrue($this->viewVariable('abortedDetailsTruncated'));
+		$this->assertSame(3, $this->viewVariable('abortedJobs'));
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testIndexHidesAbortedCardWithoutAbortedJobs() {
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+
+		$this->assertResponseCode(200);
+		$this->assertSame([], $this->viewVariable('abortedDetails'));
+		$this->assertResponseNotContains('status=aborted');
+	}
+
+	/**
 	 * The truncation flag must stay false when the backlog fits inside the
 	 * cap — otherwise the "Showing N of M" hint would render unnecessarily
 	 * and the controller would issue an extra count() it doesn't need.

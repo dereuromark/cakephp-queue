@@ -921,6 +921,61 @@ class QueuedJobsTableTest extends TestCase {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function testGetAbortedStats() {
+		$pending = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'pending-one',
+		]);
+		$this->QueuedJobs->saveOrFail($pending);
+
+		foreach (['aborted-one', 'aborted-two'] as $reference) {
+			$aborted = $this->QueuedJobs->newEntity([
+				'key' => 'key',
+				'job_task' => 'FooBar',
+				'reference' => $reference,
+			]);
+			$this->QueuedJobs->saveOrFail($aborted);
+			$this->QueuedJobs->markJobAborted($aborted);
+		}
+
+		$completed = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'reference' => 'completed-one',
+			'status' => QueuedJobsTable::STATUS_ABORTED,
+			'completed' => new DateTime(),
+		]);
+		$this->QueuedJobs->saveOrFail($completed);
+
+		$this->assertSame(2, $this->QueuedJobs->getAbortedCount());
+
+		$refs = $this->QueuedJobs->getAbortedStats()->all()->extract('reference')->toArray();
+		$this->assertSame(['aborted-two', 'aborted-one'], $refs);
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testGetAbortedStatsAfterReset() {
+		$aborted = $this->QueuedJobs->newEntity([
+			'key' => 'key',
+			'job_task' => 'FooBar',
+			'attempts' => 1,
+		]);
+		$this->QueuedJobs->saveOrFail($aborted);
+		$this->QueuedJobs->markJobAborted($aborted);
+		$this->assertSame(1, $this->QueuedJobs->getAbortedCount());
+
+		$this->QueuedJobs->reset($aborted->id);
+
+		$this->assertSame(0, $this->QueuedJobs->getAbortedCount());
+		$this->assertSame(1, $this->QueuedJobs->getPendingCount());
+	}
+
+	/**
 	 * getLength() backs the dashboard "Pending Jobs (new/current)" card; it must
 	 * exclude aborted jobs so the card total stays consistent with the pending
 	 * list (getPendingStats()), which already excludes them.

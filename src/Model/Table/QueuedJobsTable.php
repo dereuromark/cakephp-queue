@@ -1226,6 +1226,56 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * Aborted jobs (retries exhausted), newest first. They are excluded from
+	 * getPendingStats() and only run again after a reset.
+	 *
+	 * @return \Cake\ORM\Query\SelectQuery
+	 */
+	public function getAbortedStats(): SelectQuery {
+		$findCond = [
+			'fields' => [
+				'id',
+				'job_task',
+				'created',
+				'status',
+				'priority',
+				'fetched',
+				'progress',
+				'reference',
+				'notbefore',
+				'attempts',
+				'failure_message',
+				'memory',
+			],
+			'conditions' => $this->abortedConditions(),
+			'order' => ['id' => 'DESC'],
+		];
+
+		return $this->find('all', ...$findCond);
+	}
+
+	/**
+	 * Count of aborted jobs (matches getAbortedStats() conditions).
+	 *
+	 * @return int
+	 */
+	public function getAbortedCount(): int {
+		return $this->find()
+			->where($this->abortedConditions())
+			->count();
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	protected function abortedConditions(): array {
+		return [
+			'completed IS' => null,
+			'status' => static::STATUS_ABORTED,
+		];
+	}
+
+	/**
 	 * Cleanup/Delete Completed Jobs.
 	 *
 	 * @return int
