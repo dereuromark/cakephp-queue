@@ -229,10 +229,14 @@ class QueueAppController extends AppController {
 	}
 
 	protected function skipAdminAuthorizationCheck(): void {
+		$authorization = $this->request->getAttribute('authorization');
+		if (!is_object($authorization)) {
+			return;
+		}
+
 		if ($this->components()->has('Authorization') && method_exists($this->components()->get('Authorization'), 'skipAuthorization')) {
 			$this->components()->get('Authorization')->skipAuthorization();
 		} else {
-			$authorization = $this->request->getAttribute('authorization');
 			if (is_object($authorization) && is_callable([$authorization, 'skipAuthorization'])) {
 				$authorization->skipAuthorization();
 			}

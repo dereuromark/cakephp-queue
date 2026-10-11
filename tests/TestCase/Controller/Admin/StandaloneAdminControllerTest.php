@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Controller\Admin;
 
+use Cake\Controller\Component;
 use Cake\Core\Configure;
 use Cake\Event\EventInterface;
 use Cake\Event\EventManager;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
+use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class StandaloneAdminControllerTest extends TestCase {
@@ -187,6 +189,11 @@ class StandaloneAdminControllerTest extends TestCase {
 		$listener = function (EventInterface $event) use ($service): void {
 			$controller = $event->getSubject();
 			$controller->setRequest($controller->getRequest()->withAttribute('authorization', $service));
+			$controller->components()->set('Authorization', new class ($controller->components()) extends Component {
+				public function skipAuthorization(): void {
+					$this->getController()->getRequest()->getAttribute('authorization')->skipAuthorization();
+				}
+			});
 		};
 		EventManager::instance()->on('Controller.initialize', $listener);
 		try {
@@ -208,6 +215,28 @@ class StandaloneAdminControllerTest extends TestCase {
 			'returned response' => ['Test.hostRedirect'],
 			'event response' => ['Test.hostRedirectViaEvent'],
 		];
+	}
+
+	public function testHostRedirectWithoutAuthorizationMiddleware(): void {
+		Configure::write('Queue.standalone', false);
+		Configure::write('Test.hostRedirect', true);
+		$listener = function (EventInterface $event): void {
+			$controller = $event->getSubject();
+			$controller->components()->set('Authorization', new class ($controller->components()) extends Component {
+				public function skipAuthorization(): void {
+					throw new LogicException('No Authorization middleware service');
+				}
+			});
+		};
+		EventManager::instance()->on('Controller.initialize', $listener);
+		try {
+			$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+		} finally {
+			EventManager::instance()->off('Controller.initialize', $listener);
+			Configure::delete('Test.hostRedirect');
+		}
+
+		$this->assertRedirect('/login');
 	}
 
 }
