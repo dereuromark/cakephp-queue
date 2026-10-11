@@ -40,6 +40,7 @@
 		"cakedc/cakephp-phpstan": "^4.0.0",
 		"cakephp/bake": "^3.0.1",
 		"cakephp/migrations": "^5.0.0",
+		"dereuromark/cakephp-i18n-lint": "^0.1.1",
 		"dereuromark/cakephp-ide-helper": "^2.0.0",
 		"dereuromark/cakephp-templating": "^0.2.7",
 		"dereuromark/cakephp-tools": "^3.12.0",
@@ -92,6 +93,9 @@
 		"test-coverage": "phpunit --log-junit tmp/coverage/unitreport.xml --coverage-html tmp/coverage --coverage-clover tmp/coverage/coverage.xml",
 		"pot-setup": "cp composer.json composer.backup && composer require --dev dereuromark/cakephp-translate && mv composer.backup composer.json",
 		"pot-check": "php vendor/dereuromark/cakephp-translate/scripts/pot-updater.php --fail-on-diff",
-		"pot-update": "php vendor/dereuromark/cakephp-translate/scripts/pot-updater.php --update"
+		"pot-update": "php vendor/dereuromark/cakephp-translate/scripts/pot-updater.php --update",
+		"i18n-check": "i18n-lint check",
+		"i18n-extract": "i18n-lint extract",
+		"i18n-lint": "i18n-lint lint"
 	}
 }
