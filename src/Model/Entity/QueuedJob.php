@@ -33,7 +33,7 @@ class QueuedJob extends Entity {
 	/**
 	 * @var array<string, bool>
 	 */
-	protected array $accessible = [
+	protected array $patchable = [
 		'*' => true,
 		'id' => false,
 	];

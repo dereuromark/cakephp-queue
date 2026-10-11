@@ -264,7 +264,6 @@ class QueueProcessesTable extends Table {
 	 */
 	public function getProcesses(bool $forThisServer = false): array {
 		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
-		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 		$QueueProcesses = $this->getTableLocator()->get('Queue.QueueProcesses');
 		$query = $QueueProcesses->findActive()
 			->contain(['CurrentQueuedJobs'])

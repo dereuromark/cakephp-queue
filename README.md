@@ -13,7 +13,6 @@ This development branch targets CakePHP 6. See Composer for its dependency requi
 
 Queue stores background jobs in your application's database and processes them with CLI workers. Tasks support retries, delayed execution, progress, and optional admin tools.
 
-This development branch targets CakePHP 6. See Composer for its dependency requirements.
 
 See the [documentation](https://dereuromark.github.io/cakephp-queue/) for [installation](https://dereuromark.github.io/cakephp-queue/guide/installation), [getting started](https://dereuromark.github.io/cakephp-queue/guide/getting-started), and the full reference.
 

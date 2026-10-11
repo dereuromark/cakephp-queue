@@ -99,7 +99,6 @@ class SimpleQueueTransport extends AbstractTransport {
 	 */
 	protected function getQueuedJobsModel(): QueuedJobsTable {
 		/** @var \Queue\Model\Table\QueuedJobsTable $table */
-		/** @var \Queue\Model\Table\QueuedJobsTable $table */
 		$table = $this->getTableLocator()->get('Queue.QueuedJobs');
 
 		return $table;

@@ -125,7 +125,6 @@ class InfoCommand extends Command {
 		$io->out();
 
 		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
-		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
 		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
 		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
@@ -177,9 +176,7 @@ class InfoCommand extends Command {
 	 */
 	protected function jsonInfo(): array {
 		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
-		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
 		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
-		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
 		$status = $QueueProcesses->status();

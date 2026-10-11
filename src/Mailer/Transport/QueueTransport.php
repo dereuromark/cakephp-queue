@@ -38,7 +38,6 @@ class QueueTransport extends AbstractTransport {
 		$transport = $this->config['transport'] ?? null;
 
 		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
-		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
 		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$result = $QueuedJobs->createJob('Queue.Email', ['transport' => $transport, 'settings' => $message]);
 		$result->headers = $message->getHeadersString();

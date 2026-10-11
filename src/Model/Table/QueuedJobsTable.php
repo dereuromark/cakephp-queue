@@ -998,9 +998,6 @@ class QueuedJobsTable extends Table {
 		];
 		$data = $defaults + $queuedJob->toArray();
 		$data['created'] = new DateTime();
-		foreach ((array)$this->getPrimaryKey() as $primaryKey) {
-			unset($data[$primaryKey]);
-		}
 		$queuedJob = $this->newEntity($data);
 
 		return $this->save($queuedJob) ?: null;
