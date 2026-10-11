@@ -463,13 +463,8 @@ class Processor {
 			return $this->captureOutput;
 		}
 
-		// Auto-detection path: re-check on every call rather than caching
-		// for the lifetime of the worker. A long-running worker that was
-		// started before `bin/cake migrations migrate` added the `output`
-		// column would otherwise see the old `false` for the rest of its
-		// runtime and silently drop captured stdout until restart. The
-		// per-call cost is a single schema lookup against a cached
-		// description, which is negligible compared to running a job.
+		// Read the table's current schema each time. The ORM can cache that schema,
+		// so workers should still restart after database migrations.
 		try {
 			return $this->QueuedJobs->getSchema()->hasColumn('output');
 		} catch (Throwable) {
@@ -649,7 +644,7 @@ class Processor {
 	 * @return void
 	 */
 	protected function setPhpTimeout(?int $maxruntime): void {
-		if ($maxruntime) {
+		if ($maxruntime !== null) {
 			set_time_limit($maxruntime * 2);
 
 			return;
@@ -671,7 +666,7 @@ class Processor {
 			$timeLimit = (int)$phpTimeout;
 		} else {
 			// Default to workermaxruntime * 2 (or workerLifetime * 2 with new naming)
-			$workerLifetime = Configure::read('Queue.workerLifetime') ?? Configure::read('Queue.workermaxruntime', 60);
+			$workerLifetime = Config::workermaxruntime();
 			$timeLimit = (int)$workerLifetime * 2;
 		}
 
@@ -707,12 +702,7 @@ class Processor {
 	 * @return int
 	 */
 	protected function resolveMaxRuntime(?int $maxruntime, int $jitterOffset): int {
-		$workerLifetime = Configure::read('Queue.workerLifetime') ?? Configure::read('Queue.workermaxruntime');
-		if ($workerLifetime === null && $maxruntime === null) {
-			throw new RuntimeException('Queue.workerLifetime (or deprecated workermaxruntime) config is required');
-		}
-
-		$resolvedMaxRuntime = $maxruntime ?? (int)$workerLifetime;
+		$resolvedMaxRuntime = $maxruntime ?? Config::workermaxruntime();
 		if ($resolvedMaxRuntime <= 0 || $jitterOffset <= 0) {
 			return (int)$resolvedMaxRuntime;
 		}

@@ -10,13 +10,12 @@ use Cake\Http\Exception\NotFoundException;
 use Cake\Http\ServerRequest;
 use Cake\I18n\DateTime;
 use Cake\TestSuite\IntegrationTestTrait;
+use PHPUnit\Framework\Attributes\UsesClass;
 use Queue\Controller\Admin\QueueController;
 use Shim\TestSuite\TestCase;
 use Tools\I18n\DateTime as ToolsDateTime;
 
-/**
- * @uses \Queue\Controller\Admin\QueueController
- */
+#[UsesClass(QueueController::class)]
 class QueueControllerTest extends TestCase {
 
 	use IntegrationTestTrait;

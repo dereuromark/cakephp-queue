@@ -17,6 +17,7 @@ use Cake\I18n\DateTime;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use InvalidArgumentException;
+use Queue\Model\Entity\QueuedJob;
 use Queue\Model\Enum\Priority;
 use Queue\Model\Table\QueuedJobsTable;
 use Queue\Queue\Task\ExampleTask;
@@ -1249,6 +1250,12 @@ class QueuedJobsTableTest extends TestCase {
 		$config = ConnectionManager::getConfig('test');
 		$skip = !str_contains((string)$config['driver'], 'Mysql') && !str_contains((string)$config['driver'], 'Postgres');
 		$this->skipIf($skip, 'Only Mysql/Postgres is working yet for this.');
+	}
+
+	public function testFailedStatusWithoutTaskName(): void {
+		$job = new QueuedJob();
+
+		$this->assertSame('requeued', $this->QueuedJobs->getFailedStatus($job, []));
 	}
 
 }

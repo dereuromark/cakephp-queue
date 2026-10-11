@@ -5,10 +5,10 @@ namespace Queue\Test\TestCase\Command;
 
 use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\TestSuite\TestCase;
+use PHPUnit\Framework\Attributes\UsesClass;
+use Queue\Command\AddCommand;
 
-/**
- * @uses \Queue\Command\AddCommand
- */
+#[UsesClass(AddCommand::class)]
 class AddCommandTest extends TestCase {
 
 	use ConsoleIntegrationTestTrait;

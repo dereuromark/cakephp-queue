@@ -7,10 +7,10 @@ use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\TestSuite\TestCase;
+use PHPUnit\Framework\Attributes\UsesClass;
+use Queue\Command\RunCommand;
 
-/**
- * @uses \Queue\Command\RunCommand
- */
+#[UsesClass(RunCommand::class)]
 class RunCommandTest extends TestCase {
 
 	use ConsoleIntegrationTestTrait;

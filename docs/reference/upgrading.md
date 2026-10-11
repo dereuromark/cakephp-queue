@@ -25,5 +25,13 @@ Two follow-ups for callers:
   etc
 
 ## Coming from before v7?
-If you are upgrading from Cake3/4 and v5/v6, make sure to install v7 firs, run all migrations,
+If you are upgrading from Cake3/4 and v5/v6, make sure to install v7 first, run all migrations,
 then jump to v8.
+
+## Unreleased worker fixes
+
+Workers without an explicit lifetime use `Config::workermaxruntime()`'s 120-second default. The same configured lifetime drives PHP's default timeout. `--max-runtime 0` now disables PHP's timeout as well as the worker loop limit.
+
+Failed-status handling accepts an incomplete job entity without using a null array key on PHP 8.5. Statistics queries use query builders, and the test suite uses PHPUnit attributes for class metadata.
+
+Restart workers after schema migrations so their ORM table schemas reflect the deployed database.

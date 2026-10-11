@@ -10,6 +10,7 @@ use Cake\Datasource\ConnectionManager;
 use Cake\Event\EventList;
 use Cake\Event\EventManager;
 use Cake\TestSuite\TestCase;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use Psr\Log\NullLogger;
 use Queue\Console\Io;
 use Queue\Model\Entity\QueuedJob;
@@ -253,14 +254,14 @@ class ProcessorTest extends TestCase {
 			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
 			->onlyMethods(['run'])
 			->getMock();
-		$mockTask->method('run')->willThrowException(new RuntimeException('Task failed'));
+		$mockTask->expects($this->once())->method('run')->willThrowException(new RuntimeException('Task failed'));
 
 		// Mock only the loadTask method
 		$processor = $this->getMockBuilder(Processor::class)
 			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
 			->onlyMethods(['loadTask'])
 			->getMock();
-		$processor->method('loadTask')->willReturn($mockTask);
+		$processor->expects($this->once())->method('loadTask')->willReturn($mockTask);
 
 		// Run the job (it will fail and should trigger the event)
 		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
@@ -290,8 +291,7 @@ class ProcessorTest extends TestCase {
 		}
 
 		// Create a mock job
-		$job = $this->getMockBuilder(QueuedJob::class)
-			->getMock();
+		$job = new QueuedJob();
 		$job->id = 123;
 		$job->job_task = 'TestTask';
 
@@ -425,7 +425,8 @@ class ProcessorTest extends TestCase {
 			->onlyMethods(['run'])
 			->getMock();
 
-		$processor->method('loadTask')->willReturn($mockTask);
+		$mockTask->expects($this->once())->method('run');
+		$processor->expects($this->once())->method('loadTask')->willReturn($mockTask);
 
 		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
 
@@ -458,7 +459,8 @@ class ProcessorTest extends TestCase {
 			->onlyMethods(['run'])
 			->getMock();
 
-		$processor->method('loadTask')->willReturn($mockTask);
+		$mockTask->expects($this->once())->method('run');
+		$processor->expects($this->once())->method('loadTask')->willReturn($mockTask);
 
 		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
 
@@ -490,9 +492,9 @@ class ProcessorTest extends TestCase {
 			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
 			->onlyMethods(['run'])
 			->getMock();
-		$mockTask->method('run')->willThrowException(new RuntimeException('Task failed'));
+		$mockTask->expects($this->once())->method('run')->willThrowException(new RuntimeException('Task failed'));
 
-		$processor->method('loadTask')->willReturn($mockTask);
+		$processor->expects($this->once())->method('loadTask')->willReturn($mockTask);
 
 		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
 
@@ -533,6 +535,7 @@ class ProcessorTest extends TestCase {
 	 *
 	 * @return void
 	 */
+	#[IgnoreDeprecations]
 	public function testSetPhpTimeoutWithDeprecatedConfig() {
 		$processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
 
@@ -598,6 +601,26 @@ class ProcessorTest extends TestCase {
 		$this->assertSame(0, $result);
 
 		Configure::delete('Queue.workerLifetimeJitter');
+	}
+
+	public function testWorkerLifetimeUsesConfigurationDefault(): void {
+		Configure::delete('Queue.workerLifetime');
+		Configure::delete('Queue.workermaxruntime');
+		$processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
+
+		$this->assertSame(120, $this->invokeMethod($processor, 'resolveMaxRuntime', [null, 0]));
+	}
+
+	public function testUnlimitedRuntimeDisablesPhpTimeout(): void {
+		$original = ini_get('max_execution_time');
+		$processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
+		try {
+			$this->invokeMethod($processor, 'setPhpTimeout', [0]);
+
+			$this->assertSame('0', ini_get('max_execution_time'));
+		} finally {
+			set_time_limit((int)$original);
+		}
 	}
 
 }

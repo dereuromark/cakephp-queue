@@ -5,12 +5,12 @@ namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\I18n\DateTime;
 use Cake\TestSuite\IntegrationTestTrait;
+use PHPUnit\Framework\Attributes\UsesClass;
+use Queue\Controller\Admin\QueueProcessesController;
 use Queue\Model\Table\QueuedJobsTable;
 use Shim\TestSuite\TestCase;
 
-/**
- * @uses \Queue\Controller\Admin\QueueProcessesController
- */
+#[UsesClass(QueueProcessesController::class)]
 class QueueProcessesControllerTest extends TestCase {
 
 	use IntegrationTestTrait;

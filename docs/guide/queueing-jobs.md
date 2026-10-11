@@ -37,7 +37,7 @@ use Queue\Model\Enum\Priority;
 
 $queuedJobsTable->createJob('MyTask', $data, ['priority' => Priority::High]);
 // or using JobConfig
-$config = $queuedJobsTable->newConfig()->setPriority(Priority::High);
+$config = $queuedJobsTable->createConfig()->setPriority(Priority::High);
 ```
 
 Available priority levels (1 = highest, 10 = lowest):
@@ -66,7 +66,7 @@ $queuedJobsTable->createJob('Queue.Email', [
 ]);
 
 // Somewhere in the model or lib
-use Cake\ORM\Locator\LocatorAwareTrait;
+use Cake\ORM\TableRegistry;
 
 TableRegistry::getTableLocator()->get('Queue.QueuedJobs')
     ->createJob('Queue.Email', [
@@ -97,7 +97,7 @@ find the usage more easily, you can also use `<TaskClassName>::class` for `creat
 ```php
 use Queue\Queue\Task\EmailTask;
 
-$queuedJobsTable->createJob(EmailTask::class, ['to' => 'user@example.org', ...]);
+$queuedJobsTable->createJob(EmailTask::class, ['settings' => ['to' => 'user@example.org', 'from' => 'no-reply@example.org'], 'content' => 'Email body']);
 ```
 This does, however, require adding use statements for each such line on top.
 
@@ -124,7 +124,7 @@ $dataDto = OrderUpdateNotificationQueueDataDto::createFromArray([
     OrderUpdateNotificationQueueDataDto::FIELD_MAILER => 'CustomerRequest',
     OrderUpdateNotificationQueueDataDto::FIELD_TYPE => 'request',
 ]);
-$config = $queuedJobsTable->newConfig()
+$config = $queuedJobsTable->createConfig()
     ->setPriority(Priority::Urgent)
     ->setReference('foo')
     ->setNotBefore('+1 hour');
@@ -226,12 +226,12 @@ $queuedJobsTable->createJob(
 ```
 
 `unique: true` without a `reference` throws `InvalidArgumentException`
-— fail-fast at the call site rather than silently inserting an
+,  fail-fast at the call site rather than silently inserting an
 undeduped row. The dedup check uses an info-level log entry
 (`Queue.createJob: dedup hit for <task> reference=<ref> ...`) so
 operators can confirm the guard is firing.
 
-The dedup window is "the previous job is not yet completed" — pending,
+The dedup window is "the previous job is not yet completed"; pending,
 in-progress, and failed-but-not-completed jobs all block. This is the
 right shape for cron fan-out: if a previous tick is stuck or still
 running, the next tick holds back instead of stacking a duplicate.
