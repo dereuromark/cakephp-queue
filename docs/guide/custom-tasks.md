@@ -78,7 +78,7 @@ class MyCustomTask extends Task {
 }
 ```
 
-As you see here you have to add the [ServicesTrait](https://github.com/dereuromark/cakephp-queue/blob/master/src/Queue/ServicesTrait.php) to your task which then allows you to use the `$this->getService()` method.
+As you see here you have to add the [ServicesTrait](https://github.com/dereuromark/cakephp-queue/blob/cake6/src/Queue/ServicesTrait.php) to your task which then allows you to use the `$this->getService()` method.
 
 ## Organize tasks in sub folders
 

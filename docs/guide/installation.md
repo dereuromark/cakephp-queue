@@ -1,5 +1,7 @@
 # Installation
 
+For this development branch, the application's root `composer.json` must allow development dependencies with `"minimum-stability": "dev"`. Set `"prefer-stable": true` to prefer stable packages when their constraints permit it.
+
 Composer checks the package's supported PHP and CakePHP versions.
 
 ```sh
@@ -30,4 +32,3 @@ The web application and CLI worker must use the same database configuration. POS
 
 Continue with [Getting started](./getting-started). The optional [admin interface](../admin/) denies access until you configure its callback.
 
-For this development branch, the application's root `composer.json` must allow development dependencies with `"minimum-stability": "dev"`. Set `"prefer-stable": true` to prefer stable packages when their constraints permit it.
