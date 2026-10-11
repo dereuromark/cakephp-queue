@@ -1,5 +1,11 @@
 # Upgrading from older versions
 
+## CakePHP 6 development branch
+
+The `cake6` branch targets CakePHP 6. Custom command overrides use `execute()` without arguments and read `$this->args` and `$this->io`. Controller lifecycle callbacks return `void`; set the event result when redirecting from a host callback. Queue preserves that response before checking plugin access.
+
+Entity configuration uses `$patchable`, `$hidden` and `$virtual`; helper and component defaults use `$defaultConfig`. Update application subclasses to match the corresponding framework contracts. `QueueProcessesTable::heartbeat()` replaces the old `update()` helper because the ORM now defines its own `update()` method.
+
 ## Version changes
 ### Events for job lifecycle (v8.4+)
 A new event `Queue.Job.maxAttemptsExhausted` is now dispatched when a job has failed all of its configured retry attempts. This allows you to implement custom handling for permanently failed jobs, such as sending notifications or logging to external services. See the [Events section](/reference/misc#events) for usage details.

@@ -3,7 +3,7 @@
 Composer checks the package's supported PHP and CakePHP versions.
 
 ```sh
-composer require dereuromark/cakephp-queue
+composer require dereuromark/cakephp-queue:dev-cake6
 bin/cake plugin load Queue
 ```
 
@@ -14,7 +14,7 @@ For CLI-only use, load the plugin with `--no-routes` instead. If you load plugin
 The plugin needs `queued_jobs` and `queue_processes` tables. If Migrations is not already installed:
 
 ```sh
-composer require cakephp/migrations
+composer require cakephp/migrations:dev-fix/6.x-cakephp-compatibility
 bin/cake plugin load Migrations
 ```
 
