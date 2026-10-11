@@ -83,6 +83,16 @@ class AddCommandTest extends TestCase {
 		$this->assertSame(1, (int)ConnectionManager::get('queue_add_test')->execute('SELECT COUNT(*) FROM queued_jobs')->fetchColumn(0));
 	}
 
+	public function testExplicitConnectionWithoutWhitelist(): void {
+		$this->createSecondaryConnection();
+
+		$this->exec('queue add Queue.Example --connection queue_add_test');
+
+		$this->assertExitCode(0);
+		$this->assertSame(1, (int)ConnectionManager::get('queue_add_test')->execute('SELECT COUNT(*) FROM queued_jobs')->fetchColumn(0));
+		$this->assertSame(0, (int)ConnectionManager::get('default')->execute('SELECT COUNT(*) FROM queued_jobs')->fetchColumn(0));
+	}
+
 	public function testAddPreservesLegacyQueueConnection(): void {
 		$this->createSecondaryConnection();
 		Configure::write('Queue.connection', 'queue_add_test');
