@@ -9,11 +9,11 @@ use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\DateTime;
 use Cake\TestSuite\IntegrationTestTrait;
 use Laminas\Diactoros\UploadedFile;
+use PHPUnit\Framework\Attributes\UsesClass;
+use Queue\Controller\Admin\QueuedJobsController;
 use Shim\TestSuite\TestCase;
 
-/**
- * @uses \Queue\Controller\Admin\QueuedJobsController
- */
+#[UsesClass(QueuedJobsController::class)]
 class QueuedJobsControllerTest extends TestCase {
 
 	use IntegrationTestTrait;

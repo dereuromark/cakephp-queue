@@ -22,6 +22,7 @@ You need to at least implement the `run()` method:
 namespace App\Queue\Task;
 
 use Queue\Queue\Task;
+use RuntimeException;
 
 class YourNameForItTask extends Task {
 

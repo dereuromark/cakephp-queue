@@ -7,7 +7,9 @@ use Cake\Command\Command;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
+use Cake\Datasource\ConnectionManager;
 use Queue\Console\Io;
+use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
 
 class AddCommand extends Command {
@@ -40,6 +42,10 @@ class AddCommand extends Command {
 			'help' => 'Additional data if needed',
 			'required' => false,
 		]);
+		$parser->addOption('connection', [
+			'help' => 'Database connection to use (must be in Queue.connections whitelist if multi-connection mode is enabled)',
+			'default' => null,
+		]);
 		$parser->setDescription(
 			'Adds a job into the queue. Only tasks that implement AddInterface can be added through CLI.',
 		);
@@ -70,11 +76,21 @@ class AddCommand extends Command {
 			$io->abort('Not a supported task.');
 		}
 
-		/** @var class-string<\Queue\Queue\AddInterface> $taskClass */
+		$requestedConnection = $args->getOption('connection');
+		/** @var class-string<\Queue\Queue\Task&\Queue\Queue\AddInterface> $taskClass */
 		$taskClass = $tasks[$taskName];
-		/** @var \Queue\Queue\AddInterface $task */
+		/** @var \Queue\Queue\Task&\Queue\Queue\AddInterface $task */
 		$task = new $taskClass(new Io($io));
-		$task->add($args->getArgument('data'));
+		$previousConnection = $task->QueuedJobs->getConnection();
+		$connection = Config::resolveConnection(is_string($requestedConnection) ? $requestedConnection : null, $previousConnection->configName());
+		/** @var \Cake\Database\Connection $connectionObject */
+		$connectionObject = ConnectionManager::get($connection);
+		$task->QueuedJobs->setConnection($connectionObject);
+		try {
+			$task->add($args->getArgument('data'));
+		} finally {
+			$task->QueuedJobs->setConnection($previousConnection);
+		}
 	}
 
 	/**

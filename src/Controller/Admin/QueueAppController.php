@@ -14,6 +14,7 @@ use Cake\Http\Exception\NotFoundException;
 use Cake\Log\Log;
 use Closure;
 use Psr\Http\Message\ResponseInterface;
+use Queue\Queue\Config;
 use Throwable;
 
 /**
@@ -167,7 +168,7 @@ class QueueAppController extends AppController {
 
 		// Single connection mode (backwards compatible)
 		if (!$connections || !is_array($connections) || count($connections) < 2) {
-			return 'default';
+			return Config::resolveConnection(null, $this->fetchTable('Queue.QueuedJobs')->getConnection()->configName());
 		}
 
 		$session = $this->request->getSession();

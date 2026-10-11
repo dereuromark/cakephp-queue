@@ -6,7 +6,8 @@ function guideSidebar() {
       text: 'Guide',
       items: [
         { text: 'Overview', link: '/guide/' },
-        { text: 'Basic Setup', link: '/guide/basic-setup' },
+        { text: 'Installation', link: '/guide/installation' },
+        { text: 'Getting started', link: '/guide/getting-started' },
         { text: 'Queueing Jobs', link: '/guide/queueing-jobs' },
         { text: 'Custom Tasks', link: '/guide/custom-tasks' },
       ],
@@ -52,6 +53,8 @@ export default defineConfig({
   themeConfig: {
     logo: '/logo.svg',
     nav: [
+      { text: 'Installation', link: '/guide/installation' },
+      { text: 'Getting started', link: '/guide/getting-started' },
       { text: 'Guide', link: '/guide/', activeMatch: '/(guide|admin)/' },
       { text: 'Tasks', link: '/tasks/', activeMatch: '/tasks/' },
       { text: 'Reference', link: '/reference/', activeMatch: '/reference/' },

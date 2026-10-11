@@ -1,7 +1,7 @@
 :root {
   --vp-c-brand-1: #0f766e;
   --vp-c-brand-2: #14b8a6;
-  --vp-c-brand-3: #5eead4;
+  --vp-c-brand-3: #0f766e;
   --vp-c-brand-soft: rgba(20, 184, 166, 0.14);
 
   --vp-home-hero-name-color: transparent;
@@ -13,7 +13,7 @@
 .dark {
   --vp-c-brand-1: #5eead4;
   --vp-c-brand-2: #2dd4bf;
-  --vp-c-brand-3: #14b8a6;
+  --vp-c-brand-3: #0f766e;
 }
 
 .vp-doc table code,

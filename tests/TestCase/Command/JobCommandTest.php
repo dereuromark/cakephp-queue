@@ -7,12 +7,12 @@ use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\Core\Configure;
 use Cake\I18n\DateTime;
 use Cake\TestSuite\TestCase;
+use PHPUnit\Framework\Attributes\UsesClass;
+use Queue\Command\JobCommand;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\Table\QueuedJobsTable;
 
-/**
- * @uses \Queue\Command\JobCommand
- */
+#[UsesClass(JobCommand::class)]
 class JobCommandTest extends TestCase {
 
 	use ConsoleIntegrationTestTrait;
