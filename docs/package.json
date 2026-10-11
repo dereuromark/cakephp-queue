@@ -10,5 +10,8 @@
   "devDependencies": {
     "vitepress": "^1.6.3",
     "vue": "^3.5.13"
+  },
+  "overrides": {
+    "vite": "^6.4.4"
   }
 }

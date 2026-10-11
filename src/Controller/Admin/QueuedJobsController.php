@@ -391,7 +391,7 @@ class QueuedJobsController extends QueueAppController {
 			unset($data['exit_code']);
 
 			for ($i = 0; $i < $amount; $i++) {
-				$this->QueuedJobs->createJob('Execute', $data);
+				$this->QueuedJobs->createJob('Queue.Execute', $data);
 			}
 
 			$this->Flash->success(__d('queue', 'The requested job has been queued ' . $amount . 'x.'));
