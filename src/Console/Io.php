@@ -5,6 +5,7 @@ namespace Queue\Console;
 
 use Cake\Console\CommandInterface;
 use Cake\Console\ConsoleIo;
+use Cake\Console\ConsoleIoInterface;
 use Cake\Console\Exception\StopException;
 use Cake\Console\Helper;
 
@@ -14,9 +15,9 @@ use Cake\Console\Helper;
 class Io {
 
 	/**
-	 * @var \Cake\Console\ConsoleIo
+	 * @var \Cake\Console\ConsoleIoInterface
 	 */
-	protected ConsoleIo $_io;
+	protected ConsoleIoInterface $_io;
 
 	/**
 	 * @var array<array{level: string, message: string, time: int}>
@@ -39,9 +40,9 @@ class Io {
 	protected int $maxCaptureBytes = 0;
 
 	/**
-	 * @param \Cake\Console\ConsoleIo $io
+	 * @param \Cake\Console\ConsoleIoInterface $io
 	 */
-	public function __construct(ConsoleIo $io) {
+	public function __construct(ConsoleIoInterface $io) {
 		$this->_io = $io;
 	}
 

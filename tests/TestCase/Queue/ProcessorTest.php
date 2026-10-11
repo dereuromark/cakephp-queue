@@ -415,8 +415,8 @@ class ProcessorTest extends TestCase {
 			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
 			->onlyMethods(['run'])
 			->getMock();
-
 		$mockTask->expects($this->once())->method('run');
+
 		$processor->expects($this->once())->method('loadTask')->willReturn($mockTask);
 
 		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
@@ -449,8 +449,8 @@ class ProcessorTest extends TestCase {
 			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
 			->onlyMethods(['run'])
 			->getMock();
-
 		$mockTask->expects($this->once())->method('run');
+
 		$processor->expects($this->once())->method('loadTask')->willReturn($mockTask);
 
 		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
@@ -528,20 +528,14 @@ class ProcessorTest extends TestCase {
 	 */
 	#[IgnoreDeprecations]
 	public function testSetPhpTimeoutWithDeprecatedConfig() {
+		$this->expectUserDeprecationMessage('Config key "Queue.workertimeout" is deprecated. Use "Queue.workerPhpTimeout" instead.');
 		$processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
 
 		// Test with deprecated workertimeout config
 		Configure::write('Queue.workertimeout', 250);
 
-		// Suppress the deprecation warning for this test
-		$errorLevel = error_reporting();
-		error_reporting($errorLevel & ~E_USER_DEPRECATED);
-
 		$result = $this->invokeMethod($processor, 'setPhpTimeout', [null]);
 		$this->assertNull($result, 'setPhpTimeout should not return a value even with deprecated config');
-
-		// Restore error reporting
-		error_reporting($errorLevel);
 
 		// Clean up
 		Configure::delete('Queue.workertimeout');

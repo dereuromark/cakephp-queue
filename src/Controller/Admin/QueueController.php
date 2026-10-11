@@ -40,6 +40,7 @@ class QueueController extends QueueAppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function index() {
+		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
 		if ($this->activeConnection !== $QueueProcesses->getConnection()->configName()) {
 			$QueueProcesses->setConnection($this->getActiveConnectionObject());
@@ -255,6 +256,7 @@ class QueueController extends QueueAppController {
 	 * @return \Cake\Http\Response|null|void
 	 */
 	public function processes() {
+		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
 		if ($this->activeConnection !== $QueueProcesses->getConnection()->configName()) {
 			$QueueProcesses->setConnection($this->getActiveConnectionObject());

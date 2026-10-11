@@ -59,7 +59,7 @@ use Cake\I18n\DateTime;
 									'<i class="fas fa-stop me-1"></i>' . __d('queue', 'Finish & End'),
 									['action' => 'processes', '?' => ['end' => $process->pid]],
 									[
-										'escapeTitle' => false,
+										'escape' => false,
 										'class' => 'btn btn-sm btn-outline-warning',
 										'title' => __d('queue', 'Finish current job and end worker'),
 										'form' => [
@@ -74,7 +74,7 @@ use Cake\I18n\DateTime;
 										'<i class="fas fa-skull me-1"></i>' . __d('queue', 'Kill'),
 										['action' => 'processes', '?' => ['kill' => $process->pid]],
 										[
-											'escapeTitle' => false,
+											'escape' => false,
 											'class' => 'btn btn-sm btn-outline-danger',
 											'title' => __d('queue', 'Send SIGTERM to terminate immediately'),
 											'form' => [
@@ -128,6 +128,6 @@ use Cake\I18n\DateTime;
 	<?= $this->Html->link(
 		'<i class="fas fa-history me-1"></i>' . __d('queue', 'View Process History'),
 		['controller' => 'QueueProcesses', 'action' => 'index'],
-		['class' => 'btn btn-outline-secondary', 'escapeTitle' => false]
+		['class' => 'btn btn-outline-secondary', 'escape' => false]
 	) ?>
 </div>

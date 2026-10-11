@@ -232,6 +232,7 @@ class QueueProgressHelper extends Helper {
 			$queuedJobStatistics = Cache::read(static::KEY, static::CONFIG);
 		}
 		if ($queuedJobStatistics === false) {
+			/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
 			$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
 			$queuedJobStatistics = $QueuedJobs->getStats(true);
 			Cache::write(static::KEY, $queuedJobStatistics, static::CONFIG);

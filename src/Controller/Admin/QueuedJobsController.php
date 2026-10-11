@@ -453,7 +453,7 @@ class QueuedJobsController extends QueueAppController {
 		$existingTasks = $this->QueuedJobs->find()
 			->select(['job_task'])
 			->distinct('job_task')
-			->disableHydration()
+			->enableHydration(false)
 			->find('list', keyField: 'job_task', valueField: 'job_task')
 			->toArray();
 

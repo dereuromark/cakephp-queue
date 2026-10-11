@@ -35,7 +35,7 @@ class WorkerCommandTest extends TestCase {
 	public function testExecute(): void {
 		$this->exec('queue worker');
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('Please use with [action] [PID] added', $output);
 		$this->assertExitCode(1);
 	}

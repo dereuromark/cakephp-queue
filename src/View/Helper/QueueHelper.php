@@ -184,7 +184,7 @@ class QueueHelper extends Helper {
 
 		$interval = $queuedJob->completed->diff($queuedJob->fetched);
 
-		return $this->formatInterval($interval);
+		return $this->formatInterval($interval->toNative());
 	}
 
 	/**

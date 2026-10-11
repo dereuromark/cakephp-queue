@@ -53,7 +53,7 @@ class BakeQueueTaskCommandTest extends TestCase {
 	public function testExecute(): void {
 		$this->exec('bake queue_task FooBarBaz -a -f');
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('Creating file', $output);
 		$this->assertStringContainsString('<success>Wrote</success>', $output);
 
@@ -72,7 +72,7 @@ class BakeQueueTaskCommandTest extends TestCase {
 	public function testExecuteWithSubFolder(): void {
 		$this->exec('bake queue_task Sub/FooBarBaz -a -f');
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('Creating file', $output);
 		$this->assertStringContainsString('<success>Wrote</success>', $output);
 

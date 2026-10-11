@@ -52,7 +52,7 @@ $isActive = function (string $c, ?array $actions = null) use ($controller, $acti
 				['plugin' => 'Queue', 'prefix' => 'Admin', 'controller' => 'Queue', 'action' => 'reset'],
 				[
 					'class' => 'nav-link btn btn-link text-start w-100',
-					'escapeTitle' => false,
+					'escape' => false,
 					'form' => [
 						'class' => 'd-inline',
 						'data-confirm-message' => __d('queue', 'Sure? This will make all failed jobs ready for re-run.'),
@@ -64,7 +64,7 @@ $isActive = function (string $c, ?array $actions = null) use ($controller, $acti
 				['plugin' => 'Queue', 'prefix' => 'Admin', 'controller' => 'Queue', 'action' => 'flush'],
 				[
 					'class' => 'nav-link btn btn-link text-start w-100',
-					'escapeTitle' => false,
+					'escape' => false,
 					'form' => [
 						'class' => 'd-inline',
 						'data-confirm-message' => __d('queue', 'Sure? This will remove all failed jobs.'),
@@ -76,7 +76,7 @@ $isActive = function (string $c, ?array $actions = null) use ($controller, $acti
 				['plugin' => 'Queue', 'prefix' => 'Admin', 'controller' => 'Queue', 'action' => 'reset', '?' => ['full' => true]],
 				[
 					'class' => 'nav-link btn btn-link text-start w-100',
-					'escapeTitle' => false,
+					'escape' => false,
 					'form' => [
 						'class' => 'd-inline',
 						'data-confirm-message' => __d('queue', 'Sure? This will make all failed as well as still running jobs ready for re-run.'),
@@ -88,7 +88,7 @@ $isActive = function (string $c, ?array $actions = null) use ($controller, $acti
 				['plugin' => 'Queue', 'prefix' => 'Admin', 'controller' => 'Queue', 'action' => 'hardReset'],
 				[
 					'class' => 'nav-link text-warning btn btn-link text-start w-100',
-					'escapeTitle' => false,
+					'escape' => false,
 					'form' => [
 						'class' => 'd-inline',
 						'data-confirm-message' => __d('queue', 'Sure? This will delete all jobs and completely reset the queue.'),

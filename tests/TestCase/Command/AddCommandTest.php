@@ -51,7 +51,7 @@ class AddCommandTest extends TestCase {
 	public function testExecute(): void {
 		$this->exec('queue add');
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('11 tasks available:', $output);
 		$this->assertExitCode(0);
 	}
@@ -62,7 +62,7 @@ class AddCommandTest extends TestCase {
 	public function testExecuteAddExample(): void {
 		$this->exec('queue add Queue.Example');
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('OK, job created, now run the worker', $output);
 		$this->assertExitCode(0);
 	}
@@ -148,7 +148,7 @@ class AddCommandTest extends TestCase {
 		$this->exec('queue info --format json' . $option);
 
 		$this->assertExitCode(0);
-		$info = json_decode($this->_out->output(), true, flags: JSON_THROW_ON_ERROR);
+		$info = json_decode($this->out->output(), true, flags: JSON_THROW_ON_ERROR);
 		$this->assertSame(1, $info['jobs']['unfinished']);
 	}
 

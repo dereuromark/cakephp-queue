@@ -38,13 +38,13 @@
 			<?= $this->Form->button('<i class="fas fa-filter me-1"></i>' . __d('queue', 'Filter'), [
 				'type' => 'submit',
 				'class' => 'btn btn-primary',
-				'escapeTitle' => false,
+				'escape' => false,
 			]) ?>
 			<?php if (!empty($_isSearch)): ?>
 				<?= $this->Html->link(
 					'<i class="fas fa-times"></i>',
 					['action' => 'index'],
-					['class' => 'btn btn-outline-secondary', 'escapeTitle' => false, 'title' => __d('queue', 'Reset')]
+					['class' => 'btn btn-outline-secondary', 'escape' => false, 'title' => __d('queue', 'Reset')]
 				) ?>
 			<?php endif; ?>
 		</div>

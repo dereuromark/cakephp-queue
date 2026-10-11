@@ -12,7 +12,7 @@
 				<?= $this->Html->link(
 					'<i class="fas fa-arrow-left me-1"></i>' . __d('queue', 'Back'),
 					['action' => 'view', $queuedJob->id],
-					['class' => 'btn btn-sm btn-outline-secondary', 'escapeTitle' => false]
+					['class' => 'btn btn-sm btn-outline-secondary', 'escape' => false]
 				) ?>
 			</div>
 			<div class="card-body">
@@ -24,7 +24,7 @@
 				]) ?>
 				<?= $this->Form->control('priority', ['class' => 'form-control']) ?>
 				<div class="mt-3">
-					<?= $this->Form->button('<i class="fas fa-save me-1"></i>' . __d('queue', 'Save'), ['class' => 'btn btn-primary', 'escapeTitle' => false]) ?>
+					<?= $this->Form->button('<i class="fas fa-save me-1"></i>' . __d('queue', 'Save'), ['class' => 'btn btn-primary', 'escape' => false]) ?>
 				</div>
 				<?= $this->Form->end() ?>
 			</div>
@@ -40,14 +40,14 @@
 				<?= $this->Html->link(
 					'<i class="fas fa-database me-2"></i>' . __d('queue', 'Edit Payload'),
 					['action' => 'data', $queuedJob->id],
-					['class' => 'list-group-item list-group-item-action', 'escapeTitle' => false]
+					['class' => 'list-group-item list-group-item-action', 'escape' => false]
 				) ?>
 				<?= $this->Form->postButton(
 					'<i class="fas fa-trash me-2"></i>' . __d('queue', 'Delete Job'),
 					['action' => 'delete', $queuedJob->id],
 					[
 						'class' => 'list-group-item list-group-item-action text-danger btn btn-link text-start w-100',
-						'escapeTitle' => false,
+						'escape' => false,
 						'form' => [
 							'class' => 'd-inline',
 							'data-confirm-message' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id),

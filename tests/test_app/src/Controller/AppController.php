@@ -22,21 +22,23 @@ class AppController extends Controller {
 	/**
 	 * @param \Cake\Event\EventInterface $event Event
      *
-	 * @return mixed
+	 * @return void
 	 */
-	public function beforeFilter(EventInterface $event) {
+	public function beforeFilter(EventInterface $event): void {
 		parent::beforeFilter($event);
 		Configure::write('Test.hostBeforeFilter', true);
 		if (Configure::read('Test.hostRedirectViaEvent')) {
 			$event->setResult($this->redirect('/login'));
 
-			return null;
+			return;
 		}
 		if (Configure::read('Test.hostRedirect')) {
-			return $this->redirect('/login');
+			$event->setResult($this->redirect('/login'));
+
+			return;
 		}
 
-		return null;
+		return;
 	}
 
 	/**
@@ -44,7 +46,7 @@ class AppController extends Controller {
      *
      * @return void
      */
-	public function beforeRender(EventInterface $event) {
+	public function beforeRender(EventInterface $event): void {
 		Configure::write('Test.hostBeforeRender', true);
 
 		parent::beforeRender($event);
@@ -55,7 +57,7 @@ class AppController extends Controller {
      *
      * @return void
      */
-	public function afterFilter(EventInterface $event) {
+	public function afterFilter(EventInterface $event): void {
 		Configure::write('Test.hostAfterFilter', true);
 
 		parent::afterFilter($event);
@@ -68,7 +70,7 @@ class AppController extends Controller {
      *
      * @return void
      */
-	public function beforeRedirect(EventInterface $event, UriInterface|array|string $url, Response $response) {
+	public function beforeRedirect(EventInterface $event, UriInterface|array|string $url, Response $response): void {
 		Configure::write('Test.hostBeforeRedirect', true);
 
 		parent::beforeRedirect($event, $url, $response);

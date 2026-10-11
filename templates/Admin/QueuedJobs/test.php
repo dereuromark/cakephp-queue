@@ -37,7 +37,7 @@
 				</p>
 
 				<div class="mt-3">
-					<?= $this->Form->button('<i class="fas fa-play me-1"></i>' . __d('queue', 'Create Job'), ['class' => 'btn btn-primary', 'escapeTitle' => false]) ?>
+					<?= $this->Form->button('<i class="fas fa-play me-1"></i>' . __d('queue', 'Create Job'), ['class' => 'btn btn-primary', 'escape' => false]) ?>
 				</div>
 				<?= $this->Form->end() ?>
 			</div>

@@ -38,7 +38,7 @@ class InfoCommandTest extends TestCase {
 	public function testExecute(): void {
 		$this->exec('queue info');
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('15 tasks available:', $output);
 		$this->assertExitCode(0);
 	}
@@ -56,15 +56,10 @@ class InfoCommandTest extends TestCase {
 		Configure::write('Queue.defaultworkerretries', 2);
 		Configure::write('Queue.workertimeout', 120);
 
-		// Suppress deprecation warnings triggered by Config methods reading old keys
-		$errorLevel = error_reporting();
-		error_reporting($errorLevel & ~E_USER_DEPRECATED);
-
+		$this->expectUserDeprecationMessage('Config key "Queue.defaultworkertimeout" is deprecated. Use "Queue.defaultRequeueTimeout" instead.');
 		$this->exec('queue info');
 
-		error_reporting($errorLevel);
-
-		$output = $this->_out->output();
+		$output = $this->out->output();
 
 		// Check that new config names are displayed with old names noted
 		$this->assertStringContainsString('defaultRequeueTimeout (was: defaultworkertimeout): 300', $output);
@@ -85,7 +80,7 @@ class InfoCommandTest extends TestCase {
 		$this->exec('queue info --format json');
 
 		$this->assertExitCode(0);
-		$info = json_decode($this->_out->output(), true);
+		$info = json_decode($this->out->output(), true);
 		$this->assertIsArray($info);
 		$this->assertSame(1, $info['jobs']['pending']);
 		$this->assertSame(1, $info['jobs']['aborted']);

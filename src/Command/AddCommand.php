@@ -4,8 +4,6 @@ declare(strict_types=1);
 namespace Queue\Command;
 
 use Cake\Command\Command;
-use Cake\Console\Arguments;
-use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Datasource\ConnectionManager;
 use Queue\Console\Io;
@@ -54,12 +52,11 @@ class AddCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\Arguments $args Arguments
-	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
-	 *
 	 * @return int|null|void
 	 */
-	public function execute(Arguments $args, ConsoleIo $io) {
+	public function execute() {
+		$args = $this->args;
+		$io = $this->io;
 		$tasks = $this->getTasks();
 
 		$taskName = $args->getArgument('task');

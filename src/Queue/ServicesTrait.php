@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 namespace Queue\Queue;
 
-use Cake\Core\ContainerInterface;
+use Cake\Container\ContainerInterface;
 use LogicException;
 
 trait ServicesTrait {
 
 	/**
-	 * @var \Cake\Core\ContainerInterface|null
+	 * @var \Cake\Container\ContainerInterface|null
 	 */
 	protected ?ContainerInterface $container = null;
 
@@ -34,7 +34,7 @@ trait ServicesTrait {
 	}
 
 	/**
-	 * @param \Cake\Core\ContainerInterface $container
+	 * @param \Cake\Container\ContainerInterface $container
 	 *
 	 * @return void
 	 */

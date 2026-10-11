@@ -77,7 +77,7 @@ use Queue\Queue\Config;
 				<?= $this->Html->link(
 					'<i class="fas fa-edit me-2"></i>' . __d('queue', 'Edit Process'),
 					['action' => 'edit', $queueProcess->id],
-					['class' => 'list-group-item list-group-item-action', 'escapeTitle' => false]
+					['class' => 'list-group-item list-group-item-action', 'escape' => false]
 				) ?>
 				<?php if (!$queueProcess->terminate): ?>
 					<?= $this->Form->postButton(
@@ -85,7 +85,7 @@ use Queue\Queue\Config;
 						['action' => 'terminate', $queueProcess->id],
 						[
 							'class' => 'list-group-item list-group-item-action text-warning btn btn-link text-start w-100',
-							'escapeTitle' => false,
+							'escape' => false,
 							'form' => [
 								'class' => 'd-inline',
 								'data-confirm-message' => __d('queue', 'Are you sure you want to terminate # {0}?', $queueProcess->id),
@@ -98,7 +98,7 @@ use Queue\Queue\Config;
 						['action' => 'delete', $queueProcess->id],
 						[
 							'class' => 'list-group-item list-group-item-action text-danger btn btn-link text-start w-100',
-							'escapeTitle' => false,
+							'escape' => false,
 							'form' => [
 								'class' => 'd-inline',
 								'data-confirm-message' => __d('queue', 'Are you sure you want to delete # {0}?', $queueProcess->id),

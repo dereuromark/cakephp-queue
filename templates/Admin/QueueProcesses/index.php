@@ -17,14 +17,14 @@ use Queue\Queue\Config;
 		<?= $this->Html->link(
 			'<i class="fas fa-cogs me-1"></i>' . __d('queue', 'Active Workers'),
 			['controller' => 'Queue', 'action' => 'processes'],
-			['class' => 'btn btn-outline-primary btn-sm', 'escapeTitle' => false],
+			['class' => 'btn btn-outline-primary btn-sm', 'escape' => false],
 		) ?>
 		<?= $this->Form->postButton(
 			'<i class="fas fa-broom me-1"></i>' . __d('queue', 'Cleanup'),
 			['action' => 'cleanup'],
 			[
 				'class' => 'btn btn-outline-warning btn-sm',
-				'escapeTitle' => false,
+				'escape' => false,
 				'form' => [
 					'class' => 'd-inline',
 					'data-confirm-message' => __d('queue', 'Sure to remove all outdated ones (>{0}s)?', Config::defaultworkertimeout() * 2),
@@ -96,7 +96,7 @@ use Queue\Queue\Config;
 									'<i class="fas fa-eye"></i>',
 									['action' => 'view', $queueProcess->id],
 									[
-										'escapeTitle' => false,
+										'escape' => false,
 										'class' => 'btn btn-outline-primary',
 										'title' => __d('queue', 'View'),
 										'aria-label' => __d('queue', 'View'),
@@ -107,7 +107,7 @@ use Queue\Queue\Config;
 										'<i class="fas fa-times"></i>',
 										['action' => 'terminate', $queueProcess->id],
 										[
-											'escapeTitle' => false,
+											'escape' => false,
 											'class' => 'btn btn-outline-warning',
 											'title' => __d('queue', 'Terminate'),
 											'aria-label' => __d('queue', 'Terminate'),

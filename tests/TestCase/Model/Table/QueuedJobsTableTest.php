@@ -1016,7 +1016,7 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->cleanOldJobs();
 		$this->assertTrue($this->QueuedJobs->exists(['id' => $old->id]), 'Aborted jobs are kept by default');
 
-		Configure::write('Queue.cleanupAbortedTimeout', 7 * DAY);
+		Configure::write('Queue.cleanupAbortedTimeout', 7 * 86400);
 		$this->QueuedJobs->cleanOldJobs();
 		Configure::delete('Queue.cleanupAbortedTimeout');
 

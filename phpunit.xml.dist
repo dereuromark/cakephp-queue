@@ -3,7 +3,7 @@
 		 bootstrap="tests/bootstrap.php"
 		 colors="true"
 		 cacheDirectory=".phpunit.cache"
-		 xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.2/phpunit.xsd">
+		 xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/13.0/phpunit.xsd">
 	<php>
 		<!-- E_ALL => 32767 -->
 		<!-- E_ALL & ~E_USER_DEPRECATED => 16383 -->

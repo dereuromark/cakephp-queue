@@ -18,7 +18,7 @@ use Brick\VarExporter\VarExporter;
 			<?= $this->Html->link(
 				'<i class="fas fa-edit me-1"></i>' . __d('queue', 'Edit'),
 				['action' => 'edit', $queuedJob->id],
-				['class' => 'btn btn-outline-primary', 'escapeTitle' => false]
+				['class' => 'btn btn-outline-primary', 'escape' => false]
 			) ?>
 		<?php else: ?>
 			<?= $this->Form->postButton(
@@ -26,7 +26,7 @@ use Brick\VarExporter\VarExporter;
 				['action' => 'clone', $queuedJob->id],
 				[
 					'class' => 'btn btn-outline-success',
-					'escapeTitle' => false,
+					'escape' => false,
 					'form' => [
 						'class' => 'd-inline',
 						'data-confirm-message' => __d('queue', 'Sure?'),
@@ -37,14 +37,14 @@ use Brick\VarExporter\VarExporter;
 		<?= $this->Html->link(
 			'<i class="fas fa-download me-1"></i>' . __d('queue', 'Export'),
 			['action' => 'view', $queuedJob->id, '_ext' => 'json', '?' => ['download' => true]],
-			['class' => 'btn btn-outline-secondary', 'escapeTitle' => false]
+			['class' => 'btn btn-outline-secondary', 'escape' => false]
 		) ?>
 		<?= $this->Form->postButton(
 			'<i class="fas fa-trash me-1"></i>' . __d('queue', 'Delete'),
 			['action' => 'delete', $queuedJob->id],
 			[
 				'class' => 'btn btn-outline-danger',
-				'escapeTitle' => false,
+				'escape' => false,
 				'form' => [
 					'class' => 'd-inline',
 					'data-confirm-message' => __d('queue', 'Are you sure you want to delete # {0}?', $queuedJob->id),
@@ -100,7 +100,7 @@ use Brick\VarExporter\VarExporter;
 									<?= $this->Html->link(
 										'<i class="fas fa-external-link-alt ms-1"></i>',
 										['controller' => 'QueueProcesses', 'action' => 'view', $queuedJob->worker_process->id],
-										['escapeTitle' => false, 'title' => $queuedJob->worker_process->server ?: $queuedJob->worker_process->pid]
+										['escape' => false, 'title' => $queuedJob->worker_process->server ?: $queuedJob->worker_process->pid]
 									) ?>
 								<?php endif; ?>
 							<?php else: ?>
@@ -192,7 +192,7 @@ use Brick\VarExporter\VarExporter;
 						<?= $this->Html->link(
 							'<i class="fas fa-edit me-1"></i>' . __d('queue', 'Edit Data'),
 							['action' => 'data', $queuedJob->id],
-							['class' => 'btn btn-sm btn-outline-secondary', 'escapeTitle' => false]
+							['class' => 'btn btn-sm btn-outline-secondary', 'escape' => false]
 						) ?>
 					<?php endif; ?>
 				</div>
@@ -311,7 +311,7 @@ use Brick\VarExporter\VarExporter;
 						['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id],
 						[
 							'class' => 'btn btn-primary w-100',
-							'escapeTitle' => false,
+							'escape' => false,
 							'form' => [
 								'class' => 'd-inline',
 								'data-confirm-message' => __d('queue', 'Sure?'),
@@ -325,7 +325,7 @@ use Brick\VarExporter\VarExporter;
 						['controller' => 'Queue', 'action' => 'resetJob', $queuedJob->id],
 						[
 							'class' => 'btn btn-warning w-100',
-							'escapeTitle' => false,
+							'escape' => false,
 							'form' => [
 								'class' => 'd-inline',
 								'data-confirm-message' => __d('queue', 'Sure? This job is currently waiting to be re-queued.'),

@@ -14,7 +14,7 @@ return [
 ];
 ```
 
-The [example configuration](https://github.com/dereuromark/cakephp-queue/blob/master/config/app.example.php) contains suggested overrides. It is not loaded automatically, and some values differ from the runtime defaults below.
+The [example configuration](https://github.com/dereuromark/cakephp-queue/blob/cake6/config/app.example.php) contains suggested overrides. It is not loaded automatically, and some values differ from the runtime defaults below.
 
 ## Worker settings
 

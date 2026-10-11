@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Queue\Queue;
 
 use Cake\Console\CommandInterface;
+use Cake\Container\ContainerInterface;
 use Cake\Core\Configure;
-use Cake\Core\ContainerInterface;
 use Cake\Datasource\ConnectionManager;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event;
@@ -48,7 +48,7 @@ class Processor {
 	protected LoggerInterface $logger;
 
 	/**
-	 * @var \Cake\Core\ContainerInterface|null
+	 * @var \Cake\Container\ContainerInterface|null
 	 */
 	protected ?ContainerInterface $container = null;
 
@@ -108,7 +108,7 @@ class Processor {
 	/**
 	 * @param \Queue\Console\Io $io
 	 * @param \Psr\Log\LoggerInterface $logger
-	 * @param \Cake\Core\ContainerInterface|null $container
+	 * @param \Cake\Container\ContainerInterface|null $container
 	 * @param string|null $connection Database connection to use
 	 */
 	public function __construct(Io $io, LoggerInterface $logger, ?ContainerInterface $container = null, ?string $connection = null) {
@@ -117,8 +117,12 @@ class Processor {
 		$this->container = $container;
 
 		$tableLocator = $this->getTableLocator();
-		$this->QueuedJobs = $tableLocator->get('Queue.QueuedJobs');
-		$this->QueueProcesses = $tableLocator->get('Queue.QueueProcesses');
+		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+		$QueuedJobs = $tableLocator->get('Queue.QueuedJobs');
+		$this->QueuedJobs = $QueuedJobs;
+		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
+		$QueueProcesses = $tableLocator->get('Queue.QueueProcesses');
+		$this->QueueProcesses = $QueueProcesses;
 		$this->connection = $this->resolveConnection($connection);
 
 		// Set connection for multi-connection support
@@ -545,7 +549,7 @@ class Processor {
 		if ($this->workerkey === null) {
 			return;
 		}
-		$this->QueueProcesses->update($this->workerkey);
+		$this->QueueProcesses->heartbeat($this->workerkey);
 	}
 
 	/**

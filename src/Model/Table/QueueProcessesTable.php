@@ -17,7 +17,7 @@ use const SIGUSR1;
  * QueueProcesses Model
  *
  * @extends \Cake\ORM\Table<array{Timestamp: \Cake\ORM\Behavior\TimestampBehavior}>
- * @property \Queue\Model\Table\QueuedJobsTable&\Cake\ORM\Association\HasOne $CurrentQueuedJobs
+ * @property \Cake\ORM\Association\HasOne $CurrentQueuedJobs
  * @method \Cake\ORM\Locator\TableLocator getTableLocator()
  * @method \Queue\Model\Entity\QueueProcess get(mixed $primaryKey, array|string $finder = 'all', \Psr\SimpleCache\CacheInterface|string|null $cache = null, \Closure|string|null $cacheKey = null, mixed ...$args)
  * @method \Queue\Model\Entity\QueueProcess newEntity(array $data, array $options = [])
@@ -82,6 +82,7 @@ class QueueProcessesTable extends Table {
 	 * @return \Cake\Validation\Validator
 	 */
 	public function validationDefault(Validator $validator): Validator {
+		$validator->setProvider('table', $this);
 		$validator
 			->integer('id')
 			->allowEmptyString('id', null, 'create');
@@ -180,7 +181,7 @@ class QueueProcessesTable extends Table {
 	 *
 	 * @return void
 	 */
-	public function update(string $workerkey): void {
+	public function heartbeat(string $workerkey): void {
 		/** @var \Queue\Model\Entity\QueueProcess $queueProcess */
 		$queueProcess = $this->find()->where(['workerkey' => $workerkey])->firstOrFail();
 		if ($queueProcess->terminate) {

@@ -15,6 +15,3 @@ parameters:
 		- identifier: missingType.generics
 		- identifier: trait.unused
 		- '#Parameter \#1 \$.+ of function call_user_func_array expects .+, array.+ given.#'
-
-includes:
-	- vendor/cakedc/cakephp-phpstan/extension.neon

@@ -110,7 +110,7 @@ class_alias(AppController::class, 'App\Controller\AppController');
 class_alias(AppView::class, 'App\View\AppView');
 
 Plugin::getCollection()->add(new QueuePlugin());
-Plugin::getCollection()->add(new FooPlugin());
+Plugin::getCollection()->add(new FooPlugin(['path' => ROOT . DS . 'plugins' . DS . 'Foo' . DS]));
 
 TransportFactory::setConfig('default', [
 	'className' => 'Debug',

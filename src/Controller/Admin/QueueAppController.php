@@ -88,7 +88,7 @@ class QueueAppController extends AppController {
 	 * user, or a missing middleware in standalone mode) is treated as harmful
 	 * by default.
 	 *
-	 * @param \Cake\Event\EventInterface<\Cake\Controller\Controller> $event
+	 * @param \Cake\Event\EventInterface $event
      *
 	 * @throws \Cake\Http\Exception\ForbiddenException When access is denied or unconfigured.
      *
@@ -98,10 +98,8 @@ class QueueAppController extends AppController {
 		if (Configure::read('Queue.standalone')) {
 			Controller::beforeFilter($event);
 		} else {
-			$result = parent::beforeFilter($event);
-			if ($result instanceof ResponseInterface) {
-				$event->setResult($result);
-			}
+			parent::beforeFilter($event);
+
 			if ($event->getResult() instanceof ResponseInterface) {
 				$this->skipAdminAuthorizationCheck();
 				$event->stopPropagation();

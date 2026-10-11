@@ -4,8 +4,6 @@ declare(strict_types=1);
 namespace Queue\Command;
 
 use Cake\Command\Command;
-use Cake\Console\Arguments;
-use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
@@ -60,12 +58,11 @@ class InfoCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\Arguments $args Arguments
-	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
-	 *
 	 * @return int|null|void
 	 */
-	public function execute(Arguments $args, ConsoleIo $io) {
+	public function execute() {
+		$args = $this->args;
+		$io = $this->io;
 		$requestedConnection = $args->getOption('connection');
 		$table = $this->fetchTable('Queue.QueueProcesses');
 		$connection = Config::resolveConnection(is_string($requestedConnection) ? $requestedConnection : null, $this->fetchTable('Queue.QueuedJobs')->getConnection()->configName());
@@ -129,6 +126,7 @@ class InfoCommand extends Command {
 
 		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
 		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
 
 		$io->out('Total unfinished jobs: ' . $QueuedJobs->getLength());

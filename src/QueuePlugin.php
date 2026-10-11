@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Queue;
 
 use Cake\Console\CommandCollection;
+use Cake\Container\ContainerInterface;
 use Cake\Core\BasePlugin;
-use Cake\Core\ContainerInterface;
 use Cake\Routing\RouteBuilder;
 use Queue\Command\AddCommand;
 use Queue\Command\BakeQueueTaskCommand;
@@ -58,13 +58,13 @@ class QueuePlugin extends BasePlugin {
 			});
 		});
 
-		$routes->plugin('Queue', ['path' => '/queue'], function (RouteBuilder $routes): void {
+		$routes->plugin('Queue', function (RouteBuilder $routes): void {
 			$routes->connect('/{controller}');
-		});
+		}, ['path' => '/queue']);
 	}
 
 	/**
-	 * @param \Cake\Core\ContainerInterface $container The DI container instance
+	 * @param \Cake\Container\ContainerInterface $container The DI container instance
 	 *
 	 * @return void
 	 */

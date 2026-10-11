@@ -317,7 +317,7 @@ JSON,
 
 		$this->assertResponseCode(200);
 
-		$content = (string)$this->_response->getBody();
+		$content = (string)$this->response->getBody();
 		$json = json_decode($content, true);
 		$this->assertNotEmpty($json);
 	}

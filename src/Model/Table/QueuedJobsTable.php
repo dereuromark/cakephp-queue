@@ -27,7 +27,7 @@ use Queue\Utility\Memory;
  * @author MGriesbach@gmail.com
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @extends \Cake\ORM\Table<array{Search: \Search\Model\Behavior\SearchBehavior, Timestamp: \Cake\ORM\Behavior\TimestampBehavior}>
- * @property \Queue\Model\Table\QueueProcessesTable&\Cake\ORM\Association\BelongsTo $WorkerProcesses
+ * @property \Cake\ORM\Association\BelongsTo $WorkerProcesses
  * @method \Queue\Model\Entity\QueuedJob get(mixed $primaryKey, array|string $finder = 'all', \Psr\SimpleCache\CacheInterface|string|null $cache = null, \Closure|string|null $cacheKey = null, mixed ...$args)
  * @method \Queue\Model\Entity\QueuedJob newEntity(array $data, array $options = [])
  * @method array<\Queue\Model\Entity\QueuedJob> newEntities(array $data, array $options = [])
@@ -407,7 +407,7 @@ class QueuedJobsTable extends Table {
 		$query = $this->find('all', ...$options)
 			->groupBy(['job_task']);
 		if ($disableHydration) {
-			$query = $query->disableHydration();
+			$query = $query->enableHydration(false);
 		}
 		$result = $query->toArray();
 		if ($result && $driverName === static::DRIVER_SQLITE) {
@@ -594,7 +594,9 @@ class QueuedJobsTable extends Table {
 		}
 
 		$costs = 0;
-		$server = $this->WorkerProcesses->buildServerString();
+		/** @var \Queue\Model\Table\QueueProcessesTable $workerProcesses */
+		$workerProcesses = $this->WorkerProcesses->getTarget();
+		$server = $workerProcesses->buildServerString();
 		foreach ($runningJobs as $runningJob) {
 			if (isset($uniqueConstraints[$runningJob->job_task])) {
 				$types[] = '-' . $runningJob->job_task;
@@ -1064,7 +1066,7 @@ class QueuedJobsTable extends Table {
 			])
 			->where($conditions)
 			->groupBy(['day_of_week', 'hour_of_day'])
-			->disableHydration()
+			->enableHydration(false)
 			->toArray();
 
 		// Initialize 7x24 grid (days x hours) with zeros

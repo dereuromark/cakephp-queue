@@ -38,10 +38,10 @@ class SimpleQueueTransport extends AbstractTransport {
 	 * @return array<string, mixed>
 	 */
 	public function send(Message $message): array {
-		if (!empty($this->_config['queue'])) {
-			$this->_config = $this->_config['queue'] + $this->_config;
-			$message->setConfig((array)$this->_config['queue'] + ['queue' => []]);
-			unset($this->_config['queue']);
+		if (!empty($this->config['queue'])) {
+			$this->config = $this->config['queue'] + $this->config;
+			$message->setConfig((array)$this->config['queue'] + ['queue' => []]);
+			unset($this->config['queue']);
 		}
 
 		$settings = [
@@ -86,7 +86,7 @@ class SimpleQueueTransport extends AbstractTransport {
 		$QueuedJobs = $this->getQueuedJobsModel();
 		$result = $QueuedJobs->createJob('Queue.Email', [
 			'settings' => $settings,
-			'transport' => $this->_config['transport'] ?? null,
+			'transport' => $this->config['transport'] ?? null,
 		]);
 		$result->headers = $message->getHeadersString();
 		$result->message = $message->getBodyString();

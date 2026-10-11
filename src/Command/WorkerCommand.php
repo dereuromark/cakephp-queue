@@ -4,8 +4,7 @@ declare(strict_types=1);
 namespace Queue\Command;
 
 use Cake\Command\Command;
-use Cake\Console\Arguments;
-use Cake\Console\ConsoleIo;
+use Cake\Console\ConsoleIoInterface;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
@@ -36,7 +35,9 @@ class WorkerCommand extends Command {
 	 * @return void
 	 */
 	public function initialize(): void {
-		$this->QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
+		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
+		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
+		$this->QueueProcesses = $QueueProcesses;
 	}
 
 	/**
@@ -79,12 +80,11 @@ class WorkerCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\Arguments $args Arguments
-	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
-	 *
 	 * @return int|null|void
 	 */
-	public function execute(Arguments $args, ConsoleIo $io) {
+	public function execute() {
+		$args = $this->args;
+		$io = $this->io;
 		$requestedConnection = $args->getOption('connection');
 		$table = $this->fetchTable('Queue.QueueProcesses');
 		$connection = Config::resolveConnection(is_string($requestedConnection) ? $requestedConnection : null, $this->fetchTable('Queue.QueuedJobs')->getConnection()->configName());
@@ -138,12 +138,12 @@ class WorkerCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\ConsoleIo $io
+	 * @param \Cake\Console\ConsoleIoInterface $io
 	 * @param string $pid
 	 *
 	 * @return int
 	 */
-	protected function end(ConsoleIo $io, string $pid): int {
+	protected function end(ConsoleIoInterface $io, string $pid): int {
 		if ($pid === 'all' || $pid === 'server') {
 			$workers = $this->QueueProcesses->getProcesses($pid === 'server');
 			foreach ($workers as $worker) {
@@ -170,12 +170,12 @@ class WorkerCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\ConsoleIo $io
+	 * @param \Cake\Console\ConsoleIoInterface $io
 	 * @param string $pid
 	 *
 	 * @return int
 	 */
-	protected function kill(ConsoleIo $io, string $pid): int {
+	protected function kill(ConsoleIoInterface $io, string $pid): int {
 		if ($pid === 'all' || $pid === 'server') {
 			$workers = $this->QueueProcesses->getProcesses($pid === 'server');
 			foreach ($workers as $worker) {
@@ -213,14 +213,14 @@ class WorkerCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\ConsoleIo $io
+	 * @param \Cake\Console\ConsoleIoInterface $io
 	 * @param bool $force If true, ignores the heartbeat threshold and removes
 	 *  every queue_processes row. Recovery path for container restarts where
 	 *  recycled PIDs would otherwise collide with surviving rows.
 	 *
 	 * @return int
 	 */
-	protected function clean(ConsoleIo $io, bool $force = false): int {
+	protected function clean(ConsoleIoInterface $io, bool $force = false): int {
 		if ($force) {
 			$io->out('Force-deleting ALL queue_processes rows.');
 			$result = $this->QueueProcesses->cleanEndedProcesses(true);
