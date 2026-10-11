@@ -9,6 +9,7 @@ use Cake\Event\EventManager;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class StandaloneAdminControllerTest extends TestCase {
 
@@ -167,6 +168,46 @@ class StandaloneAdminControllerTest extends TestCase {
 
 		$this->expectException(ForbiddenException::class);
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+	}
+
+	#[DataProvider('hostRedirectAuthorizationModes')]
+	public function testHostRedirectMarksAuthorizationChecked(string $redirectKey): void {
+		$service = new class {
+			public bool $skipped = false;
+
+			public function skipAuthorization(): void {
+				$this->skipped = true;
+			}
+		};
+		Configure::write('Queue.standalone', false);
+		Configure::write($redirectKey, true);
+		Configure::write('Queue.adminAccess', function (): bool {
+			$this->fail('The plugin gate must not run after a host response.');
+		});
+		$listener = function (EventInterface $event) use ($service): void {
+			$controller = $event->getSubject();
+			$controller->setRequest($controller->getRequest()->withAttribute('authorization', $service));
+		};
+		EventManager::instance()->on('Controller.initialize', $listener);
+		try {
+			$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'Queue', 'action' => 'index']);
+		} finally {
+			EventManager::instance()->off('Controller.initialize', $listener);
+			Configure::delete($redirectKey);
+		}
+
+		$this->assertRedirect('/login');
+		$this->assertTrue($service->skipped);
+	}
+
+	/**
+     * @return array<string, array{string}>
+     */
+	public static function hostRedirectAuthorizationModes(): array {
+		return [
+			'returned response' => ['Test.hostRedirect'],
+			'event response' => ['Test.hostRedirectViaEvent'],
+		];
 	}
 
 }
