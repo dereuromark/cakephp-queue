@@ -30,6 +30,8 @@ then jump to v8.
 
 ## Unreleased worker fixes
 
+`queue add` now accepts `--connection` and uses the same configured default and whitelist as `queue run` and `queue job`. In multi-connection setups, adding without an explicit connection now uses the first configured connection.
+
 Workers without an explicit lifetime use `Config::workermaxruntime()`'s 120-second default. The same configured lifetime drives PHP's default timeout. `--max-runtime 0` now disables PHP's timeout as well as the worker loop limit.
 
 Failed-status handling accepts an incomplete job entity without using a null array key on PHP 8.5.

@@ -11,11 +11,11 @@ Enable multi-connection mode by defining an array of connections in your config:
 $config['Queue']['connections'] = ['default', 'acme'];
 ```
 
-The first configured connection is the default for the admin interface and the worker and job commands when no connection is selected.
+The first configured connection is the default for the admin interface and the add, worker and job commands when no connection is selected.
 
 **Important:**
 - Multi-connection mode is only enabled when 2 or more connections are configured
-- The admin selector and worker and job commands only accept connections from this list
+- The admin selector and add, worker and job commands only accept connections from this list
 - Without this config, the plugin operates in backwards-compatible single-connection mode
 
 ## Admin Dashboard
@@ -58,7 +58,14 @@ bin/cake queue job view 123 --connection acme
 bin/cake queue job reset all --connection acme
 ```
 
-`queue add` has no `--connection` option. To enqueue on another connection, use a table instance for that connection as shown below, then run a matching worker.
+On versions containing the [connection option](../reference/upgrading#unreleased-worker-fixes), `queue add` follows the same connection rules:
+
+```sh
+bin/cake queue add Queue.Example --connection acme
+bin/cake queue run --connection acme
+```
+
+Earlier versions need the table-instance approach below to enqueue on another connection.
 
 ## Creating Jobs for Specific Connections
 

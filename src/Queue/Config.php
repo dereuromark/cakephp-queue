@@ -5,8 +5,33 @@ namespace Queue\Queue;
 
 use Cake\Core\Configure;
 use InvalidArgumentException;
+use RuntimeException;
 
 class Config {
+
+	/**
+	 * Resolve a queue connection using the configured whitelist and default.
+	 *
+	 * @param string|null $connection Requested connection.
+     *
+	 * @throws \RuntimeException If the connection is not allowed.
+     *
+	 * @return string
+	 */
+	public static function resolveConnection(?string $connection): string {
+		$connections = Configure::read('Queue.connections');
+		if (!is_array($connections) || count($connections) < 2) {
+			return $connection ?: 'default';
+		}
+		if ($connection === null) {
+			return $connections[0];
+		}
+		if (!in_array($connection, $connections, true)) {
+			throw new RuntimeException(__d('queue', 'Invalid connection: {0}. Must be one of: {1}', $connection, implode(', ', $connections)));
+		}
+
+		return $connection;
+	}
 
 	/**
 	 * Timeout in seconds, after which the Task is reassigned to a new worker

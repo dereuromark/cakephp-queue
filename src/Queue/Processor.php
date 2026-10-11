@@ -140,25 +140,7 @@ class Processor {
 	 * @return string
 	 */
 	protected function resolveConnection(?string $connection): string {
-		$connections = Configure::read('Queue.connections');
-
-		// Single connection mode (backwards compatible)
-		if (!$connections || !is_array($connections) || count($connections) < 2) {
-			return $connection ?: 'default';
-		}
-
-		// Multi-connection mode
-		if ($connection === null) {
-			// Use first connection as default
-			return $connections[0];
-		}
-
-		// Validate against whitelist
-		if (!in_array($connection, $connections, true)) {
-			throw new RuntimeException(__d('queue', 'Invalid connection: {0}. Must be one of: {1}', $connection, implode(', ', $connections)));
-		}
-
-		return $connection;
+		return Config::resolveConnection($connection);
 	}
 
 	/**
