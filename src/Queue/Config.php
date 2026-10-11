@@ -13,16 +13,16 @@ class Config {
 	 * Resolve a queue connection using the configured whitelist and default.
 	 *
 	 * @param string|null $connection Requested connection.
-	 * @param string $fallback Existing table connection when no connection is configured.
+	 * @param string|null $fallback Existing table connection when no explicit connection is selected.
      *
 	 * @throws \RuntimeException If the connection is not allowed.
      *
 	 * @return string
 	 */
-	public static function resolveConnection(?string $connection, string $fallback = 'default'): string {
+	public static function resolveConnection(?string $connection, ?string $fallback = null): string {
 		$connections = Configure::read('Queue.connections');
 		if (!is_array($connections) || count($connections) < 2) {
-			return $connection ?: (Configure::read('Queue.connection') ?: $fallback);
+			return $connection ?: ($fallback ?? (Configure::read('Queue.connection') ?: 'default'));
 		}
 		if ($connection === null) {
 			return $connections[0];

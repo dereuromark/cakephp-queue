@@ -30,7 +30,7 @@ then jump to v8.
 
 ## Unreleased worker fixes
 
-`queue add`, `queue info` and `queue worker` now accept `--connection` and uses the same configured default and whitelist as `queue run` and `queue job`. In multi-connection setups, commands and queue tables now use the first configured connection by default. It takes precedence over `Queue.connection`. Explicit connection selection also applies when selecting `default`.
+`queue add`, `queue info` and `queue worker` now accept `--connection` and use the same configured default and whitelist as `queue run` and `queue job`. In multi-connection setups, commands and queue tables now use the first configured connection by default. It takes precedence over `Queue.connection`. Explicit connection selection also applies when selecting `default`.
 
 Workers without an explicit lifetime use `Config::workermaxruntime()`'s 120-second default. The same configured lifetime drives PHP's default timeout. `--max-runtime 0` now disables PHP's timeout as well as the worker loop limit.
 

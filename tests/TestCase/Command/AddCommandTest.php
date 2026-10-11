@@ -12,6 +12,7 @@ use Cake\Datasource\ConnectionManager;
 use Cake\Http\ServerRequest;
 use Cake\TestSuite\Fixture\SchemaLoader;
 use Cake\TestSuite\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use Psr\Log\NullLogger;
 use Queue\Command\AddCommand;
@@ -131,7 +132,8 @@ class AddCommandTest extends TestCase {
 		$this->assertSame('queue_add_test', $controller->viewBuilder()->getVar('queueActiveConnection'));
 	}
 
-	public function testInfoReadsSelectedConnection(): void {
+	#[DataProvider('selectedConnectionModes')]
+	public function testInfoReadsSelectedConnection(string $option, bool $legacyDefault): void {
 		$this->createSecondaryConnection();
 		$table = new QueuedJobsTable([
 			'alias' => 'SecondaryJobs',
@@ -139,20 +141,29 @@ class AddCommandTest extends TestCase {
 		]);
 		$table->createJob('Queue.Example', ['message' => 'Secondary']);
 
-		$this->exec('queue info --format json --connection queue_add_test');
+		$this->fetchTable('Queue.QueuedJobs')->setConnection(ConnectionManager::get('queue_add_test'));
+		if ($legacyDefault) {
+			Configure::write('Queue.connection', 'default');
+		}
+		$this->exec('queue info --format json' . $option);
 
 		$this->assertExitCode(0);
 		$info = json_decode($this->_out->output(), true, flags: JSON_THROW_ON_ERROR);
 		$this->assertSame(1, $info['jobs']['unfinished']);
 	}
 
-	public function testWorkerEndTargetsSelectedConnection(): void {
+	#[DataProvider('selectedConnectionModes')]
+	public function testWorkerEndTargetsSelectedConnection(string $option, bool $legacyDefault): void {
 		$this->createSecondaryConnection();
 		$this->fetchTable('Queue.QueueProcesses')->updateAll(['terminate' => false], []);
 		$connection = ConnectionManager::get('queue_add_test');
 		$connection->execute("INSERT INTO queue_processes (pid, workerkey, created, modified, terminate) VALUES ('secondary', 'secondary', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0)");
 
-		$this->exec('queue worker end all --connection queue_add_test');
+		$this->fetchTable('Queue.QueuedJobs')->setConnection($connection);
+		if ($legacyDefault) {
+			Configure::write('Queue.connection', 'default');
+		}
+		$this->exec('queue worker end all' . $option);
 
 		$this->assertExitCode(0);
 		$this->assertSame(1, (int)$connection->execute('SELECT terminate FROM queue_processes')->fetchColumn(0));
@@ -161,6 +172,7 @@ class AddCommandTest extends TestCase {
 
 	public function testAddPreservesPreconfiguredTableConnection(): void {
 		$this->createSecondaryConnection();
+		Configure::write('Queue.connection', 'default');
 		$this->fetchTable('Queue.QueuedJobs')->setConnection(ConnectionManager::get('queue_add_test'));
 
 		$this->exec('queue add Queue.Example');
@@ -208,6 +220,17 @@ class AddCommandTest extends TestCase {
 		$this->expectExceptionMessage('Invalid connection: not_allowed');
 
 		$this->exec('queue add Queue.Example --connection not_allowed');
+	}
+
+	/**
+	 * @return array<string, array{string, bool}>
+	 */
+	public static function selectedConnectionModes(): array {
+		return [
+			'explicit' => [' --connection queue_add_test', false],
+			'table override' => ['', false],
+			'table override with legacy default' => ['', true],
+		];
 	}
 
 	protected function createSecondaryConnection(): void {

@@ -87,7 +87,7 @@ class WorkerCommand extends Command {
 	public function execute(Arguments $args, ConsoleIo $io) {
 		$requestedConnection = $args->getOption('connection');
 		$table = $this->fetchTable('Queue.QueueProcesses');
-		$connection = Config::resolveConnection(is_string($requestedConnection) ? $requestedConnection : null, $table->getConnection()->configName());
+		$connection = Config::resolveConnection(is_string($requestedConnection) ? $requestedConnection : null, $this->fetchTable('Queue.QueuedJobs')->getConnection()->configName());
 		/** @var \Cake\Database\Connection $connectionObject */
 		$connectionObject = ConnectionManager::get($connection);
 		$table->setConnection($connectionObject);

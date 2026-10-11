@@ -13,11 +13,11 @@ $config['Queue']['connections'] = ['default', 'acme'];
 
 Without multi-connection mode, commands use `Queue.connection` when configured, otherwise `default`; an explicit `--connection` overrides that choice.
 
-The first configured connection is the default for the admin interface, queue tables and CLI commands when no connection is selected. It takes precedence over `Queue.connection` in multi-connection mode.
+The first configured connection is the default for the admin interface, queue tables and CLI commands when no connection is selected. It takes precedence over `Queue.connection` and manually assigned table connections in multi-connection mode. For an application operation targeting another listed connection, select the same connection explicitly in the worker and management commands.
 
 **Important:**
 - Multi-connection mode is only enabled when 2 or more connections are configured
-- The admin selector and add, worker and job commands only accept connections from this list
+- The admin selector and CLI commands only accept connections from this list
 - Without this config, the plugin operates in backwards-compatible single-connection mode
 
 ## Admin Dashboard
