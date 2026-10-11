@@ -13,6 +13,7 @@ use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Exception\NotFoundException;
 use Cake\Log\Log;
 use Closure;
+use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
 /**
@@ -93,12 +94,26 @@ class QueueAppController extends AppController {
 	 * @return void
 	 */
 	public function beforeFilter(EventInterface $event): void {
-		parent::beforeFilter($event);
+		if (Configure::read('Queue.standalone')) {
+			Controller::beforeFilter($event);
+		} else {
+			$result = parent::beforeFilter($event);
+			if ($result instanceof ResponseInterface) {
+				$event->setResult($result);
+
+				return;
+			}
+		}
 
 		// Coexist with cakephp/authorization: the gate IS the authorization
 		// decision for these controllers, so silence the policy check.
 		if ($this->components()->has('Authorization') && method_exists($this->components()->get('Authorization'), 'skipAuthorization')) {
 			$this->components()->get('Authorization')->skipAuthorization();
+		} else {
+			$authorization = $this->request->getAttribute('authorization');
+			if (is_object($authorization) && is_callable([$authorization, 'skipAuthorization'])) {
+				$authorization->skipAuthorization();
+			}
 		}
 
 		$gate = Configure::read('Queue.adminAccess');
@@ -203,6 +218,17 @@ class QueueAppController extends AppController {
 		$connection = ConnectionManager::get($this->activeConnection);
 
 		return $connection;
+	}
+
+	/**
+     * @return array<string, mixed>
+     */
+	public function implementedEvents(): array {
+		if (!Configure::read('Queue.standalone')) {
+			return parent::implementedEvents();
+		}
+
+		return ['Controller.initialize' => 'beforeFilter'];
 	}
 
 }

@@ -166,3 +166,11 @@ The dashboard provides:
 6. **Statistics** - Aggregated statistics for completed jobs
 7. **Trigger Jobs** - Buttons to manually trigger addable jobs
 8. **Configuration** - Current runtime configuration display
+
+### Standalone callback behavior
+
+Standalone mode skips the host AppController's initialization and lifecycle
+callbacks, including beforeFilter, beforeRender, beforeRedirect, and afterFilter.
+The plugin still loads Flash, its helpers, and the configured admin layout.
+Application middleware still runs. The required `Queue.adminAccess` Closure
+remains responsible for the full access decision in both modes.
