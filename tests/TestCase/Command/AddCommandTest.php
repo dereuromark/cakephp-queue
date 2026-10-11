@@ -3,16 +3,22 @@ declare(strict_types=1);
 
 namespace Queue\Test\TestCase\Command;
 
+use Cake\Console\ConsoleIo;
 use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\Core\Configure;
 use Cake\Database\Connection;
 use Cake\Database\Driver\Sqlite;
 use Cake\Datasource\ConnectionManager;
+use Cake\Http\ServerRequest;
 use Cake\TestSuite\Fixture\SchemaLoader;
 use Cake\TestSuite\TestCase;
 use PHPUnit\Framework\Attributes\UsesClass;
+use Psr\Log\NullLogger;
 use Queue\Command\AddCommand;
+use Queue\Console\Io;
+use Queue\Controller\Admin\QueueAppController;
 use Queue\Model\Table\QueuedJobsTable;
+use Queue\Queue\Processor;
 use RuntimeException;
 
 #[UsesClass(AddCommand::class)]
@@ -84,6 +90,45 @@ class AddCommandTest extends TestCase {
 		$this->assertSame(0, (int)ConnectionManager::get('default')->execute('SELECT COUNT(*) FROM queued_jobs')->fetchColumn(0));
 		$this->assertSame('queue_add_test', $this->fetchTable('Queue.QueuedJobs')->getConnection()->configName());
 		$this->assertSame(1, (int)ConnectionManager::get('queue_add_test')->execute('SELECT COUNT(*) FROM queued_jobs')->fetchColumn(0));
+	}
+
+	public function testProcessorPreservesTableConnectionAndHonorsExplicitDefault(): void {
+		$this->createSecondaryConnection();
+		$secondary = ConnectionManager::get('queue_add_test');
+		$jobs = $this->fetchTable('Queue.QueuedJobs');
+		$processes = $this->fetchTable('Queue.QueueProcesses');
+		$jobs->setConnection($secondary);
+		$processes->setConnection($secondary);
+		new Processor(new Io(new ConsoleIo()), new NullLogger());
+		$this->assertSame($secondary, $jobs->getConnection());
+		$this->assertSame($secondary, $processes->getConnection());
+
+		new Processor(new Io(new ConsoleIo()), new NullLogger(), null, 'default');
+		$this->assertSame(ConnectionManager::get('default'), $jobs->getConnection());
+		$this->assertSame(ConnectionManager::get('default'), $processes->getConnection());
+	}
+
+	public function testJobViewHonorsExplicitDefault(): void {
+		$this->createSecondaryConnection();
+		$defaultJobs = new QueuedJobsTable([
+			'alias' => 'DefaultJobs',
+			'connection' => ConnectionManager::get('default'),
+		]);
+		$job = $defaultJobs->createJob('Queue.Example', ['message' => 'Primary proof']);
+		$this->fetchTable('Queue.QueuedJobs')->setConnection(ConnectionManager::get('queue_add_test'));
+
+		$this->exec('queue job view ' . $job->id . ' --connection default');
+
+		$this->assertExitCode(0);
+		$this->assertOutputContains('Primary proof');
+	}
+
+	public function testAdminUsesLegacyQueueConnection(): void {
+		$this->createSecondaryConnection();
+		Configure::write('Queue.connection', 'queue_add_test');
+		$controller = new QueueAppController(new ServerRequest());
+
+		$this->assertSame('queue_add_test', $controller->viewBuilder()->getVar('queueActiveConnection'));
 	}
 
 	public function testInfoReadsSelectedConnection(): void {
