@@ -48,7 +48,7 @@ class StandaloneAdminControllerTest extends TestCase {
 		$listener = function (EventInterface $event): void {
 			$this->fail('Later listeners must not replace the host redirect.');
 		};
-		EventManager::instance()->on('Controller.initialize', ['priority' => 100], $listener);
+		EventManager::instance()->on('Controller.initialize', $listener, ['priority' => 100]);
 
 		try {
 			$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'index']);
@@ -130,7 +130,7 @@ class StandaloneAdminControllerTest extends TestCase {
 		$this->assertTrue(Configure::read('Test.hostBeforeFilter'));
 		$this->assertTrue(Configure::read('Test.hostBeforeRender'));
 		$this->assertTrue(Configure::read('Test.hostAfterFilter'));
-		$this->_controller->redirect('/');
+		$this->controller->redirect('/');
 		$this->assertTrue(Configure::read('Test.hostBeforeRedirect'));
 	}
 
@@ -150,7 +150,7 @@ class StandaloneAdminControllerTest extends TestCase {
 		$this->assertNull(Configure::read('Test.hostBeforeFilter'));
 		$this->assertNull(Configure::read('Test.hostBeforeRender'));
 		$this->assertNull(Configure::read('Test.hostAfterFilter'));
-		$this->_controller->redirect('/');
+		$this->controller->redirect('/');
 		$this->assertNull(Configure::read('Test.hostBeforeRedirect'));
 	}
 

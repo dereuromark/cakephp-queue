@@ -148,7 +148,7 @@ class AddCommandTest extends TestCase {
 		$this->exec('queue info --format json' . $option);
 
 		$this->assertExitCode(0);
-		$info = json_decode($this->_out->output(), true, flags: JSON_THROW_ON_ERROR);
+		$info = json_decode($this->out->output(), true, flags: JSON_THROW_ON_ERROR);
 		$this->assertSame(1, $info['jobs']['unfinished']);
 	}
 

@@ -44,7 +44,7 @@
 		"dereuromark/cakephp-tools": "dev-cake6",
 		"dereuromark/cakephp-i18n-lint": "dev-cake6",
 		"fig-r/psr2r-sniffer": "dev-master",
-		"friendsofcake/search": "dev-master",
+		"friendsofcake/search": "dev-cake6",
 		"phpunit/phpunit": "^13.0",
 		"php-collective/dto": "^0.1.17"
 	},
