@@ -9,7 +9,7 @@ QueueTransport stores an already rendered message as a job. Configure a separate
 ```php
 // config/app_local.php: use your SMTP provider's credentials.
 'EmailTransport' => [
-    'smtp' => [
+    'default' => [
         'className' => 'Smtp',
         'host' => 'smtp.example.com',
         'port' => 587,
@@ -19,7 +19,7 @@ QueueTransport stores an already rendered message as a job. Configure a separate
     ],
     'queue' => [
         'className' => 'Queue.Queue',
-        'transport' => 'smtp',
+        'transport' => 'default',
     ],
 ],
 'Email' => [
@@ -30,7 +30,7 @@ QueueTransport stores an already rendered message as a job. Configure a separate
 ],
 ```
 
-Calls to `deliver()` using this mail configuration create jobs. A running Queue worker delivers them through `smtp`. Successful queuing does not confirm delivery.
+Calls to `deliver()` using this mail configuration create jobs. A running Queue worker delivers them through `default`. Successful queuing does not confirm delivery.
 
 ### QueueTransport and SimpleQueueTransport
 
@@ -63,7 +63,7 @@ class CommentNotificationTask extends Task
     {
         $comment = $this->fetchTable('Comments')->get($data['comment_id']);
         $mailer = new Mailer();
-        $mailer->setTransport('smtp')
+        $mailer->setTransport('default')
             ->setFrom('no-reply@example.com')
             ->setTo('admin@example.com')
             ->setSubject('New comment')

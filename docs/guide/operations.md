@@ -2,6 +2,8 @@
 
 Run workers with cron or a process supervisor. Keep the CLI database configuration aligned with the web application, and design tasks to tolerate retries.
 
+The bare `queue worker` command lists recent workers and prints usage, but exits with an error status because no action was selected. Account for this when using it in monitoring scripts.
+
 ## Worker capacity
 
 Start with a small `maxworkers` limit and measure queue latency, database load, and task duration. Each worker runs one task at a time. CPU-heavy tasks compete for cores; tasks waiting on remote services need timeouts on those calls.

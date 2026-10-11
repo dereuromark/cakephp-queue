@@ -1370,7 +1370,7 @@ class QueuedJobsTable extends Table {
 	public function getFailedStatus(QueuedJob $queuedTask, array $taskConfiguration): string {
 		$failureMessageRequeued = 'requeued';
 
-		if (!$queuedTask->has('job_task')) {
+		if ($queuedTask->get('job_task') === null) {
 			return $failureMessageRequeued;
 		}
 

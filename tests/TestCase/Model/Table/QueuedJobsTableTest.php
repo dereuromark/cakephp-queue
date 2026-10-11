@@ -1252,6 +1252,11 @@ class QueuedJobsTableTest extends TestCase {
 		$this->skipIf($skip, 'Only Mysql/Postgres is working yet for this.');
 	}
 
+	public function testFailedStatusWithNullTaskName(): void {
+		$job = new QueuedJob(['job_task' => null]);
+		$this->assertSame('requeued', $this->QueuedJobs->getFailedStatus($job, []));
+	}
+
 	public function testFailedStatusWithoutTaskName(): void {
 		$job = new QueuedJob();
 

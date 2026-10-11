@@ -33,7 +33,7 @@ The second command lists recent jobs, then exits with an error code because no m
 
 ## Queue from application code
 
-From a controller or table using `fetchTable()`:
+From a controller using `fetchTable()`:
 
 ```php
 $queuedJobsTable = $this->fetchTable('Queue.QueuedJobs');

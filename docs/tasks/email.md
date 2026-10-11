@@ -169,7 +169,7 @@ $message = new Message();
 $message->setTo($user->email)
     ->setFrom('admin@example.com')
     ->setSubject('Subject')
-    ->setBody('Message body');
+    ->setBodyText('Message body');
 
 $data = [
     'class' => Message::class,
@@ -209,7 +209,7 @@ $message = new Message();
 $message->setTo('reader@example.com')
     ->setFrom('admin@example.com')
     ->setSubject('Notification')
-    ->setBody('Your notification is ready.');
+    ->setBodyText('Your notification is ready.');
 
 $queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 $queuedJobsTable->createJob('Queue.Email', [

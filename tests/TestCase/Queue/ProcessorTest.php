@@ -57,18 +57,9 @@ class ProcessorTest extends TestCase {
 	}
 
 	/**
-	 * @return void
-	 */
-	/**
-	 * Regression: `captureOutput()` used to cache the schema check result
-	 * for the lifetime of the worker. A long-running worker started before
-	 * `migrations migrate` added the `output` column would then see the
-	 * cached `false` for the rest of its runtime and silently drop output
-	 * until restart. The auto-detect path must re-check on each call so
-	 * a mid-flight migration takes effect on the next job.
-	 *
-	 * Explicit config (Configure::write('Queue.captureOutput', true|false))
-	 * is still memoized — only the auto-detection branch is per-call.
+	 * Auto-detection uses the table's current schema on each call. The ORM can
+	 * cache that schema, so workers still need restarting after migrations.
+	 * Explicit captureOutput configuration is memoized.
 	 *
 	 * @return void
 	 */
@@ -609,6 +600,12 @@ class ProcessorTest extends TestCase {
 		$processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
 
 		$this->assertSame(120, $this->invokeMethod($processor, 'resolveMaxRuntime', [null, 0]));
+	}
+
+	public function testStringLifetimeConfiguration(): void {
+		Configure::write('Queue.workerLifetime', '60');
+		$processor = new Processor(new Io(new ConsoleIo()), new NullLogger());
+		$this->assertSame(60, $this->invokeMethod($processor, 'resolveMaxRuntime', [null, 0]));
 	}
 
 	public function testUnlimitedRuntimeDisablesPhpTimeout(): void {

@@ -11,11 +11,11 @@ Enable multi-connection mode by defining an array of connections in your config:
 $config['Queue']['connections'] = ['default', 'acme'];
 ```
 
-The first connection in the array becomes the default when no specific connection is selected.
+The first configured connection is the default for the admin interface and the worker and job commands when no connection is selected.
 
 **Important:**
 - Multi-connection mode is only enabled when 2 or more connections are configured
-- Only connections in this whitelist can be used (security feature)
+- The admin selector and worker and job commands only accept connections from this list
 - Without this config, the plugin operates in backwards-compatible single-connection mode
 
 ## Admin Dashboard
@@ -25,7 +25,7 @@ When multi-connection mode is enabled, a connection switcher dropdown appears in
 - The dropdown shows all configured connections
 - Select a connection to view jobs/workers for that specific database
 - The current connection is highlighted
-- The connection selection persists via URL query parameter (`?connection=acme`)
+- The selection is stored in the session; a URL query parameter (`?connection=acme`) overrides it
 
 All admin pages (Dashboard, Jobs, Workers, Processes) will show data for the selected connection.
 
@@ -60,53 +60,20 @@ bin/cake queue job reset all --connection acme
 
 ## Creating Jobs for Specific Connections
 
-Jobs are stored in the database they were created against. To create a job for a specific connection, you need to get the table with that connection:
+Jobs belong to the connection used to create them. Use a separate table instance for each connection so later calls to the shared table do not inherit a changed connection:
 
 ```php
 use Cake\Datasource\ConnectionManager;
+use Queue\Model\Table\QueuedJobsTable;
 
-// Get the QueuedJobs table
-$queuedJobsTable = $this->fetchTable('Queue.QueuedJobs');
-
-// For a non-default connection, set it explicitly
-$connection = ConnectionManager::get('acme');
-$queuedJobsTable->setConnection($connection);
-
-// Create the job - it will be stored in the 'acme' database
-$queuedJobsTable->createJob('MyTask', $data);
+$queuedJobs = new QueuedJobsTable([
+    'alias' => 'AcmeQueuedJobs',
+    'connection' => ConnectionManager::get('acme'),
+]);
+$queuedJobs->createJob('MyTask', ['key' => 'value']);
 ```
 
-Or using the table locator directly:
-
-```php
-use Cake\Datasource\ConnectionManager;
-use Cake\ORM\TableRegistry;
-
-$queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
-$queuedJobsTable->setConnection(ConnectionManager::get('acme'));
-
-$queuedJobsTable->createJob('MyTask', ['key' => 'value']);
-```
-
-### Helper Method Pattern
-
-For cleaner code, consider creating a helper method or service:
-
-```php
-// In a utility class or base controller
-protected function getQueueTable(string $connection = 'default'): QueuedJobsTable {
-    $table = $this->fetchTable('Queue.QueuedJobs');
-
-    if ($connection !== 'default') {
-        $table->setConnection(ConnectionManager::get($connection));
-    }
-
-    return $table;
-}
-
-// Usage
-$this->getQueueTable('acme')->createJob('MyTask', $data);
-```
+Do not switch a shared table's connection and assume the next caller will restore it. Use matching workers and install the Queue schema on each database.
 
 ## Running Workers in Production
 

@@ -697,8 +697,6 @@ class Processor {
 	 * @param int|null $maxruntime Max runtime in seconds if set via CLI option.
 	 * @param int $jitterOffset Per-worker random offset in seconds.
 	 *
-	 * @throws \RuntimeException
-	 *
 	 * @return int
 	 */
 	protected function resolveMaxRuntime(?int $maxruntime, int $jitterOffset): int {

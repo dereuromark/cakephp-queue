@@ -36,7 +36,7 @@ Use your application's sender address. Create the corresponding templates in `te
 
 ## Queue an email
 
-From a controller or table:
+From a controller:
 
 ```php
 use App\Mailer\UserMailer;

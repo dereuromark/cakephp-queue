@@ -2,7 +2,7 @@
 
 The Queue plugin includes a modern, self-contained admin dashboard for managing your queued jobs. The dashboard is completely isolated from your application's CSS/JS, using Bootstrap 5 and Font Awesome 6 via CDN.
 
-## Features
+## Available actions
 
 - **Statistics Overview**: Real-time counts of pending, scheduled, running, and failed jobs
 - **Status Banner**: Visual indicator showing whether the queue is running or idle
@@ -55,22 +55,15 @@ This is useful when:
 
 ### Authorization (`Queue.adminAccess`, required)
 
-The admin UI can trigger jobs (via `AddFromBackendInterface` tasks),
-reset/remove queued jobs, and terminate workers; operational damage if
-exposed. The plugin therefore **fails closed by default**: every request
-to `/admin/queue/...` is rejected with `403` until the host app
-explicitly configures access.
+Set `Queue.adminAccess` to a `Closure` that receives the current request and returns `true` to grant access. Requests reaching this gate without a configured closure are denied with 403. The host controller's redirects take precedence in the default inherited mode.
 
-Set `Queue.adminAccess` to a `Closure` that receives the current request
-and returns literal `true` to grant access. Anything else (unset,
-non-`Closure`, returns `false`, returns a truthy non-bool, throws)
-yields a `403`.
+The gate protects job creation, resetting and deleting jobs, and worker management. It runs in both inherited and standalone modes.
 
 ```php
 use Cake\Core\Configure;
 use Cake\Http\ServerRequest;
 
-// Example; admin role check (cakephp/authentication identity):
+// Example: admin role check (cakephp/authentication identity):
 Configure::write('Queue.adminAccess', function (ServerRequest $request): bool {
     $identity = $request->getAttribute('identity');
     return $identity !== null && in_array('admin', (array)$identity->roles, true);
@@ -78,8 +71,7 @@ Configure::write('Queue.adminAccess', function (ServerRequest $request): bool {
 ```
 
 The gate runs in `beforeFilter` for every admin controller in the plugin
-and plays nicely with the cakephp/authorization plugin (it calls
-`skipAuthorization()` so the policy layer doesn't double-reject).
+and calls `skipAuthorization()` when an authorization service is present.
 `ForbiddenException` raised inside the Closure is respected as-is so
 callers can short-circuit with their own message; other throwables are
 logged via `Cake\Log\Log` and converted to a generic `403`.

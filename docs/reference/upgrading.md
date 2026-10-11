@@ -1,6 +1,6 @@
 # Upgrading from older versions
 
-## New Features
+## Version changes
 ### Events for job lifecycle (v8.4+)
 A new event `Queue.Job.maxAttemptsExhausted` is now dispatched when a job has failed all of its configured retry attempts. This allows you to implement custom handling for permanently failed jobs, such as sending notifications or logging to external services. See the [Events section](/reference/misc#events) for usage details.
 
@@ -32,6 +32,6 @@ then jump to v8.
 
 Workers without an explicit lifetime use `Config::workermaxruntime()`'s 120-second default. The same configured lifetime drives PHP's default timeout. `--max-runtime 0` now disables PHP's timeout as well as the worker loop limit.
 
-Failed-status handling accepts an incomplete job entity without using a null array key on PHP 8.5. Statistics queries use query builders, and the test suite uses PHPUnit attributes for class metadata.
+Failed-status handling accepts an incomplete job entity without using a null array key on PHP 8.5.
 
 Restart workers after schema migrations so their ORM table schemas reflect the deployed database.

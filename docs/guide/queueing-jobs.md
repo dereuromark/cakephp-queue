@@ -228,9 +228,7 @@ $queuedJobsTable->createJob(
 // inserts a fresh row.
 ```
 
-`unique: true` without a `reference` throws `InvalidArgumentException`
-,  fail-fast at the call site rather than silently inserting an
-undeduped row. The dedup check uses an info-level log entry
+`unique: true` without a `reference` throws `InvalidArgumentException` at the call site. It does not insert a duplicate row. The dedup check uses an info-level log entry
 (`Queue.createJob: dedup hit for <task> reference=<ref> ...`) so
 operators can confirm the guard is firing.
 

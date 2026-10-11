@@ -42,7 +42,7 @@ The [example configuration](https://github.com/dereuromark/cakephp-queue/blob/ma
 
 `--max-runtime` overrides the worker lifetime. A non-null CLI override also sets PHP's timeout to twice that value; zero removes both limits. Earlier releases may require explicit worker lifetime configuration. See [Upgrading](../reference/upgrading).
 
-PHP's timeout is not a portable wall-clock limit: on Unix, time blocked in many I/O operations is excluded. Put timeouts on external calls and size task claim timeouts above the longest expected execution time.
+[PHP's timeout](https://www.php.net/manual/en/function.set-time-limit.php) is not a portable wall-clock limit: on Unix, time blocked in many I/O operations is excluded. Put timeouts on external calls and size task claim timeouts above the longest expected execution time.
 
 ## Task settings
 

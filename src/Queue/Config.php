@@ -55,7 +55,7 @@ class Config {
 			}
 		}
 
-		return $runtime ?? 120;
+		return (int)($runtime ?? 120);
 	}
 
 	/**

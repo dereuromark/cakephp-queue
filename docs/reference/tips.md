@@ -64,7 +64,7 @@ bin/cake queue worker end all -q
 ```
 
 To avoid further deployment issues, also try to keep the runtime per worker to only a few minutes.
-You can additionally do this call at the end of the deployment script to make sure any workers started in the meantime
+You can call this at the end of the deployment script to make sure any workers started in the meantime
 will also be aborting early.
 
 ### Ending workers per server
@@ -98,9 +98,7 @@ Thus it is disabled by default for trivial use cases.
 
 ## Killing workers
 
-**Important:** The `workerLifetime` setting cannot be set to 0 - it will throw a RuntimeException if you try. This is by design to prevent workers from running indefinitely and potentially overloading your server. If you need long-running workers, use a very large value instead (e.g., 86400 for 24 hours).
-
-Similarly, avoid setting `workerPhpTimeout` to 0 (unlimited). While technically allowed, this removes the last safeguard against process accumulation and can lead to server overload if workers start faster than they terminate.
+Set `workerLifetime` to `0` for an unbounded worker, or use a bounded lifetime with a process manager that restarts it. On versions containing the [runtime fixes](./upgrading#unreleased-worker-fixes), `--max-runtime 0` also disables PHP's execution timeout. Set timeouts on external calls and plan graceful worker shutdown during deployment.
 
 Note: The old config names `workermaxruntime` and `workertimeout` are deprecated but still supported.
 
