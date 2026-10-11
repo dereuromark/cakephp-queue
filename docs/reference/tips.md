@@ -14,7 +14,6 @@ Otherwise, you can manually include the Queue plugin generator tasks in your `co
 use Queue\Generator\Task\QueuedJobTask;
 
 return [
-    ...
     'IdeHelper' => [
         'generatorTasks' => [
             QueuedJobTask::class,
@@ -135,7 +134,6 @@ Set up a DTO per task in your `dto.xml`, e.g.
 <dto name="OrderUpdateNotificationQueueData" immutable="true">
     <field name="orderId" type="int" required="true"/>
     <field name="type" type="string" required="true"/>
-    ...
 </dto>
 ```
 Instead of a plain array you can now rely on a clean API for input:

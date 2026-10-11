@@ -108,7 +108,10 @@ use Queue\Queue\Task\EmailTask;
 
 $taskName = EmailTask::taskName();
 
-$queuedJobsTable->createJob($taskName, ['to' => 'user@example.org', ...]);
+$queuedJobsTable->createJob($taskName, [
+    'settings' => ['to' => 'user@example.org', 'from' => 'no-reply@example.org'],
+    'content' => 'Email body',
+]);
 ```
 This can be useful when more dynamically adding certain jobs of different types.
 
@@ -359,22 +362,22 @@ echo $this->QueueProgress->htmlTimeoutProgressBar($queuedJob, $textTimeoutProgre
 
 If you want also to allow adding jobs from CLI, you need to implement the AddInterface:
 ```php
-...
-use Queue/Queue/AddInterface;
+namespace App\Queue\Task;
 
-class MyExampleTask extends Task implements AddInterface {
+use Queue\Queue\AddInterface;
+use Queue\Queue\Task;
 
-    ...
-
-    /**
-     * @param string|null $data
-     *
-     * @return void
-     */
-    public function add(?string $data): void {
-        ...
+class MyExampleTask extends Task implements AddInterface
+{
+    public function add(?string $data): void
+    {
+        $this->QueuedJobs->createJob('MyExample', ['message' => $data ?? 'Hello']);
     }
 
+    public function run(array $data, int $jobId): void
+    {
+        $this->io->out($data['message']);
+    }
 }
 ```
 Now you can add them from both CLI and Web backend (/queue).
