@@ -90,11 +90,9 @@ class JobCommand extends Command {
 		$this->QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
 
 		// Set connection for multi-connection support
-		if ($this->connection !== 'default') {
-			/** @var \Cake\Database\Connection $connectionObject */
-			$connectionObject = ConnectionManager::get($this->connection);
-			$this->QueuedJobs->setConnection($connectionObject);
-		}
+		/** @var \Cake\Database\Connection $connectionObject */
+		$connectionObject = ConnectionManager::get($this->connection);
+		$this->QueuedJobs->setConnection($connectionObject);
 
 		$action = $args->getArgument('action');
 		if (!$action) {

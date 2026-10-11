@@ -122,12 +122,10 @@ class Processor {
 		$this->QueueProcesses = $tableLocator->get('Queue.QueueProcesses');
 
 		// Set connection for multi-connection support
-		if ($this->connection !== 'default') {
-			/** @var \Cake\Database\Connection $connectionObject */
-			$connectionObject = ConnectionManager::get($this->connection);
-			$this->QueuedJobs->setConnection($connectionObject);
-			$this->QueueProcesses->setConnection($connectionObject);
-		}
+		/** @var \Cake\Database\Connection $connectionObject */
+		$connectionObject = ConnectionManager::get($this->connection);
+		$this->QueuedJobs->setConnection($connectionObject);
+		$this->QueueProcesses->setConnection($connectionObject);
 	}
 
 	/**

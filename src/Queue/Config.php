@@ -21,7 +21,7 @@ class Config {
 	public static function resolveConnection(?string $connection): string {
 		$connections = Configure::read('Queue.connections');
 		if (!is_array($connections) || count($connections) < 2) {
-			return $connection ?: 'default';
+			return $connection ?: (Configure::read('Queue.connection') ?: 'default');
 		}
 		if ($connection === null) {
 			return $connections[0];

@@ -83,6 +83,28 @@ class AddCommandTest extends TestCase {
 		$this->assertSame(1, (int)ConnectionManager::get('queue_add_test')->execute('SELECT COUNT(*) FROM queued_jobs')->fetchColumn(0));
 	}
 
+	public function testAddPreservesLegacyQueueConnection(): void {
+		$this->createSecondaryConnection();
+		Configure::write('Queue.connection', 'queue_add_test');
+
+		$this->exec('queue add Queue.Example');
+
+		$this->assertExitCode(0);
+		$this->assertSame(1, (int)ConnectionManager::get('queue_add_test')->execute('SELECT COUNT(*) FROM queued_jobs')->fetchColumn(0));
+		$this->assertSame(0, (int)ConnectionManager::get('default')->execute('SELECT COUNT(*) FROM queued_jobs')->fetchColumn(0));
+	}
+
+	public function testExplicitDefaultOverridesLegacyQueueConnection(): void {
+		$this->createSecondaryConnection();
+		Configure::write('Queue.connection', 'queue_add_test');
+
+		$this->exec('queue add Queue.Example --connection default');
+
+		$this->assertExitCode(0);
+		$this->assertSame(0, (int)ConnectionManager::get('queue_add_test')->execute('SELECT COUNT(*) FROM queued_jobs')->fetchColumn(0));
+		$this->assertSame(1, (int)ConnectionManager::get('default')->execute('SELECT COUNT(*) FROM queued_jobs')->fetchColumn(0));
+	}
+
 	public function testAddRejectsConnectionOutsideWhitelist(): void {
 		Configure::write('Queue.connections', ['default', 'queue_add_test']);
 		$this->expectException(RuntimeException::class);
@@ -104,6 +126,7 @@ class AddCommandTest extends TestCase {
 	public function tearDown(): void {
 		ConnectionManager::drop('queue_add_test');
 		Configure::delete('Queue.connections');
+		Configure::delete('Queue.connection');
 
 		parent::tearDown();
 	}

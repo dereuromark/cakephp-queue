@@ -11,6 +11,8 @@ Enable multi-connection mode by defining an array of connections in your config:
 $config['Queue']['connections'] = ['default', 'acme'];
 ```
 
+Without multi-connection mode, commands use `Queue.connection` when configured, otherwise `default`; an explicit `--connection` overrides that choice.
+
 The first configured connection is the default for the admin interface and the add, worker and job commands when no connection is selected.
 
 **Important:**
