@@ -58,6 +58,8 @@ bin/cake queue job view 123 --connection acme
 bin/cake queue job reset all --connection acme
 ```
 
+`queue add` has no `--connection` option. To enqueue on another connection, use a table instance for that connection as shown below, then run a matching worker.
+
 ## Creating Jobs for Specific Connections
 
 Jobs belong to the connection used to create them. Use a separate table instance for each connection so later calls to the shared table do not inherit a changed connection:

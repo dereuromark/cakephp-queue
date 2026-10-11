@@ -378,12 +378,11 @@ class MyExampleTask extends Task implements AddInterface
     }
 }
 ```
-Now you can add them from both CLI and Web backend (/queue).
-So `bin/cake queue add SpecialExample` for SpecialExampleTask.
+Add the example from the CLI with `bin/cake queue add MyExample`. To expose it in the admin backend, also implement `AddFromBackendInterface`; see the next section.
 
 The payload is a simple string, make sure to quote if it contains whitespace:
 ```
-bin/cake queue add SpecialExample "Foo:Bar, Baz"
+bin/cake queue add MyExample "Foo:Bar, Baz"
 ```
 You need to handle the content of this `$data` string manually inside your `add()` method.
 

@@ -80,6 +80,7 @@ class RunCommandTest extends TestCase {
 		$this->exec('queue run --max-runtime 20 --type Queue.Example -v');
 		$this->assertExitCode(0);
 		$this->assertOutputContains('CakePHP Queue Example task.');
+		$this->assertOutputContains('Job Finished.');
 		$job = $this->fetchTable('Queue.QueuedJobs')->find()->firstOrFail();
 		$this->assertNotNull($job->completed);
 	}

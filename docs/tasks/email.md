@@ -163,6 +163,7 @@ $data = [
 You can assemble a Message object manually and pass it as a serialized array:
 ```php
 use Cake\Mailer\Message;
+use Cake\ORM\TableRegistry;
 use Queue\Queue\Task\EmailTask;
 
 $message = new Message();
