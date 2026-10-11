@@ -71,6 +71,19 @@ class RunCommandTest extends TestCase {
 		$this->assertExitCode(0);
 	}
 
+	public function testGettingStartedExample(): void {
+		$this->_needsConnection();
+		Configure::write('Queue.exitwhennothingtodo', true);
+
+		$this->exec('queue add Queue.Example');
+		$this->assertExitCode(0);
+		$this->exec('queue run --max-runtime 20 --type Queue.Example -v');
+		$this->assertExitCode(0);
+		$this->assertOutputContains('CakePHP Queue Example task.');
+		$job = $this->fetchTable('Queue.QueuedJobs')->find()->firstOrFail();
+		$this->assertNotNull($job->completed);
+	}
+
 	/**
 	 * Helper method for skipping tests that need a real connection.
 	 *
