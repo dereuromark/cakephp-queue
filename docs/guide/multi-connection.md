@@ -11,11 +11,13 @@ Enable multi-connection mode by defining an array of connections in your config:
 $config['Queue']['connections'] = ['default', 'acme'];
 ```
 
-The first connection in the array becomes the default when no specific connection is selected.
+In single-connection mode, commands preserve the connection assigned to the shared `Queue.QueuedJobs` table. Its default comes from `Queue.connection`, otherwise `default`. An explicit `--connection` overrides the table connection.
+
+The first configured connection is the default for the admin interface, queue tables and CLI commands when no connection is selected. It takes precedence over `Queue.connection` and manually assigned table connections in multi-connection mode. For an application operation targeting another listed connection, select the same connection explicitly in the worker and management commands.
 
 **Important:**
 - Multi-connection mode is only enabled when 2 or more connections are configured
-- Only connections in this whitelist can be used (security feature)
+- The admin selector and CLI commands only accept connections from this list
 - Without this config, the plugin operates in backwards-compatible single-connection mode
 
 ## Admin Dashboard
@@ -25,7 +27,7 @@ When multi-connection mode is enabled, a connection switcher dropdown appears in
 - The dropdown shows all configured connections
 - Select a connection to view jobs/workers for that specific database
 - The current connection is highlighted
-- The connection selection persists via URL query parameter (`?connection=acme`)
+- The selection is stored in the session; a URL query parameter (`?connection=acme`) overrides it
 
 All admin pages (Dashboard, Jobs, Workers, Processes) will show data for the selected connection.
 
@@ -58,55 +60,33 @@ bin/cake queue job view 123 --connection acme
 bin/cake queue job reset all --connection acme
 ```
 
+On versions containing the [connection option](../reference/upgrading#unreleased-worker-fixes), `queue add` follows the same connection rules:
+
+```sh
+bin/cake queue add Queue.Example --connection acme
+bin/cake queue run --connection acme
+bin/cake queue info --connection acme --format json
+bin/cake queue worker end all --connection acme
+```
+
+Earlier versions need the table-instance approach below to enqueue on another connection.
+
 ## Creating Jobs for Specific Connections
 
-Jobs are stored in the database they were created against. To create a job for a specific connection, you need to get the table with that connection:
+Jobs belong to the connection used to create them. Use a separate table instance for each connection so later calls to the shared table do not inherit a changed connection:
 
 ```php
 use Cake\Datasource\ConnectionManager;
+use Queue\Model\Table\QueuedJobsTable;
 
-// Get the QueuedJobs table
-$queuedJobsTable = $this->fetchTable('Queue.QueuedJobs');
-
-// For a non-default connection, set it explicitly
-$connection = ConnectionManager::get('acme');
-$queuedJobsTable->setConnection($connection);
-
-// Create the job - it will be stored in the 'acme' database
-$queuedJobsTable->createJob('MyTask', $data);
+$queuedJobs = new QueuedJobsTable([
+    'alias' => 'AcmeQueuedJobs',
+    'connection' => ConnectionManager::get('acme'),
+]);
+$queuedJobs->createJob('MyTask', ['key' => 'value']);
 ```
 
-Or using the table locator directly:
-
-```php
-use Cake\Datasource\ConnectionManager;
-use Cake\ORM\TableRegistry;
-
-$queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
-$queuedJobsTable->setConnection(ConnectionManager::get('acme'));
-
-$queuedJobsTable->createJob('MyTask', ['key' => 'value']);
-```
-
-### Helper Method Pattern
-
-For cleaner code, consider creating a helper method or service:
-
-```php
-// In a utility class or base controller
-protected function getQueueTable(string $connection = 'default'): QueuedJobsTable {
-    $table = $this->fetchTable('Queue.QueuedJobs');
-
-    if ($connection !== 'default') {
-        $table->setConnection(ConnectionManager::get($connection));
-    }
-
-    return $table;
-}
-
-// Usage
-$this->getQueueTable('acme')->createJob('MyTask', $data);
-```
+Do not switch a shared table's connection and assume the next caller will restore it. Use matching workers and install the Queue schema on each database.
 
 ## Running Workers in Production
 

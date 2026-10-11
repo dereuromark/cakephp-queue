@@ -1,26 +1,20 @@
 # Mailing
 
-There are multiple ways to send emails asynchronously using the Queue plugin:
-
-## Using built-in tasks
-* [Email Task](/tasks/email) - For basic emails using Message class (most flexible)
-* [Mailer Task](/tasks/mailer) - For reusable templated emails using Mailer classes (best for standard emails)
+Use the [Email task](/tasks/email) for message payloads or the [Mailer task](/tasks/mailer) for reusable Mailer actions. Both require a configured transport that can send mail from the worker environment.
 
 ## Using QueueTransport
 
-Instead of manually adding job every time you want to send mail
-you can use existing code ond change only EmailTransport and Email configurations in `app.php`.
+QueueTransport stores an already rendered message as a job. Configure a separate delivery transport so the worker sends it instead of queuing it again:
 
 ```php
+// config/app_local.php: use your SMTP provider's credentials.
 'EmailTransport' => [
     'default' => [
         'className' => 'Smtp',
-        // The following keys are used in SMTP transports
-        'host' => 'host@gmail.com',
+        'host' => 'smtp.example.com',
         'port' => 587,
-        'timeout' => 30,
-        'username' => 'username',
-        'password' => 'password',
+        'username' => env('SMTP_USERNAME'),
+        'password' => env('SMTP_PASSWORD'),
         'tls' => true,
     ],
     'queue' => [
@@ -28,95 +22,66 @@ you can use existing code ond change only EmailTransport and Email configuration
         'transport' => 'default',
     ],
 ],
-
 'Email' => [
     'default' => [
         'transport' => 'queue',
-        'from' => 'no-reply@host.com',
-        'charset' => 'utf-8',
-        'headerCharset' => 'utf-8',
+        'from' => 'no-reply@example.com',
     ],
 ],
 ```
 
-This way each time with `$mailer->deliver()` it will use `QueueTransport` as main to create job and worker will use `'transport'` setting to send mail.
+Calls to `deliver()` using this mail configuration create jobs. A running Queue worker delivers them through `default`. Successful queuing does not confirm delivery.
 
-### Difference between QueueTransport and SimpleQueueTransport
+### QueueTransport and SimpleQueueTransport
 
-* `QueueTransport` serializes whole email into the database and is useful when you have custom `Message` class.
-* `SimpleQueueTransport` extracts all data from Message (to, bcc, template etc.) and then uses this to recreate Message inside task, this
-  is useful when dealing with emails which serialization would overflow database `data` field length.
-  This can only be used for non-templated emails.
+QueueTransport serializes the complete Message, including its rendered body. SimpleQueueTransport extracts message settings and body data for reconstruction by the Email task. Templates have already rendered before either transport receives the Message. Neither transport removes the need to fit the payload into your database's `data` column.
 
+For SimpleQueueTransport, use `Queue.SimpleQueue` as `className`, with the same separate delivery transport.
 
 ## Creating custom email tasks
 
-For more complex email workflows, you can create custom task classes.
-
-This is the most customizable way to generate your asynchronous emails. Don't generate emails directly in your code and pass them to the queue. Instead, pass only the minimum requirements (non-persistent data and primary keys of records).
-
-Example: Sending a notification when someone posts a comment.
-
-Inside your CommentsTable class after saving:
+Pass record IDs when the worker should load current data and render the email later. For example, after saving a comment:
 
 ```php
-/**
- * @param \App\Model\Entity\Comment $comment
- * @return void
- */
-protected function _notifyAdmin(Comment $comment)
-{
-    /** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
-    $QueuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
-    $data = [
-        'settings' => [
-            'subject' => __('New comment submitted by {0}', $comment->name),
-        ],
-        'vars' => [
-            'comment' => $comment->toArray(),
-        ],
-    ];
-    $QueuedJobs->createJob('CommentNotification', $data);
-}
+use Cake\ORM\TableRegistry;
+
+$queuedJobs = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
+$queuedJobs->createJob('CommentNotification', ['comment_id' => $comment->id]);
 ```
 
-Create your custom task class `src/Queue/Task/CommentNotificationTask.php`:
+Create `src/Queue/Task/CommentNotificationTask.php`:
 
 ```php
 namespace App\Queue\Task;
 
-use Cake\Mailer\MailerAwareTrait;
+use Cake\Mailer\Mailer;
 use Queue\Queue\Task;
 
 class CommentNotificationTask extends Task
 {
-    use MailerAwareTrait;
-
     public function run(array $data, int $jobId): void
     {
-        $mailer = $this->getMailer('User');
+        $comment = $this->fetchTable('Comments')->get($data['comment_id']);
+        $mailer = new Mailer();
+        $mailer->setTransport('default')
+            ->setFrom('no-reply@example.com')
+            ->setTo('admin@example.com')
+            ->setSubject('New comment')
+            ->setEmailFormat('html')
+            ->setViewVars(['comment' => $comment]);
         $mailer->viewBuilder()->setTemplate('comment_notification');
-
-        if (!empty($data['settings']['subject'])) {
-            $mailer->setSubject($data['settings']['subject']);
-        }
-        if (!empty($data['vars'])) {
-            $mailer->setViewVars($data['vars']);
-        }
-
         $mailer->deliver();
     }
 }
 ```
 
-Create the email template `templates/email/html/comment_notification.php`:
+Use your application's real sender, recipient and delivery transport. The task throws if the comment has been deleted; decide whether deleted records should instead be skipped in your application.
+
+Create `templates/email/html/comment_notification.php`:
 
 ```php
-<?= $comment->name ?> (<?= $comment->email ?>) wrote:
-
-<?= $comment->message ?>
-
-<?= $this->Url->build(['prefix' => 'Admin', 'controller' => 'Comments', 'action'=> 'view', $comment['id']], true) ?>
+<p><?= h($comment->name) ?> (<?= h($comment->email) ?>) wrote:</p>
+<p><?= nl2br(h($comment->message)) ?></p>
 ```
 
-This way all the email generation logic is in the specific task and template, making it easy to test separately.
+A retry can send the email again if the worker fails after delivery but before marking the job complete. Account for that when designing notifications; see [limitations](/reference/limitations).

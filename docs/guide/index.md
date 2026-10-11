@@ -1,24 +1,17 @@
-# Guide
+# Overview
 
-The Queue plugin runs background jobs out of your CakePHP database — no Redis, no RabbitMQ, no extra infrastructure. Jobs are persisted, retried on failure, and processed by one or more worker processes you trigger via cron, supervisor, or systemd.
+Queue stores background jobs in your application's database. A separate CLI worker processes them, records completion, and retries failures according to each task's configuration.
 
-## Where to start
+Start with [Installation](./installation), then [Getting started](./getting-started). Use [Queueing jobs](./queueing-jobs) for payloads, priorities, references, and progress, or [Custom tasks](./custom-tasks) to implement your application's work.
 
-- [Basic Setup](/guide/basic-setup) — install, load the plugin, run migrations.
-- [Queueing Jobs](/guide/queueing-jobs) — create jobs from your app code, with priorities, references, and progress tracking.
-- [Custom Tasks](/guide/custom-tasks) — write your own task classes.
+## Operations
 
-## Operating the queue
+Configure worker lifetimes, timeouts, and retries in [Configuration](./configuration). Follow [Cron](./cron) or [Operations](./operations) to keep workers running. [Multi-connection](./multi-connection) covers separate queue databases.
 
-- [Configuration](/guide/configuration) — runtime tuning (worker lifetime, timeouts, retries, multi-server).
-- [Operations](/guide/operations) — production checklist: sizing workers, supervisor/systemd, monitoring, failure handling, schema migrations on live workers.
-- [Cron Setup](/guide/cron) — start workers on a schedule.
-- [Multi-Connection](/guide/multi-connection) — run queues against multiple databases.
-- [Real-Time Progress](/guide/realtime-progress) — Mercure / SSE for live progress UIs.
+Jobs can be executed more than once after crashes or timeouts. Design tasks to tolerate retries; the queue does not guarantee exactly-once execution. See [Limitations](../reference/limitations).
 
-## Email handling
+## Email and admin tools
 
-- [Mailing](/guide/mailing) — queueing emails via QueueTransport, custom email tasks, and the built-in tasks reference.
+[Mailing](./mailing) covers queue transports and custom email tasks. The [built-in tasks](../tasks/) include Email, Mailer, and Execute.
 
-For built-in tasks (Execute, Email, Mailer), see [Tasks](/tasks/).
-For the admin UI, see [Admin Dashboard](/admin/).
+The optional [admin interface](../admin/) shows jobs and worker activity behind a required application access callback. [Real-time progress](./realtime-progress) uses an optional Mercure integration.

@@ -19,8 +19,7 @@ $queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 $queuedJobsTable->createJob('Queue.Email', $data);
 ```
 
-This will send a plain email. Each settings key must have a matching setter method on the Message class.
-The prefix `set` will be auto-added here when calling it.
+This will send a plain email. Address settings are passed to the Mailer. Template, layout, theme and helper settings configure its view builder; other settings call the matching `set...()` method.
 
 ### Sending a templated email
 
@@ -31,11 +30,12 @@ $data = [
         'to' => $user->email,
         'from' => Configure::read('Config.adminEmail'),
         'subject' => $subject,
-        'template' => 'my_template', // Uses templates/email/html/my_template.php
+        'template' => 'my_template',
+        'emailFormat' => 'html', // Uses templates/email/html/my_template.php
     ],
     'vars' => [
-        'user' => $user,
-        'myEntity' => $myEntity,
+        'user' => $user->toArray(),
+        'myEntity' => $myEntity->toArray(),
     ],
 ];
 $queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
@@ -60,8 +60,8 @@ For fields like `to` and `cc`, you can specify multiple recipients:
 ```php
 'settings' => [
     'cc' => [
-        ['user1@example.com', 'User One'],
-        ['user2@example.com', 'User Two'],
+        'user1@example.com' => 'User One',
+        'user2@example.com' => 'User Two',
     ],
 ],
 ```
@@ -88,7 +88,7 @@ $data = [
         'template' => 'my_template',
         'helpers' => [['Shim.Configure']],
     ],
-    'vars' => [...],
+    'vars' => ['message' => 'Hello'],
 ];
 ```
 
@@ -104,7 +104,7 @@ $data = [
         'layout' => 'custom_layout',
         'theme' => 'MyTheme',
     ],
-    'vars' => [...],
+    'vars' => ['message' => 'Hello'],
 ];
 ```
 
@@ -150,7 +150,7 @@ $data = [
 You can override the default transport for a specific email:
 ```php
 $data = [
-    'settings' => [...],
+    'settings' => ['to' => 'reader@example.com', 'from' => 'admin@example.com'],
     'content' => $content,
     'transport' => 'smtp', // Use a different transport configuration
 ];
@@ -163,13 +163,14 @@ $data = [
 You can assemble a Message object manually and pass it as a serialized array:
 ```php
 use Cake\Mailer\Message;
+use Cake\ORM\TableRegistry;
 use Queue\Queue\Task\EmailTask;
 
 $message = new Message();
 $message->setTo($user->email)
     ->setFrom('admin@example.com')
     ->setSubject('Subject')
-    ->setBody('Message body');
+    ->setBodyText('Message body');
 
 $data = [
     'class' => Message::class,
@@ -180,7 +181,7 @@ $queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
 $queuedJobsTable->createJob('Queue.Email', $data);
 ```
 
-The Message object is serialized to an array, which is safe for database storage and survives code changes.
+The message is stored as an array. Process pending messages before framework upgrades that change the serialized message format. Template variables also become JSON data; use arrays and scalar values rather than expecting entity objects in the worker.
 
 ### Passing a PHP-serialized Message object (deprecated)
 
@@ -196,27 +197,28 @@ $data = [
 **Warning:** This is not recommended as it breaks when the underlying class changes during framework upgrades. Make sure all jobs are processed before upgrading your CakePHP version.
 
 
-## Using custom Message class
+## Using a custom Message class
 
-If you have a custom Message class (extending `Cake\Mailer\Message`), you can use it by specifying the class:
+Build the complete message before serializing it. When `class` is supplied, the task sends the Message directly through the transport; separate `content`, `vars` and `headers` payload keys are not applied.
 
 ```php
-use App\Mailer\Message; // Your custom Message class
+use App\Mailer\Message;
+use Cake\ORM\TableRegistry;
+use Queue\Queue\Task\EmailTask;
 
-$data = [
-    'class' => Message::class,
-    'settings' => [
-        'to' => $user->email,
-        'from' => 'admin@example.com',
-        'subject' => $subject,
-    ],
-    'content' => $content,
-];
+$message = new Message();
+$message->setTo('reader@example.com')
+    ->setFrom('admin@example.com')
+    ->setSubject('Notification')
+    ->setBodyText('Your notification is ready.');
+
 $queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
-$queuedJobsTable->createJob('Queue.Email', $data);
+$queuedJobsTable->createJob('Queue.Email', [
+    'class' => Message::class,
+    'settings' => EmailTask::serialize($message),
+    'serialized' => true,
+]);
 ```
-
-This approach is JsonSerializer safe and works well with the queue system.
 
 ## See also
 

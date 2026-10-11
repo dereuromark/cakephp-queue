@@ -1,6 +1,6 @@
 # Upgrading from older versions
 
-## New Features
+## Version changes
 ### Events for job lifecycle (v8.4+)
 A new event `Queue.Job.maxAttemptsExhausted` is now dispatched when a job has failed all of its configured retry attempts. This allows you to implement custom handling for permanently failed jobs, such as sending notifications or logging to external services. See the [Events section](/reference/misc#events) for usage details.
 
@@ -25,5 +25,15 @@ Two follow-ups for callers:
   etc
 
 ## Coming from before v7?
-If you are upgrading from Cake3/4 and v5/v6, make sure to install v7 firs, run all migrations,
+If you are upgrading from Cake3/4 and v5/v6, make sure to install v7 first, run all migrations,
 then jump to v8.
+
+## Unreleased worker fixes
+
+`queue add`, `queue info` and `queue worker` now accept `--connection` and use the same configured default and whitelist as `queue run` and `queue job`. In multi-connection setups, commands and queue tables now use the first configured connection by default. It takes precedence over `Queue.connection`. Explicit connection selection also applies when selecting `default`.
+
+Workers without an explicit lifetime use `Config::workermaxruntime()`'s 120-second default. The same configured lifetime drives PHP's default timeout. `--max-runtime 0` now disables PHP's timeout as well as the worker loop limit.
+
+Failed-status handling accepts an incomplete job entity without using a null array key on PHP 8.5.
+
+Restart workers after schema migrations so their ORM table schemas reflect the deployed database.

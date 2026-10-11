@@ -6,10 +6,10 @@ By default, errors are always logged, and with log enabled also the execution of
 Make sure you add this to your config:
 ```php
 'Log' => [
-    ...
     'queue' => [
-        'className' => ...,
-        'type' => 'queue',
+        'className' => 'File',
+        'path' => LOGS,
+        'file' => 'queue',
         'levels' => ['info'],
         'scopes' => ['queue'],
     ],
@@ -26,7 +26,7 @@ With web backend you can reset specific ones, as well.
 
 From CLI you run this to reset all at once:
 ```
-bin/cake queue reset
+bin/cake queue job reset all
 ```
 
 ## Rerunning
@@ -35,17 +35,17 @@ Usually weeks or months is a good balance to have those still stored for this ca
 
 This is especially useful for local development or debugging, though. As you would otherwise have to manually trigger or import the job all the time.
 
-From CLI you run this to rerun all of a specific job type at once:
+From CLI, rerun a completed job by ID:
 ```
-bin/cake queue rerun FooBar
+bin/cake queue job rerun 123
 ```
-You can add a reference to rerun a specific job.
+Use `bin/cake queue job rerun all` to rerun all retained completed jobs. The command does not accept a task type or reference filter.
 
 ## Using custom finder
 You can use a convenience finder for tasks that are still queued, that means not yet finished.
 ```php
 $queuedJobsTable = $this->fetchTable('Queue.QueuedJobs');
-$query = $queuedJobsTable->find('queued')->...;
+$query = $queuedJobsTable->find('queued');
 ```
 This includes also failed ones if not filtered further using `where()` conditions.
 

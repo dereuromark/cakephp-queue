@@ -74,13 +74,13 @@ return [
 		// set default datasource connection
 		'connection' => null,
 
-		// Multi-connection mode: whitelist of datasource connection names a
-		// worker / job command may run against. Leave empty (or with fewer than
-		// 2 entries) to stay in single-connection mode, where the singular
-		// `connection` above (or 'default') is used. With 2+ entries, the first
-		// is the default and any --connection passed to the run/job commands
-		// must appear in this list or a RuntimeException is thrown. The admin
-		// dashboard also exposes a connection switcher when this has 2+ entries.
+		// Multi-connection mode: allowed datasource names for add, run, job,
+		// info and worker commands. With 2+ entries, the first is the default;
+		// an explicit --connection must appear in this list.
+		// With fewer than 2 entries, commands preserve the QueuedJobs table's
+		// assigned connection, whose default comes from `connection` above
+		// or 'default'. An explicit --connection overrides that choice.
+		// The admin dashboard exposes a switcher with 2+ entries.
 		'connections' => [
 			//'default',
 			//'queue_secondary',

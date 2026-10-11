@@ -5,11 +5,11 @@ namespace Queue\Test\TestCase\Command;
 
 use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\TestSuite\TestCase;
+use PHPUnit\Framework\Attributes\UsesClass;
+use Queue\Command\BakeQueueTaskCommand;
 use Shim\TestSuite\TestTrait;
 
-/**
- * @uses \Queue\Command\BakeQueueTaskCommand
- */
+#[UsesClass(BakeQueueTaskCommand::class)]
 class BakeQueueTaskCommandTest extends TestCase {
 
 	use TestTrait;

@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Queue\Model\Table;
 
-use Cake\Core\Configure;
 use Cake\I18n\DateTime;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\Query\SelectQuery;
@@ -45,13 +44,7 @@ class QueueProcessesTable extends Table {
 	 * @return string
 	 */
 	public static function defaultConnectionName(): string {
-		/** @var string|null $connection */
-		$connection = Configure::read('Queue.connection');
-		if ($connection) {
-			return $connection;
-		}
-
-		return parent::defaultConnectionName();
+		return Config::resolveConnection(null);
 	}
 
 	/**

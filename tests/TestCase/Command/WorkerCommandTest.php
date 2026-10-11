@@ -5,10 +5,10 @@ namespace Queue\Test\TestCase\Command;
 
 use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\TestSuite\TestCase;
+use PHPUnit\Framework\Attributes\UsesClass;
+use Queue\Command\WorkerCommand;
 
-/**
- * @uses \Queue\Command\WorkerCommand
- */
+#[UsesClass(WorkerCommand::class)]
 class WorkerCommandTest extends TestCase {
 
 	use ConsoleIntegrationTestTrait;

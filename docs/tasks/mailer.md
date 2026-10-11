@@ -1,106 +1,72 @@
-# Using built-in Mailer task
+# Mailer task
 
-The Mailer task is designed for sending reusable, templated emails using CakePHP's Mailer classes. This approach is ideal when you have standardized email types that you send frequently throughout your application.
+`Queue.Mailer` runs an action on a CakePHP Mailer class. Queue a class name, action, and JSON-safe arguments; the worker calls the action and sends the resulting mail.
 
-## What is a Mailer?
+## Define the mailer
 
-A Mailer class in CakePHP encapsulates email logic, templates, and configuration in a reusable way. Instead of configuring emails inline, you define actions in a Mailer class that handle specific email types.
-
-See [CakePHP Mailer documentation](https://book.cakephp.org/5/en/core-libraries/email.html#sending-emails-using-mailer) for more information about creating Mailer classes.
-
-## When to use Mailer task vs Email task
-
-- **Use Mailer task** when you have reusable email types defined in Mailer classes (e.g., welcome emails, password resets, notifications)
-- **Use Email task** when you need more flexibility or one-off emails with dynamic configuration
-
-## Basic usage
-
-Create a Mailer class (if you don't have one already):
+Create `src/Mailer/UserMailer.php`:
 
 ```php
-// src/Mailer/UserMailer.php
 namespace App\Mailer;
 
 use Cake\Mailer\Mailer;
 
-class UserMailer extends Mailer
-{
-    public function welcome($user)
-    {
-        $this
-            ->setTo($user->email)
-            ->setSubject('Welcome to our site')
-            ->setTemplate('welcome') // Uses templates/email/html/welcome.php
+class UserMailer extends Mailer {
+    public function welcome(array $user): void {
+        $this->setFrom('no-reply@example.com')
+            ->setTo($user['email'])
+            ->setSubject('Welcome')
+            ->setEmailFormat('html')
             ->setViewVars(['user' => $user]);
+        $this->viewBuilder()->setTemplate('welcome');
     }
 
-    public function passwordReset($user, $token)
-    {
-        $this
-            ->setTo($user->email)
-            ->setSubject('Password Reset Request')
-            ->setTemplate('password_reset')
-            ->setViewVars([
-                'user' => $user,
-                'resetLink' => \Cake\Routing\Router::url([
-                    'controller' => 'Users',
-                    'action' => 'resetPassword',
-                    $token,
-                ], true),
-            ]);
+    public function passwordReset(array $user, string $resetUrl): void {
+        $this->setFrom('no-reply@example.com')
+            ->setTo($user['email'])
+            ->setSubject('Reset your password')
+            ->setEmailFormat('html')
+            ->setViewVars(['user' => $user, 'resetUrl' => $resetUrl]);
+        $this->viewBuilder()->setTemplate('password_reset');
     }
 }
 ```
 
-Queue the email:
+Use your application's sender address. Create the corresponding templates in `templates/email/html/`, and configure the transport used by the worker. Template variables in this example are arrays, not entities.
+
+## Queue an email
+
+From a controller:
 
 ```php
 use App\Mailer\UserMailer;
 
-$data = [
+$queuedJobsTable = $this->fetchTable('Queue.QueuedJobs');
+$queuedJobsTable->createJob('Queue.Mailer', [
     'class' => UserMailer::class,
     'action' => 'welcome',
-    'vars' => [$user], // Arguments passed to the mailer action
-];
-$queuedJobsTable = TableRegistry::getTableLocator()->get('Queue.QueuedJobs');
-$queuedJobsTable->createJob('Queue.Mailer', $data);
+    'vars' => [['email' => $user->email, 'name' => $user->name]],
+]);
 ```
 
-Since we're passing a class string and settings (not objects), this is JsonSerializer safe.
+`vars` is a positional argument list. The example's first argument is a plain array. Do not rely on an entity object retaining its class after JSON storage. For data that must be current when sending, pass an ID and fetch the record in your mailer or a custom task.
 
-## Advanced usage
-
-### Passing multiple arguments
-
-The `vars` array is passed as arguments to your Mailer action:
+## Multiple arguments and transport
 
 ```php
-$data = [
+$queuedJobsTable->createJob('Queue.Mailer', [
     'class' => UserMailer::class,
     'action' => 'passwordReset',
-    'vars' => [$user, $resetToken], // Passed as passwordReset($user, $resetToken)
-];
-$queuedJobsTable->createJob('Queue.Mailer', $data);
+    'vars' => [
+        ['email' => $user->email],
+        $resetUrl,
+    ],
+    'transport' => 'smtp',
+]);
 ```
 
-### Overriding transport
+Generate `$resetUrl` with your application logic and configure the named `smtp` transport. Without an override, the task selects `default` before running the mailer action; the action can change it.
 
-You can override the default transport for a specific email:
+Failures throw back to the worker and follow the configured task retry policy. A delivery can succeed before a worker crashes, so a retry can send the message again. See [Limitations](../reference/limitations).
 
-```php
-$data = [
-    'class' => UserMailer::class,
-    'action' => 'welcome',
-    'vars' => [$user],
-    'transport' => 'smtp', // Use a different transport configuration
-];
-$queuedJobsTable->createJob('Queue.Mailer', $data);
-```
-
-## Benefits
-
-- **Reusability**: Define email templates and logic once, use everywhere
-- **Testability**: Easier to test Mailer classes in isolation
-- **Maintainability**: Centralized email configuration and templates
-- **Type safety**: Can type-hint parameters in Mailer actions
-- **Auto-retry**: Failed emails are automatically retried based on your queue configuration
+For a message assembled from settings or serialized data, use the [Email task](./email). For queue transports, see [Mailing](../guide/mailing).

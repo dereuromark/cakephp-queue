@@ -6,10 +6,11 @@ namespace Queue\Test\TestCase\Command;
 use Cake\Console\TestSuite\ConsoleIntegrationTestTrait;
 use Cake\Core\Configure;
 use Cake\TestSuite\TestCase;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
+use PHPUnit\Framework\Attributes\UsesClass;
+use Queue\Command\InfoCommand;
 
-/**
- * @uses \Queue\Command\InfoCommand
- */
+#[UsesClass(InfoCommand::class)]
 class InfoCommandTest extends TestCase {
 
 	use ConsoleIntegrationTestTrait;
@@ -47,6 +48,7 @@ class InfoCommandTest extends TestCase {
 	 *
 	 * @return void
 	 */
+	#[IgnoreDeprecations]
 	public function testExecuteWithNewConfigNames(): void {
 		// Set up some config values using old names
 		Configure::write('Queue.defaultworkertimeout', 300);

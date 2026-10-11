@@ -13,6 +13,8 @@ use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Exception\NotFoundException;
 use Cake\Log\Log;
 use Closure;
+use Psr\Http\Message\ResponseInterface;
+use Queue\Queue\Config;
 use Throwable;
 
 /**
@@ -93,13 +95,24 @@ class QueueAppController extends AppController {
 	 * @return void
 	 */
 	public function beforeFilter(EventInterface $event): void {
-		parent::beforeFilter($event);
+		if (Configure::read('Queue.standalone')) {
+			Controller::beforeFilter($event);
+		} else {
+			$result = parent::beforeFilter($event);
+			if ($result instanceof ResponseInterface) {
+				$event->setResult($result);
+			}
+			if ($event->getResult() instanceof ResponseInterface) {
+				$this->skipAdminAuthorizationCheck();
+				$event->stopPropagation();
+
+				return;
+			}
+		}
 
 		// Coexist with cakephp/authorization: the gate IS the authorization
 		// decision for these controllers, so silence the policy check.
-		if ($this->components()->has('Authorization') && method_exists($this->components()->get('Authorization'), 'skipAuthorization')) {
-			$this->components()->get('Authorization')->skipAuthorization();
-		}
+		$this->skipAdminAuthorizationCheck();
 
 		$gate = Configure::read('Queue.adminAccess');
 		if (!($gate instanceof Closure)) {
@@ -155,7 +168,7 @@ class QueueAppController extends AppController {
 
 		// Single connection mode (backwards compatible)
 		if (!$connections || !is_array($connections) || count($connections) < 2) {
-			return 'default';
+			return Config::resolveConnection(null, $this->fetchTable('Queue.QueuedJobs')->getConnection()->configName());
 		}
 
 		$session = $this->request->getSession();
@@ -203,6 +216,32 @@ class QueueAppController extends AppController {
 		$connection = ConnectionManager::get($this->activeConnection);
 
 		return $connection;
+	}
+
+	/**
+     * @return array<string, mixed>
+     */
+	public function implementedEvents(): array {
+		if (!Configure::read('Queue.standalone')) {
+			return parent::implementedEvents();
+		}
+
+		return ['Controller.initialize' => 'beforeFilter'];
+	}
+
+	protected function skipAdminAuthorizationCheck(): void {
+		$authorization = $this->request->getAttribute('authorization');
+		if (!is_object($authorization)) {
+			return;
+		}
+
+		if ($this->components()->has('Authorization') && method_exists($this->components()->get('Authorization'), 'skipAuthorization')) {
+			$this->components()->get('Authorization')->skipAuthorization();
+		} else {
+			if (is_callable([$authorization, 'skipAuthorization'])) {
+				$authorization->skipAuthorization();
+			}
+		}
 	}
 
 }

@@ -37,7 +37,7 @@ use Queue\Model\Enum\Priority;
 
 $queuedJobsTable->createJob('MyTask', $data, ['priority' => Priority::High]);
 // or using JobConfig
-$config = $queuedJobsTable->newConfig()->setPriority(Priority::High);
+$config = $queuedJobsTable->createConfig()->setPriority(Priority::High);
 ```
 
 Available priority levels (1 = highest, 10 = lowest):
@@ -66,7 +66,7 @@ $queuedJobsTable->createJob('Queue.Email', [
 ]);
 
 // Somewhere in the model or lib
-use Cake\ORM\Locator\LocatorAwareTrait;
+use Cake\ORM\TableRegistry;
 
 TableRegistry::getTableLocator()->get('Queue.QueuedJobs')
     ->createJob('Queue.Email', [
@@ -97,7 +97,7 @@ find the usage more easily, you can also use `<TaskClassName>::class` for `creat
 ```php
 use Queue\Queue\Task\EmailTask;
 
-$queuedJobsTable->createJob(EmailTask::class, ['to' => 'user@example.org', ...]);
+$queuedJobsTable->createJob(EmailTask::class, ['settings' => ['to' => 'user@example.org', 'from' => 'no-reply@example.org'], 'content' => 'Email body']);
 ```
 This does, however, require adding use statements for each such line on top.
 
@@ -108,7 +108,10 @@ use Queue\Queue\Task\EmailTask;
 
 $taskName = EmailTask::taskName();
 
-$queuedJobsTable->createJob($taskName, ['to' => 'user@example.org', ...]);
+$queuedJobsTable->createJob($taskName, [
+    'settings' => ['to' => 'user@example.org', 'from' => 'no-reply@example.org'],
+    'content' => 'Email body',
+]);
 ```
 This can be useful when more dynamically adding certain jobs of different types.
 
@@ -124,7 +127,7 @@ $dataDto = OrderUpdateNotificationQueueDataDto::createFromArray([
     OrderUpdateNotificationQueueDataDto::FIELD_MAILER => 'CustomerRequest',
     OrderUpdateNotificationQueueDataDto::FIELD_TYPE => 'request',
 ]);
-$config = $queuedJobsTable->newConfig()
+$config = $queuedJobsTable->createConfig()
     ->setPriority(Priority::Urgent)
     ->setReference('foo')
     ->setNotBefore('+1 hour');
@@ -225,13 +228,11 @@ $queuedJobsTable->createJob(
 // inserts a fresh row.
 ```
 
-`unique: true` without a `reference` throws `InvalidArgumentException`
-— fail-fast at the call site rather than silently inserting an
-undeduped row. The dedup check uses an info-level log entry
+`unique: true` without a `reference` throws `InvalidArgumentException` at the call site. It does not insert a duplicate row. The dedup check uses an info-level log entry
 (`Queue.createJob: dedup hit for <task> reference=<ref> ...`) so
 operators can confirm the guard is firing.
 
-The dedup window is "the previous job is not yet completed" — pending,
+The dedup window is "the previous job is not yet completed"; pending,
 in-progress, and failed-but-not-completed jobs all block. This is the
 right shape for cron fan-out: if a previous tick is stuck or still
 running, the next tick holds back instead of stacking a duplicate.
@@ -359,30 +360,29 @@ echo $this->QueueProgress->htmlTimeoutProgressBar($queuedJob, $textTimeoutProgre
 
 If you want also to allow adding jobs from CLI, you need to implement the AddInterface:
 ```php
-...
-use Queue/Queue/AddInterface;
+namespace App\Queue\Task;
 
-class MyExampleTask extends Task implements AddInterface {
+use Queue\Queue\AddInterface;
+use Queue\Queue\Task;
 
-    ...
-
-    /**
-     * @param string|null $data
-     *
-     * @return void
-     */
-    public function add(?string $data): void {
-        ...
+class MyExampleTask extends Task implements AddInterface
+{
+    public function add(?string $data): void
+    {
+        $this->QueuedJobs->createJob('MyExample', ['message' => $data ?? 'Hello']);
     }
 
+    public function run(array $data, int $jobId): void
+    {
+        $this->io->out($data['message']);
+    }
 }
 ```
-Now you can add them from both CLI and Web backend (/queue).
-So `bin/cake queue add SpecialExample` for SpecialExampleTask.
+Add the example from the CLI with `bin/cake queue add MyExample`. To expose it in the admin backend, also implement `AddFromBackendInterface`; see the next section.
 
 The payload is a simple string, make sure to quote if it contains whitespace:
 ```
-bin/cake queue add SpecialExample "Foo:Bar, Baz"
+bin/cake queue add MyExample "Foo:Bar, Baz"
 ```
 You need to handle the content of this `$data` string manually inside your `add()` method.
 

@@ -6,12 +6,12 @@ namespace Queue\Test\TestCase\Controller\Admin;
 use Cake\Core\Configure;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\TestSuite\IntegrationTestTrait;
+use PHPUnit\Framework\Attributes\UsesClass;
+use Queue\Controller\Admin\QueueAppController;
 use RuntimeException;
 use Shim\TestSuite\TestCase;
 
-/**
- * @uses \Queue\Controller\Admin\QueueAppController
- */
+#[UsesClass(QueueAppController::class)]
 class QueueAppControllerTest extends TestCase {
 
 	use IntegrationTestTrait;

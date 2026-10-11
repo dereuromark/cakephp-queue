@@ -117,12 +117,7 @@ class QueuedJobsTable extends Table {
 	 * @return string
 	 */
 	public static function defaultConnectionName(): string {
-		$connection = Configure::read('Queue.connection');
-		if (!empty($connection)) {
-			return $connection;
-		}
-
-		return parent::defaultConnectionName();
+		return Config::resolveConnection(null);
 	}
 
 	/**
@@ -1162,8 +1157,8 @@ class QueuedJobsTable extends Table {
 	 * @return \Cake\ORM\Query\SelectQuery
 	 */
 	public function getPendingStats(): SelectQuery {
-		$findCond = [
-			'fields' => [
+		return $this->find()
+			->select([
 				'id',
 				'job_task',
 				'created',
@@ -1176,11 +1171,8 @@ class QueuedJobsTable extends Table {
 				'attempts',
 				'failure_message',
 				'memory',
-			],
-			'conditions' => $this->pendingConditions(),
-		];
-
-		return $this->find('all', ...$findCond);
+			])
+			->where($this->pendingConditions());
 	}
 
 	/**
@@ -1246,8 +1238,8 @@ class QueuedJobsTable extends Table {
 	 * @return \Cake\ORM\Query\SelectQuery
 	 */
 	public function getScheduledStats(): SelectQuery {
-		$findCond = [
-			'fields' => [
+		return $this->find()
+			->select([
 				'id',
 				'job_task',
 				'created',
@@ -1260,14 +1252,11 @@ class QueuedJobsTable extends Table {
 				'attempts',
 				'failure_message',
 				'memory',
-			],
-			'conditions' => [
+			])
+			->where([
 				'completed IS' => null,
 				'notbefore >' => new DateTime(),
-			],
-		];
-
-		return $this->find('all', ...$findCond);
+			]);
 	}
 
 	/**
@@ -1294,8 +1283,8 @@ class QueuedJobsTable extends Table {
 	 * @return \Cake\ORM\Query\SelectQuery
 	 */
 	public function getAbortedStats(): SelectQuery {
-		$findCond = [
-			'fields' => [
+		return $this->find()
+			->select([
 				'id',
 				'job_task',
 				'created',
@@ -1308,12 +1297,9 @@ class QueuedJobsTable extends Table {
 				'attempts',
 				'failure_message',
 				'memory',
-			],
-			'conditions' => $this->abortedConditions(),
-			'order' => ['id' => 'DESC'],
-		];
-
-		return $this->find('all', ...$findCond);
+			])
+			->where($this->abortedConditions())
+			->orderByDesc('id');
 	}
 
 	/**
@@ -1383,6 +1369,10 @@ class QueuedJobsTable extends Table {
 	 */
 	public function getFailedStatus(QueuedJob $queuedTask, array $taskConfiguration): string {
 		$failureMessageRequeued = 'requeued';
+
+		if ($queuedTask->get('job_task') === null) {
+			return $failureMessageRequeued;
+		}
 
 		$queuedTaskName = $queuedTask->job_task;
 		if (empty($taskConfiguration[$queuedTaskName])) {

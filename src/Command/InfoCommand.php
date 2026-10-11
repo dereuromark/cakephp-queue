@@ -6,7 +6,9 @@ namespace Queue\Command;
 use Cake\Command\Command;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;
+use Cake\Datasource\ConnectionManager;
 use Cake\I18n\Number;
+use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
 
 /**
@@ -44,6 +46,10 @@ class InfoCommand extends Command {
 			'choices' => ['text', 'json'],
 			'default' => 'text',
 		]);
+		$parser->addOption('connection', [
+			'help' => 'Database connection to use (must be in Queue.connections whitelist if multi-connection mode is enabled)',
+			'default' => null,
+		]);
 		$parser->setDescription(
 			'Get list of available tasks as well as current settings and statistics.',
 		);
@@ -57,6 +63,14 @@ class InfoCommand extends Command {
 	public function execute() {
 		$args = $this->args;
 		$io = $this->io;
+		$requestedConnection = $args->getOption('connection');
+		$table = $this->fetchTable('Queue.QueueProcesses');
+		$connection = Config::resolveConnection(is_string($requestedConnection) ? $requestedConnection : null, $this->fetchTable('Queue.QueuedJobs')->getConnection()->configName());
+		/** @var \Cake\Database\Connection $connectionObject */
+		$connectionObject = ConnectionManager::get($connection);
+		$table->setConnection($connectionObject);
+		$this->fetchTable('Queue.QueuedJobs')->setConnection($connectionObject);
+
 		if ($args->getOption('format') === 'json') {
 			$io->out((string)json_encode($this->jsonInfo(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 

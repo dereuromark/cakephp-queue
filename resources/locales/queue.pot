@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2026-05-04 04:14+0200\n"
+"POT-Creation-Date: 2026-10-11 17:10+0000\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -13,9 +13,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
-
-msgid "Invalid connection: {0}. Must be one of: {1}"
-msgstr ""
 
 msgid "Queue admin backend is not configured. Set Queue.adminAccess to a Closure that returns true for permitted callers."
 msgstr ""
@@ -80,6 +77,9 @@ msgstr ""
 msgid "The job could not be queued. Please try again."
 msgstr ""
 
+msgid "Invalid connection: {0}. Must be one of: {1}"
+msgstr ""
+
 msgid "Demonstrates cost management to prevent server overload"
 msgstr ""
 
@@ -104,13 +104,10 @@ msgstr ""
 msgid "Only one instance can run at a time across all workers"
 msgstr ""
 
-msgid "Restarted"
+msgid "Aborted"
 msgstr ""
 
 msgid "Requeued"
-msgstr ""
-
-msgid "Aborted"
 msgstr ""
 
 msgid "Queue Running"
@@ -119,7 +116,16 @@ msgstr ""
 msgid "Queue Idle"
 msgstr ""
 
+msgid "Queue Stalled"
+msgstr ""
+
+msgid "action required"
+msgstr ""
+
 msgid "Last activity {0}"
+msgstr ""
+
+msgid "No worker reporting"
 msgstr ""
 
 msgid "{0} worker(s)"
@@ -131,25 +137,61 @@ msgstr ""
 msgid "Manage Workers"
 msgstr ""
 
-msgid "No queue status available. Workers may not have started yet."
+msgid "A job is marked in-flight but no worker is reporting. The worker likely crashed mid-job — reset stale fetched jobs and check cron."
 msgstr ""
 
-msgid "Scheduled"
+msgid "No worker has reported in. Cron is likely not firing — check that {0} runs on at least one server."
+msgstr ""
+
+msgid "Jobs are waiting but no workers are running. Check that {0} cron is firing on at least one server."
+msgstr ""
+
+msgid "Jobs are waiting but aren't being picked up. Workers may have crashed — restart the queue or clean up stale processes."
+msgstr ""
+
+msgid "Last activity"
+msgstr ""
+
+msgid "No worker has reported recently"
+msgstr ""
+
+msgid "Workers"
+msgstr ""
+
+msgid "on {0} server(s)"
 msgstr ""
 
 msgid "Pending"
 msgstr ""
 
+msgid "jobs waiting"
+msgstr ""
+
+msgid "Scheduled"
+msgstr ""
+
 msgid "Running"
 msgstr ""
 
-msgid "Failed"
+msgid "Requeued/Failed"
 msgstr ""
 
-msgid "Pending Jobs"
+msgid "Aborted Jobs"
+msgstr ""
+
+msgid "Reset All"
+msgstr ""
+
+msgid "Reset all {0} aborted jobs?"
 msgstr ""
 
 msgid "View All"
+msgstr ""
+
+msgid "Showing {0} most recent of {1} aborted jobs. {2} for the full list."
+msgstr ""
+
+msgid "See QueuedJobs admin"
 msgstr ""
 
 msgid "Task"
@@ -161,13 +203,10 @@ msgstr ""
 msgid "Created"
 msgstr ""
 
-msgid "Status"
+msgid "Failure"
 msgstr ""
 
 msgid "Actions"
-msgstr ""
-
-msgid "Scheduled {0}"
 msgstr ""
 
 msgid "Attempts"
@@ -182,10 +221,28 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
+msgid "Pending Jobs"
+msgstr ""
+
+msgid "Showing {0} most recent of {1} pending jobs. {2} for the full list."
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Scheduled {0}"
+msgstr ""
+
+msgid "Failed"
+msgstr ""
+
 msgid "No pending jobs"
 msgstr ""
 
 msgid "Scheduled Jobs"
+msgstr ""
+
+msgid "Showing {0} most recent of {1} scheduled jobs. {2} for the full list."
 msgstr ""
 
 msgid "Scheduled For"
@@ -261,9 +318,6 @@ msgid "Current Job"
 msgstr ""
 
 msgid "Idle - waiting for jobs"
-msgstr ""
-
-msgid "Last activity"
 msgstr ""
 
 msgid "Finish & End"
@@ -704,9 +758,6 @@ msgstr ""
 msgid "Sure? This will remove all failed jobs."
 msgstr ""
 
-msgid "Reset All"
-msgstr ""
-
 msgid "Sure? This will make all failed as well as still running jobs ready for re-run."
 msgstr ""
 
@@ -738,6 +789,9 @@ msgid "-- All Statuses --"
 msgstr ""
 
 msgid "Filter"
+msgstr ""
+
+msgid "Back to App"
 msgstr ""
 
 msgid "Server Time"
