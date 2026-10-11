@@ -117,12 +117,7 @@ class QueuedJobsTable extends Table {
 	 * @return string
 	 */
 	public static function defaultConnectionName(): string {
-		$connection = Configure::read('Queue.connection');
-		if (!empty($connection)) {
-			return $connection;
-		}
-
-		return parent::defaultConnectionName();
+		return Config::resolveConnection(null, parent::defaultConnectionName());
 	}
 
 	/**

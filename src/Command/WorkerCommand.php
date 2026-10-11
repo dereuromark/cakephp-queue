@@ -8,6 +8,7 @@ use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;
+use Cake\Datasource\ConnectionManager;
 use Cake\I18n\DateTime;
 use Queue\Model\Table\QueueProcessesTable;
 use Queue\Queue\Config;
@@ -66,6 +67,10 @@ class WorkerCommand extends Command {
 			'boolean' => true,
 		]);
 
+		$parser->addOption('connection', [
+			'help' => 'Database connection to use (must be in Queue.connections whitelist if multi-connection mode is enabled)',
+			'default' => null,
+		]);
 		$parser->setDescription(
 			'Display, end or kill running workers.',
 		);
@@ -80,6 +85,13 @@ class WorkerCommand extends Command {
 	 * @return int|null|void
 	 */
 	public function execute(Arguments $args, ConsoleIo $io) {
+		$requestedConnection = $args->getOption('connection');
+		$table = $this->fetchTable('Queue.QueueProcesses');
+		$connection = Config::resolveConnection(is_string($requestedConnection) ? $requestedConnection : null, $table->getConnection()->configName());
+		/** @var \Cake\Database\Connection $connectionObject */
+		$connectionObject = ConnectionManager::get($connection);
+		$table->setConnection($connectionObject);
+
 		$action = $args->getArgument('action');
 		if (!$action) {
 			$io->out('Please use with [action] [PID] added.');

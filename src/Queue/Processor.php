@@ -115,11 +115,11 @@ class Processor {
 		$this->io = $io;
 		$this->logger = $logger;
 		$this->container = $container;
-		$this->connection = $this->resolveConnection($connection);
 
 		$tableLocator = $this->getTableLocator();
 		$this->QueuedJobs = $tableLocator->get('Queue.QueuedJobs');
 		$this->QueueProcesses = $tableLocator->get('Queue.QueueProcesses');
+		$this->connection = $this->resolveConnection($connection);
 
 		// Set connection for multi-connection support
 		/** @var \Cake\Database\Connection $connectionObject */
@@ -138,7 +138,7 @@ class Processor {
 	 * @return string
 	 */
 	protected function resolveConnection(?string $connection): string {
-		return Config::resolveConnection($connection);
+		return Config::resolveConnection($connection, $this->QueuedJobs->getConnection()->configName());
 	}
 
 	/**

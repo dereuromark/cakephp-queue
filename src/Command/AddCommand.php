@@ -77,15 +77,14 @@ class AddCommand extends Command {
 		}
 
 		$requestedConnection = $args->getOption('connection');
-		$connection = Config::resolveConnection(is_string($requestedConnection) ? $requestedConnection : null);
-		/** @var \Cake\Database\Connection $connectionObject */
-		$connectionObject = ConnectionManager::get($connection);
-
 		/** @var class-string<\Queue\Queue\Task&\Queue\Queue\AddInterface> $taskClass */
 		$taskClass = $tasks[$taskName];
 		/** @var \Queue\Queue\Task&\Queue\Queue\AddInterface $task */
 		$task = new $taskClass(new Io($io));
 		$previousConnection = $task->QueuedJobs->getConnection();
+		$connection = Config::resolveConnection(is_string($requestedConnection) ? $requestedConnection : null, $previousConnection->configName());
+		/** @var \Cake\Database\Connection $connectionObject */
+		$connectionObject = ConnectionManager::get($connection);
 		$task->QueuedJobs->setConnection($connectionObject);
 		try {
 			$task->add($args->getArgument('data'));

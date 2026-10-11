@@ -86,8 +86,8 @@ class JobCommand extends Command {
 		if (!is_string($connection)) {
 			$connection = null;
 		}
-		$this->connection = $this->resolveConnection($connection);
 		$this->QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		$this->connection = $this->resolveConnection($connection);
 
 		// Set connection for multi-connection support
 		/** @var \Cake\Database\Connection $connectionObject */
@@ -359,7 +359,7 @@ class JobCommand extends Command {
 	 * @return string
 	 */
 	protected function resolveConnection(?string $connection): string {
-		return Config::resolveConnection($connection);
+		return Config::resolveConnection($connection, $this->QueuedJobs->getConnection()->configName());
 	}
 
 }

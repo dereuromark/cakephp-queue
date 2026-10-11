@@ -12,6 +12,7 @@ use Cake\TestSuite\Fixture\SchemaLoader;
 use Cake\TestSuite\TestCase;
 use PHPUnit\Framework\Attributes\UsesClass;
 use Queue\Command\AddCommand;
+use Queue\Model\Table\QueuedJobsTable;
 use RuntimeException;
 
 #[UsesClass(AddCommand::class)]
@@ -24,6 +25,7 @@ class AddCommandTest extends TestCase {
 	 */
 	protected array $fixtures = [
 		'plugin.Queue.QueuedJobs',
+		'plugin.Queue.QueueProcesses',
 	];
 
 	/**
@@ -79,8 +81,48 @@ class AddCommandTest extends TestCase {
 		$this->exec('queue add Queue.Example');
 
 		$this->assertExitCode(0);
-		$this->assertSame(0, $this->fetchTable('Queue.QueuedJobs')->find()->count());
+		$this->assertSame(0, (int)ConnectionManager::get('default')->execute('SELECT COUNT(*) FROM queued_jobs')->fetchColumn(0));
+		$this->assertSame('queue_add_test', $this->fetchTable('Queue.QueuedJobs')->getConnection()->configName());
 		$this->assertSame(1, (int)ConnectionManager::get('queue_add_test')->execute('SELECT COUNT(*) FROM queued_jobs')->fetchColumn(0));
+	}
+
+	public function testInfoReadsSelectedConnection(): void {
+		$this->createSecondaryConnection();
+		$table = new QueuedJobsTable([
+			'alias' => 'SecondaryJobs',
+			'connection' => ConnectionManager::get('queue_add_test'),
+		]);
+		$table->createJob('Queue.Example', ['message' => 'Secondary']);
+
+		$this->exec('queue info --format json --connection queue_add_test');
+
+		$this->assertExitCode(0);
+		$info = json_decode($this->_out->output(), true, flags: JSON_THROW_ON_ERROR);
+		$this->assertSame(1, $info['jobs']['unfinished']);
+	}
+
+	public function testWorkerEndTargetsSelectedConnection(): void {
+		$this->createSecondaryConnection();
+		$this->fetchTable('Queue.QueueProcesses')->updateAll(['terminate' => false], []);
+		$connection = ConnectionManager::get('queue_add_test');
+		$connection->execute("INSERT INTO queue_processes (pid, workerkey, created, modified, terminate) VALUES ('secondary', 'secondary', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0)");
+
+		$this->exec('queue worker end all --connection queue_add_test');
+
+		$this->assertExitCode(0);
+		$this->assertSame(1, (int)$connection->execute('SELECT terminate FROM queue_processes')->fetchColumn(0));
+		$this->assertSame(0, (int)ConnectionManager::get('default')->execute('SELECT terminate FROM queue_processes')->fetchColumn(0));
+	}
+
+	public function testAddPreservesPreconfiguredTableConnection(): void {
+		$this->createSecondaryConnection();
+		$this->fetchTable('Queue.QueuedJobs')->setConnection(ConnectionManager::get('queue_add_test'));
+
+		$this->exec('queue add Queue.Example');
+
+		$this->assertExitCode(0);
+		$this->assertSame(1, (int)ConnectionManager::get('queue_add_test')->execute('SELECT COUNT(*) FROM queued_jobs')->fetchColumn(0));
+		$this->assertSame(0, (int)ConnectionManager::get('default')->execute('SELECT COUNT(*) FROM queued_jobs')->fetchColumn(0));
 	}
 
 	public function testExplicitConnectionWithoutWhitelist(): void {
