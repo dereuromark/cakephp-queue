@@ -8,7 +8,7 @@
 [![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-queue/d/total)](https://packagist.org/packages/dereuromark/cakephp-queue)
 [![Coding Standards](https://img.shields.io/badge/cs-PSR--2--R-purple.svg?style=flat-square)](https://github.com/php-fig-rectified/fig-rectified-standards)
 
-This branch is for use with **CakePHP 5.1+**. For details see [version map](https://github.com/dereuromark/cakephp-queue/wiki#cakephp-version-map).
+This branch is for use with **CakePHP 6 and PHP 8.5+**. Development dependencies use upstream branches and require the CakePHP 6 migrations for Tools, Shim, IDE Helper, Templating and Search to be merged. For details see [version map](https://github.com/dereuromark/cakephp-queue/wiki#cakephp-version-map).
 
 
 ## Background
@@ -23,6 +23,8 @@ any illusion to compete with these more advanced Systems.
 The plugin is an attempt to provide a basic, simple to use method to enable deferred job execution,
 without the hassle of setting up or running an extra queue daemon, while integrating nicely into
 CakePHP and also simplifying the creation of worker scripts. You can also easily provide progress and status information into your pages.
+
+For CakePHP 6, worker heartbeat updates use `QueueProcessesTable::heartbeat()`; `update()` is reserved for the ORM entity update API.
 
 Please also read my blog posts about [deferred execution](https://www.dereuromark.de/2013/12/22/queue-deferred-execution-in-cakephp/) and [real-life example usage](https://www.dereuromark.de/2021/07/15/cakephp-queuing-real-life-examples/) [new].
 For more high-volume and sophisticated use cases please see the [awesome list](https://github.com/FriendsOfCake/awesome-cakephp#queue) alternatives.

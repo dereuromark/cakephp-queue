@@ -4,8 +4,6 @@ declare(strict_types=1);
 namespace Queue\Command;
 
 use Cake\Command\Command;
-use Cake\Console\Arguments;
-use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;
 use Cake\I18n\Number;
@@ -54,12 +52,11 @@ class InfoCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\Arguments $args Arguments
-	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
-	 *
 	 * @return int|null|void
 	 */
-	public function execute(Arguments $args, ConsoleIo $io) {
+	public function execute() {
+		$args = $this->args;
+		$io = $this->io;
 		if ($args->getOption('format') === 'json') {
 			$io->out((string)json_encode($this->jsonInfo(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
@@ -114,7 +111,9 @@ class InfoCommand extends Command {
 		$io->out();
 
 		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
 		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
 
 		$io->out('Total unfinished jobs: ' . $QueuedJobs->getLength());
@@ -164,7 +163,9 @@ class InfoCommand extends Command {
 	 */
 	protected function jsonInfo(): array {
 		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
 		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 		/** @var \Queue\Model\Table\QueueProcessesTable $QueueProcesses */
 		$QueueProcesses = $this->fetchTable('Queue.QueueProcesses');
 		$status = $QueueProcesses->status();

@@ -79,7 +79,7 @@ class ExecuteTaskTest extends TestCase {
 		$this->assertSame("Failed with error code 127: `'fooooobbbaraar' '-eeee' 2>&1`", $exception->getMessage());
 
 		$this->assertTextContains('Error (code 127)', $this->err->output());
-		$this->assertTextContains('fooooobbbaraar: not found', $this->out->output());
+		$this->assertMatchesRegularExpression('/fooooobbbaraar: (?:command )?not found/', $this->out->output());
 	}
 
 	/**
@@ -89,7 +89,7 @@ class ExecuteTaskTest extends TestCase {
 		$this->Task->run(['command' => 'fooooobbbaraar', 'params' => ['-eeee'], 'accepted' => []], 0);
 
 		$this->assertTextContains('Success (code 127)', $this->out->output());
-		$this->assertTextContains('fooooobbbaraar: not found', $this->out->output());
+		$this->assertMatchesRegularExpression('/fooooobbbaraar: (?:command )?not found/', $this->out->output());
 	}
 
 	/**

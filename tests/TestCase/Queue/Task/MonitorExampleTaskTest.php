@@ -48,6 +48,10 @@ class MonitorExampleTaskTest extends TestCase {
 	 * @return void
 	 */
 	public function testRun() {
+		if (!is_readable('/proc/meminfo')) {
+			$this->markTestSkipped('Linux /proc/meminfo is required.');
+		}
+
 		$this->Task->run([], 0);
 
 		$this->assertTextContains('Success, the MonitorExample Job was run', $this->out->output());

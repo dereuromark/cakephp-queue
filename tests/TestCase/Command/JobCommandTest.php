@@ -50,7 +50,7 @@ class JobCommandTest extends TestCase {
 	public function testExecute(): void {
 		$this->exec('queue job');
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('Please use with [action] [ID] added', $output);
 		$this->assertExitCode(1);
 	}
@@ -62,7 +62,7 @@ class JobCommandTest extends TestCase {
 		$job = $this->createJob();
 		$this->exec('queue job view ' . $job->id);
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('Task: Example', $output);
 	}
 
@@ -73,7 +73,7 @@ class JobCommandTest extends TestCase {
 		$job = $this->createJob();
 		$this->exec('queue job remove ' . $job->id);
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('removed', $output);
 	}
 
@@ -84,7 +84,7 @@ class JobCommandTest extends TestCase {
 		$job = $this->createJob();
 		$this->exec('queue job remove all');
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('removed', $output);
 	}
 
@@ -95,7 +95,7 @@ class JobCommandTest extends TestCase {
 		$job = $this->createJob(['completed' => new DateTime()]);
 		$this->exec('queue job rerun ' . $job->id);
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('queued for rerun', $output);
 	}
 
@@ -106,7 +106,7 @@ class JobCommandTest extends TestCase {
 		$this->createJob(['completed' => new DateTime()]);
 		$this->exec('queue job rerun all');
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('queued for rerun', $output);
 		$this->assertExitCode(0);
 	}
@@ -117,7 +117,7 @@ class JobCommandTest extends TestCase {
 	public function testExecuteClean(): void {
 		$this->exec('queue job clean');
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('Deleted: ', $output);
 	}
 
@@ -127,7 +127,7 @@ class JobCommandTest extends TestCase {
 	public function testExecuteFlush(): void {
 		$this->exec('queue job flush');
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('Deleted: ', $output);
 	}
 
@@ -141,7 +141,7 @@ class JobCommandTest extends TestCase {
 		$this->exec('queue job flush --aborted');
 
 		$this->assertExitCode(0);
-		$this->assertStringContainsString('Deleted aborted: 1', $this->_out->output());
+		$this->assertStringContainsString('Deleted aborted: 1', $this->out->output());
 		$QueuedJobs = $this->getTableLocator()->get('Queue.QueuedJobs');
 		$this->assertFalse($QueuedJobs->exists(['id' => $aborted->id]));
 		$this->assertTrue($QueuedJobs->exists(['id' => $failed->id]));

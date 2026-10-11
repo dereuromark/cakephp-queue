@@ -20,7 +20,7 @@ use Cake\Core\Plugin;
 			<?= $this->Html->link(
 				'<i class="fas fa-file-import me-1"></i>' . __d('queue', 'Import'),
 				['action' => 'import'],
-				['class' => 'btn btn-outline-secondary btn-sm', 'escapeTitle' => false]
+				['class' => 'btn btn-outline-secondary btn-sm', 'escape' => false]
 			) ?>
 		<?php endif; ?>
 	</div>
@@ -194,7 +194,7 @@ if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Sear
 									'<i class="fas fa-eye"></i>',
 									['action' => 'view', $queuedJob->id],
 									[
-										'escapeTitle' => false,
+										'escape' => false,
 										'class' => 'btn btn-outline-primary',
 										'title' => __d('queue', 'View'),
 										'aria-label' => __d('queue', 'View'),
@@ -205,7 +205,7 @@ if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Sear
 										'<i class="fas fa-edit"></i>',
 										['action' => 'edit', $queuedJob->id],
 										[
-											'escapeTitle' => false,
+											'escape' => false,
 											'class' => 'btn btn-outline-secondary',
 											'title' => __d('queue', 'Edit'),
 											'aria-label' => __d('queue', 'Edit'),
@@ -216,7 +216,7 @@ if (Configure::read('Queue.isSearchEnabled') !== false && Plugin::isLoaded('Sear
 									'<i class="fas fa-trash"></i>',
 									['action' => 'delete', $queuedJob->id],
 									[
-										'escapeTitle' => false,
+										'escape' => false,
 										'class' => 'btn btn-outline-danger',
 										'title' => __d('queue', 'Delete'),
 										'aria-label' => __d('queue', 'Delete'),

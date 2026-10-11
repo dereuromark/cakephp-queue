@@ -4,8 +4,6 @@ declare(strict_types=1);
 namespace Queue\Command;
 
 use Bake\Command\SimpleBakeCommand;
-use Cake\Console\Arguments;
-use Cake\Console\ConsoleIo;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
@@ -37,22 +35,22 @@ class BakeQueueTaskCommand extends SimpleBakeCommand {
 	/**
 	 * @inheritDoc
 	 */
-	public function bake(string $name, Arguments $args, ConsoleIo $io): void {
+	public function bake(string $name): void {
 		$this->_name = $name . 'Task';
 
-		parent::bake($name, $args, $io);
+		parent::bake($name);
 	}
 
 	/**
 	 * Generate a test case.
 	 *
 	 * @param string $name The class to bake a test for.
-	 * @param \Cake\Console\Arguments $args The console arguments
-	 * @param \Cake\Console\ConsoleIo $io The console io
 	 *
 	 * @return void
 	 */
-	public function bakeTest(string $name, Arguments $args, ConsoleIo $io): void {
+	public function bakeTest(string $name): void {
+		$args = $this->args;
+		$io = $this->io;
 		if ($args->getOption('no-test')) {
 			return;
 		}
@@ -134,12 +132,12 @@ TXT;
 	/**
 	 * @inheritDoc
 	 */
-	public function templateData(Arguments $arguments): array {
+	public function templateData(): array {
 		$name = $this->_name;
 		$namespace = Configure::read('App.namespace');
 		$pluginPath = '';
 		if ($this->plugin) {
-			$namespace = $this->_pluginNamespace($this->plugin);
+			$namespace = $this->pluginNamespace($this->plugin);
 			$pluginPath = $this->plugin . '.';
 		}
 
@@ -161,7 +159,7 @@ TXT;
 			'namespace' => $namespace,
 			'subNamespace' => $namespacePart ? ($namespacePart . '/') : '',
 			'name' => $name,
-			'add' => $arguments->getOption('add'),
+			'add' => $this->args->getOption('add'),
 		];
 	}
 

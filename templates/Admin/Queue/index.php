@@ -145,7 +145,7 @@ $stateMeta = [
 			<?= $this->Html->link(
 				'<i class="fas fa-cogs me-1"></i>' . __d('queue', 'Manage Workers'),
 				['action' => 'processes'],
-				['class' => 'btn btn-sm btn-outline-dark', 'escapeTitle' => false]
+				['class' => 'btn btn-sm btn-outline-dark', 'escape' => false]
 			) ?>
 		</div>
 	</div>
@@ -246,7 +246,7 @@ $stateMeta = [
 							'<i class="fas fa-redo me-1"></i>' . __d('queue', 'Reset All'),
 							['action' => 'reset', '?' => ['aborted' => 1]],
 							[
-								'escapeTitle' => false,
+								'escape' => false,
 								'class' => 'btn btn-sm btn-outline-warning',
 								'form' => [
 									'class' => 'd-inline',
@@ -316,7 +316,7 @@ $stateMeta = [
 												'<i class="fas fa-redo"></i>',
 												['action' => 'resetJob', $abortedJob->id],
 												[
-													'escapeTitle' => false,
+													'escape' => false,
 													'class' => 'btn btn-sm btn-outline-primary',
 													'title' => __d('queue', 'Reset'),
 													'form' => [
@@ -329,7 +329,7 @@ $stateMeta = [
 												'<i class="fas fa-trash"></i>',
 												['action' => 'removeJob', $abortedJob->id],
 												[
-													'escapeTitle' => false,
+													'escape' => false,
 													'class' => 'btn btn-sm btn-outline-danger',
 													'title' => __d('queue', 'Remove'),
 													'form' => [
@@ -439,7 +439,7 @@ $stateMeta = [
 													'<i class="fas fa-redo"></i>',
 													['action' => 'resetJob', $pendingJob->id],
 													[
-														'escapeTitle' => false,
+														'escape' => false,
 														'class' => 'btn btn-sm btn-outline-primary',
 														'title' => __d('queue', 'Reset'),
 														'form' => [
@@ -452,7 +452,7 @@ $stateMeta = [
 													'<i class="fas fa-trash"></i>',
 													['action' => 'removeJob', $pendingJob->id],
 													[
-														'escapeTitle' => false,
+														'escape' => false,
 														'class' => 'btn btn-sm btn-outline-danger',
 														'title' => __d('queue', 'Remove'),
 														'form' => [
@@ -466,7 +466,7 @@ $stateMeta = [
 													'<i class="fas fa-trash"></i>',
 													['action' => 'removeJob', $pendingJob->id],
 													[
-														'escapeTitle' => false,
+														'escape' => false,
 														'class' => 'btn btn-sm btn-outline-danger',
 														'title' => __d('queue', 'Remove'),
 														'form' => [
@@ -550,7 +550,7 @@ $stateMeta = [
 												'<i class="fas fa-trash"></i>',
 												['action' => 'removeJob', $scheduledJob->id],
 												[
-													'escapeTitle' => false,
+													'escape' => false,
 													'class' => 'btn btn-sm btn-outline-danger',
 													'title' => __d('queue', 'Remove'),
 													'form' => [
@@ -606,12 +606,12 @@ $stateMeta = [
 						<?= $this->Html->link(
 							'<i class="fas fa-chart-line me-1"></i>' . __d('queue', 'Time Series'),
 							['controller' => 'QueuedJobs', 'action' => 'stats'],
-							['class' => 'text-decoration-none', 'escapeTitle' => false]
+							['class' => 'text-decoration-none', 'escape' => false]
 						) ?>
 						<?= $this->Html->link(
 							'<i class="fas fa-th me-1"></i>' . __d('queue', 'Heatmap'),
 							['controller' => 'QueuedJobs', 'action' => 'heatmap'],
-							['class' => 'text-decoration-none', 'escapeTitle' => false]
+							['class' => 'text-decoration-none', 'escape' => false]
 						) ?>
 					</div>
 				<?php endif; ?>
@@ -641,7 +641,7 @@ $stateMeta = [
 								'<i class="fas fa-plus me-1"></i>' . h($task),
 								['action' => 'addJob', '?' => ['task' => $task]],
 								[
-									'escapeTitle' => false,
+									'escape' => false,
 									'class' => 'btn btn-outline-primary btn-sm text-start w-100',
 									'title' => $description,
 									'form' => [
@@ -660,7 +660,7 @@ $stateMeta = [
 				<?= $this->Html->link(
 					'<i class="fas fa-terminal me-1"></i>' . __d('queue', 'Execute Job'),
 					['controller' => 'QueuedJobs', 'action' => 'execute'],
-					['class' => 'btn btn-outline-warning btn-sm w-100', 'escapeTitle' => false]
+					['class' => 'btn btn-outline-warning btn-sm w-100', 'escape' => false]
 				) ?>
 			<?php endif; ?>
 
@@ -680,7 +680,7 @@ $stateMeta = [
 								'<i class="fas fa-flask me-1"></i>' . h($task),
 								['action' => 'addJob', '?' => ['task' => $task]],
 								[
-									'escapeTitle' => false,
+									'escape' => false,
 									'class' => 'btn btn-outline-secondary btn-sm text-start w-100',
 									'title' => $description,
 									'form' => [
@@ -693,7 +693,7 @@ $stateMeta = [
 						<?= $this->Html->link(
 							'<i class="fas fa-clock me-1"></i>' . __d('queue', 'Trigger Delayed Test Job'),
 							['controller' => 'QueuedJobs', 'action' => 'test'],
-							['class' => 'btn btn-outline-info btn-sm', 'escapeTitle' => false]
+							['class' => 'btn btn-outline-info btn-sm', 'escape' => false]
 						) ?>
 					</div>
 				</div>

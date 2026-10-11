@@ -36,7 +36,7 @@ class AddCommandTest extends TestCase {
 	public function testExecute(): void {
 		$this->exec('queue add');
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('11 tasks available:', $output);
 		$this->assertExitCode(0);
 	}
@@ -47,7 +47,7 @@ class AddCommandTest extends TestCase {
 	public function testExecuteAddExample(): void {
 		$this->exec('queue add Queue.Example');
 
-		$output = $this->_out->output();
+		$output = $this->out->output();
 		$this->assertStringContainsString('OK, job created, now run the worker', $output);
 		$this->assertExitCode(0);
 	}

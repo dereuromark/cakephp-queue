@@ -101,7 +101,7 @@ class QueueProcessesTableTest extends TestCase {
 		$id = $this->QueueProcesses->add('123', $workerkey);
 		$this->assertNotEmpty($id);
 
-		$this->QueueProcesses->update($workerkey);
+		$this->QueueProcesses->heartbeat($workerkey);
 
 		$queueProcess = $this->QueueProcesses->get($id);
 		$this->assertFalse($queueProcess->terminate);

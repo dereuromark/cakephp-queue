@@ -86,7 +86,7 @@ class QueueAppController extends AppController {
 	 * user, or a missing middleware in standalone mode) is treated as harmful
 	 * by default.
 	 *
-	 * @param \Cake\Event\EventInterface<\Cake\Controller\Controller> $event
+	 * @param \Cake\Event\EventInterface $event
      *
 	 * @throws \Cake\Http\Exception\ForbiddenException When access is denied or unconfigured.
      *

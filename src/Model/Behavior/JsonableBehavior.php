@@ -25,7 +25,7 @@ class JsonableBehavior extends Behavior {
 	/**
 	 * @var array<string, mixed>
 	 */
-	protected array $_defaultConfig = [
+	protected array $defaultConfig = [
 		'fields' => [], // Fields to convert
 		'input' => 'array', // json, array, param, list (param/list only works with specific fields)
 		'output' => 'array', // json, array, param, list (param/list only works with specific fields)
@@ -53,26 +53,26 @@ class JsonableBehavior extends Behavior {
 	 * @return void
 	 */
 	public function initialize(array $config): void {
-		if (empty($this->_config['fields'])) {
+		if (empty($this->config['fields'])) {
 			throw new RuntimeException('Fields are required');
 		}
-		if (!is_array($this->_config['fields'])) {
-			$this->_config['fields'] = (array)$this->_config['fields'];
+		if (!is_array($this->config['fields'])) {
+			$this->config['fields'] = (array)$this->config['fields'];
 		}
-		if (!is_array($this->_config['map'])) {
-			$this->_config['map'] = (array)$this->_config['map'];
+		if (!is_array($this->config['map'])) {
+			$this->config['map'] = (array)$this->config['map'];
 		}
-		if (!empty($this->_config['map']) && count($this->_config['fields']) !== count($this->_config['map'])) {
+		if (!empty($this->config['map']) && count($this->config['fields']) !== count($this->config['map'])) {
 			throw new RuntimeException('Fields and Map need to be of the same length if map is specified.');
 		}
-		foreach ($this->_config['fields'] as $field) {
-			if ($this->_table->getSchema()->getColumnType($field) !== 'json') {
-				$this->_table->getSchema()->setColumnType($field, 'json');
+		foreach ($this->config['fields'] as $field) {
+			if ($this->table->getSchema()->getColumnType($field) !== 'json') {
+				$this->table->getSchema()->setColumnType($field, 'json');
 			}
 		}
-		if ($this->_config['encodeParams']['options'] === null) {
+		if ($this->config['encodeParams']['options'] === null) {
 			$options = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_ERROR_INF_OR_NAN | JSON_PARTIAL_OUTPUT_ON_ERROR;
-			$this->_config['encodeParams']['options'] = $options;
+			$this->config['encodeParams']['options'] = $options;
 		}
 
 		TypeFactory::map('array', ArrayType::class);
@@ -146,8 +146,8 @@ class JsonableBehavior extends Behavior {
 	 * @return array
 	 */
 	protected function _getMappedFields() {
-		$usedFields = $this->_config['fields'];
-		$mappedFields = $this->_config['map'];
+		$usedFields = $this->config['fields'];
+		$mappedFields = $this->config['map'];
 		if (!$mappedFields) {
 			$mappedFields = $usedFields;
 		}
@@ -172,7 +172,7 @@ class JsonableBehavior extends Behavior {
 	 * @return string|null
 	 */
 	public function _encode($val) {
-		if (!empty($this->_config['fields']) && $this->_config['input'] === 'json') {
+		if (!empty($this->config['fields']) && $this->config['input'] === 'json') {
 			if (!is_string($val)) {
 				throw new InvalidArgumentException('Only accepts JSON string for input type `json`');
 			}
@@ -182,7 +182,7 @@ class JsonableBehavior extends Behavior {
 			return null;
 		}
 
-		$result = json_encode($val, $this->_config['encodeParams']['options'], $this->_config['encodeParams']['depth']);
+		$result = json_encode($val, $this->config['encodeParams']['options'], $this->config['encodeParams']['depth']);
 		if ($result === false) {
 			return null;
 		}
@@ -202,8 +202,8 @@ class JsonableBehavior extends Behavior {
 			return null;
 		}
 
-		$flags = $this->_config['encodeParams']['options'] | JSON_PRETTY_PRINT;
-		$decoded = json_encode($val, $flags, $this->_config['decodeParams']['depth']);
+		$flags = $this->config['encodeParams']['options'] | JSON_PRETTY_PRINT;
+		$decoded = json_encode($val, $flags, $this->config['decodeParams']['depth']);
 		if ($decoded === false) {
 			return null;
 		}

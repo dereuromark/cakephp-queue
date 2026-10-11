@@ -32,21 +32,20 @@
 		"docs": "https://dereuromark.github.io/cakephp-queue/"
 	},
 	"require": {
-		"php": ">=8.2",
+		"php": ">=8.5",
 		"brick/varexporter": "^0.5.0 || ^0.6.0 || ^0.7.0",
-		"cakephp/cakephp": "^5.1.1"
+		"cakephp/cakephp": "^6.0@dev"
 	},
 	"require-dev": {
-		"cakedc/cakephp-phpstan": "^4.0.0",
-		"cakephp/bake": "^3.0.1",
-		"cakephp/migrations": "^5.0.0",
-		"dereuromark/cakephp-ide-helper": "^2.0.0",
-		"dereuromark/cakephp-templating": "^0.2.7",
-		"dereuromark/cakephp-tools": "^3.12.0",
-		"dereuromark/cakephp-dto": "^3.0.0",
+		"cakephp/bake": "^4.0@dev",
+		"cakephp/migrations": "dev-fix/6.x-cakephp-compatibility",
+		"dereuromark/cakephp-ide-helper": "dev-master",
+		"dereuromark/cakephp-templating": "dev-master",
+		"dereuromark/cakephp-tools": "dev-master",
 		"fig-r/psr2r-sniffer": "dev-master",
-		"friendsofcake/search": "^7.7.0",
-		"phpunit/phpunit": "^11.5 || ^12.1 || ^13.0"
+		"friendsofcake/search": "dev-master",
+		"phpunit/phpunit": "^13.0",
+		"php-collective/dto": "^0.1.17"
 	},
 	"suggest": {
 		"dereuromark/cakephp-ide-helper": "For maximum IDE support, especially around createJob() usage.",
@@ -57,7 +56,7 @@
 		"cakephp/migrations": "<4.5",
 		"dereuromark/cakephp-dto": "<3.0.0"
 	},
-	"minimum-stability": "stable",
+	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"autoload": {
 		"psr-4": {

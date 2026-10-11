@@ -34,7 +34,7 @@
 				</p>
 
 				<div class="mt-3">
-					<?= $this->Form->button('<i class="fas fa-upload me-1"></i>' . __d('queue', 'Import'), ['class' => 'btn btn-primary', 'escapeTitle' => false]) ?>
+					<?= $this->Form->button('<i class="fas fa-upload me-1"></i>' . __d('queue', 'Import'), ['class' => 'btn btn-primary', 'escape' => false]) ?>
 				</div>
 				<?= $this->Form->end() ?>
 			</div>

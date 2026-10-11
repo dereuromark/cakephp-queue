@@ -23,7 +23,7 @@
 					<?= $this->Html->link(
 						'<i class="fas fa-arrow-left me-1"></i>' . __d('queue', 'All Jobs'),
 						['action' => 'stats', '?' => []],
-						['class' => 'btn btn-sm btn-outline-secondary', 'escapeTitle' => false]
+						['class' => 'btn btn-sm btn-outline-secondary', 'escape' => false]
 					) ?>
 				<?php endif; ?>
 			</div>
@@ -47,17 +47,17 @@
 				<?= $this->Html->link(
 					'<i class="fas fa-chart-line me-2"></i>' . __d('queue', 'Time Series'),
 					['action' => 'stats'],
-					['class' => 'list-group-item list-group-item-action active', 'escapeTitle' => false]
+					['class' => 'list-group-item list-group-item-action active', 'escape' => false]
 				) ?>
 				<?= $this->Html->link(
 					'<i class="fas fa-th me-2"></i>' . __d('queue', 'Heatmap'),
 					['action' => 'heatmap'],
-					['class' => 'list-group-item list-group-item-action', 'escapeTitle' => false]
+					['class' => 'list-group-item list-group-item-action', 'escape' => false]
 				) ?>
 				<?= $this->Html->link(
 					'<i class="fas fa-arrow-left me-2"></i>' . __d('queue', 'Back to Dashboard'),
 					['controller' => 'Queue', 'action' => 'index'],
-					['class' => 'list-group-item list-group-item-action', 'escapeTitle' => false]
+					['class' => 'list-group-item list-group-item-action', 'escape' => false]
 				) ?>
 			</div>
 		</div>
@@ -72,7 +72,7 @@
 					<?= $this->Html->link(
 						'<i class="fas fa-chart-line me-2"></i>' . h($type),
 						['action' => 'stats', '?' => ['job_type' => $type]],
-						['class' => 'list-group-item list-group-item-action', 'escapeTitle' => false]
+						['class' => 'list-group-item list-group-item-action', 'escape' => false]
 					) ?>
 				<?php endforeach; ?>
 			</div>

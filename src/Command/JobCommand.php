@@ -4,8 +4,7 @@ declare(strict_types=1);
 namespace Queue\Command;
 
 use Cake\Command\Command;
-use Cake\Console\Arguments;
-use Cake\Console\ConsoleIo;
+use Cake\Console\ConsoleIoInterface;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
@@ -78,18 +77,19 @@ class JobCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\Arguments $args Arguments
-	 * @param \Cake\Console\ConsoleIo $io ConsoleIo
-	 *
 	 * @return int|null|void
 	 */
-	public function execute(Arguments $args, ConsoleIo $io) {
+	public function execute() {
+		$args = $this->args;
+		$io = $this->io;
 		$connection = $args->getOption('connection');
 		if (!is_string($connection)) {
 			$connection = null;
 		}
 		$this->connection = $this->resolveConnection($connection);
-		$this->QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		/** @var \Queue\Model\Table\QueuedJobsTable $QueuedJobs */
+		$QueuedJobs = $this->fetchTable('Queue.QueuedJobs');
+		$this->QueuedJobs = $QueuedJobs;
 
 		// Set connection for multi-connection support
 		if ($this->connection !== 'default') {
@@ -162,11 +162,11 @@ class JobCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\ConsoleIo $io
+	 * @param \Cake\Console\ConsoleIoInterface $io
 	 *
 	 * @return int
 	 */
-	protected function rerunAll(ConsoleIo $io): int {
+	protected function rerunAll(ConsoleIoInterface $io): int {
 		$fields = [
 			'completed' => null,
 			'fetched' => null,
@@ -190,11 +190,11 @@ class JobCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\ConsoleIo $io
+	 * @param \Cake\Console\ConsoleIoInterface $io
 	 *
 	 * @return int
 	 */
-	protected function resetAll(ConsoleIo $io): int {
+	protected function resetAll(ConsoleIoInterface $io): int {
 		$count = $this->QueuedJobs->reset();
 		if (!$count) {
 			$io->out('No failed jobs to reset.');
@@ -208,11 +208,11 @@ class JobCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\ConsoleIo $io
+	 * @param \Cake\Console\ConsoleIoInterface $io
 	 *
 	 * @return int
 	 */
-	protected function removeAll(ConsoleIo $io): int {
+	protected function removeAll(ConsoleIoInterface $io): int {
 		/** @var int $queuedJobs */
 		$queuedJobs = $this->QueuedJobs->find()
 			->count();
@@ -225,12 +225,12 @@ class JobCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\ConsoleIo $io
+	 * @param \Cake\Console\ConsoleIoInterface $io
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 *
 	 * @return int
 	 */
-	protected function rerun(ConsoleIo $io, QueuedJob $queuedJob): int {
+	protected function rerun(ConsoleIoInterface $io, QueuedJob $queuedJob): int {
 		if (!$queuedJob->completed) {
 			$io->abort('Can only rerun successfully run jobs.');
 		}
@@ -245,12 +245,12 @@ class JobCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\ConsoleIo $io
+	 * @param \Cake\Console\ConsoleIoInterface $io
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 *
 	 * @return int
 	 */
-	protected function reset(ConsoleIo $io, QueuedJob $queuedJob): int {
+	protected function reset(ConsoleIoInterface $io, QueuedJob $queuedJob): int {
 		if ($queuedJob->completed) {
 			$io->abort('Can only reset not yet finished jobs.');
 		}
@@ -265,12 +265,12 @@ class JobCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\ConsoleIo $io
+	 * @param \Cake\Console\ConsoleIoInterface $io
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 *
 	 * @return int
 	 */
-	protected function remove(ConsoleIo $io, QueuedJob $queuedJob): int {
+	protected function remove(ConsoleIoInterface $io, QueuedJob $queuedJob): int {
 		$this->QueuedJobs->deleteOrFail($queuedJob);
 
 		$io->success('Job ' . $queuedJob->id . ' removed');
@@ -279,12 +279,12 @@ class JobCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\ConsoleIo $io
+	 * @param \Cake\Console\ConsoleIoInterface $io
 	 * @param \Queue\Model\Entity\QueuedJob $queuedJob
 	 *
 	 * @return int
 	 */
-	protected function view(ConsoleIo $io, QueuedJob $queuedJob): int {
+	protected function view(ConsoleIoInterface $io, QueuedJob $queuedJob): int {
 		$io->out('Task: ' . $queuedJob->job_task);
 		$io->out('Reference: ' . ($queuedJob->reference ?: '-'));
 		$io->out('Group: ' . ($queuedJob->job_group ?: '-'));
@@ -310,11 +310,11 @@ class JobCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\ConsoleIo $io
+	 * @param \Cake\Console\ConsoleIoInterface $io
 	 *
 	 * @return int
 	 */
-	protected function flush(ConsoleIo $io): int {
+	protected function flush(ConsoleIoInterface $io): int {
 		$result = $this->QueuedJobs->flushFailedJobs();
 		$io->success('Deleted: ' . $result);
 
@@ -322,11 +322,11 @@ class JobCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\ConsoleIo $io
+	 * @param \Cake\Console\ConsoleIoInterface $io
 	 *
 	 * @return int
 	 */
-	protected function flushAborted(ConsoleIo $io): int {
+	protected function flushAborted(ConsoleIoInterface $io): int {
 		$result = $this->QueuedJobs->flushAbortedJobs();
 		$io->success('Deleted aborted: ' . $result);
 
@@ -334,11 +334,11 @@ class JobCommand extends Command {
 	}
 
 	/**
-	 * @param \Cake\Console\ConsoleIo $io
+	 * @param \Cake\Console\ConsoleIoInterface $io
 	 *
 	 * @return int
 	 */
-	protected function clean(ConsoleIo $io): int {
+	protected function clean(ConsoleIoInterface $io): int {
 		if (!Config::cleanuptimeout() && !Config::cleanupAbortedTimeout()) {
 			$io->abort('You disabled cleanuptimeout in config. Aborting.');
 		}
