@@ -33,7 +33,7 @@
 	},
 	"require": {
 		"php": ">=8.5",
-		"brick/varexporter": "^0.5.0 || ^0.6.0 || ^0.7.0",
+		"brick/varexporter": "^0.7.0",
 		"cakephp/cakephp": "^6.0@dev"
 	},
 	"require-dev": {
