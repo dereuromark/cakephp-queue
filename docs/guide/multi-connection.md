@@ -11,7 +11,7 @@ Enable multi-connection mode by defining an array of connections in your config:
 $config['Queue']['connections'] = ['default', 'acme'];
 ```
 
-Without multi-connection mode, commands use `Queue.connection` when configured, otherwise `default`; an explicit `--connection` overrides that choice.
+In single-connection mode, commands preserve the connection assigned to the shared `Queue.QueuedJobs` table. Its default comes from `Queue.connection`, otherwise `default`. An explicit `--connection` overrides the table connection.
 
 The first configured connection is the default for the admin interface, queue tables and CLI commands when no connection is selected. It takes precedence over `Queue.connection` and manually assigned table connections in multi-connection mode. For an application operation targeting another listed connection, select the same connection explicitly in the worker and management commands.
 
