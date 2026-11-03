@@ -6,6 +6,8 @@ namespace Queue\Model\Table;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
+use Cake\Database\Driver\Mysql;
+use Cake\Database\Driver\Postgres;
 use Cake\Event\Event;
 use Cake\Event\EventInterface;
 use Cake\Event\EventManager;
@@ -15,6 +17,7 @@ use Cake\ORM\Query\SelectQuery;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use InvalidArgumentException;
+use PDOException;
 use PhpCollective\Dto\Dto\FromArrayToArrayInterface;
 use Queue\Config\JobConfig;
 use Queue\Model\Entity\QueuedJob;
@@ -22,6 +25,7 @@ use Queue\Model\Filter\QueuedJobsCollection;
 use Queue\Queue\Config;
 use Queue\Queue\TaskFinder;
 use Queue\Utility\Memory;
+use Throwable;
 
 /**
  * @author MGriesbach@gmail.com
@@ -45,6 +49,16 @@ use Queue\Utility\Memory;
  * @mixin \Search\Model\Behavior\SearchBehavior
  */
 class QueuedJobsTable extends Table {
+
+	/**
+	 * @var int
+	 */
+	protected const COMPLETION_ATTEMPTS = 3;
+
+	/**
+	 * @var array<string, bool>
+	 */
+	protected static array $skipLockedSupport = [];
 
 	/**
 	 * @var string
@@ -521,6 +535,60 @@ class QueuedJobsTable extends Table {
 	}
 
 	/**
+	 * Whether job reservation can use `FOR UPDATE SKIP LOCKED`.
+	 *
+	 * Uses `Queue.skipLocked` when it is a bool, otherwise detects it from the server version.
+	 *
+	 * @return bool
+	 */
+	public function supportsSkipLocked(): bool {
+		$config = Configure::read('Queue.skipLocked');
+		if (is_bool($config)) {
+			return $config;
+		}
+
+		$connection = $this->getConnection();
+		$name = $connection->configName();
+		if (array_key_exists($name, static::$skipLockedSupport)) {
+			return static::$skipLockedSupport[$name];
+		}
+
+		$driver = $connection->getDriver();
+		$supported = false;
+		try {
+			if ($driver instanceof Mysql) {
+				$version = $driver->version();
+				$minimum = $driver->isMariadb() ? '10.6.0' : '8.0.1';
+			} elseif ($driver instanceof Postgres) {
+				$version = $driver->version();
+				$minimum = '9.5.0';
+			} else {
+				return static::$skipLockedSupport[$name] = false;
+			}
+			if (preg_match('/^(\d+\.\d+(?:\.\d+)?)/', $version, $matches)) {
+				$supported = version_compare($matches[1], $minimum, '>=');
+			}
+		} catch (Throwable) {
+			return false;
+		}
+
+		return static::$skipLockedSupport[$name] = $supported;
+	}
+
+	/**
+	 * @param string $driverName
+	 *
+	 * @return string|null
+	 */
+	protected function lockClause(string $driverName): ?string {
+		if ($driverName !== static::DRIVER_MYSQL && $driverName !== static::DRIVER_POSTGRES) {
+			return null;
+		}
+
+		return $this->supportsSkipLocked() ? 'FOR UPDATE SKIP LOCKED' : 'FOR UPDATE';
+	}
+
+	/**
 	 * Look for a new job that can be processed with the current abilities and
 	 * from the specified group (or any if null).
 	 *
@@ -677,7 +745,7 @@ class QueuedJobsTable extends Table {
 			switch ($driverName) {
 				case static::DRIVER_MYSQL:
 				case static::DRIVER_POSTGRES:
-					$query->epilog('FOR UPDATE');
+					$query->epilog($this->lockClause($driverName));
 
 					break;
 				case static::DRIVER_SQLSERVER:
@@ -764,14 +832,61 @@ class QueuedJobsTable extends Table {
 		if ($output !== null) {
 			$fields['output'] = $output;
 		}
-		$job = $this->patchEntity($job, $fields);
-		if (!$this->save($job)) {
-			return false;
+		for ($attempt = 1; $attempt <= static::COMPLETION_ATTEMPTS; $attempt++) {
+			$job = $this->patchEntity($job, $fields);
+			$job->setDirty('completed', true);
+			try {
+				if (!$this->save($job)) {
+					return false;
+				}
+
+				break;
+			} catch (Throwable $e) {
+				if ($attempt === static::COMPLETION_ATTEMPTS || !$this->isTransientLockError($e)) {
+					throw $e;
+				}
+				$this->completionRetryBackoff($attempt);
+			}
 		}
 		// Set via updateAll() by markJobAborted(), so the entity may not know about it.
-		$this->updateAll(['status' => null], ['id' => $job->id, 'status' => static::STATUS_ABORTED]);
+		try {
+			$this->updateAll(['status' => null], ['id' => $job->id, 'status' => static::STATUS_ABORTED]);
+		} catch (Throwable $e) {
+			Log::error('Job ' . $job->id . ' completed, but its aborted status could not be cleared: ' . $e->getMessage());
+		}
 
 		return true;
+	}
+
+	/**
+	 * @param int $attempt
+	 *
+	 * @return void
+	 */
+	protected function completionRetryBackoff(int $attempt): void {
+		usleep(random_int(50_000, 200_000) * $attempt);
+	}
+
+	/**
+	 * Deadlock or lock wait timeout (MySQL/MariaDB 1213 and 1205, PostgreSQL 40001 and 40P01).
+	 *
+	 * @param \Throwable $e
+	 *
+	 * @return bool
+	 */
+	protected function isTransientLockError(Throwable $e): bool {
+		for ($error = $e; $error !== null; $error = $error->getPrevious()) {
+			if (!$error instanceof PDOException) {
+				continue;
+			}
+			$state = $error->errorInfo[0] ?? (string)$error->getCode();
+			$driverCode = $error->errorInfo[1] ?? null;
+			if (in_array($state, ['40001', '40P01'], true) || (int)$driverCode === 1205) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

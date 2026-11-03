@@ -27,6 +27,7 @@ The [example configuration](https://github.com/dereuromark/cakephp-queue/blob/ma
 | `defaultJobRetries` | `1` | Retries after the first attempt |
 | `sleeptime` | `10` | Seconds to sleep when no eligible job exists |
 | `maxworkers` | `1` | Concurrent workers allowed per server; zero disables this cap |
+| `skipLocked` | `null` | Detect `FOR UPDATE SKIP LOCKED` on MySQL 8.0.1+, MariaDB 10.6+, and PostgreSQL 9.5+; `true` forces it and `false` uses plain `FOR UPDATE` |
 | `exitwhennothingtodo` | `false` | Exit after the first empty poll |
 | `gcprob` | `10` | Probability setting for cleanup between loop iterations |
 | `staleHeartbeatThreshold` | `90` | Seconds before a worker heartbeat is treated as stale |

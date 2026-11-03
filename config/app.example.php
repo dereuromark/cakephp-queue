@@ -55,6 +55,8 @@ return [
 
 		// set this to a limit that can work with your memory limits and alike, 0 => no limit
 		'maxworkers' => 3,
+		// null detects MySQL 8.0.1+, MariaDB 10.6+, or PostgreSQL 9.5+; true forces SKIP LOCKED, false disables it.
+		'skipLocked' => null,
 
 		// instruct a Workerprocess quit when there are no more tasks for it to execute (true = exit, false = keep running)
 		'exitwhennothingtodo' => false,

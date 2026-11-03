@@ -10,6 +10,7 @@ use Cake\Datasource\ConnectionManager;
 use Cake\Event\EventList;
 use Cake\Event\EventManager;
 use Cake\TestSuite\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use Psr\Log\NullLogger;
 use Queue\Console\Io;
@@ -19,6 +20,7 @@ use Queue\Queue\Processor;
 use Queue\Queue\Task\ExampleTask;
 use Queue\Queue\Task\RetryExampleTask;
 use ReflectionClass;
+use ReflectionProperty;
 use RuntimeException;
 use Shim\TestSuite\ConsoleOutput;
 use Shim\TestSuite\TestTrait;
@@ -456,6 +458,57 @@ class ProcessorTest extends TestCase {
 		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
 
 		$this->assertEventFired('Queue.Job.completed');
+	}
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function completionFailureProvider(): array {
+		return [
+			'markJobDone throws' => ['exception'],
+			'markJobDone returns false' => ['false'],
+		];
+	}
+
+	/**
+	 * A failed completion write must not kill the worker or report the job as completed.
+	 *
+	 * @param string $failure
+	 *
+	 * @return void
+	 */
+	#[DataProvider('completionFailureProvider')]
+	public function testCompletionFailureKeepsWorkerAlive(string $failure): void {
+		$eventList = new EventList();
+		EventManager::instance()->setEventList($eventList);
+		$jobs = $this->getTableLocator()->get('Queue.QueuedJobs');
+		$job = $jobs->createJob('Queue.Example', ['test' => 'data']);
+		$out = new ConsoleOutput();
+		$err = new ConsoleOutput();
+		$processor = $this->getMockBuilder(Processor::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['loadTask'])
+			->getMock();
+		$task = $this->getMockBuilder(ExampleTask::class)
+			->setConstructorArgs([new Io(new ConsoleIo($out, $err)), new NullLogger()])
+			->onlyMethods(['run'])
+			->getMock();
+		$task->expects($this->once())->method('run');
+		$processor->expects($this->once())->method('loadTask')->willReturn($task);
+		$mockJobs = $this->getMockBuilder(QueuedJobsTable::class)
+			->disableOriginalConstructor()
+			->onlyMethods(['markJobDone'])
+			->getMock();
+		if ($failure === 'exception') {
+			$mockJobs->expects($this->once())->method('markJobDone')->willThrowException(new RuntimeException('deadlock'));
+		} else {
+			$mockJobs->expects($this->once())->method('markJobDone')->willReturn(false);
+		}
+		(new ReflectionProperty(Processor::class, 'QueuedJobs'))->setValue($processor, $mockJobs);
+		$this->invokeMethod($processor, 'runJob', [$job, 'test-pid']);
+		$this->assertFalse($eventList->hasEvent('Queue.Job.completed'));
+		$this->assertStringContainsString('could not be marked done', $err->output());
+		$this->assertNull((new ReflectionProperty(Processor::class, 'currentJob'))->getValue($processor));
 	}
 
 	/**
