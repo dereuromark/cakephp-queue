@@ -27,6 +27,7 @@ The [example configuration](https://github.com/dereuromark/cakephp-queue/blob/ma
 | `defaultJobRetries` | `1` | Retries after the first attempt |
 | `sleeptime` | `10` | Seconds to sleep when no eligible job exists |
 | `maxworkers` | `1` | Concurrent workers allowed per server; zero disables this cap |
+| `skipLocked` | `null` | Detect `FOR UPDATE SKIP LOCKED` on MySQL 8.0.1+, MariaDB 10.6+, and PostgreSQL 9.5+; `true` forces it and `false` uses plain `FOR UPDATE` |
 | `exitwhennothingtodo` | `false` | Exit after the first empty poll |
 | `gcprob` | `10` | Probability setting for cleanup between loop iterations |
 | `staleHeartbeatThreshold` | `90` | Seconds before a worker heartbeat is treated as stale |
@@ -41,6 +42,8 @@ The [example configuration](https://github.com/dereuromark/cakephp-queue/blob/ma
 | `canInterruptSleep` | `false` | Allow worker wake-up signals |
 
 `--max-runtime` overrides the worker lifetime. A non-null CLI override also sets PHP's timeout to twice that value; zero removes both limits. Earlier releases may require explicit worker lifetime configuration. See [Upgrading](../reference/upgrading).
+
+With `SKIP LOCKED`, a worker takes the next eligible job instead of waiting for a row another worker is reserving, so priority order can loosen briefly under contention. Set `skipLocked` to `false` to keep strict priority order.
 
 [PHP's timeout](https://www.php.net/manual/en/function.set-time-limit.php) is not a portable wall-clock limit: on Unix, time blocked in many I/O operations is excluded. Put timeouts on external calls and size task claim timeouts above the longest expected execution time.
 

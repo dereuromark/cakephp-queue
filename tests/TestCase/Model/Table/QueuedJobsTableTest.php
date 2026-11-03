@@ -10,6 +10,11 @@ declare(strict_types=1);
 namespace Queue\Test\TestCase\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\Database\Connection;
+use Cake\Database\Driver\Mysql;
+use Cake\Database\Driver\Postgres;
+use Cake\Database\Driver\Sqlite;
+use Cake\Database\Exception\QueryException;
 use Cake\Datasource\ConnectionManager;
 use Cake\Event\EventList;
 use Cake\Event\EventManager;
@@ -17,11 +22,17 @@ use Cake\I18n\DateTime;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use InvalidArgumentException;
+use PDOException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Queue\Model\Entity\QueuedJob;
 use Queue\Model\Enum\Priority;
 use Queue\Model\Table\QueuedJobsTable;
 use Queue\Queue\Task\ExampleTask;
+use ReflectionMethod;
+use ReflectionProperty;
+use RuntimeException;
 use TestApp\Dto\MyTaskDto;
+use Throwable;
 
 /**
  * Queue\Model\Table\QueuedJobsTable Test Case
@@ -60,6 +71,156 @@ class QueuedJobsTableTest extends TestCase {
 		parent::tearDown();
 
 		Configure::delete('Queue.skipExistenceCheck');
+		Configure::delete('Queue.skipLocked');
+		(new ReflectionProperty(QueuedJobsTable::class, 'skipLockedSupport'))->setValue(null, []);
+	}
+
+	public function testSupportsSkipLocked(): void {
+		Configure::write('Queue.skipLocked', true);
+		$this->assertTrue($this->QueuedJobs->supportsSkipLocked());
+		Configure::write('Queue.skipLocked', false);
+		$this->assertFalse($this->QueuedJobs->supportsSkipLocked());
+		Configure::delete('Queue.skipLocked');
+		if ($this->QueuedJobs->getConnection()->getDriver() instanceof Sqlite) {
+			$this->assertFalse($this->QueuedJobs->supportsSkipLocked());
+		}
+	}
+
+	public function testLockClause(): void {
+		foreach ([true => 'FOR UPDATE SKIP LOCKED', false => 'FOR UPDATE'] as $enabled => $expected) {
+			Configure::write('Queue.skipLocked', (bool)$enabled);
+			foreach (['Mysql', 'Postgres'] as $driver) {
+				$this->assertSame($expected, (new ReflectionMethod(QueuedJobsTable::class, 'lockClause'))->invoke($this->QueuedJobs, $driver));
+			}
+		}
+		$this->assertNull((new ReflectionMethod(QueuedJobsTable::class, 'lockClause'))->invoke($this->QueuedJobs, 'Sqlite'));
+		$this->assertNull((new ReflectionMethod(QueuedJobsTable::class, 'lockClause'))->invoke($this->QueuedJobs, 'Sqlserver'));
+	}
+
+	/**
+	 * @return array<string, array{0: \Throwable, 1: bool}>
+	 */
+	public static function transientLockErrorProvider(): array {
+		$pdo = function (string $state, int $code): PDOException {
+			$error = new PDOException('database error');
+			$error->errorInfo = [$state, $code, 'database error'];
+
+			return $error;
+		};
+
+		return [
+			'mysql deadlock' => [$pdo('40001', 1213), true],
+			'postgres deadlock' => [$pdo('40P01', 0), true],
+			'mysql lock wait timeout' => [$pdo('HY000', 1205), true],
+			'wrapped deadlock' => [new QueryException('SELECT 1', $pdo('40001', 1213)), true],
+			'integrity violation' => [$pdo('23000', 1062), false],
+			'not a database error' => [new RuntimeException('error'), false],
+		];
+	}
+
+	/**
+	 * @param \Throwable $error
+	 * @param bool $expected
+	 *
+	 * @return void
+	 */
+	#[DataProvider('transientLockErrorProvider')]
+	public function testIsTransientLockError(Throwable $error, bool $expected): void {
+		$result = (new ReflectionMethod(QueuedJobsTable::class, 'isTransientLockError'))->invoke($this->QueuedJobs, $error);
+
+		$this->assertSame($expected, $result);
+	}
+
+	public function testMarkJobDoneRetriesTransientError(): void {
+		$job = $this->QueuedJobs->createJob('Foo', []);
+		$error = new PDOException('deadlock');
+		$error->errorInfo = ['40001', 1213, 'deadlock'];
+		$queuedJobs = $this->getMockBuilder(QueuedJobsTable::class)
+			->setConstructorArgs([['connection' => $this->QueuedJobs->getConnection(), 'table' => $this->QueuedJobs->getTable()]])
+			->onlyMethods(['save', 'completionRetryBackoff'])
+			->getMock();
+		$queuedJobs->expects($this->exactly(2))->method('save')->willReturnCallback(function ($entity) use ($error) {
+			static $attempt = 0;
+			if (++$attempt === 1) {
+				throw $error;
+			}
+
+			return $this->QueuedJobs->save($entity);
+		});
+		$queuedJobs->expects($this->once())->method('completionRetryBackoff');
+		$this->assertTrue($queuedJobs->markJobDone($job));
+		$this->assertNotNull($this->QueuedJobs->get($job->id)->completed);
+	}
+
+	/**
+	 * @return array<string, array{0: class-string, 1: string, 2: bool, 3: bool}>
+	 */
+	public static function skipLockedDetectionProvider(): array {
+		return [
+			'mysql 8.0.0' => [Mysql::class, '8.0.0', false, false],
+			'mysql 8.0.1' => [Mysql::class, '8.0.1', false, true],
+			'mysql 5.7' => [Mysql::class, '5.7.44-log', false, false],
+			'mariadb 10.5' => [Mysql::class, '10.5.25-MariaDB', true, false],
+			'mariadb 10.6' => [Mysql::class, '10.6.12-MariaDB-1:10.6.12+maria~ubu2204', true, true],
+			'mariadb 11.4' => [Mysql::class, '11.4.2-MariaDB', true, true],
+			'postgres 9.4' => [Postgres::class, '9.4.26', false, false],
+			'postgres 16' => [Postgres::class, '16.4 (Debian 16.4-1.pgdg120+2)', false, true],
+			'unparsable' => [Mysql::class, 'unknown', false, false],
+		];
+	}
+
+	/**
+	 * @param class-string $driverClass
+	 * @param string $version
+	 * @param bool $mariadb
+	 * @param bool $expected
+	 *
+	 * @return void
+	 */
+	#[DataProvider('skipLockedDetectionProvider')]
+	public function testSupportsSkipLockedDetection(string $driverClass, string $version, bool $mariadb, bool $expected): void {
+		$driver = $this->createStub($driverClass);
+		$driver->method('version')->willReturn($version);
+		if ($driver instanceof Mysql) {
+			$driver->method('isMariadb')->willReturn($mariadb);
+		}
+		$connection = $this->createStub(Connection::class);
+		$connection->method('getDriver')->willReturn($driver);
+		$connection->method('configName')->willReturn('skip_locked_' . md5($driverClass . $version));
+		$queuedJobs = $this->getMockBuilder(QueuedJobsTable::class)
+			->disableOriginalConstructor()
+			->onlyMethods(['getConnection'])
+			->getMock();
+		$queuedJobs->expects($this->once())->method('getConnection')->willReturn($connection);
+
+		$this->assertSame($expected, $queuedJobs->supportsSkipLocked());
+	}
+
+	public function testMarkJobDoneRethrowsAfterLastAttempt(): void {
+		$job = $this->QueuedJobs->createJob('Foo', []);
+		$error = new PDOException('deadlock');
+		$error->errorInfo = ['40001', 1213, 'deadlock'];
+		$queuedJobs = $this->getMockBuilder(QueuedJobsTable::class)
+			->setConstructorArgs([['connection' => $this->QueuedJobs->getConnection(), 'table' => $this->QueuedJobs->getTable()]])
+			->onlyMethods(['save', 'completionRetryBackoff'])
+			->getMock();
+		$queuedJobs->expects($this->exactly(3))->method('save')->willThrowException($error);
+		$queuedJobs->expects($this->exactly(2))->method('completionRetryBackoff');
+
+		$this->expectExceptionObject($error);
+		$queuedJobs->markJobDone($job);
+	}
+
+	public function testMarkJobDoneRethrowsNonTransientError(): void {
+		$job = $this->QueuedJobs->createJob('Foo', []);
+		$error = new RuntimeException('save failed');
+		$queuedJobs = $this->getMockBuilder(QueuedJobsTable::class)
+			->setConstructorArgs([['connection' => $this->QueuedJobs->getConnection(), 'table' => $this->QueuedJobs->getTable()]])
+			->onlyMethods(['save'])
+			->getMock();
+		$queuedJobs->expects($this->once())->method('save')->willThrowException($error);
+		$this->expectExceptionObject($error);
+		$queuedJobs->markJobDone($job);
 	}
 
 	/**
@@ -1016,7 +1177,7 @@ class QueuedJobsTableTest extends TestCase {
 		$this->QueuedJobs->cleanOldJobs();
 		$this->assertTrue($this->QueuedJobs->exists(['id' => $old->id]), 'Aborted jobs are kept by default');
 
-		Configure::write('Queue.cleanupAbortedTimeout', 7 * DAY);
+		Configure::write('Queue.cleanupAbortedTimeout', 7 * QueuedJobsTable::DAY);
 		$this->QueuedJobs->cleanOldJobs();
 		Configure::delete('Queue.cleanupAbortedTimeout');
 

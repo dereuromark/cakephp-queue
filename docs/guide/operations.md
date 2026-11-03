@@ -10,6 +10,8 @@ Start with a small `maxworkers` limit and measure queue latency, database load, 
 
 A task's `unique` flag restricts its concurrent execution. `rate` delays repeats within a worker, and `costs` participates in the per-server budget. See [Configuration](./configuration) for their scope.
 
+Completion writes are retried after transient database lock conflicts. If completion still cannot be saved, the worker logs the error and continues; the job may run again after its timeout. Make tasks idempotent.
+
 ## Lifetimes and supervision
 
 `workerLifetime` bounds how long a worker continues its loop. It is checked between jobs, so a task can finish after that lifetime has elapsed. `workerLifetimeJitter` spreads restarts across a fleet. `exitwhennothingtodo` is useful for cron workers that should exit after an empty poll.

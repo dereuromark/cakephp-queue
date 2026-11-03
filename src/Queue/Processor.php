@@ -350,7 +350,25 @@ class Processor {
 			return;
 		}
 
-		$this->QueuedJobs->markJobDone($queuedJob, $capturedOutput);
+		$completionError = null;
+		try {
+			$completed = $this->QueuedJobs->markJobDone($queuedJob, $capturedOutput);
+		} catch (Throwable $e) {
+			$completed = false;
+			$completionError = $e;
+		}
+		if (!$completed) {
+			$message = $taskName . ' (job ' . $queuedJob->id . ') ran but could not be marked done';
+			if ($completionError !== null) {
+				$message .= ': ' . $completionError->getMessage();
+			}
+			$message .= '; it may run again after its timeout.';
+			$this->logError($message, $pid);
+			$this->io->error($message);
+			$this->currentJob = null;
+
+			return;
+		}
 
 		// Dispatch completed event
 		$event = new Event('Queue.Job.completed', $this, [
