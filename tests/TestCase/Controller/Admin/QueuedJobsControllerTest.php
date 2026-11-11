@@ -5,11 +5,17 @@ namespace Queue\Test\TestCase\Controller\Admin;
 
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
+use Cake\Event\EventInterface;
+use Cake\Event\EventManager;
 use Cake\Http\Exception\NotFoundException;
+use Cake\Http\MiddlewareQueue;
 use Cake\I18n\DateTime;
 use Cake\TestSuite\IntegrationTestTrait;
 use Laminas\Diactoros\UploadedFile;
 use PHPUnit\Framework\Attributes\UsesClass;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Queue\Controller\Admin\QueuedJobsController;
 use Shim\TestSuite\TestCase;
 
@@ -165,6 +171,56 @@ JSON,
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'stats']);
 
 		$this->assertResponseCode(200);
+	}
+
+	/**
+	 * CakePHP's CspMiddleware stores the nonce as `cspScriptNonce`.
+	 *
+	 * @return void
+	 */
+	public function testStatsUsesCspScriptNonce(): void {
+		Configure::write('Queue.isStatisticEnabled', true);
+		$this->withRequestAttribute('cspScriptNonce', 'core-nonce');
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'stats']);
+
+		$this->assertResponseCode(200);
+		$this->assertResponseContains('<script nonce="core-nonce" src="https://cdn.jsdelivr.net/npm/chart.js');
+		$this->assertResponseContains('<script nonce="core-nonce" src="https://cdn.jsdelivr.net/npm/bootstrap');
+		$this->assertResponseNotRegExp('/<script(?![^>]*nonce=)/');
+	}
+
+	/**
+	 * A custom middleware may still provide the nonce as `cspNonce`.
+	 *
+	 * @return void
+	 */
+	public function testStatsFallsBackToCspNonce(): void {
+		Configure::write('Queue.isStatisticEnabled', true);
+		$this->withRequestAttribute('cspNonce', 'custom-nonce');
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'stats']);
+
+		$this->assertResponseCode(200);
+		$this->assertResponseContains('<script nonce="custom-nonce">');
+		$this->assertResponseNotRegExp('/<script(?![^>]*nonce=)/');
+	}
+
+	/**
+	 * Inline styles and CDN stylesheets need the style nonce under a nonce-only `style-src`.
+	 *
+	 * @return void
+	 */
+	public function testHeatmapUsesCspStyleNonce(): void {
+		Configure::write('Queue.isStatisticEnabled', true);
+		$this->withRequestAttribute('cspStyleNonce', 'style-nonce');
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'heatmap']);
+
+		$this->assertResponseCode(200);
+		$this->assertResponseContains('<style nonce="style-nonce">');
+		$this->assertResponseNotRegExp('/<style(?![^>]*nonce=)/');
+		$this->assertResponseNotRegExp('/<link(?![^>]*nonce=)[^>]*stylesheet/');
 	}
 
 	/**
@@ -485,6 +541,22 @@ JSON,
 		$queuedJobs->saveOrFail($queuedJob);
 
 		return $queuedJob;
+	}
+
+	/**
+	 * Adds a middleware that sets a request attribute, like a CSP middleware would.
+	 *
+	 * @param string $name
+	 * @param string $value
+	 *
+	 * @return void
+	 */
+	protected function withRequestAttribute(string $name, string $value): void {
+		EventManager::instance()->on('Server.buildMiddleware', function (EventInterface $event, MiddlewareQueue $queue) use ($name, $value): void {
+			$queue->prepend(function (ServerRequestInterface $request, RequestHandlerInterface $handler) use ($name, $value): ResponseInterface {
+				return $handler->handle($request->withAttribute($name, $value));
+			});
+		});
 	}
 
 }
