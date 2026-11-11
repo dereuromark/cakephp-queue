@@ -174,20 +174,36 @@ JSON,
 	}
 
 	/**
-	 * CakePHP's CspMiddleware stores the nonce as `cspScriptNonce`.
+	 * CakePHP's CspMiddleware stores the nonces as `cspScriptNonce` and `cspStyleNonce`.
 	 *
 	 * @return void
 	 */
 	public function testStatsUsesCspScriptNonce(): void {
 		Configure::write('Queue.isStatisticEnabled', true);
 		$this->withRequestAttribute('cspScriptNonce', 'core-nonce');
+		$this->withRequestAttribute('cspStyleNonce', 'style-nonce');
 
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'stats']);
 
 		$this->assertResponseCode(200);
 		$this->assertResponseContains('<script nonce="core-nonce" src="https://cdn.jsdelivr.net/npm/chart.js');
 		$this->assertResponseContains('<script nonce="core-nonce" src="https://cdn.jsdelivr.net/npm/bootstrap');
-		$this->assertResponseNotRegExp('/<script(?![^>]*nonce=)/');
+		$this->assertAllTagsHaveNonce('core-nonce', 'style-nonce');
+	}
+
+	/**
+	 * @return void
+	 */
+	public function testStatsPrefersCspScriptNonceOverCspNonce(): void {
+		Configure::write('Queue.isStatisticEnabled', true);
+		$this->withRequestAttribute('cspScriptNonce', 'core-nonce');
+		$this->withRequestAttribute('cspNonce', 'custom-nonce');
+
+		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'stats']);
+
+		$this->assertResponseCode(200);
+		$this->assertResponseNotContains('custom-nonce');
+		$this->assertTagsHaveNonce('script', 'core-nonce');
 	}
 
 	/**
@@ -203,7 +219,7 @@ JSON,
 
 		$this->assertResponseCode(200);
 		$this->assertResponseContains('<script nonce="custom-nonce">');
-		$this->assertResponseNotRegExp('/<script(?![^>]*nonce=)/');
+		$this->assertTagsHaveNonce('script', 'custom-nonce');
 	}
 
 	/**
@@ -213,14 +229,14 @@ JSON,
 	 */
 	public function testHeatmapUsesCspStyleNonce(): void {
 		Configure::write('Queue.isStatisticEnabled', true);
+		$this->withRequestAttribute('cspScriptNonce', 'core-nonce');
 		$this->withRequestAttribute('cspStyleNonce', 'style-nonce');
 
 		$this->get(['prefix' => 'Admin', 'plugin' => 'Queue', 'controller' => 'QueuedJobs', 'action' => 'heatmap']);
 
 		$this->assertResponseCode(200);
-		$this->assertResponseContains('<style nonce="style-nonce">');
-		$this->assertResponseNotRegExp('/<style(?![^>]*nonce=)/');
-		$this->assertResponseNotRegExp('/<link(?![^>]*nonce=)[^>]*stylesheet/');
+		$this->assertMatchesRegularExpression('/<style nonce="style-nonce">\s*\.heatmap-container\s*\{/', (string)$this->_response->getBody());
+		$this->assertAllTagsHaveNonce('core-nonce', 'style-nonce');
 	}
 
 	/**
@@ -541,6 +557,35 @@ JSON,
 		$queuedJobs->saveOrFail($queuedJob);
 
 		return $queuedJob;
+	}
+
+	/**
+	 * @param string $scriptNonce
+	 * @param string $styleNonce
+     *
+	 * @return void
+	 */
+	protected function assertAllTagsHaveNonce(string $scriptNonce, string $styleNonce): void {
+		$this->assertTagsHaveNonce('script', $scriptNonce);
+		$this->assertTagsHaveNonce('style', $styleNonce);
+		$this->assertTagsHaveNonce('link', $styleNonce, '/\brel="stylesheet"/');
+	}
+
+	/**
+	 * @param string $tag
+	 * @param string $nonce
+	 * @param string|null $filter Only check tags matching this pattern.
+     *
+	 * @return void
+	 */
+	protected function assertTagsHaveNonce(string $tag, string $nonce, ?string $filter = null): void {
+		preg_match_all('/<' . $tag . '\b[^>]*>/i', (string)$this->_response->getBody(), $matches);
+		$tags = $filter ? preg_grep($filter, $matches[0]) : $matches[0];
+
+		$this->assertNotEmpty($tags, 'No <' . $tag . '> tags found.');
+		foreach ($tags as $html) {
+			$this->assertMatchesRegularExpression('/\snonce="' . preg_quote($nonce, '/') . '"/', $html, 'Wrong or missing nonce: ' . $html);
+		}
 	}
 
 	/**
