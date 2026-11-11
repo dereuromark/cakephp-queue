@@ -214,7 +214,8 @@ foreach ($grid as $hours) {
 	</div>
 </div>
 
-<style>
+<?php $cspStyleNonce = (string)$this->getRequest()->getAttribute('cspStyleNonce', ''); ?>
+<style<?= $cspStyleNonce !== '' ? ' nonce="' . h($cspStyleNonce) . '"' : '' ?>>
 .heatmap-container {
 	overflow-x: auto;
 }
