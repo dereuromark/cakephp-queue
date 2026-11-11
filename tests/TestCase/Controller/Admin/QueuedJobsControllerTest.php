@@ -568,7 +568,7 @@ JSON,
 	protected function assertAllTagsHaveNonce(string $scriptNonce, string $styleNonce): void {
 		$this->assertTagsHaveNonce('script', $scriptNonce);
 		$this->assertTagsHaveNonce('style', $styleNonce);
-		$this->assertTagsHaveNonce('link', $styleNonce, '/\brel="stylesheet"/');
+		$this->assertTagsHaveNonce('link', $styleNonce, '/\brel=["\'][^"\']*\bstylesheet\b/i');
 	}
 
 	/**
